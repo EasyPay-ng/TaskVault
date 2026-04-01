@@ -9,14 +9,16 @@
     <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" type="image/jpeg">
 
     <style>
-        /* --- CSS STYLES --- */
+        /* --- CSS STYLES (WHITE & ORANGE THEME) --- */
         :root {
-            --primary: #00ff88; /* Neon Green for money/earning */
-            --secondary: #7000ff; /* Purple */
-            --bg-dark: #121212;
-            --bg-card: #1e1e1e;
-            --text-main: #ffffff;
-            --text-muted: #aaaaaa;
+            --primary: #FF6600; /* Vibrant Orange */
+            --primary-hover: #e65c00; /* Darker Orange for hover */
+            --bg-light: #f9f9f9; /* Light gray background for contrast */
+            --bg-white: #ffffff; /* Pure white */
+            --text-main: #222222; /* Dark text for readability */
+            --text-muted: #666666; /* Gray text */
+            --border-color: #e0e0e0; /* Light border */
+            --shadow: 0 4px 6px rgba(0,0,0,0.05); /* Soft shadow */
         }
 
         * {
@@ -27,7 +29,7 @@
         }
 
         body {
-            background-color: var(--bg-dark);
+            background-color: var(--bg-light);
             color: var(--text-main);
             display: flex;
             flex-direction: column;
@@ -36,15 +38,16 @@
 
         /* Navigation */
         nav {
-            background-color: rgba(30, 30, 30, 0.95);
+            background-color: var(--bg-white);
             padding: 1rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid #333;
+            border-bottom: 1px solid var(--border-color);
             position: sticky;
             top: 0;
             z-index: 100;
+            box-shadow: var(--shadow);
         }
 
         .nav-logo {
@@ -52,7 +55,7 @@
             align-items: center;
             gap: 10px;
             font-size: 1.5rem;
-            font-weight: bold;
+            font-weight: 800;
             color: var(--primary);
             text-decoration: none;
         }
@@ -61,10 +64,11 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
+            border: 2px solid var(--primary);
         }
 
         .wallet-info {
-            background: #2a2a2a;
+            background: #fff0e6; /* Very light orange background */
             padding: 0.5rem 1rem;
             border-radius: 20px;
             border: 1px solid var(--primary);
@@ -76,68 +80,96 @@
         .wallet-amount {
             font-weight: bold;
             color: var(--primary);
+            font-size: 1.1rem;
         }
 
         /* Hero Section */
         .hero {
             text-align: center;
-            padding: 4rem 1rem;
-            background: radial-gradient(circle at center, #2a2a2a 0%, #121212 70%);
+            padding: 5rem 1rem;
+            background: linear-gradient(180deg, var(--bg-white) 0%, #fff5eb 100%); /* Fades to light orange */
         }
 
         .hero h1 {
-            font-size: 3rem;
+            font-size: 3.5rem;
             margin-bottom: 1rem;
-            background: -webkit-linear-gradient(var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: var(--text-main);
+            letter-spacing: -1px;
+        }
+
+        .hero h1 span {
+            color: var(--primary);
         }
 
         .hero p {
             color: var(--text-muted);
             font-size: 1.2rem;
-            margin-bottom: 2rem;
+            margin-bottom: 2.5rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: transform 0.2s, background 0.2s;
+            box-shadow: 0 4px 15px rgba(255, 102, 0, 0.3);
+        }
+
+        .hero-btn:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
         }
 
         /* Games Grid */
         .games-container {
-            padding: 2rem;
+            padding: 3rem 2rem;
             max-width: 1200px;
             margin: 0 auto;
             width: 100%;
         }
 
         .section-title {
-            margin-bottom: 2rem;
-            font-size: 1.8rem;
+            margin-bottom: 2.5rem;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-main);
             border-left: 5px solid var(--primary);
             padding-left: 15px;
         }
 
         .games-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 2rem;
         }
 
         .game-card {
-            background-color: var(--bg-card);
-            border-radius: 15px;
+            background-color: var(--bg-white);
+            border-radius: 16px;
             overflow: hidden;
-            transition: transform 0.2s, box-shadow 0.2s;
-            border: 1px solid #333;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
         }
 
         .game-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 255, 136, 0.1);
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
             border-color: var(--primary);
         }
 
         .game-image {
             width: 100%;
-            height: 160px;
-            background-color: #333;
+            height: 180px;
+            background-color: #eee;
             object-fit: cover;
         }
 
@@ -146,31 +178,37 @@
         }
 
         .game-title {
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             margin-bottom: 0.5rem;
+            color: var(--text-main);
+            font-weight: 700;
         }
 
         .game-reward {
             color: var(--primary);
-            font-weight: bold;
+            font-weight: 800;
             margin-bottom: 1rem;
             display: block;
+            font-size: 1rem;
         }
 
         .play-btn {
-            background-color: var(--primary);
-            color: #000;
-            border: none;
-            padding: 0.8rem 1.5rem;
+            background-color: white;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            padding: 0.7rem 1.5rem;
             border-radius: 8px;
             cursor: pointer;
-            font-weight: bold;
+            font-weight: 700;
             width: 100%;
-            transition: background 0.2s;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .play-btn:hover {
-            background-color: #00cc6a;
+            background-color: var(--primary);
+            color: white;
         }
 
         /* Footer */
@@ -178,9 +216,9 @@
             margin-top: auto;
             padding: 2rem;
             text-align: center;
-            background-color: #0a0a0a;
+            background-color: var(--bg-white);
             color: var(--text-muted);
-            border-top: 1px solid #333;
+            border-top: 1px solid var(--border-color);
         }
     </style>
 </head>
@@ -195,16 +233,16 @@
         </a>
         
         <div class="wallet-info">
-            <span>Current Balance:</span>
+            <span>Balance:</span>
             <span class="wallet-amount">$0.00</span>
         </div>
     </nav>
 
     <!-- Hero Section -->
     <section class="hero">
-        <h1>Play Games. Get Paid.</h1>
-        <p>Join the ultimate gaming platform where your skills earn you real rewards.</p>
-        <button class="play-btn" style="width: auto; padding: 1rem 2rem; font-size: 1.1rem;" onclick="scrollToGames()">Start Earning</button>
+        <h1>Play Games. <span>Get Paid.</span></h1>
+        <p>Join the ultimate gaming platform where your skills earn you real rewards. Start playing today and boost your wallet.</p>
+        <button class="hero-btn" onclick="scrollToGames()">Start Earning</button>
     </section>
 
     <!-- Games Section -->
@@ -214,12 +252,11 @@
             
             <!-- Game Card 1 -->
             <div class="game-card">
-                <!-- Using a placeholder image for the game visual -->
                 <img src="https://source.unsplash.com/random/400x300/?gaming,arcade" alt="Space Runner" class="game-image">
                 <div class="game-info">
                     <h3 class="game-title">Neon Runner</h3>
-                    <span class="game-reward">Reward: $0.30 / Win</span>
-                    <p style="color:#aaa; font-size:0.9rem; margin-bottom:1rem;">Dodge obstacles and reach the finish line.</p>
+                    <span class="game-reward">Reward: $0.50 / Win</span>
+                    <p style="color:var(--text-muted); font-size:0.95rem; margin-bottom:1.2rem; line-height: 1.5;">Dodge obstacles and reach the finish line in this fast-paced arcade game.</p>
                     <button class="play-btn" onclick="launchGame('Neon Runner')">Play Now</button>
                 </div>
             </div>
@@ -229,8 +266,8 @@
                 <img src="https://source.unsplash.com/random/400x300/?puzzle,mind" alt="Brain Teaser" class="game-image">
                 <div class="game-info">
                     <h3 class="game-title">Cyber Puzzle</h3>
-                    <span class="game-reward">Reward: $0.15 / Level</span>
-                    <p style="color:#aaa; font-size:0.9rem; margin-bottom:1rem;">Solve complex coding puzzles quickly.</p>
+                    <span class="game-reward">Reward: $0.25 / Level</span>
+                    <p style="color:var(--text-muted); font-size:0.95rem; margin-bottom:1.2rem; line-height: 1.5;">Solve complex coding puzzles quickly to earn your bonus.</p>
                     <button class="play-btn" onclick="launchGame('Cyber Puzzle')">Play Now</button>
                 </div>
             </div>
@@ -240,8 +277,8 @@
                 <img src="https://source.unsplash.com/random/400x300/?action,shooter" alt="Target Practice" class="game-image">
                 <div class="game-info">
                     <h3 class="game-title">Pixel Shooter</h3>
-                    <span class="game-reward">Reward: $0.50 / High Score</span>
-                    <p style="color:#aaa; font-size:0.9rem; margin-bottom:1rem;">Hit targets with 100% accuracy.</p>
+                    <span class="game-reward">Reward: $1.00 / High Score</span>
+                    <p style="color:var(--text-muted); font-size:0.95rem; margin-bottom:1.2rem; line-height: 1.5;">Hit targets with 100% accuracy to unlock the jackpot.</p>
                     <button class="play-btn" onclick="launchGame('Pixel Shooter')">Play Now</button>
                 </div>
             </div>
@@ -273,8 +310,6 @@
 
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
-        
-        // Initialize Analytics (Note: Analytics might not work on local file:// protocol, requires localhost or https)
         const analytics = getAnalytics(app);
 
         console.log("Firebase Initialized Successfully");
