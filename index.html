@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskVault - Play & Earn</title>
+    
+    <!-- Favicon using your provided link -->
+    <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" type="image/jpeg">
+
+    <style>
+        /* --- CSS STYLES --- */
+        :root {
+            --primary: #00ff88; /* Neon Green for money/earning */
+            --secondary: #7000ff; /* Purple */
+            --bg-dark: #121212;
+            --bg-card: #1e1e1e;
+            --text-main: #ffffff;
+            --text-muted: #aaaaaa;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Navigation */
+        nav {
+            background-color: rgba(30, 30, 30, 0.95);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #333;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .nav-logo img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+
+        .wallet-info {
+            background: #2a2a2a;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            border: 1px solid var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .wallet-amount {
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 4rem 1rem;
+            background: radial-gradient(circle at center, #2a2a2a 0%, #121212 70%);
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: -webkit-linear-gradient(var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Games Grid */
+        .games-container {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .section-title {
+            margin-bottom: 2rem;
+            font-size: 1.8rem;
+            border-left: 5px solid var(--primary);
+            padding-left: 15px;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .game-card {
+            background-color: var(--bg-card);
+            border-radius: 15px;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid #333;
+        }
+
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 255, 136, 0.1);
+            border-color: var(--primary);
+        }
+
+        .game-image {
+            width: 100%;
+            height: 160px;
+            background-color: #333;
+            object-fit: cover;
+        }
+
+        .game-info {
+            padding: 1.5rem;
+        }
+
+        .game-title {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .game-reward {
+            color: var(--primary);
+            font-weight: bold;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .play-btn {
+            background-color: var(--primary);
+            color: #000;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+            transition: background 0.2s;
+        }
+
+        .play-btn:hover {
+            background-color: #00cc6a;
+        }
+
+        /* Footer */
+        footer {
+            margin-top: auto;
+            padding: 2rem;
+            text-align: center;
+            background-color: #0a0a0a;
+            color: var(--text-muted);
+            border-top: 1px solid #333;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav>
+        <a href="#" class="nav-logo">
+            <!-- Logo Image -->
+            <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" alt="TaskVault Logo">
+            TaskVault
+        </a>
+        
+        <div class="wallet-info">
+            <span>Current Balance:</span>
+            <span class="wallet-amount">$0.00</span>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <h1>Play Games. Get Paid.</h1>
+        <p>Join the ultimate gaming platform where your skills earn you real rewards.</p>
+        <button class="play-btn" style="width: auto; padding: 1rem 2rem; font-size: 1.1rem;" onclick="scrollToGames()">Start Earning</button>
+    </section>
+
+    <!-- Games Section -->
+    <div class="games-container" id="games-section">
+        <h2 class="section-title">Available Challenges</h2>
+        <div class="games-grid">
+            
+            <!-- Game Card 1 -->
+            <div class="game-card">
+                <!-- Using a placeholder image for the game visual -->
+                <img src="https://source.unsplash.com/random/400x300/?gaming,arcade" alt="Space Runner" class="game-image">
+                <div class="game-info">
+                    <h3 class="game-title">Neon Runner</h3>
+                    <span class="game-reward">Reward: $0.50 / Win</span>
+                    <p style="color:#aaa; font-size:0.9rem; margin-bottom:1rem;">Dodge obstacles and reach the finish line.</p>
+                    <button class="play-btn" onclick="launchGame('Neon Runner')">Play Now</button>
+                </div>
+            </div>
+
+            <!-- Game Card 2 -->
+            <div class="game-card">
+                <img src="https://source.unsplash.com/random/400x300/?puzzle,mind" alt="Brain Teaser" class="game-image">
+                <div class="game-info">
+                    <h3 class="game-title">Cyber Puzzle</h3>
+                    <span class="game-reward">Reward: $0.25 / Level</span>
+                    <p style="color:#aaa; font-size:0.9rem; margin-bottom:1rem;">Solve complex coding puzzles quickly.</p>
+                    <button class="play-btn" onclick="launchGame('Cyber Puzzle')">Play Now</button>
+                </div>
+            </div>
+
+            <!-- Game Card 3 -->
+            <div class="game-card">
+                <img src="https://source.unsplash.com/random/400x300/?action,shooter" alt="Target Practice" class="game-image">
+                <div class="game-info">
+                    <h3 class="game-title">Pixel Shooter</h3>
+                    <span class="game-reward">Reward: $1.00 / High Score</span>
+                    <p style="color:#aaa; font-size:0.9rem; margin-bottom:1rem;">Hit targets with 100% accuracy.</p>
+                    <button class="play-btn" onclick="launchGame('Pixel Shooter')">Play Now</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2024 TaskVault Gaming. All rights reserved.</p>
+    </footer>
+
+    <!-- --- JAVASCRIPT & FIREBASE --- -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-analytics.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAv6QCpopa0Q77AVTyjU5cqJEIKIE9OVTs",
+            authDomain: "taskvault-412a0.firebaseapp.com",
+            projectId: "taskvault-412a0",
+            storageBucket: "taskvault-412a0.firebasestorage.app",
+            messagingSenderId: "420716701831",
+            appId: "1:420716701831:web:c987d91f7f4c8684eb7022",
+            measurementId: "G-93JG3LB08B"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        
+        // Initialize Analytics (Note: Analytics might not work on local file:// protocol, requires localhost or https)
+        const analytics = getAnalytics(app);
+
+        console.log("Firebase Initialized Successfully");
+        
+        // --- APP LOGIC ---
+
+        // Expose functions to window so HTML buttons can access them
+        window.launchGame = (gameName) => {
+            alert(`Launching ${gameName}...\n\n(Earnings will be credited to your Firebase account after the session.)`);
+            
+            // Here you would typically log an analytics event
+            // logEvent(analytics, 'game_started', { game_name: gameName });
+        };
+
+        window.scrollToGames = () => {
+            document.getElementById('games-section').scrollIntoView({ behavior: 'smooth' });
+        };
+    </script>
+</body>
+</html>
