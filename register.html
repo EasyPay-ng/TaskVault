@@ -11,13 +11,14 @@
     <!-- Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
     <style>
-        /* --- VARIABLES & RESET --- */
+        /* --- SILK THEME VARIABLES --- */
         :root {
-           --primary: #d35400;       /* Deep Burnt Orange */
+            /* Silk Orange Palette */
+            --primary: #d35400;       /* Deep Burnt Orange */
             --primary-light: #e67e22; /* Soft Orange */
             --primary-glow: rgba(211, 84, 0, 0.15);
             
@@ -26,22 +27,17 @@
             --bg-card: #ffffff;       /* Pure Silk White */
             --bg-input: #f0ece6;      /* Slightly darker silk for inputs */
             
-            --text-main: #ffffff;
-            --text-muted: #a1a1aa;
-            --text-placeholder: #52525b;
+            /* Text & Accents */
+            --text-main: #2c2c2c;
+            --text-muted: #7f8c8d;
+            --border-color: #e0dcd5;
             
-            --border-color: rgba(255, 255, 255, 0.1);
-            --border-focus: #FF6600;
+            --radius: 16px;
+            --shadow-soft: 0 10px 40px -10px rgba(0,0,0,0.08);
+            --shadow-input: inset 0 2px 4px rgba(0,0,0,0.02);
             
-            --error: #ef4444;
-            --success: #22c55e;
-            
-            --radius-sm: 8px;
-            --radius-md: 12px;
-            --radius-lg: 16px;
-            
-            --font-main: 'Inter', sans-serif;
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --font-main: 'Outfit', sans-serif;
+            --transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
         * {
@@ -52,35 +48,42 @@
 
         body {
             font-family: var(--font-main);
-            background-color: var(--bg-dark);
+            background-color: var(--bg-body);
             color: var(--text-main);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            /* Subtle silk texture effect using gradients */
             background-image: 
-                radial-gradient(circle at 10% 20%, rgba(255, 102, 0, 0.15) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(255, 102, 0, 0.1) 0%, transparent 40%);
+                radial-gradient(circle at 20% 20%, rgba(211, 84, 0, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(211, 84, 0, 0.03) 0%, transparent 50%);
         }
 
-        /* --- NAVIGATION --- */
+        /* Noise Overlay for Silk Texture */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* Navigation */
         nav {
             padding: 1.5rem 2rem;
             display: flex;
-            align-items: center;
             justify-content: center;
-            background: rgba(15, 15, 17, 0.8);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--border-color);
-            position: sticky;
-            top: 0;
-            z-index: 100;
+            background: transparent;
+            position: relative;
+            z-index: 10;
         }
 
         .nav-logo {
             display: flex;
             align-items: center;
             gap: 12px;
-            font-size: 1.5rem;
+            font-size: 1.6rem;
             font-weight: 700;
             color: var(--text-main);
             text-decoration: none;
@@ -88,38 +91,50 @@
         }
 
         .nav-logo img {
-            width: 36px;
-            height: 36px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             border: 2px solid var(--primary);
+            box-shadow: 0 4px 12px var(--primary-glow);
         }
 
         .nav-logo span { color: var(--primary); }
 
-        /* --- MAIN CONTAINER --- */
+        /* Main Container */
         main {
             flex: 1;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 2rem 1.5rem;
+            padding: 2rem;
+            perspective: 1000px;
         }
 
         .card {
             width: 100%;
-            max-width: 500px;
+            max-width: 480px;
             background: var(--bg-card);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-lg);
+            border-radius: var(--radius);
             padding: 2.5rem;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            animation: slideUp 0.6s ease-out;
+            box-shadow: var(--shadow-soft);
+            border: 1px solid rgba(255,255,255,0.6);
+            position: relative;
+            overflow: hidden;
+            animation: floatUp 0.8s ease-out;
         }
 
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
+        /* Decorative Silk Ribbon */
+        .card::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-light), var(--primary));
+        }
+
+        @keyframes floatUp {
+            from { opacity: 0; transform: translateY(20px) rotateX(5deg); }
+            to { opacity: 1; transform: translateY(0) rotateX(0); }
         }
 
         .card-header {
@@ -128,9 +143,10 @@
         }
 
         .card-header h1 {
-            font-size: 1.75rem;
-            font-weight: 700;
+            font-size: 1.8rem;
+            font-weight: 600;
             margin-bottom: 0.5rem;
+            letter-spacing: -0.5px;
         }
 
         .card-header h1 span { color: var(--primary); }
@@ -138,12 +154,13 @@
         .card-header p {
             color: var(--text-muted);
             font-size: 0.95rem;
-            line-height: 1.5;
+            font-weight: 400;
         }
 
-        /* --- FORM ELEMENTS --- */
+        /* Form Elements */
         .form-group {
-            margin-bottom: 1.25rem;
+            margin-bottom: 1.5rem;
+            position: relative;
         }
 
         .label-row {
@@ -154,31 +171,39 @@
         }
 
         label {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 500;
             color: var(--text-main);
+            letter-spacing: 0.3px;
         }
 
         .input-wrapper {
             display: flex;
             align-items: center;
             background: var(--bg-input);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-sm);
-            transition: var(--transition);
+            border: 1px solid transparent;
+            border-radius: 12px;
             padding: 0 1rem;
+            transition: var(--transition);
+            box-shadow: var(--shadow-input);
         }
 
         .input-wrapper:focus-within {
-            border-color: var(--border-focus);
-            background: rgba(255, 102, 0, 0.05);
-            box-shadow: 0 0 0 3px rgba(255, 102, 0, 0.1);
+            background: #fff;
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 4px var(--primary-glow);
+            transform: translateY(-1px);
         }
 
         .input-icon {
             color: var(--text-muted);
             font-size: 1.25rem;
             margin-right: 0.75rem;
+            transition: color 0.3s;
+        }
+
+        .input-wrapper:focus-within .input-icon {
+            color: var(--primary);
         }
 
         .input {
@@ -190,22 +215,26 @@
             font-size: 1rem;
             outline: none;
             font-family: var(--font-main);
+            font-weight: 500;
         }
 
-        .input::placeholder { color: var(--text-placeholder); }
+        .input::placeholder { 
+            color: #b0b0b0; 
+            font-weight: 400;
+        }
 
-        /* Select styling (Country) */
+        /* Select styling */
         select.input {
             cursor: pointer;
             appearance: none;
-            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23a1a1aa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%237f8c8d' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: right 0.5rem center;
             background-size: 1.2rem;
             padding-right: 2.5rem;
         }
 
-        /* Password Toggle Button */
+        /* Password Toggle */
         .toggle-password {
             background: none;
             border: none;
@@ -215,13 +244,13 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: color 0.2s;
+            transition: color 0.3s;
         }
-        .toggle-password:hover { color: var(--text-main); }
+        .toggle-password:hover { color: var(--primary); }
 
         /* Error Handling */
         .error-msg {
-            color: var(--error);
+            color: #c0392b;
             font-size: 0.8rem;
             margin-top: 0.4rem;
             display: flex;
@@ -231,6 +260,7 @@
             height: 0;
             overflow: hidden;
             transition: 0.3s;
+            font-weight: 500;
         }
         .form-group.error .error-msg {
             opacity: 1;
@@ -238,21 +268,22 @@
             margin-bottom: 0.5rem;
         }
         .form-group.error .input-wrapper {
-            border-color: var(--error);
+            border-color: #c0392b;
+            box-shadow: 0 0 0 4px rgba(192, 57, 43, 0.1);
         }
 
         /* Password Strength */
         .password-strength {
             display: flex;
-            gap: 4px;
-            margin-top: 8px;
+            gap: 6px;
+            margin-top: 10px;
             height: 4px;
         }
         .strength-bar {
             flex: 1;
-            background: #333;
-            border-radius: 2px;
-            transition: background 0.3s;
+            background: #e0dcd5;
+            border-radius: 4px;
+            transition: all 0.4s ease;
         }
         .strength-bar.active { background: var(--primary); }
 
@@ -263,22 +294,24 @@
             gap: 12px;
             margin-top: 1.5rem;
             cursor: pointer;
+            user-select: none;
         }
         .custom-checkbox {
-            width: 20px;
-            height: 20px;
-            border: 2px solid var(--border-color);
-            border-radius: 4px;
+            width: 22px;
+            height: 22px;
+            border: 2px solid #d0d0d0;
+            border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: var(--transition);
             flex-shrink: 0;
             margin-top: 2px;
+            background: #fff;
         }
         .custom-checkbox i {
             font-size: 14px;
-            color: var(--bg-dark);
+            color: #fff;
             opacity: 0;
             transform: scale(0.5);
             transition: var(--transition);
@@ -289,6 +322,7 @@
         .terms-group input:checked + .custom-checkbox {
             background: var(--primary);
             border-color: var(--primary);
+            box-shadow: 0 2px 8px var(--primary-glow);
         }
         .terms-group input:checked + .custom-checkbox i {
             opacity: 1;
@@ -302,17 +336,18 @@
         .terms-text a {
             color: var(--primary);
             text-decoration: none;
+            font-weight: 500;
         }
         .terms-text a:hover { text-decoration: underline; }
 
         /* Submit Button */
         .btn-submit {
             width: 100%;
-            padding: 1rem;
-            background: var(--primary);
+            padding: 1.1rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
             color: white;
             border: none;
-            border-radius: var(--radius-sm);
+            border-radius: 12px;
             font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
@@ -320,26 +355,28 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 10px;
             transition: var(--transition);
             position: relative;
             overflow: hidden;
+            box-shadow: 0 4px 15px var(--primary-glow);
+            font-family: var(--font-main);
+            letter-spacing: 0.5px;
         }
+        
         .btn-submit:hover {
-            background: var(--primary-hover);
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(255, 102, 0, 0.3);
+            box-shadow: 0 8px 25px var(--primary-glow);
         }
+        
         .btn-submit:active { transform: translateY(0); }
         
         .btn-submit.loading {
             pointer-events: none;
-            background: #555;
+            opacity: 0.8;
         }
-        .btn-submit.loading .btn-text { opacity: 0; }
         
         .spinner {
-            position: absolute;
             width: 20px;
             height: 20px;
             border: 2px solid rgba(255,255,255,0.3);
@@ -362,32 +399,18 @@
             color: var(--primary);
             font-weight: 600;
             text-decoration: none;
+            margin-left: 4px;
         }
 
-        /* --- FOOTER --- */
-        footer {
-            text-align: center;
-            padding: 2rem;
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            border-top: 1px solid var(--border-color);
-        }
-
-        /* --- RESPONSIVE --- */
+        /* Responsive */
         @media (max-width: 600px) {
-            .card { padding: 1.5rem; }
-            .nav-logo { font-size: 1.2rem; }
+            main { padding: 1rem; }
+            .card { padding: 1.8rem; }
             .phone-grid {
                 display: flex;
                 flex-direction: column;
                 gap: 0.5rem;
             }
-            .phone-grid .input-wrapper:first-child {
-                display: none; /* Hide country select on very small screens if needed, or keep it stacked */
-            }
-            /* Keep country and phone stacked but styled */
-            .phone-grid { display: block; }
-            .phone-grid .form-group { margin-bottom: 1.25rem; }
         }
     </style>
 </head>
@@ -406,7 +429,7 @@
         <div class="card">
             <div class="card-header">
                 <h1>Join <span>TaskVault</span></h1>
-                <p>Play games, earn rewards, and cash out securely. <br>Register now to start your journey.</p>
+                <p>Experience premium gaming rewards. Register to start earning.</p>
             </div>
 
             <form id="registerForm" novalidate>
@@ -429,16 +452,16 @@
                         <label for="email">Email Address</label>
                     </div>
                     <div class="input-wrapper">
-                        <i class="ph ph-envelope input-icon"></i>
+                        <i class="ph ph-envelope-simple input-icon"></i>
                         <input type="email" id="email" class="input" placeholder="name@example.com" required>
                     </div>
                     <div class="error-msg"><i class="ph ph-warning-circle"></i> Please enter a valid email.</div>
                 </div>
 
-                <!-- Phone Section (Country + Number) -->
+                <!-- Phone Section -->
                 <div class="phone-grid">
-                    <!-- Country Selection -->
-                    <div class="form-group" id="group-country" style="margin-bottom: 1.25rem;">
+                    <!-- Country -->
+                    <div class="form-group" id="group-country" style="margin-bottom: 1.5rem;">
                         <div class="label-row">
                             <label for="country">Country</label>
                         </div>
@@ -458,13 +481,12 @@
                                 <option value="BR">Brazil (+55)</option>
                                 <option value="MX">Mexico (+52)</option>
                                 <option value="JP">Japan (+81)</option>
-                                <option value="KR">South Korea (+82)</option>
                             </select>
                         </div>
-                        <div class="error-msg"><i class="ph ph-warning-circle"></i> Please select your country.</div>
+                        <div class="error-msg"><i class="ph ph-warning-circle"></i> Select your country.</div>
                     </div>
 
-                    <!-- Phone Number -->
+                    <!-- Phone -->
                     <div class="form-group" id="group-phone">
                         <div class="label-row">
                             <label for="phone">Phone Number</label>
@@ -473,7 +495,7 @@
                             <i class="ph ph-phone input-icon"></i>
                             <input type="tel" id="phone" class="input" placeholder="555 123 4567" required>
                         </div>
-                        <div class="error-msg"><i class="ph ph-warning-circle"></i> Please enter a valid phone number.</div>
+                        <div class="error-msg"><i class="ph ph-warning-circle"></i> Valid phone number required.</div>
                     </div>
                 </div>
 
@@ -538,18 +560,11 @@
         </div>
     </main>
 
-    <footer>
-        <p>&copy; 2024 TaskVault Gaming. All rights reserved.</p>
-    </footer>
-
     <!-- JAVASCRIPT -->
     <script type="module">
         // Firebase Imports
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-analytics.js";
-        // We will load Auth dynamically on submit to keep initial load fast, 
-        // or you can import here if you prefer:
-        // import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAv6QCpopa0Q77AVTyjU5cqJEIKIE9OVTs",
@@ -601,14 +616,14 @@
             bars.forEach((bar, index) => {
                 if (index < strength) {
                     bar.classList.add('active');
-                    // Color coding
-                    if (strength <= 1) bar.style.background = '#ef4444';
-                    else if (strength <= 2) bar.style.background = '#f59e0b';
-                    else if (strength <= 3) bar.style.background = '#84cc16';
-                    else bar.style.background = '#22c55e';
+                    // Silk theme colors for strength
+                    if (strength <= 1) bar.style.background = '#e74c3c'; // Soft Red
+                    else if (strength <= 2) bar.style.background = '#f39c12'; // Soft Orange
+                    else if (strength <= 3) bar.style.background = '#27ae60'; // Soft Green
+                    else bar.style.background = '#2ecc71'; // Strong Green
                 } else {
                     bar.classList.remove('active');
-                    bar.style.background = '#333';
+                    bar.style.background = '#e0dcd5'; // Reset to silk grey
                 }
             });
         });
@@ -643,7 +658,7 @@
             // Validate Country & Phone (Mandatory)
             const country = document.getElementById('country');
             const phone = document.getElementById('phone');
-            const phoneRegex = /^[\d\s\-\+\(\)]{7,20}$/; // Simple regex for international numbers
+            const phoneRegex = /^[\d\s\-\+\(\)]{7,20}$/; 
 
             if (country.value === "") {
                 document.getElementById('group-country').classList.add('error');
@@ -681,10 +696,10 @@
             
             // Visual loading state
             submitBtn.classList.add('loading');
-            submitBtn.innerHTML = '<div class="spinner"></div>'; // Ensure spinner is visible
+            submitBtn.innerHTML = '<div class="spinner"></div>'; 
 
             try {
-                // Dynamically import Auth to keep initial page load fast
+                // Dynamically import Auth
                 const { getAuth, createUserWithEmailAndPassword } = await import("https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js");
                 const auth = getAuth(app);
 
@@ -695,17 +710,9 @@
                 console.log("Account created:", user.uid);
                 
                 // Optional: Store additional user data in Firestore here
-                // const { getFirestore, doc, setDoc } = await import("https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js");
-                // const db = getFirestore(app);
-                // await setDoc(doc(db, "users", user.uid), {
-                //     username: username.value,
-                //     phone: phone.value,
-                //     country: country.value,
-                //     createdAt: new Date()
-                // });
-
+                
                 // Success Animation
-                submitBtn.style.background = '#22c55e'; // Green
+                submitBtn.style.background = '#27ae60'; // Green success
                 submitBtn.innerHTML = '<i class="ph ph-check-circle" style="font-size: 1.2rem;"></i> Account Created';
                 
                 // Redirect after delay
@@ -717,8 +724,8 @@
                 console.error("Registration Error:", error);
                 submitBtn.classList.remove('loading');
                 submitBtn.innerHTML = '<span class="btn-text">Create Account</span><div class="spinner"></div>';
+                submitBtn.style.background = ''; // Reset color
                 
-                // Show Firebase error to user (simplified)
                 let errorMsg = "Registration failed. Please try again.";
                 if (error.code === 'auth/email-already-in-use') errorMsg = "Email already in use.";
                 if (error.code === 'auth/weak-password') errorMsg = "Password is too weak.";
