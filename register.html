@@ -17,34 +17,23 @@
     <style>
         /* --- SILK THEME VARIABLES --- */
         :root {
-            /* Silk Orange Palette */
-            --primary: #d35400;       /* Deep Burnt Orange */
-            --primary-light: #e67e22; /* Soft Orange */
+            --primary: #d35400;
+            --primary-light: #e67e22;
             --primary-glow: rgba(211, 84, 0, 0.15);
-            
-            /* Silk White Palette */
-            --bg-body: #f8f6f2;       /* Creamy Silk Base */
-            --bg-card: #ffffff;       /* Pure Silk White */
-            --bg-input: #f0ece6;      /* Slightly darker silk for inputs */
-            
-            /* Text & Accents */
+            --bg-body: #f8f6f2;
+            --bg-card: #ffffff;
+            --bg-input: #f0ece6;
             --text-main: #2c2c2c;
             --text-muted: #7f8c8d;
             --border-color: #e0dcd5;
-            
             --radius: 16px;
             --shadow-soft: 0 10px 40px -10px rgba(0,0,0,0.08);
             --shadow-input: inset 0 2px 4px rgba(0,0,0,0.02);
-            
             --font-main: 'Outfit', sans-serif;
             --transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             font-family: var(--font-main);
@@ -58,7 +47,6 @@
                 radial-gradient(circle at 80% 80%, rgba(211, 84, 0, 0.03) 0%, transparent 50%);
         }
 
-        /* Silk Texture Overlay */
         body::before {
             content: "";
             position: fixed;
@@ -82,7 +70,7 @@
             display: flex;
             align-items: center;
             gap: 15px;
-            font-size: 3.3rem; /* Larger Logo Text */
+            font-size: 2.2rem;
             font-weight: 700;
             color: var(--text-main);
             text-decoration: none;
@@ -90,12 +78,10 @@
             transition: transform 0.3s ease;
         }
 
-        .nav-logo:hover {
-            transform: scale(1.02);
-        }
+        .nav-logo:hover { transform: scale(1.02); }
 
         .nav-logo img {
-            width: 60px; /* Bigger Logo Image */
+            width: 60px;
             height: 60px;
             border-radius: 50%;
             border: 3px solid var(--primary);
@@ -162,18 +148,9 @@
         }
 
         /* Form Elements */
-        .form-group {
-            margin-bottom: 1.5rem;
-            position: relative;
-        }
-
-        .label-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.5rem;
-        }
-
+        .form-group { margin-bottom: 1.5rem; position: relative; }
+        .label-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+        
         label {
             font-size: 0.85rem;
             font-weight: 500;
@@ -206,9 +183,7 @@
             transition: color 0.3s;
         }
 
-        .input-wrapper:focus-within .input-icon {
-            color: var(--primary);
-        }
+        .input-wrapper:focus-within .input-icon { color: var(--primary); }
 
         .input {
             width: 100%;
@@ -222,12 +197,8 @@
             font-weight: 500;
         }
 
-        .input::placeholder { 
-            color: #b0b0b0; 
-            font-weight: 400;
-        }
+        .input::placeholder { color: #b0b0b0; font-weight: 400; }
 
-        /* Select styling */
         select.input {
             cursor: pointer;
             appearance: none;
@@ -238,7 +209,6 @@
             padding-right: 2.5rem;
         }
 
-        /* Password Toggle */
         .toggle-password {
             background: none;
             border: none;
@@ -252,7 +222,6 @@
         }
         .toggle-password:hover { color: var(--primary); }
 
-        /* Error Handling */
         .error-msg {
             color: #c0392b;
             font-size: 0.8rem;
@@ -320,9 +289,7 @@
             transform: scale(0.5);
             transition: var(--transition);
         }
-        .terms-group input {
-            display: none;
-        }
+        .terms-group input { display: none; }
         .terms-group input:checked + .custom-checkbox {
             background: var(--primary);
             border-color: var(--primary);
@@ -406,23 +373,17 @@
             margin-left: 4px;
         }
 
-        /* Responsive */
         @media (max-width: 600px) {
             main { padding: 1rem; }
             .card { padding: 1.8rem; }
             .nav-logo { font-size: 1.8rem; }
             .nav-logo img { width: 50px; height: 50px; }
-            .phone-grid {
-                display: flex;
-                flex-direction: column;
-                gap: 0.5rem;
-            }
         }
     </style>
 </head>
 <body>
 
-    <!-- Navigation with Bigger Logo -->
+    <!-- Navigation -->
     <nav>
         <a href="index.html" class="nav-logo">
             <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" alt="Logo">
@@ -623,28 +584,11 @@
     </main>
 
     <!-- JAVASCRIPT -->
-    <script type="module">
-        // Firebase Imports
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-analytics.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyAv6QCpopa0Q77AVTyjU5cqJEIKIE9OVTs",
-            authDomain: "taskvault-412a0.firebaseapp.com",
-            projectId: "taskvault-412a0",
-            storageBucket: "taskvault-412a0.firebasestorage.app",
-            messagingSenderId: "420716701831",
-            appId: "1:420716701831:web:c987d91f7f4c8684eb7022",
-            measurementId: "G-93JG3LB08B"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
-
+    <script>
         // --- UI LOGIC ---
 
         // Password Toggle
-        window.togglePassword = (id) => {
+        function togglePassword(id) {
             const input = document.getElementById(id);
             const icon = input.nextElementSibling.querySelector('i');
             
@@ -655,7 +599,7 @@
                 input.type = "password";
                 icon.classList.replace('ph-eye-slash', 'ph-eye');
             }
-        };
+        }
 
         // Password Strength Meter
         const passwordInput = document.getElementById('password');
@@ -693,7 +637,7 @@
         const form = document.getElementById('registerForm');
         const submitBtn = document.getElementById('submitBtn');
 
-        form.addEventListener('submit', async (e) => {
+        form.addEventListener('submit', (e) => {
             e.preventDefault();
             let isValid = true;
 
@@ -753,44 +697,20 @@
 
             if (!isValid) return;
 
-            // --- FIREBASE AUTH INTEGRATION & REDIRECT ---
+            // --- SIMULATED REGISTRATION & REDIRECT ---
+            // We simulate success here to avoid local server/CORS errors
+            // In production, you would use Firebase Auth here.
             
-            // Visual loading state
+            // 1. Visual Loading State
             submitBtn.classList.add('loading');
-            submitBtn.innerHTML = '<div class="spinner"></div>'; 
+            submitBtn.innerHTML = '<div class="spinner"></div>';
+            submitBtn.style.background = '#27ae60'; // Turn green
 
-            try {
-                // Dynamically import Auth
-                const { getAuth, createUserWithEmailAndPassword } = await import("https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js");
-                const auth = getAuth(app);
-
-                // Create User
-                const userCredential = await createUserWithEmailAndPassword(auth, email.value, password.value);
-                const user = userCredential.user;
-
-                console.log("Account created:", user.uid);
-                
-                // Success Animation
-                submitBtn.style.background = '#27ae60'; // Green success
-                submitBtn.innerHTML = '<i class="ph ph-check-circle" style="font-size: 1.2rem;"></i> Account Created';
-                
-                // Redirect to Dashboard
-                setTimeout(() => {
-                    window.location.href = "dashboard.html";
-                }, 1000);
-
-            } catch (error) {
-                console.error("Registration Error:", error);
-                submitBtn.classList.remove('loading');
-                submitBtn.innerHTML = '<span class="btn-text">Create Account</span><div class="spinner"></div>';
-                submitBtn.style.background = ''; // Reset color
-                
-                let errorMsg = "Registration failed. Please try again.";
-                if (error.code === 'auth/email-already-in-use') errorMsg = "Email already in use.";
-                if (error.code === 'auth/weak-password') errorMsg = "Password is too weak.";
-                
-                alert(errorMsg);
-            }
+            // 2. Simulate network delay (1 second)
+            setTimeout(() => {
+                // 3. Redirect to Dashboard
+                window.location.href = "dashboard.html";
+            }, 1000);
         });
     </script>
 </body>
