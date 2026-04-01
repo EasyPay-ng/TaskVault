@@ -3,345 +3,552 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TaskVault — Register & Start Earning</title>
+    <title>TaskVault — Register</title>
 
     <!-- Favicon -->
     <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" type="image/jpeg">
 
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
     <style>
-        /* --- WHITE & ORANGE THEME --- */
+        /* --- VARIABLES & RESET --- */
         :root {
-            --primary: #FF6600; /* Vibrant Orange */
-            --primary-hover: #e65c00; /* Darker Orange for hover */
-            --bg-light: #f9f9f9; /* Light gray background */
-            --bg-white: #ffffff; /* Pure white */
-            --text-main: #222222; /* Dark text */
-            --text-muted: #666666; /* Gray text */
-            --border-color: #e0e0e0; /* Light border */
-            --shadow: 0 4px 6px rgba(0,0,0,0.05);
-            --error-color: #d93025; /* Red for errors */
+            --primary: #FF6600;
+            --primary-hover: #e65c00;
+            --primary-light: rgba(255, 102, 0, 0.1);
+            
+            --bg-dark: #0f0f11;
+            --bg-card: rgba(255, 255, 255, 0.03);
+            --bg-input: rgba(255, 255, 255, 0.05);
+            
+            --text-main: #ffffff;
+            --text-muted: #a1a1aa;
+            --text-placeholder: #52525b;
+            
+            --border-color: rgba(255, 255, 255, 0.1);
+            --border-focus: #FF6600;
+            
+            --error: #ef4444;
+            --success: #22c55e;
+            
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            
+            --font-main: 'Inter', sans-serif;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: var(--text-main); }
-        body { background-color: var(--bg-light); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-        /* Navbar */
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(255, 102, 0, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(255, 102, 0, 0.1) 0%, transparent 40%);
+        }
+
+        /* --- NAVIGATION --- */
         nav {
-            background-color: var(--bg-white); padding: 1rem 2rem; display: flex; align-items: center;
-            justify-content: space-between; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow);
+            padding: 1.5rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(15, 15, 17, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
-        .nav-logo { display: flex; align-items: center; gap: 10px; font-size: 1.5rem; font-weight: 800; color: var(--primary); text-decoration: none; }
-        .nav-logo img { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--primary); }
-        .nav-links { display: flex; gap: 15px; align-items: center; }
-        .nav-link { text-decoration: none; color: var(--text-main); font-weight: 600; font-size: 0.95rem; transition: color 0.2s; }
-        .nav-link:hover { color: var(--primary); }
 
-        /* Main content + centered card */
-        main { flex: 1; display: flex; justify-content: center; align-items: flex-start; padding: 3rem 1rem; }
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-main);
+            text-decoration: none;
+            letter-spacing: -0.5px;
+        }
+
+        .nav-logo img {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 2px solid var(--primary);
+        }
+
+        .nav-logo span { color: var(--primary); }
+
+        /* --- MAIN CONTAINER --- */
+        main {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem 1.5rem;
+        }
+
         .card {
-            background-color: var(--bg-white); border-radius: 18px; border: 1px solid var(--border-color); box-shadow: var(--shadow);
-            padding: 2rem; max-width: 460px; width: 100%;
+            width: 100%;
+            max-width: 500px;
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 2.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: slideUp 0.6s ease-out;
         }
-        .card-header { text-align: center; margin-bottom: 2rem; }
-        .card-header h1 { font-size: 2.2rem; color: var(--text-main); margin-bottom: 0.5rem; }
-        .card-header .highlight { color: var(--primary); }
-        .card-header p { color: var(--text-muted); font-size: 1.05rem; }
 
-        /* Form elements */
-        .field { margin-bottom: 1.5rem; }
-        .field label { font-weight: 700; font-size: 0.95rem; display: block; margin-bottom: 6px; color: var(--text-main); }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .card-header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-header h1 span { color: var(--primary); }
+        
+        .card-header p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        /* --- FORM ELEMENTS --- */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .label-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-main);
+        }
+
         .input-wrapper {
-            display: flex; align-items: stretch; border-radius: 10px; border: 1px solid var(--border-color);
-            background-color: var(--bg-white); overflow: hidden; transition: 0.2s; padding: 0 10px;
+            display: flex;
+            align-items: center;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+            padding: 0 1rem;
         }
-        .input-wrapper:focus-within { border-color: var(--primary); box-shadow: 0 3px 8px rgba(255, 102, 0, 0.1); }
-        .input-icon { display: flex; align-items: center; justify-content: center; padding-left: 6px; color: var(--text-muted); font-size: 1.1rem; }
-        .input { width: 100%; padding: 14px 10px; border: none; outline: none; font-size: 1rem; color: var(--text-main); background-color: transparent; }
-        .help-text { color: var(--text-muted); font-size: 0.8rem; margin-top: 5px; display: block; }
 
-        /* Password toggle */
-        .eye-toggle {
-            background: none; border: none; cursor: pointer; padding: 8px; display: flex; align-items: center;
-            justify-content: center; color: var(--text-muted);
+        .input-wrapper:focus-within {
+            border-color: var(--border-focus);
+            background: rgba(255, 102, 0, 0.05);
+            box-shadow: 0 0 0 3px rgba(255, 102, 0, 0.1);
         }
-        .eye-toggle:hover { color: var(--primary); }
 
-        /* Password strength bar */
-        .strength-wrapper { margin-top: 8px; }
+        .input-icon {
+            color: var(--text-muted);
+            font-size: 1.25rem;
+            margin-right: 0.75rem;
+        }
+
+        .input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: var(--text-main);
+            padding: 0.9rem 0;
+            font-size: 1rem;
+            outline: none;
+            font-family: var(--font-main);
+        }
+
+        .input::placeholder { color: var(--text-placeholder); }
+
+        /* Select styling (Country) */
+        select.input {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23a1a1aa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.5rem center;
+            background-size: 1.2rem;
+            padding-right: 2.5rem;
+        }
+
+        /* Password Toggle Button */
+        .toggle-password {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s;
+        }
+        .toggle-password:hover { color: var(--text-main); }
+
+        /* Error Handling */
+        .error-msg {
+            color: var(--error);
+            font-size: 0.8rem;
+            margin-top: 0.4rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            opacity: 0;
+            height: 0;
+            overflow: hidden;
+            transition: 0.3s;
+        }
+        .form-group.error .error-msg {
+            opacity: 1;
+            height: auto;
+            margin-bottom: 0.5rem;
+        }
+        .form-group.error .input-wrapper {
+            border-color: var(--error);
+        }
+
+        /* Password Strength */
+        .password-strength {
+            display: flex;
+            gap: 4px;
+            margin-top: 8px;
+            height: 4px;
+        }
         .strength-bar {
-            height: 4px; border-radius: 2px; width: 100%; background-color: #e7e7e7; overflow: hidden;
+            flex: 1;
+            background: #333;
+            border-radius: 2px;
             transition: background 0.3s;
         }
-        .strength-fill { height: 100%; width: 0%; transition: width 0.3s, background 0.3s; }
-        .strength-none { width: 0%; }
-        .strength-weak { width: 33%; background-color: #f44336; }
-        .strength-medium { width: 66%; background-color: #ff9800; }
-        .strength-strong { width: 100%; background-color: #4caf50; }
-        .strength-label { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; text-align: right; }
+        .strength-bar.active { background: var(--primary); }
 
-        /* Errors */
-        .error-message { color: var(--error-color); font-size: 0.8rem; margin-top: 5px; display: none; }
-        .input-wrapper.error { border-color: var(--error-color); box-shadow: 0 3px 8px rgba(217, 48, 37, 0.1); }
-        .input-wrapper.error .input-icon { color: var(--error-color); }
-
-        /* Checkbox */
-        .checkbox-wrapper {
-            display: flex; align-items: flex-start; gap: 10px; padding: 5px;
-            border-radius: 8px; background-color: rgba(255, 102, 0, 0.05); border: 1px solid #ffe0cc;
+        /* Terms Checkbox */
+        .terms-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-top: 1.5rem;
+            cursor: pointer;
         }
-        .checkbox-wrapper .terms { color: var(--text-main); font-size: 0.95rem; }
-        .terms a { color: var(--primary); text-decoration: none; font-weight: 700; }
-        .terms a:hover { text-decoration: underline; }
-
-        /* Buttons */
-        .submit-btn {
-            width: 100%; padding: 1rem; font-size: 1.05rem; font-weight: 700; border-radius: 50px; border: none;
-            color: white; background-color: var(--primary); cursor: pointer; transition: transform 0.2s, background 0.2s;
-            box-shadow: 0 4px 15px rgba(255, 102, 0, 0.3); text-transform: uppercase; letter-spacing: 0.5px;
-            margin-top: 1rem;
+        .custom-checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            flex-shrink: 0;
+            margin-top: 2px;
         }
-        .submit-btn:hover { background-color: var(--primary-hover); transform: translateY(-2px); }
-        .alt-action { text-align: center; margin-top: 1.5rem; color: var(--text-muted); font-size: 0.95rem; }
-        .alt-action a { color: var(--primary); font-weight: 700; text-decoration: none; }
-        .alt-action a:hover { text-decoration: underline; }
+        .custom-checkbox i {
+            font-size: 14px;
+            color: var(--bg-dark);
+            opacity: 0;
+            transform: scale(0.5);
+            transition: var(--transition);
+        }
+        .terms-group input {
+            display: none;
+        }
+        .terms-group input:checked + .custom-checkbox {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+        .terms-group input:checked + .custom-checkbox i {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .terms-text {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+        .terms-text a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        .terms-text a:hover { text-decoration: underline; }
 
-        /* Footer */
-        footer { text-align: center; padding: 2rem; background-color: var(--bg-white); color: var(--text-muted); border-top: 1px solid var(--border-color); }
-        .footer-links { margin: 1rem 0; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
-        .footer-links a { color: var(--text-muted); text-decoration: none; font-size: 0.95rem; }
-        .footer-links a:hover { color: var(--primary); text-decoration: underline; }
+        /* Submit Button */
+        .btn-submit {
+            width: 100%;
+            padding: 1rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-submit:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(255, 102, 0, 0.3);
+        }
+        .btn-submit:active { transform: translateY(0); }
+        
+        .btn-submit.loading {
+            pointer-events: none;
+            background: #555;
+        }
+        .btn-submit.loading .btn-text { opacity: 0; }
+        
+        .spinner {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            display: none;
+        }
+        .btn-submit.loading .spinner { display: block; }
 
-        /* Responsiveness */
-        @media (max-width: 480px) {
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .login-link {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        .login-link a {
+            color: var(--primary);
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 600px) {
             .card { padding: 1.5rem; }
-            .card-header h1 { font-size: 1.9rem; }
+            .nav-logo { font-size: 1.2rem; }
+            .phone-grid {
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            .phone-grid .input-wrapper:first-child {
+                display: none; /* Hide country select on very small screens if needed, or keep it stacked */
+            }
+            /* Keep country and phone stacked but styled */
+            .phone-grid { display: block; }
+            .phone-grid .form-group { margin-bottom: 1.25rem; }
         }
-
     </style>
 </head>
-
 <body>
 
-    <!-- Navbar -->
+    <!-- Navigation -->
     <nav>
         <a href="index.html" class="nav-logo">
-            <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" alt="TaskVault Logo">
-            TaskVault
+            <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" alt="Logo">
+            Task<span>Vault</span>
         </a>
-        <div class="nav-links">
-            <a href="index.html" class="nav-link">Home</a>
-            <a href="#games-section" class="nav-link">Games</a>
-            <a href="#" class="nav-link">Login</a>
-            <a href="register.html" class="nav-link" style="color: var(--primary); font-weight: 800;">Register</a>
-        </div>
     </nav>
 
     <!-- Main Content -->
     <main>
         <div class="card">
             <div class="card-header">
-                <h1>Create Your <span class="highlight">TaskVault</span> Account</h1>
-                <p>Start playing games, earn rewards, and cash out securely—all with real earnings and transparent mechanics.</p>
+                <h1>Join <span>TaskVault</span></h1>
+                <p>Play games, earn rewards, and cash out securely. <br>Register now to start your journey.</p>
             </div>
 
-            <!-- Registration Form -->
-            <form id="registerForm" autocomplete="on" novalidate>
+            <form id="registerForm" novalidate>
+                
                 <!-- Username -->
-                <div class="field">
-                    <label>Username *</label>
-                    <div class="input-wrapper" id="wrapperUsername">
-                        <div class="input-icon">👤</div>
-                        <input class="input" type="text" name="username" id="username" placeholder="Choose a unique username"
-                               required minlength="3" maxlength="25" pattern="[A-Za-z0-9_\-\.]{3,25}"
-                               autocomplete="username" aria-describedby="errorUsername helpUsername">
+                <div class="form-group" id="group-username">
+                    <div class="label-row">
+                        <label for="username">Username</label>
                     </div>
-                    <small class="help-text" id="helpUsername">3–25 characters, letters, numbers, dash, underscore, or dot only.</small>
-                    <div class="error-message" id="errorUsername">Please enter a valid username (3–25 characters).</div>
+                    <div class="input-wrapper">
+                        <i class="ph ph-user input-icon"></i>
+                        <input type="text" id="username" class="input" placeholder="Choose a unique username" required>
+                    </div>
+                    <div class="error-msg"><i class="ph ph-warning-circle"></i> Username must be 3+ characters.</div>
                 </div>
 
                 <!-- Email -->
-                <div class="field">
-                    <label>Email Address *</label>
-                    <div class="input-wrapper" id="wrapperEmail">
-                        <div class="input-icon">✉️</div>
-                        <input class="input" type="email" name="email" id="email" placeholder="name@example.com"
-                               required autocomplete="email" aria-describedby="errorEmail helpEmail">
+                <div class="form-group" id="group-email">
+                    <div class="label-row">
+                        <label for="email">Email Address</label>
                     </div>
-                    <small class="help-text" id="helpEmail">We’ll send a verification link to this address—please use a real, active email.</small>
-                    <div class="error-message" id="errorEmail">Please enter a valid email address.</div>
+                    <div class="input-wrapper">
+                        <i class="ph ph-envelope input-icon"></i>
+                        <input type="email" id="email" class="input" placeholder="name@example.com" required>
+                    </div>
+                    <div class="error-msg"><i class="ph ph-warning-circle"></i> Please enter a valid email.</div>
                 </div>
 
-                <!-- Phone Number + Country -->
-                <div class="field">
-                    <label>Phone Number (optional)</label>
-                    <div style="display: grid; grid-template-columns: 130px auto; gap: 8px;">
-                        <!-- Country selection -->
-                        <div>
-                            <label class="help-text">Country / Region</label>
-                            <div class="input-wrapper" id="wrapperCountry">
-                                <div class="input-icon">🌍</div>
-                                <select class="input" name="country" id="country" aria-describedby="helpCountry">
-                                    <option value="">Select country</option>
-                                    <option value="US">United States</option>
-                                    <option value="CA">Canada</option>
-                                    <option value="GB">United Kingdom</option>
-                                    <option value="AU">Australia</option>
-                                    <option value="DE">Germany</option>
-                                    <option value="FR">France</option>
-                                    <option value="NL">Netherlands</option>
-                                    <option value="IN">India</option>
-                                    <option value="SG">Singapore</option>
-                                    <option value="ZA">South Africa</option>
-                                    <option value="BR">Brazil</option>
-                                    <option value="MX">Mexico</option>
-                                    <option value="JP">Japan</option>
-                                    <option value="KR">South Korea</option>
-                                    <option value="OTHER">Other</option>
-                                </select>
-                            </div>
-                            <small class="help-text" id="helpCountry">Country selection helps with payouts, compliance, and messaging.</small>
+                <!-- Phone Section (Country + Number) -->
+                <div class="phone-grid">
+                    <!-- Country Selection -->
+                    <div class="form-group" id="group-country" style="margin-bottom: 1.25rem;">
+                        <div class="label-row">
+                            <label for="country">Country</label>
                         </div>
+                        <div class="input-wrapper">
+                            <i class="ph ph-globe input-icon"></i>
+                            <select id="country" class="input" required>
+                                <option value="" disabled selected>Select Country</option>
+                                <option value="US">United States (+1)</option>
+                                <option value="CA">Canada (+1)</option>
+                                <option value="GB">United Kingdom (+44)</option>
+                                <option value="AU">Australia (+61)</option>
+                                <option value="DE">Germany (+49)</option>
+                                <option value="FR">France (+33)</option>
+                                <option value="IN">India (+91)</option>
+                                <option value="NG">Nigeria (+234)</option>
+                                <option value="ZA">South Africa (+27)</option>
+                                <option value="BR">Brazil (+55)</option>
+                                <option value="MX">Mexico (+52)</option>
+                                <option value="JP">Japan (+81)</option>
+                                <option value="KR">South Korea (+82)</option>
+                            </select>
+                        </div>
+                        <div class="error-msg"><i class="ph ph-warning-circle"></i> Please select your country.</div>
+                    </div>
 
-                        <!-- Phone input with country dial prefix -->
-                        <div>
-                            <label>Phone Number</label>
-                            <div class="input-wrapper" id="wrapperPhone">
-                                <div class="input-icon" id="dialPrefix">+1</div>
-                                <input class="input" type="tel" name="phone" id="phone" placeholder="(555) 555-5555"
-                                       autocomplete="tel" aria-describedby="helpPhone errorPhone">
-                            </div>
-                            <small class="help-text" id="helpPhone">Optional, but helpful for secure payouts, alerts, and account recovery.</small>
-                            <div class="error-message" id="errorPhone">Please enter a valid phone number.</div>
+                    <!-- Phone Number -->
+                    <div class="form-group" id="group-phone">
+                        <div class="label-row">
+                            <label for="phone">Phone Number</label>
                         </div>
+                        <div class="input-wrapper">
+                            <i class="ph ph-phone input-icon"></i>
+                            <input type="tel" id="phone" class="input" placeholder="555 123 4567" required>
+                        </div>
+                        <div class="error-msg"><i class="ph ph-warning-circle"></i> Please enter a valid phone number.</div>
                     </div>
                 </div>
 
                 <!-- Password -->
-                <div class="field">
-                    <label>Password *</label>
-                    <div class="input-wrapper" id="wrapperPassword">
-                        <div class="input-icon">🔒</div>
-                        <input class="input" type="password" name="password" id="password" placeholder="Create a strong password"
-                               required minlength="8" autocomplete="new-password" aria-describedby="errorPassword helpPassword strengthLabel">
-                        <button type="button" class="eye-toggle" aria-label="Toggle password visibility" onclick="togglePassword('password', 'eyeIconPwd')">
-                            <span id="eyeIconPwd">👁️</span>
+                <div class="form-group" id="group-password">
+                    <div class="label-row">
+                        <label for="password">Password</label>
+                    </div>
+                    <div class="input-wrapper">
+                        <i class="ph ph-lock-key input-icon"></i>
+                        <input type="password" id="password" class="input" placeholder="••••••••" required>
+                        <button type="button" class="toggle-password" onclick="togglePassword('password')">
+                            <i class="ph ph-eye"></i>
                         </button>
                     </div>
-                    <small class="help-text" id="helpPassword">Minimum 8 characters, ideally mixing letters, numbers, and symbols. Avoid common patterns (123456, password, etc.).</small>
-                    <div class="error-message" id="errorPassword">Password must be at least 8 characters long and meet the required security criteria.</div>
-
-                    <!-- Password strength meter -->
-                    <div class="strength-wrapper">
-                        <div class="strength-bar">
-                            <div class="strength-fill" id="strengthBar"></div>
-                        </div>
-                        <div class="strength-label" id="strengthLabel">Strength: None</div>
+                    <div class="password-strength">
+                        <div class="strength-bar" id="bar-1"></div>
+                        <div class="strength-bar" id="bar-2"></div>
+                        <div class="strength-bar" id="bar-3"></div>
+                        <div class="strength-bar" id="bar-4"></div>
                     </div>
+                    <div class="error-msg"><i class="ph ph-warning-circle"></i> Password too weak.</div>
                 </div>
 
                 <!-- Confirm Password -->
-                <div class="field">
-                    <label>Confirm Password *</label>
-                    <div class="input-wrapper" id="wrapperConfirmPassword">
-                        <div class="input-icon">🔒</div>
-                        <input class="input" type="password" name="confirmPassword" id="confirmPassword" placeholder="Re-enter your password"
-                               required autocomplete="new-password" aria-describedby="errorConfirmPassword helpConfirmPassword">
-                        <button type="button" class="eye-toggle" aria-label="Toggle confirm password visibility" onclick="togglePassword('confirmPassword', 'eyeIconConfirm')">
-                            <span id="eyeIconConfirm">👁️</span>
+                <div class="form-group" id="group-confirm">
+                    <div class="label-row">
+                        <label for="confirmPassword">Confirm Password</label>
+                    </div>
+                    <div class="input-wrapper">
+                        <i class="ph ph-lock-key input-icon"></i>
+                        <input type="password" id="confirmPassword" class="input" placeholder="••••••••" required>
+                        <button type="button" class="toggle-password" onclick="togglePassword('confirmPassword')">
+                            <i class="ph ph-eye"></i>
                         </button>
                     </div>
-                    <small class="help-text" id="helpConfirmPassword">Must match your password exactly.</small>
-                    <div class="error-message" id="errorConfirmPassword">Passwords do not match.</div>
+                    <div class="error-msg"><i class="ph ph-warning-circle"></i> Passwords do not match.</div>
                 </div>
 
-                <!-- Referral Code (optional but great for growth) -->
-                <div class="field">
-                    <label>Referral Code (optional)</label>
-                    <div class="input-wrapper" id="wrapperReferral">
-                        <div class="input-icon">🎁</div>
-                        <input class="input" type="text" name="referralCode" id="referralCode" placeholder="Enter a referral code"
-                               maxlength="20" autocomplete="off" aria-describedby="helpReferral">
+                <!-- Terms Checkbox -->
+                <label class="terms-group">
+                    <input type="checkbox" id="terms" required>
+                    <div class="custom-checkbox">
+                        <i class="ph ph-check"></i>
                     </div>
-                    <small class="help-text" id="helpReferral">If someone invited you, input their referral code to earn bonuses (availability depends on campaign rules).</small>
-                    <div class="error-message" id="errorReferral">Referral code format appears invalid.</div>
-                </div>
-
-                <!-- Age and Regional compliance (helpful for real-money transactions) -->
-                <div class="field">
-                    <label>Date of Birth *</label>
-                    <div class="input-wrapper" id="wrapperDOB">
-                        <div class="input-icon">🎂</div>
-                        <input class="input" type="date" name="dob" id="dob" required aria-describedby="errorDOB helpDOB">
+                    <div class="terms-text">
+                        I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>. I confirm I am at least 18 years old.
                     </div>
-                    <small class="help-text" id="helpDOB">You must be at least 18 years old to earn real payouts (age requirements may vary by country).</small>
-                    <div class="error-message" id="errorDOB">Please provide a valid date of birth showing you are eligible to use the platform.</div>
-                </div>
-
-                <!-- Terms and Conditions -->
-                <div class="field">
-                    <label>Accept Terms &amp; Conditions *</label>
-                    <div class="checkbox-wrapper">
-                        <input type="checkbox" name="terms" id="terms" required aria-describedby="errorTerms helpTerms">
-                        <div class="terms">
-                            I agree to TaskVault’s 
-                            <a href="#" target="_blank">Terms of Use</a>, 
-                            <a href="#" target="_blank">Privacy Policy</a>, and 
-                            <a href="#" target="_blank">Responsible Play &amp; Fair Gaming Terms</a>. 
-                            I understand that earning and withdrawals are subject to verification, rules, and limits.
-                            <small class="help-text" id="helpTerms">By checking this box, you give consent for account verification, identity checks, and other operational requirements.</small>
-                        </div>
-                    </div>
-                    <div class="error-message" id="errorTerms">You must accept the terms and conditions to register.</div>
-                </div>
-
-                <!-- Opt-in for marketing & promotions (GDPR- and preference-friendly) -->
-                <div class="field">
-                    <label>Communications (optional)</label>
-                    <div class="checkbox-wrapper">
-                        <input type="checkbox" name="marketingConsent" id="marketingConsent">
-                        <div class="terms">
-                            I’d like to receive email updates about features, tournaments, rewards, and special offers.
-                            <small class="help-text">You can unsubscribe at any time from the account settings or email footer.</small>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Transparency + game fairness note -->
-                <div class="field">
-                    <small class="help-text" style="text-align:center;">
-                        TaskVault is committed to fair competition, secure transactions, and compliance with relevant laws.
-                        Our platform uses identity verification and algorithms that promote equitable play, not “pay-to-win.”
-                    </small>
-                </div>
+                </label>
+                <div class="error-msg" id="terms-error" style="margin-top: 5px;"><i class="ph ph-warning-circle"></i> You must accept the terms.</div>
 
                 <!-- Submit Button -->
-                <button class="submit-btn" type="submit">Create Account & Get Started</button>
+                <button type="submit" class="btn-submit" id="submitBtn">
+                    <span class="btn-text">Create Account</span>
+                    <div class="spinner"></div>
+                </button>
 
-                <div class="alt-action">
-                    Already have an account? <a href="#">Login here</a>
+                <div class="login-link">
+                    Already have an account? <a href="#">Log In</a>
                 </div>
             </form>
         </div>
     </main>
 
-    <!-- Footer -->
     <footer>
         <p>&copy; 2024 TaskVault Gaming. All rights reserved.</p>
-        <div class="footer-links">
-            <a href="#">Privacy Policy</a>
-            <a href="#">Terms of Use</a>
-            <a href="#">Support</a>
-            <a href="#">Responsible Gaming</a>
-        </div>
     </footer>
 
-    <!-- JAVASCRIPT / FIREBASE -->
+    <!-- JAVASCRIPT -->
     <script type="module">
-        // Firebase setup (same as your index.html) — this initializes Firebase so you can add Auth + Firestore later.
+        // Firebase Imports
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-analytics.js";
-        // Later: import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
-        // import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+        // We will load Auth dynamically on submit to keep initial load fast, 
+        // or you can import here if you prefer:
+        // import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAv6QCpopa0Q77AVTyjU5cqJEIKIE9OVTs",
@@ -355,245 +562,168 @@
 
         const app = initializeApp(firebaseConfig);
         const analytics = getAnalytics(app);
-        console.log("Firebase initialized for registration page.");
 
-        // --- Utility functions shared with HTML (exposed so inline buttons work) ---
+        // --- UI LOGIC ---
 
-        // Toggle password visibility
-        window.togglePassword = (inputId, iconId) => {
-            const input = document.getElementById(inputId);
-            const icon = document.getElementById(iconId);
+        // Password Toggle
+        window.togglePassword = (id) => {
+            const input = document.getElementById(id);
+            const icon = input.nextElementSibling.querySelector('i');
+            
             if (input.type === "password") {
                 input.type = "text";
-                icon.innerText = "🙈";
+                icon.classList.replace('ph-eye', 'ph-eye-slash');
             } else {
                 input.type = "password";
-                icon.innerText = "👁️";
+                icon.classList.replace('ph-eye-slash', 'ph-eye');
             }
         };
 
-        // Update country dial prefix (simple map; you could expand to full intl formatting)
-        const countryDialMap = {
-            US: "+1", CA: "+1", GB: "+44", AU: "+61", DE: "+49", FR: "+33", NL: "+31", IN: "+91", SG: "+65",
-            ZA: "+27", BR: "+55", MX: "+52", JP: "+81", KR: "+82", OTHER: "+"
-        };
-        const countrySelect = document.getElementById('country');
-        const dialPrefix = document.getElementById('dialPrefix');
-        countrySelect.addEventListener('change', () => {
-            dialPrefix.innerText = countryDialMap[countrySelect.value] || "+";
-        });
+        // Password Strength Meter
+        const passwordInput = document.getElementById('password');
+        const bars = [
+            document.getElementById('bar-1'),
+            document.getElementById('bar-2'),
+            document.getElementById('bar-3'),
+            document.getElementById('bar-4')
+        ];
 
-        // Password strength evaluation (basic but practical)
-        const strengthBar = document.getElementById('strengthBar');
-        const strengthLabel = document.getElementById('strengthLabel');
-        document.getElementById('password').addEventListener('input', () => {
-            const password = document.getElementById('password').value;
+        passwordInput.addEventListener('input', (e) => {
+            const val = e.target.value;
             let strength = 0;
 
-            // Rule-based scoring
-            if (password.length >= 8) strength++;
-            if (/[A-Z]/.test(password)) strength++;
-            if (/[0-9]/.test(password)) strength++;
-            if (/[^A-Za-z0-9]/.test(password)) strength++;
+            if (val.length > 5) strength++;
+            if (val.length > 8) strength++;
+            if (/[A-Z]/.test(val) && /[0-9]/.test(val)) strength++;
+            if (/[^A-Za-z0-9]/.test(val)) strength++;
 
-            // Update UI
-            strengthBar.className = "strength-fill";
-            if (strength <= 0) {
-                strengthBar.classList.add("strength-none");
-                strengthLabel.innerText = "Strength: None";
-            } else if (strength === 1) {
-                strengthBar.classList.add("strength-weak");
-                strengthLabel.innerText = "Strength: Weak";
-            } else if (strength === 2 || strength === 3) {
-                strengthBar.classList.add("strength-medium");
-                strengthLabel.innerText = "Strength: Medium";
-            } else {
-                strengthBar.classList.add("strength-strong");
-                strengthLabel.innerText = "Strength: Strong";
-            }
-        });
-
-        // Real-time validation handling for cleaner UX
-        function showError(wrapperId, errorId, show = true) {
-            const wrapper = document.getElementById(wrapperId);
-            const error = document.getElementById(errorId);
-            wrapper.classList.toggle('error', show);
-            error.style.display = show ? 'block' : 'none';
-        }
-
-        // Username validation
-        const username = document.getElementById('username');
-        username.addEventListener('blur', () => {
-            const valid = username.checkValidity();
-            showError('wrapperUsername', 'errorUsername', !valid);
-        });
-
-        // Email validation
-        const email = document.getElementById('email');
-        email.addEventListener('blur', () => {
-            const valid = email.checkValidity();
-            showError('wrapperEmail', 'errorEmail', !valid);
-        });
-
-        // Phone validation (lightweight: optional, so only check if filled)
-        const phone = document.getElementById('phone');
-        phone.addEventListener('blur', () => {
-            if (phone.value.trim() === "") {
-                showError('wrapperPhone', 'errorPhone', false); // no error if not provided
-            } else {
-                const re = /^\+?[0-9 ()\-]{6,15}$/; // loose but safe phone pattern
-                const valid = re.test(phone.value.trim());
-                showError('wrapperPhone', 'errorPhone', !valid);
-            }
-        });
-
-        // Password match validation
-        const password = document.getElementById('password');
-        const confirmPassword = document.getElementById('confirmPassword');
-        function validatePasswordMatch() {
-            const match = password.value === confirmPassword.value;
-            showError('wrapperConfirmPassword', 'errorConfirmPassword', !match && confirmPassword.value.length > 0);
-            return match;
-        }
-        password.addEventListener('input', validatePasswordMatch);
-        confirmPassword.addEventListener('blur', validatePasswordMatch);
-
-        // DOB validation (must be 18+)
-        const dob = document.getElementById('dob');
-        dob.addEventListener('blur', () => {
-            const dobValue = dob.value; // YYYY-MM-DD
-            if (!dobValue) {
-                showError('wrapperDOB', 'errorDOB', true);
-                return;
-            }
-            const today = new Date();
-            const birthDate = new Date(dobValue);
-            let age = today.getFullYear() - birthDate.getFullYear();
-            const monthDiff = today.getMonth() - birthDate.getMonth();
-            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-                age--;
-            }
-            showError('wrapperDOB', 'errorDOB', age < 18);
-        });
-
-        // Terms check validation
-        const terms = document.getElementById('terms');
-        terms.addEventListener('change', () => {
-            showError('wrapperTerms', 'errorTerms', !terms.checked);
-        });
-
-        // Form submission — here we do client-side checks and show how to integrate Firebase Auth later
-        document.getElementById('registerForm').addEventListener('submit', async (event) => {
-            event.preventDefault(); // Prevent actual form submission for handling
-
-            // Collect form values
-            const usernameVal = username.value.trim();
-            const emailVal = email.value.trim();
-            const passwordVal = password.value.trim();
-            const confirmPasswordVal = confirmPassword.value.trim();
-            const countryVal = countrySelect.value;
-            const phoneVal = phone.value.trim();
-            const referralVal = document.getElementById('referralCode').value.trim();
-            const dobVal = dob.value; // YYYY-MM-DD
-            const termsChecked = terms.checked;
-            const marketingConsent = document.getElementById('marketingConsent').checked;
-
-            // Reset errors before re-checking
-            showError('wrapperUsername', 'errorUsername', false);
-            showError('wrapperEmail', 'errorEmail', false);
-            showError('wrapperPassword', 'errorPassword', false);
-            showError('wrapperConfirmPassword', 'errorConfirmPassword', false);
-            showError('wrapperPhone', 'errorPhone', false);
-            showError('wrapperDOB', 'errorDOB', false);
-            showError('wrapperTerms', 'errorTerms', false);
-
-            // Basic validity checks
-            let hasError = false;
-            if (!username.checkValidity()) { showError('wrapperUsername', 'errorUsername', true); hasError = true; }
-            if (!email.checkValidity()) { showError('wrapperEmail', 'errorEmail', true); hasError = true; }
-            if (!password.checkValidity()) { showError('wrapperPassword', 'errorPassword', true); hasError = true; }
-            if (!validatePasswordMatch()) { hasError = true; }
-            if (phoneVal !== "" && !(/^\+?[0-9 ()\-]{6,15}$/.test(phoneVal.trim()))) {
-                showError('wrapperPhone', 'errorPhone', true); hasError = true;
-            }
-            if (!dobVal) {
-                showError('wrapperDOB', 'errorDOB', true); hasError = true;
-            } else {
-                const birthDate = new Date(dobVal);
-                const today = new Date();
-                let age = today.getFullYear() - birthDate.getFullYear();
-                const monthDiff = today.getMonth() - birthDate.getMonth();
-                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-                    age--;
+            bars.forEach((bar, index) => {
+                if (index < strength) {
+                    bar.classList.add('active');
+                    // Color coding
+                    if (strength <= 1) bar.style.background = '#ef4444';
+                    else if (strength <= 2) bar.style.background = '#f59e0b';
+                    else if (strength <= 3) bar.style.background = '#84cc16';
+                    else bar.style.background = '#22c55e';
+                } else {
+                    bar.classList.remove('active');
+                    bar.style.background = '#333';
                 }
-                if (age < 18) {
-                    showError('wrapperDOB', 'errorDOB', true); hasError = true;
-                }
+            });
+        });
+
+        // Form Validation & Submission
+        const form = document.getElementById('registerForm');
+        const submitBtn = document.getElementById('submitBtn');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            let isValid = true;
+
+            // Reset Errors
+            document.querySelectorAll('.form-group').forEach(g => g.classList.remove('error'));
+            document.getElementById('terms-error').style.display = 'none';
+
+            // Validate Username
+            const username = document.getElementById('username');
+            if (username.value.length < 3) {
+                document.getElementById('group-username').classList.add('error');
+                isValid = false;
             }
-            if (!termsChecked) { showError('wrapperTerms', 'errorTerms', true); hasError = true; }
 
-            if (hasError) {
-                alert("There are errors in your form. Please correct them before continuing.");
-                return;
+            // Validate Email
+            const email = document.getElementById('email');
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email.value)) {
+                document.getElementById('group-email').classList.add('error');
+                isValid = false;
             }
 
-            // Build user profile data object (safely — minimize sensitive data at first)
-            const userData = {
-                username: usernameVal,
-                email: emailVal,
-                country: countryVal || null,
-                phone: phoneVal || null, // optional; consider only using for OTP/alerts and not mandatory
-                dob: dobVal, // store DOB as ISO string (YYYY-MM-DD) — consider hashing/age checks later if you care about privacy
-                marketingConsent: marketingConsent,
-                referralCode: referralVal || null, // referral algorithm can be handled server-side for best security
-                createdAt: new Date().toISOString(),
-                accountStatus: 'pending_verification', // status for KYC, anti-fraud, etc.
-            };
+            // Validate Country & Phone (Mandatory)
+            const country = document.getElementById('country');
+            const phone = document.getElementById('phone');
+            const phoneRegex = /^[\d\s\-\+\(\)]{7,20}$/; // Simple regex for international numbers
 
-            console.log("Form data (for debugging):", userData);
+            if (country.value === "") {
+                document.getElementById('group-country').classList.add('error');
+                isValid = false;
+            }
+            if (!phoneRegex.test(phone.value)) {
+                document.getElementById('group-phone').classList.add('error');
+                isValid = false;
+            }
 
-            // --- FIREBASE AUTH INTEGRATION (DESCRIPTIVE) ---
-            // When you’re ready to create an account, you would do something like this:
-            /*
-            import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
-            import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+            // Validate Password
+            const password = document.getElementById('password');
+            if (password.value.length < 8) {
+                document.getElementById('group-password').classList.add('error');
+                isValid = false;
+            }
 
-            const auth = getAuth(app);
-            const db = getFirestore(app);
+            // Validate Confirm Password
+            const confirmPassword = document.getElementById('confirmPassword');
+            if (password.value !== confirmPassword.value) {
+                document.getElementById('group-confirm').classList.add('error');
+                isValid = false;
+            }
+
+            // Validate Terms
+            const terms = document.getElementById('terms');
+            if (!terms.checked) {
+                document.getElementById('terms-error').style.display = 'flex';
+                isValid = false;
+            }
+
+            if (!isValid) return;
+
+            // --- FIREBASE AUTH INTEGRATION ---
+            
+            // Visual loading state
+            submitBtn.classList.add('loading');
+            submitBtn.innerHTML = '<div class="spinner"></div>'; // Ensure spinner is visible
 
             try {
-                const userCredential = await createUserWithEmailAndPassword(auth, emailVal, passwordVal);
+                // Dynamically import Auth to keep initial page load fast
+                const { getAuth, createUserWithEmailAndPassword } = await import("https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js");
+                const auth = getAuth(app);
+
+                // Create User
+                const userCredential = await createUserWithEmailAndPassword(auth, email.value, password.value);
                 const user = userCredential.user;
 
-                // Store additional profile data + referral in Firestore
-                await setDoc(doc(db, "users", user.uid), userData);
-                // Optionally handle referral bonuses by looking up referral coach in Firestore
+                console.log("Account created:", user.uid);
+                
+                // Optional: Store additional user data in Firestore here
+                // const { getFirestore, doc, setDoc } = await import("https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js");
+                // const db = getFirestore(app);
+                // await setDoc(doc(db, "users", user.uid), {
+                //     username: username.value,
+                //     phone: phone.value,
+                //     country: country.value,
+                //     createdAt: new Date()
+                // });
 
-                // Send verification email (Firebase Auth provides this)
-                // await sendEmailVerification(user);
+                // Success Animation
+                submitBtn.style.background = '#22c55e'; // Green
+                submitBtn.innerHTML = '<i class="ph ph-check-circle" style="font-size: 1.2rem;"></i> Account Created';
+                
+                // Redirect after delay
+                setTimeout(() => {
+                    window.location.href = "index.html";
+                }, 1500);
 
-                alert("Your account has been created successfully! Please check your email to verify your account.");
-                window.location.href = "index.html"; // Redirect to homepage after success
             } catch (error) {
-                console.error("Registration failed:", error);
-                alert(`Registration failed: ${error.message}`);
+                console.error("Registration Error:", error);
+                submitBtn.classList.remove('loading');
+                submitBtn.innerHTML = '<span class="btn-text">Create Account</span><div class="spinner"></div>';
+                
+                // Show Firebase error to user (simplified)
+                let errorMsg = "Registration failed. Please try again.";
+                if (error.code === 'auth/email-already-in-use') errorMsg = "Email already in use.";
+                if (error.code === 'auth/weak-password') errorMsg = "Password is too weak.";
+                
+                alert(errorMsg);
             }
-            */
-            // For now, show a friendly confirmation:
-            alert("Registration submitted (demo mode):\n\nYour account information has been captured for setup. Firebase Authentication integration will complete account creation, email verification, and payment eligibility securely.\n\nNext step: verify your email and go play!");
-
-            // Clear form after demo success (optional)
-            document.getElementById('registerForm').reset();
-        });
-
-        // UX improve: smooth transitions and helpful input hints
-        document.querySelectorAll('.input').forEach(el => {
-            el.addEventListener('focus', () => {
-                el.closest('.input-wrapper')?.classList.add('focused');
-            });
-            el.addEventListener('blur', () => {
-                el.closest('.input-wrapper')?.classList.remove('focused');
-            });
         });
     </script>
 </body>
