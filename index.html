@@ -5,176 +5,216 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>TaskVault - #1 Gaming Platform in Africa</title>
-  <meta name="description" content="Earn daily on TaskVault with referrals, leaderboard rewards, instant deposits and fast withdrawals.">
+  <meta name="description" content="Earn daily on TaskVault through gaming, referrals, and leaderboard rewards. Fast withdrawals and instant deposits across Africa.">
 
   <!-- Open Graph -->
   <meta property="og:title" content="TaskVault - #1 Gaming Platform in Africa">
-  <meta property="og:description" content="Earn daily with TaskVault. Fast withdrawals, referrals, and gaming rewards.">
+  <meta property="og:description" content="Join TaskVault and start earning daily. Instant deposits, fast withdrawals, and referral income.">
   <meta property="og:image" content="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg">
 
   <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg">
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <style>
-    * { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins', sans-serif; scroll-behavior:smooth; }
+    * {
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family:'Poppins', sans-serif;
+    }
 
-    body { background:#fff; color:#333; }
+    body {
+      background:#fff;
+      color:#222;
+    }
 
     header {
       display:flex;
       justify-content:space-between;
       align-items:center;
-      padding:15px 8%;
-      box-shadow:0 2px 10px rgba(0,0,0,0.05);
-      animation: fadeIn 1s ease;
+      padding:18px 8%;
+      box-shadow:0 2px 12px rgba(0,0,0,0.05);
     }
 
-    header img { height:45px; }
+    header img { height:50px; }
 
     .auth-buttons a {
       margin-left:10px;
-      padding:8px 16px;
-      border-radius:6px;
+      padding:10px 18px;
+      border-radius:8px;
       text-decoration:none;
-      font-size:14px;
+      font-size:15px;
+      font-weight:500;
       transition:0.3s;
     }
 
-    .login { border:1px solid #ff7a00; color:#ff7a00; }
-    .login:hover { background:#ff7a00; color:white; }
+    .login {
+      border:1px solid #ff7a00;
+      color:#ff7a00;
+    }
 
-    .register { background:#ff7a00; color:white; }
-    .register:hover { background:#e66900; }
+    .login:hover {
+      background:#ff7a00;
+      color:white;
+    }
+
+    .register {
+      background:#ff7a00;
+      color:white;
+    }
+
+    .register:hover {
+      background:#e66900;
+    }
 
     .hero {
       text-align:center;
-      padding:70px 20px;
+      padding:90px 20px 70px;
       background:linear-gradient(135deg,#fff,#fff5ec);
-      animation: fadeUp 1s ease;
     }
 
-    .hero img { width:90px; margin-bottom:20px; }
+    .hero img {
+      width:100px;
+      margin-bottom:20px;
+    }
 
-    .hero h1 { font-size:32px; }
-    .hero span { color:#ff7a00; }
+    .hero h1 {
+      font-size:40px;
+      line-height:1.3;
+    }
+
+    .hero span {
+      color:#ff7a00;
+    }
 
     .hero p {
-      margin:15px auto;
-      max-width:600px;
+      margin:20px auto;
+      max-width:700px;
+      font-size:17px;
+      line-height:1.7;
       color:#555;
-      line-height:1.6;
     }
 
     .hero-buttons a {
-      margin:5px;
-      padding:12px 22px;
-      border-radius:6px;
+      margin:8px;
+      padding:14px 26px;
+      border-radius:8px;
+      font-size:16px;
       font-weight:600;
       text-decoration:none;
       display:inline-block;
       transition:0.3s;
     }
 
-    .primary { background:#ff7a00; color:white; }
-    .primary:hover { transform:translateY(-2px); }
+    .primary {
+      background:#ff7a00;
+      color:white;
+    }
 
-    .secondary { border:1px solid #ff7a00; color:#ff7a00; }
-    .secondary:hover { background:#ff7a00; color:white; }
+    .primary:hover {
+      transform:translateY(-2px);
+    }
+
+    .secondary {
+      border:1px solid #ff7a00;
+      color:#ff7a00;
+    }
+
+    .secondary:hover {
+      background:#ff7a00;
+      color:white;
+    }
 
     .features {
-      padding:60px 20px;
-      animation: fadeUp 1.2s ease;
+      padding:70px 20px;
     }
 
     .feature-grid {
       display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-      gap:20px;
+      grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+      gap:25px;
     }
 
     .card {
-      padding:25px;
-      border-radius:10px;
+      padding:30px;
+      border-radius:12px;
       background:#fff;
-      box-shadow:0 4px 15px rgba(0,0,0,0.05);
+      box-shadow:0 6px 20px rgba(0,0,0,0.05);
       transition:0.3s;
     }
 
     .card:hover {
-      transform:translateY(-5px);
-      box-shadow:0 10px 25px rgba(0,0,0,0.08);
+      transform:translateY(-6px);
     }
 
     .card i {
-      font-size:28px;
+      font-size:32px;
       color:#ff7a00;
-      margin-bottom:10px;
+      margin-bottom:12px;
     }
 
-    .card p { font-size:14px; color:#666; line-height:1.6; }
+    .card h3 {
+      margin-bottom:10px;
+      font-size:18px;
+    }
 
-    /* FAQ */
+    .card p {
+      font-size:15px;
+      line-height:1.7;
+      color:#666;
+    }
+
     .faq {
-      padding:60px 20px;
+      padding:70px 20px;
       background:#fff5ec;
-      animation: fadeUp 1.4s ease;
     }
 
     .faq h2 {
       text-align:center;
       margin-bottom:30px;
+      font-size:28px;
     }
 
     .faq-item {
-      max-width:700px;
-      margin:10px auto;
-      border-radius:8px;
+      max-width:750px;
+      margin:12px auto;
+      padding:18px;
+      border-radius:10px;
       background:white;
-      box-shadow:0 3px 10px rgba(0,0,0,0.05);
+      box-shadow:0 4px 12px rgba(0,0,0,0.05);
       cursor:pointer;
-      padding:15px;
-      transition:0.3s;
-    }
-
-    .faq-item:hover {
-      transform:scale(1.01);
     }
 
     .faq-question {
       font-weight:600;
+      font-size:16px;
     }
 
     .faq-answer {
       margin-top:10px;
-      font-size:14px;
+      font-size:15px;
       color:#555;
       display:none;
+      line-height:1.6;
     }
 
     footer {
       text-align:center;
-      padding:20px;
-      font-size:13px;
+      padding:25px;
+      font-size:14px;
       background:#f9f9f9;
     }
 
-    footer a { color:#ff7a00; text-decoration:none; }
-
-    /* Animations */
-    @keyframes fadeIn {
-      from { opacity:0; }
-      to { opacity:1; }
+    footer a {
+      color:#ff7a00;
+      text-decoration:none;
     }
 
-    @keyframes fadeUp {
-      from { opacity:0; transform:translateY(20px); }
-      to { opacity:1; transform:translateY(0); }
-    }
-
-    @media (max-width:600px) {
-      .hero h1 { font-size:24px; }
+    @media(max-width:600px) {
+      .hero h1 { font-size:28px; }
+      .hero p { font-size:15px; }
     }
   </style>
 </head>
@@ -191,10 +231,12 @@
 
 <section class="hero">
   <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg">
-  <h1>TaskVault <br><span>#1 Gaming Platform in Africa</span></h1>
+  <h1>TaskVault <br><span>#1 Gaming & Earning Platform in Africa</span></h1>
+
   <p>
-    Earn through gaming, referrals, and competitions on a platform built for speed, trust, and sustainability. 
-    TaskVault gives you real opportunities to grow your income daily.
+    TaskVault is built to give everyday users a reliable way to earn online through gaming, referrals, 
+    and performance-based rewards. With a secure system, fast transactions, and a growing community, 
+    TaskVault is designed for consistency, transparency, and long-term earning opportunities.
   </p>
 
   <div class="hero-buttons">
@@ -207,23 +249,39 @@
   <div class="feature-grid">
 
     <div class="card">
-      <i class="fas fa-trophy"></i>
-      <p><strong>Leaderboard Rewards:</strong> Compete and earn higher rewards as you climb rankings.</p>
-    </div>
-
-    <div class="card">
-      <i class="fas fa-users"></i>
-      <p><strong>Referral Income:</strong> Build a network and earn passive commissions consistently.</p>
+      <i class="fas fa-money-bill-wave"></i>
+      <h3>Fast & Reliable Withdrawals</h3>
+      <p>
+        Withdraw your earnings with confidence. All withdrawal requests are processed within 24 hours, 
+        ensuring you always have quick and dependable access to your funds without unnecessary delays.
+      </p>
     </div>
 
     <div class="card">
       <i class="fas fa-bolt"></i>
-      <p><strong>Instant Deposits:</strong> Fund your account instantly with crypto or bank transfers.</p>
+      <h3>Instant Deposits</h3>
+      <p>
+        Get started immediately with our instant deposit system. Whether using cryptocurrency or 
+        local bank transfers, your funds reflect quickly so you never miss earning opportunities.
+      </p>
     </div>
 
     <div class="card">
-      <i class="fas fa-money-bill-wave"></i>
-      <p><strong>24hr Withdrawals:</strong> Reliable withdrawals processed within 24 hours.</p>
+      <i class="fas fa-users"></i>
+      <h3>Referral Commissions</h3>
+      <p>
+        Earn continuously by inviting others to join TaskVault. Our referral system rewards you 
+        with commissions, helping you build a steady passive income stream over time.
+      </p>
+    </div>
+
+    <div class="card">
+      <i class="fas fa-trophy"></i>
+      <h3>Leaderboard Rewards</h3>
+      <p>
+        Stay active and competitive. Users who rank higher on the leaderboard receive bonus rewards, 
+        giving you more reasons to stay engaged and maximize your earnings.
+      </p>
     </div>
 
   </div>
@@ -233,23 +291,18 @@
   <h2>Frequently Asked Questions</h2>
 
   <div class="faq-item" onclick="toggleFAQ(this)">
-    <div class="faq-question">How fast are withdrawals processed?</div>
-    <div class="faq-answer">All withdrawals are processed within 24 hours to ensure quick access to your earnings.</div>
+    <div class="faq-question">How long do withdrawals take?</div>
+    <div class="faq-answer">All withdrawals are processed within 24 hours, ensuring fast and reliable payouts.</div>
   </div>
 
   <div class="faq-item" onclick="toggleFAQ(this)">
-    <div class="faq-question">How do I earn on TaskVault?</div>
-    <div class="faq-answer">You earn through gameplay, referrals, leaderboard rankings, and other reward systems on the platform.</div>
+    <div class="faq-question">How can I start earning?</div>
+    <div class="faq-answer">Simply create an account, fund your wallet, and start participating in tasks, referrals, and competitions.</div>
   </div>
 
   <div class="faq-item" onclick="toggleFAQ(this)">
     <div class="faq-question">What payment methods are supported?</div>
-    <div class="faq-answer">We support cryptocurrency and local bank transfers for both deposits and withdrawals.</div>
-  </div>
-
-  <div class="faq-item" onclick="toggleFAQ(this)">
-    <div class="faq-question">Is TaskVault available across Africa?</div>
-    <div class="faq-answer">Yes, TaskVault is accessible to users across multiple African countries.</div>
+    <div class="faq-answer">We support both cryptocurrency and local bank transfers for deposits and withdrawals.</div>
   </div>
 
 </section>
@@ -259,9 +312,9 @@
 </footer>
 
 <script>
-function toggleFAQ(element) {
-  const answer = element.querySelector(".faq-answer");
-  answer.style.display = answer.style.display === "block" ? "none" : "block";
+function toggleFAQ(el){
+  let ans = el.querySelector(".faq-answer");
+  ans.style.display = ans.style.display === "block" ? "none" : "block";
 }
 </script>
 
