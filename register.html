@@ -127,36 +127,16 @@
             to { opacity: 1; transform: translateY(0) rotateX(0); }
         }
 
-        .card-header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        .card-header h1 {
-            font-size: 1.8rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            letter-spacing: -0.5px;
-        }
-
+        .card-header { text-align: center; margin-bottom: 2rem; }
+        .card-header h1 { font-size: 1.8rem; font-weight: 600; margin-bottom: 0.5rem; letter-spacing: -0.5px; }
         .card-header h1 span { color: var(--primary); }
-        
-        .card-header p {
-            color: var(--text-muted);
-            font-size: 0.95rem;
-            font-weight: 400;
-        }
+        .card-header p { color: var(--text-muted); font-size: 0.95rem; font-weight: 400; }
 
         /* Form Elements */
         .form-group { margin-bottom: 1.5rem; position: relative; }
         .label-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
         
-        label {
-            font-size: 0.85rem;
-            font-weight: 500;
-            color: var(--text-main);
-            letter-spacing: 0.3px;
-        }
+        label { font-size: 0.85rem; font-weight: 500; color: var(--text-main); letter-spacing: 0.3px; }
 
         .input-wrapper {
             display: flex;
@@ -176,13 +156,7 @@
             transform: translateY(-1px);
         }
 
-        .input-icon {
-            color: var(--text-muted);
-            font-size: 1.25rem;
-            margin-right: 0.75rem;
-            transition: color 0.3s;
-        }
-
+        .input-icon { color: var(--text-muted); font-size: 1.25rem; margin-right: 0.75rem; transition: color 0.3s; }
         .input-wrapper:focus-within .input-icon { color: var(--primary); }
 
         .input {
@@ -196,182 +170,53 @@
             font-family: var(--font-main);
             font-weight: 500;
         }
-
         .input::placeholder { color: #b0b0b0; font-weight: 400; }
 
-        select.input {
-            cursor: pointer;
-            appearance: none;
-            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%237f8c8d' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 0.5rem center;
-            background-size: 1.2rem;
-            padding-right: 2.5rem;
-        }
+        select.input { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%237f8c8d' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 0.5rem center; background-size: 1.2rem; padding-right: 2.5rem; }
 
-        .toggle-password {
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            cursor: pointer;
-            padding: 0.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: color 0.3s;
-        }
+        .toggle-password { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 0.5rem; display: flex; align-items: center; justify-content: center; transition: color 0.3s; }
         .toggle-password:hover { color: var(--primary); }
 
-        .error-msg {
-            color: #c0392b;
-            font-size: 0.8rem;
-            margin-top: 0.4rem;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            opacity: 0;
-            height: 0;
-            overflow: hidden;
-            transition: 0.3s;
-            font-weight: 500;
-        }
-        .form-group.error .error-msg {
-            opacity: 1;
-            height: auto;
-            margin-bottom: 0.5rem;
-        }
-        .form-group.error .input-wrapper {
-            border-color: #c0392b;
-            box-shadow: 0 0 0 4px rgba(192, 57, 43, 0.1);
-        }
+        .error-msg { color: #c0392b; font-size: 0.8rem; margin-top: 0.4rem; display: flex; align-items: center; gap: 4px; opacity: 0; height: 0; overflow: hidden; transition: 0.3s; font-weight: 500; }
+        .form-group.error .error-msg { opacity: 1; height: auto; margin-bottom: 0.5rem; }
+        .form-group.error .input-wrapper { border-color: #c0392b; box-shadow: 0 0 0 4px rgba(192, 57, 43, 0.1); }
 
         /* Password Strength */
-        .password-strength {
-            display: flex;
-            gap: 6px;
-            margin-top: 10px;
-            height: 4px;
-        }
-        .strength-bar {
-            flex: 1;
-            background: #e0dcd5;
-            border-radius: 4px;
-            transition: all 0.4s ease;
-        }
+        .password-strength { display: flex; gap: 6px; margin-top: 10px; height: 4px; }
+        .strength-bar { flex: 1; background: #e0dcd5; border-radius: 4px; transition: all 0.4s ease; }
         .strength-bar.active { background: var(--primary); }
 
         /* Terms Checkbox */
-        .terms-group {
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            margin-top: 1.5rem;
-            cursor: pointer;
-            user-select: none;
-        }
+        .terms-group { display: flex; align-items: flex-start; gap: 12px; margin-top: 1.5rem; cursor: pointer; user-select: none; }
         .custom-checkbox {
-            width: 22px;
-            height: 22px;
-            border: 2px solid #d0d0d0;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: var(--transition);
-            flex-shrink: 0;
-            margin-top: 2px;
-            background: #fff;
+            width: 22px; height: 22px; border: 2px solid #d0d0d0; border-radius: 6px; display: flex; align-items: center; justify-content: center;
+            transition: var(--transition); flex-shrink: 0; margin-top: 2px; background: #fff;
         }
-        .custom-checkbox i {
-            font-size: 14px;
-            color: #fff;
-            opacity: 0;
-            transform: scale(0.5);
-            transition: var(--transition);
-        }
+        .custom-checkbox i { font-size: 14px; color: #fff; opacity: 0; transform: scale(0.5); transition: var(--transition); }
         .terms-group input { display: none; }
-        .terms-group input:checked + .custom-checkbox {
-            background: var(--primary);
-            border-color: var(--primary);
-            box-shadow: 0 2px 8px var(--primary-glow);
-        }
-        .terms-group input:checked + .custom-checkbox i {
-            opacity: 1;
-            transform: scale(1);
-        }
-        .terms-text {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            line-height: 1.4;
-        }
-        .terms-text a {
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: 500;
-        }
+        .terms-group input:checked + .custom-checkbox { background: var(--primary); border-color: var(--primary); box-shadow: 0 2px 8px var(--primary-glow); }
+        .terms-group input:checked + .custom-checkbox i { opacity: 1; transform: scale(1); }
+        .terms-text { font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; }
+        .terms-text a { color: var(--primary); text-decoration: none; font-weight: 500; }
         .terms-text a:hover { text-decoration: underline; }
 
         /* Submit Button */
         .btn-submit {
-            width: 100%;
-            padding: 1.1rem;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 2rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            transition: var(--transition);
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 4px 15px var(--primary-glow);
-            font-family: var(--font-main);
-            letter-spacing: 0.5px;
+            width: 100%; padding: 1.1rem; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white; border: none; border-radius: 12px; font-size: 1rem; font-weight: 600; cursor: pointer;
+            margin-top: 2rem; display: flex; align-items: center; justify-content: center; gap: 10px;
+            transition: var(--transition); position: relative; overflow: hidden; box-shadow: 0 4px 15px var(--primary-glow);
+            font-family: var(--font-main); letter-spacing: 0.5px;
         }
-        
-        .btn-submit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px var(--primary-glow);
-        }
-        
+        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 25px var(--primary-glow); }
         .btn-submit:active { transform: translateY(0); }
-        
-        .btn-submit.loading {
-            pointer-events: none;
-            opacity: 0.8;
-        }
-        
-        .spinner {
-            width: 20px;
-            height: 20px;
-            border: 2px solid rgba(255,255,255,0.3);
-            border-top-color: white;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            display: none;
-        }
+        .btn-submit.loading { pointer-events: none; opacity: 0.8; }
+        .spinner { width: 20px; height: 20px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite; display: none; }
         .btn-submit.loading .spinner { display: block; }
-
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        .login-link {
-            text-align: center;
-            margin-top: 1.5rem;
-            color: var(--text-muted);
-            font-size: 0.9rem;
-        }
-        .login-link a {
-            color: var(--primary);
-            font-weight: 600;
-            text-decoration: none;
-            margin-left: 4px;
-        }
+        .login-link { text-align: center; margin-top: 1.5rem; color: var(--text-muted); font-size: 0.9rem; }
+        .login-link a { color: var(--primary); font-weight: 600; text-decoration: none; margin-left: 4px; }
 
         @media (max-width: 600px) {
             main { padding: 1rem; }
@@ -427,7 +272,7 @@
 
                 <!-- Phone Section -->
                 <div class="phone-grid">
-                    <!-- Country (Expanded List) -->
+                    <!-- Country -->
                     <div class="form-group" id="group-country" style="margin-bottom: 1.5rem;">
                         <div class="label-row">
                             <label for="country">Country</label>
@@ -436,8 +281,6 @@
                             <i class="ph ph-globe input-icon"></i>
                             <select id="country" class="input" required>
                                 <option value="" disabled selected>Select Country</option>
-                                
-                                <!-- Specific Countries Requested -->
                                 <option value="NG">Nigeria (+234)</option>
                                 <option value="CM">Cameroon (+237)</option>
                                 <option value="GH">Ghana (+233)</option>
@@ -448,62 +291,13 @@
                                 <option value="GB">United Kingdom (+44)</option>
                                 <option value="CA">Canada (+1)</option>
                                 <option value="HU">Hungary (+36)</option>
-                                
-                                <!-- Rest of the World -->
-                                <optgroup label="Africa">
-                                    <option value="ZA">South Africa (+27)</option>
-                                    <option value="KE">Kenya (+254)</option>
-                                    <option value="ET">Ethiopia (+251)</option>
-                                    <option value="EG">Egypt (+20)</option>
-                                    <option value="TZ">Tanzania (+255)</option>
-                                    <option value="UG">Uganda (+256)</option>
-                                    <option value="DZ">Algeria (+213)</option>
-                                    <option value="MA">Morocco (+212)</option>
-                                    <option value="SN">Senegal (+221)</option>
-                                    <option value="CI">Côte d'Ivoire (+225)</option>
-                                </optgroup>
-                                
-                                <optgroup label="Asia">
-                                    <option value="IN">India (+91)</option>
-                                    <option value="JP">Japan (+81)</option>
-                                    <option value="KR">South Korea (+82)</option>
-                                    <option value="VN">Vietnam (+84)</option>
-                                    <option value="TH">Thailand (+66)</option>
-                                    <option value="MY">Malaysia (+60)</option>
-                                    <option value="ID">Indonesia (+62)</option>
-                                    <option value="SG">Singapore (+65)</option>
-                                    <option value="PK">Pakistan (+92)</option>
-                                    <option value="BD">Bangladesh (+880)</option>
-                                </optgroup>
-                                
-                                <optgroup label="Europe">
-                                    <option value="DE">Germany (+49)</option>
-                                    <option value="FR">France (+33)</option>
-                                    <option value="IT">Italy (+39)</option>
-                                    <option value="ES">Spain (+34)</option>
-                                    <option value="NL">Netherlands (+31)</option>
-                                    <option value="PL">Poland (+48)</option>
-                                    <option value="SE">Sweden (+46)</option>
-                                    <option value="NO">Norway (+47)</option>
-                                    <option value="FI">Finland (+358)</option>
-                                    <option value="IE">Ireland (+353)</option>
-                                </optgroup>
-                                
-                                <optgroup label="Americas">
-                                    <option value="MX">Mexico (+52)</option>
-                                    <option value="BR">Brazil (+55)</option>
-                                    <option value="AR">Argentina (+54)</option>
-                                    <option value="CO">Colombia (+57)</option>
-                                    <option value="PE">Peru (+51)</option>
-                                    <option value="CL">Chile (+56)</option>
-                                    <option value="VE">Venezuela (+58)</option>
-                                </optgroup>
-                                
-                                <optgroup label="Oceania">
-                                    <option value="AU">Australia (+61)</option>
-                                    <option value="NZ">New Zealand (+64)</option>
-                                    <option value="FJ">Fiji (+679)</option>
-                                </optgroup>
+                                <option value="ZA">South Africa (+27)</option>
+                                <option value="AU">Australia (+61)</option>
+                                <option value="DE">Germany (+49)</option>
+                                <option value="FR">France (+33)</option>
+                                <option value="IN">India (+91)</option>
+                                <option value="JP">Japan (+81)</option>
+                                <option value="BR">Brazil (+55)</option>
                             </select>
                         </div>
                         <div class="error-msg"><i class="ph ph-warning-circle"></i> Select your country.</div>
@@ -558,7 +352,7 @@
                     <div class="error-msg"><i class="ph ph-warning-circle"></i> Passwords do not match.</div>
                 </div>
 
-                <!-- Terms Checkbox (Only Terms of Service) -->
+                <!-- Terms Checkbox -->
                 <label class="terms-group">
                     <input type="checkbox" id="terms" required>
                     <div class="custom-checkbox">
@@ -577,7 +371,7 @@
                 </button>
 
                 <div class="login-link">
-                    Already have an account? <a href="#">Log In</a>
+                    Already have an account? <a href="login.html">Log In</a>
                 </div>
             </form>
         </div>
@@ -660,7 +454,7 @@
                 isValid = false;
             }
 
-            // Validate Country & Phone (Mandatory)
+            // Validate Country & Phone
             const country = document.getElementById('country');
             const phone = document.getElementById('phone');
             const phoneRegex = /^[\d\s\-\+\(\)]{7,20}$/; 
@@ -697,19 +491,23 @@
 
             if (!isValid) return;
 
-            // --- SIMULATED REGISTRATION & REDIRECT ---
-            // We simulate success here to avoid local server/CORS errors
-            // In production, you would use Firebase Auth here.
+            // --- SIMULATED REGISTRATION & EMAIL VERIFICATION ---
             
             // 1. Visual Loading State
             submitBtn.classList.add('loading');
             submitBtn.innerHTML = '<div class="spinner"></div>';
             submitBtn.style.background = '#27ae60'; // Turn green
 
-            // 2. Simulate network delay (1 second)
+            // 2. Simulate Network Delay & Verification Email
             setTimeout(() => {
-                // 3. Redirect to Dashboard
-                window.location.href = "dashboard.html";
+                // In a real Firebase app, you would send an email verification link here:
+                // await sendEmailVerification(user);
+                
+                console.log("Verification code sent to:", email.value);
+                alert("Account created! A verification code has been sent to your email address. Please verify before logging in.");
+
+                // 3. Redirect to Login Page
+                window.location.href = "login.html";
             }, 1000);
         });
     </script>
