@@ -6,43 +6,58 @@
 
 <title>TaskVault Dashboard</title>
 
+<!-- ✅ FAVICON -->
+<link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg">
+
+<!-- ICONS -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-  font-family:sans-serif;
-}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+body{background:#f5f6fa;display:flex;}
 
-body{
-  display:flex;
-  background:#f7f7f7;
-}
-
-/* SIDEBAR (DESKTOP) */
+/* SIDEBAR */
 .sidebar{
-  width:220px;
-  background:white;
+  width:240px;
+  background:#fff;
   height:100vh;
-  padding:20px;
-  box-shadow:2px 0 10px rgba(0,0,0,0.05);
+  padding:25px 20px;
+  box-shadow:2px 0 15px rgba(0,0,0,0.04);
+  position:fixed;
   display:none;
 }
 
-.sidebar h2{
-  margin-bottom:30px;
+.logo{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:40px;
 }
 
-.sidebar a{
-  display:block;
-  margin:15px 0;
+.logo img{
+  width:40px;
+}
+
+.logo span{
+  font-weight:600;
+  font-size:18px;
+  color:#ff7a00;
+}
+
+.menu a{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:12px;
+  border-radius:10px;
+  margin-bottom:10px;
   text-decoration:none;
-  color:#333;
+  color:#444;
+  transition:.3s;
 }
 
-.sidebar a:hover{
+.menu a:hover{
+  background:#fff5ec;
   color:#ff7a00;
 }
 
@@ -57,12 +72,17 @@ body{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  padding:20px;
-  background:white;
+  padding:18px 20px;
+  background:#fff;
+}
+
+.user-info{
+  font-size:14px;
+  color:#555;
 }
 
 .profile{
-  font-size:24px;
+  font-size:26px;
   color:#ff7a00;
 }
 
@@ -76,7 +96,7 @@ body{
 }
 
 .balance-card h1{
-  font-size:30px;
+  font-size:32px;
 }
 
 /* STATS */
@@ -84,16 +104,17 @@ body{
   display:grid;
   grid-template-columns:repeat(2,1fr);
   gap:15px;
-  padding:20px;
+  padding:0 20px 20px;
 }
 
 .stat{
   background:white;
   padding:15px;
-  border-radius:10px;
+  border-radius:12px;
+  font-size:14px;
 }
 
-/* MOBILE NAV */
+/* NAV MOBILE */
 .bottom-nav{
   position:fixed;
   bottom:0;
@@ -102,12 +123,11 @@ body{
   display:flex;
   justify-content:space-around;
   padding:15px 0;
-  box-shadow:0 -2px 10px rgba(0,0,0,0.05);
 }
 
 .bottom-nav i{
-  font-size:24px;
-  color:#999;
+  font-size:22px;
+  color:#aaa;
 }
 
 .bottom-nav .active{
@@ -116,22 +136,10 @@ body{
 
 /* DESKTOP */
 @media(min-width:768px){
-
-  .sidebar{
-    display:block;
-  }
-
-  .bottom-nav{
-    display:none;
-  }
-
-  .main{
-    margin-left:220px;
-  }
-
-  .stats{
-    grid-template-columns:repeat(4,1fr);
-  }
+  .sidebar{display:block;}
+  .main{margin-left:240px;}
+  .stats{grid-template-columns:repeat(4,1fr);}
+  .bottom-nav{display:none;}
 }
 </style>
 </head>
@@ -140,33 +148,38 @@ body{
 
 <!-- SIDEBAR -->
 <div class="sidebar">
-  <h2>TaskVault</h2>
-  <a href="#"><i class="fas fa-home"></i> Dashboard</a>
-  <a href="#"><i class="fas fa-wallet"></i> Wallet</a>
-  <a href="#"><i class="fas fa-users"></i> Referrals</a>
-  <a href="#"><i class="fas fa-cog"></i> Settings</a>
+  <div class="logo">
+    <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg">
+    <span>TaskVault</span>
+  </div>
+
+  <div class="menu">
+    <a href="#"><i class="fas fa-home"></i> Dashboard</a>
+    <a href="#"><i class="fas fa-wallet"></i> Wallet</a>
+    <a href="#"><i class="fas fa-users"></i> Referrals</a>
+    <a href="#"><i class="fas fa-trophy"></i> Leaderboard</a>
+    <a href="#"><i class="fas fa-cog"></i> Settings</a>
+  </div>
 </div>
 
+<!-- MAIN -->
 <div class="main">
 
-  <!-- HEADER -->
   <div class="header">
-    <h3>Welcome, User</h3>
+    <div class="user-info" id="userEmail">Loading...</div>
     <i class="fas fa-user-circle profile"></i>
   </div>
 
-  <!-- BALANCE -->
   <div class="balance-card">
-    <h3>Balance</h3>
+    <h3>Total Balance</h3>
     <h1 id="balance">0 TVC</h1>
   </div>
 
-  <!-- STATS -->
   <div class="stats">
-    <div class="stat">Referrals: 0</div>
-    <div class="stat">Earned: 0 TVC</div>
-    <div class="stat">Pending: 0 TVC</div>
-    <div class="stat">Rank: #0</div>
+    <div class="stat">Earned: <span id="earned">0</span> TVC</div>
+    <div class="stat">Referrals: <span id="referrals">0</span></div>
+    <div class="stat">Pending: <span id="pending">0</span> TVC</div>
+    <div class="stat">Rank: <span id="rank">#0</span></div>
   </div>
 
 </div>
@@ -178,6 +191,49 @@ body{
   <i class="fas fa-wallet"></i>
   <i class="fas fa-user"></i>
 </div>
+
+<!-- ✅ FIREBASE LOGIC -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAv6QCpopa0Q77AVTyjU5cqJEIKIE9OVTs",
+  authDomain: "taskvault-412a0.firebaseapp.com",
+  projectId: "taskvault-412a0",
+  storageBucket: "taskvault-412a0.firebasestorage.app",
+  messagingSenderId: "420716701831",
+  appId: "1:420716701831:web:c987d91f7f4c8684eb7022",
+  measurementId: "G-93JG3LB08B"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  document.getElementById("userEmail").innerText = user.email;
+
+  const ref = doc(db, "users", user.uid);
+  const snap = await getDoc(ref);
+
+  if (snap.exists()) {
+    const d = snap.data();
+
+    document.getElementById("balance").innerText = (d.balance || 0) + " TVC";
+    document.getElementById("earned").innerText = d.earned || 0;
+    document.getElementById("referrals").innerText = d.referrals || 0;
+    document.getElementById("pending").innerText = d.pending || 0;
+    document.getElementById("rank").innerText = "#" + (d.rank || 0);
+  }
+});
+</script>
 
 </body>
 </html>
