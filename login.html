@@ -14,6 +14,50 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
+    <!-- Firebase SDK (Modular v9+) -->
+    <script type="module">
+        // Import Firebase functions
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAv6QCpopa0Q77AVTyjU5cqJEIKIE9OVTs",
+            authDomain: "taskvault-412a0.firebaseapp.com",
+            projectId: "taskvault-412a0",
+            storageBucket: "taskvault-412a0.firebasestorage.app",
+            messagingSenderId: "420716701831",
+            appId: "1:420716701831:web:c987d91f7f4c8684eb7022",
+            measurementId: "G-93JG3LB08B"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const googleProvider = new GoogleAuthProvider();
+
+        // Make Firebase available globally for the form handler
+        window.firebaseAuth = auth;
+        window.firebaseDb = db;
+        window.googleProvider = googleProvider;
+        window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+        window.signInWithPopup = signInWithPopup;
+        window.doc = doc;
+        window.getDoc = getDoc;
+        window.setDoc = setDoc;
+        window.serverTimestamp = serverTimestamp;
+
+        // Check auth state on load
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // User is signed in, redirect to dashboard
+                console.log("User already signed in:", user.email);
+            }
+        });
+    </script>
+
     <style>
         /* --- SILK THEME VARIABLES --- */
         :root {
@@ -28,6 +72,8 @@
             --text-main: #2c2c2c;
             --text-muted: #7f8c8d;
             --border-color: #e0dcd5;
+            --error: #c0392b;
+            --success: #27ae60;
             
             --radius: 16px;
             --shadow-soft: 0 10px 40px -10px rgba(0,0,0,0.08);
@@ -58,6 +104,43 @@
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
             pointer-events: none;
             z-index: 9999;
+        }
+
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            color: white;
+            font-weight: 500;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            animation: slideIn 0.3s ease-out;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            max-width: 350px;
+        }
+
+        .toast.success { background: var(--success); }
+        .toast.error { background: var(--error); }
+        .toast.info { background: var(--primary); }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes slideOut {
+            to { transform: translateX(100%); opacity: 0; }
         }
 
         /* Navigation */
@@ -179,9 +262,9 @@
         .toggle-password { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 0.5rem; display: flex; align-items: center; justify-content: center; transition: color 0.3s; }
         .toggle-password:hover { color: var(--primary); }
 
-        .error-msg { color: #c0392b; font-size: 0.8rem; margin-top: 0.4rem; display: flex; align-items: center; gap: 4px; opacity: 0; height: 0; overflow: hidden; transition: 0.3s; font-weight: 500; }
+        .error-msg { color: var(--error); font-size: 0.8rem; margin-top: 0.4rem; display: flex; align-items: center; gap: 4px; opacity: 0; height: 0; overflow: hidden; transition: 0.3s; font-weight: 500; }
         .form-group.error .error-msg { opacity: 1; height: auto; margin-bottom: 0.5rem; }
-        .form-group.error .input-wrapper { border-color: #c0392b; box-shadow: 0 0 0 4px rgba(192, 57, 43, 0.1); }
+        .form-group.error .input-wrapper { border-color: var(--error); box-shadow: 0 0 0 4px rgba(192, 57, 43, 0.1); }
 
         .forgot-password { text-align: right; margin-top: -1rem; margin-bottom: 1.5rem; }
         .forgot-password a { font-size: 0.85rem; color: var(--primary); text-decoration: none; font-weight: 500; }
@@ -195,12 +278,13 @@
             font-family: var(--font-main); letter-spacing: 0.5px;
         }
         
-        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 25px var(--primary-glow); }
-        .btn-submit:active { transform: translateY(0); }
-        .btn-submit.loading { pointer-events: none; opacity: 0.8; }
+        .btn-submit:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 25px var(--primary-glow); }
+        .btn-submit:active:not(:disabled) { transform: translateY(0); }
+        .btn-submit:disabled { opacity: 0.7; cursor: not-allowed; }
         
         .spinner { width: 20px; height: 20px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite; display: none; }
         .btn-submit.loading .spinner { display: block; }
+        .btn-submit.loading .btn-text { display: none; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
         .divider { display: flex; align-items: center; text-align: center; margin: 2rem 0 1.5rem; color: var(--text-muted); font-size: 0.85rem; }
@@ -213,11 +297,48 @@
             color: var(--text-main); font-weight: 500; cursor: pointer; display: flex; align-items: center;
             justify-content: center; gap: 8px; transition: var(--transition);
         }
-        .btn-social:hover { background: #f9f9f9; border-color: #ccc; transform: translateY(-2px); }
+        .btn-social:hover:not(:disabled) { background: #f9f9f9; border-color: #ccc; transform: translateY(-2px); }
+        .btn-social:disabled { opacity: 0.6; cursor: not-allowed; }
         .btn-social i { font-size: 1.2rem; }
 
         .login-link { text-align: center; margin-top: 2rem; color: var(--text-muted); font-size: 0.9rem; }
         .login-link a { color: var(--primary); font-weight: 600; text-decoration: none; margin-left: 4px; }
+
+        /* Forgot Password Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-overlay.active { display: flex; }
+
+        .modal {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 2rem;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            animation: modalFloat 0.3s ease-out;
+        }
+
+        @keyframes modalFloat {
+            from { opacity: 0; transform: scale(0.9) translateY(20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .modal h3 { margin-bottom: 1rem; font-size: 1.3rem; }
+        .modal p { color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem; }
+        .modal-buttons { display: flex; gap: 1rem; margin-top: 1.5rem; }
+        .modal-buttons button { flex: 1; padding: 0.8rem; border-radius: 10px; border: none; cursor: pointer; font-weight: 500; }
+        .btn-cancel { background: var(--bg-input); color: var(--text-main); }
+        .btn-send { background: var(--primary); color: white; }
 
         @media (max-width: 600px) {
             main { padding: 1rem; }
@@ -225,10 +346,14 @@
             .nav-logo { font-size: 1.8rem; }
             .nav-logo img { width: 50px; height: 50px; }
             .social-login { grid-template-columns: 1fr; }
+            .toast-container { left: 20px; right: 20px; }
+            .toast { max-width: 100%; }
         }
     </style>
 </head>
 <body>
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
 
     <!-- Navigation -->
     <nav>
@@ -255,7 +380,7 @@
                     </div>
                     <div class="input-wrapper">
                         <i class="ph ph-envelope-simple input-icon"></i>
-                        <input type="email" id="email" class="input" placeholder="name@example.com" required>
+                        <input type="email" id="email" class="input" placeholder="name@example.com" required autocomplete="email">
                     </div>
                     <div class="error-msg"><i class="ph ph-warning-circle"></i> Please enter a valid email.</div>
                 </div>
@@ -267,7 +392,7 @@
                     </div>
                     <div class="input-wrapper">
                         <i class="ph ph-lock-key input-icon"></i>
-                        <input type="password" id="password" class="input" placeholder="••••••••" required>
+                        <input type="password" id="password" class="input" placeholder="••••••••" required autocomplete="current-password">
                         <button type="button" class="toggle-password" onclick="togglePassword()">
                             <i class="ph ph-eye"></i>
                         </button>
@@ -277,7 +402,7 @@
 
                 <!-- Forgot Password -->
                 <div class="forgot-password">
-                    <a href="#">Forgot Password?</a>
+                    <a href="#" onclick="showForgotModal(event)">Forgot Password?</a>
                 </div>
 
                 <!-- Submit Button -->
@@ -293,10 +418,10 @@
 
                 <!-- Social Login -->
                 <div class="social-login">
-                    <button type="button" class="btn-social">
+                    <button type="button" class="btn-social" id="googleBtn" onclick="signInWithGoogle()">
                         <i class="ph ph-google-logo" style="color: #DB4437;"></i> Google
                     </button>
-                    <button type="button" class="btn-social">
+                    <button type="button" class="btn-social" id="steamBtn" onclick="showSteamComingSoon()">
                         <i class="ph ph-steam-logo" style="color: #1b2838;"></i> Steam
                     </button>
                 </div>
@@ -308,12 +433,52 @@
         </div>
     </main>
 
-    <!-- JAVASCRIPT -->
-    <script>
-        // --- UI LOGIC ---
+    <!-- Forgot Password Modal -->
+    <div class="modal-overlay" id="forgotModal">
+        <div class="modal">
+            <h3>Reset Password</h3>
+            <p>Enter your email address and we'll send you a link to reset your password.</p>
+            <div class="form-group">
+                <div class="input-wrapper">
+                    <i class="ph ph-envelope-simple input-icon"></i>
+                    <input type="email" id="resetEmail" class="input" placeholder="name@example.com">
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button type="button" class="btn-cancel" onclick="hideForgotModal()">Cancel</button>
+                <button type="button" class="btn-send" onclick="sendResetEmail()">Send Link</button>
+            </div>
+        </div>
+    </div>
+        <!-- JAVASCRIPT -->
+    <script type="module">
+        // Import additional Firebase functions needed for password reset
+        import { sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-        // Password Toggle
-        function togglePassword() {
+        // --- TOAST NOTIFICATION SYSTEM ---
+        function showToast(message, type = 'info', duration = 4000) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            const icon = type === 'success' ? 'ph-check-circle' : 
+                        type === 'error' ? 'ph-x-circle' : 'ph-info';
+            
+            toast.innerHTML = `
+                <i class="ph ${icon}"></i>
+                <span>${message}</span>
+            `;
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease-out forwards';
+                setTimeout(() => toast.remove(), 300);
+            }, duration);
+        }
+
+        // --- PASSWORD TOGGLE ---
+        window.togglePassword = function() {
             const input = document.getElementById('password');
             const icon = document.querySelector('.toggle-password i');
             
@@ -326,46 +491,286 @@
             }
         }
 
-        // Form Validation & Submission
-        const form = document.getElementById('loginForm');
-        const submitBtn = document.getElementById('submitBtn');
+        // --- FORM VALIDATION ---
+        function validateEmail(email) {
+            const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return regex.test(email);
+        }
 
-        form.addEventListener('submit', (e) => {
+        function setError(groupId, show) {
+            const group = document.getElementById(groupId);
+            if (show) {
+                group.classList.add('error');
+            } else {
+                group.classList.remove('error');
+            }
+        }
+
+        function clearErrors() {
+            document.querySelectorAll('.form-group').forEach(g => g.classList.remove('error'));
+        }
+
+        // --- LOADING STATE ---
+        function setLoading(loading) {
+            const btn = document.getElementById('submitBtn');
+            const googleBtn = document.getElementById('googleBtn');
+            const steamBtn = document.getElementById('steamBtn');
+            
+            if (loading) {
+                btn.classList.add('loading');
+                btn.disabled = true;
+                googleBtn.disabled = true;
+                steamBtn.disabled = true;
+            } else {
+                btn.classList.remove('loading');
+                btn.disabled = false;
+                googleBtn.disabled = false;
+                steamBtn.disabled = false;
+            }
+        }
+
+        // --- FIRESTORE USER MANAGEMENT ---
+        async function createOrUpdateUser(user) {
+            const { firebaseDb, doc, getDoc, setDoc, serverTimestamp } = window;
+            
+            try {
+                const userRef = doc(firebaseDb, "users", user.uid);
+                const userSnap = await getDoc(userRef);
+                
+                const userData = {
+                    uid: user.uid,
+                    email: user.email,
+                    displayName: user.displayName || '',
+                    photoURL: user.photoURL || '',
+                    lastLogin: serverTimestamp(),
+                    updatedAt: serverTimestamp()
+                };
+                
+                if (!userSnap.exists()) {
+                    // New user - create profile
+                    userData.createdAt = serverTimestamp();
+                    userData.gamingStats = {
+                        totalGames: 0,
+                        achievements: 0,
+                        playTime: 0,
+                        level: 1,
+                        xp: 0
+                    };
+                    userData.preferences = {
+                        notifications: true,
+                        theme: 'default'
+                    };
+                    userData.rewards = {
+                        points: 0,
+                        badges: []
+                    };
+                    
+                    await setDoc(userRef, userData);
+                    console.log("New user created in Firestore");
+                    return { isNew: true, ...userData };
+                } else {
+                    // Existing user - update last login
+                    await setDoc(userRef, userData, { merge: true });
+                    console.log("User login updated in Firestore");
+                    return { isNew: false, ...userSnap.data(), ...userData };
+                }
+            } catch (error) {
+                console.error("Firestore error:", error);
+                throw error;
+            }
+        }
+
+        // --- EMAIL/PASSWORD LOGIN ---
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            clearErrors();
+            
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
             let isValid = true;
 
-            // Reset Errors
-            document.querySelectorAll('.form-group').forEach(g => g.classList.remove('error'));
-
-            // Validate Email
-            const email = document.getElementById('email');
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email.value)) {
-                document.getElementById('group-email').classList.add('error');
+            // Validate
+            if (!validateEmail(email)) {
+                setError('group-email', true);
                 isValid = false;
             }
-
-            // Validate Password (Non-optional)
-            const password = document.getElementById('password');
-            if (password.value.trim() === "") {
-                document.getElementById('group-password').classList.add('error');
+            
+            if (password.length < 6) {
+                setError('group-password', true);
+                showToast('Password must be at least 6 characters', 'error');
                 isValid = false;
             }
 
             if (!isValid) return;
 
-            // --- SIMULATED LOGIN & REDIRECT ---
-            // Visual Loading State
-            submitBtn.classList.add('loading');
-            submitBtn.innerHTML = '<div class="spinner"></div>';
-            submitBtn.style.background = '#27ae60'; // Turn green
+            setLoading(true);
 
-            // Simulate network delay (1 second)
-            setTimeout(() => {
-                // Redirect to Dashboard
-                window.location.href = "dashboard.html";
-            }, 1000);
+            try {
+                const { firebaseAuth, signInWithEmailAndPassword } = window;
+                const userCredential = await signInWithEmailAndPassword(firebaseAuth, email, password);
+                const user = userCredential.user;
+                
+                // Get or create user in Firestore
+                const userData = await createOrUpdateUser(user);
+                
+                showToast(`Welcome back, ${userData.displayName || user.email}!`, 'success');
+                
+                // Store user data in session storage for dashboard
+                sessionStorage.setItem('taskvault_user', JSON.stringify({
+                    uid: user.uid,
+                    email: user.email,
+                    displayName: userData.displayName,
+                    isNew: userData.isNew
+                }));
+                
+                // Redirect after short delay
+                setTimeout(() => {
+                    window.location.href = "dashboard.html";
+                }, 1500);
+                
+            } catch (error) {
+                console.error("Login error:", error);
+                setLoading(false);
+                
+                // Handle specific Firebase errors
+                const errorMessages = {
+                    'auth/user-not-found': 'No account found with this email',
+                    'auth/wrong-password': 'Incorrect password',
+                    'auth/invalid-credential': 'Invalid email or password',
+                    'auth/too-many-requests': 'Too many attempts. Please try again later',
+                    'auth/user-disabled': 'This account has been disabled'
+                };
+                
+                const message = errorMessages[error.code] || 'Login failed. Please try again.';
+                showToast(message, 'error');
+                
+                if (error.code === 'auth/user-not-found') {
+                    setError('group-email', true);
+                } else if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+                    setError('group-password', true);
+                }
+            }
         });
+
+        // --- GOOGLE SIGN IN ---
+        window.signInWithGoogle = async function() {
+            setLoading(true);
+            
+            try {
+                const { firebaseAuth, googleProvider, signInWithPopup } = window;
+                const result = await signInWithPopup(firebaseAuth, googleProvider);
+                const user = result.user;
+                
+                // Get or create user in Firestore
+                const userData = await createOrUpdateUser(user);
+                
+                const welcomeMsg = userData.isNew ? 'Welcome to TaskVault!' : `Welcome back, ${userData.displayName || user.email}!`;
+                showToast(welcomeMsg, 'success');
+                
+                // Store user data
+                sessionStorage.setItem('taskvault_user', JSON.stringify({
+                    uid: user.uid,
+                    email: user.email,
+                    displayName: userData.displayName,
+                    photoURL: userData.photoURL,
+                    isNew: userData.isNew
+                }));
+                
+                setTimeout(() => {
+                    window.location.href = "dashboard.html";
+                }, 1500);
+                
+            } catch (error) {
+                console.error("Google sign-in error:", error);
+                setLoading(false);
+                
+                if (error.code === 'auth/popup-closed-by-user') {
+                    showToast('Sign-in cancelled', 'info');
+                } else if (error.code === 'auth/popup-blocked') {
+                    showToast('Popup blocked. Please allow popups for this site.', 'error');
+                } else {
+                    showToast('Google sign-in failed. Please try again.', 'error');
+                }
+            }
+        }
+
+        // --- STEAM COMING SOON ---
+        window.showSteamComingSoon = function() {
+            showToast('Steam login coming soon!', 'info');
+        }
+
+        // --- FORGOT PASSWORD MODAL ---
+        window.showForgotModal = function(e) {
+            e.preventDefault();
+            document.getElementById('forgotModal').classList.add('active');
+            document.getElementById('resetEmail').value = document.getElementById('email').value;
+        }
+
+        window.hideForgotModal = function() {
+            document.getElementById('forgotModal').classList.remove('active');
+        }
+
+        window.sendResetEmail = async function() {
+            const email = document.getElementById('resetEmail').value.trim();
+            
+            if (!validateEmail(email)) {
+                showToast('Please enter a valid email address', 'error');
+                return;
+            }
+            
+            const btn = document.querySelector('.btn-send');
+            btn.disabled = true;
+            btn.textContent = 'Sending...';
+            
+            try {
+                const { firebaseAuth } = window;
+                await sendPasswordResetEmail(firebaseAuth, email);
+                showToast('Password reset link sent! Check your email.', 'success');
+                hideForgotModal();
+            } catch (error) {
+                console.error("Reset error:", error);
+                const message = error.code === 'auth/user-not-found' 
+                    ? 'No account found with this email' 
+                    : 'Failed to send reset email. Try again.';
+                showToast(message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Send Link';
+            }
+        }
+
+        // Close modal on overlay click
+        document.getElementById('forgotModal').addEventListener('click', (e) => {
+            if (e.target.id === 'forgotModal') hideForgotModal();
+        });
+
+        // --- CHECK EXISTING AUTH STATE ---
+        // Redirect if already logged in
+        const { firebaseAuth, onAuthStateChanged } = window;
+        onAuthStateChanged(firebaseAuth, (user) => {
+            if (user) {
+                console.log("Already authenticated:", user.email);
+                // Optional: auto-redirect if user is already logged in
+                // window.location.href = "dashboard.html";
+            }
+        });
+
+        // --- UTILITY: Get current user data for other pages ---
+        window.getCurrentUser = function() {
+            const data = sessionStorage.getItem('taskvault_user');
+            return data ? JSON.parse(data) : null;
+        }
+
+        window.logout = async function() {
+            try {
+                await firebaseAuth.signOut();
+                sessionStorage.removeItem('taskvault_user');
+                showToast('Logged out successfully', 'success');
+                setTimeout(() => window.location.href = 'login.html', 1000);
+            } catch (error) {
+                showToast('Logout failed', 'error');
+            }
+        }
     </script>
 </body>
 </html>
