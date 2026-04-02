@@ -45,6 +45,7 @@
             min-height:100vh;
             display:flex;
             flex-direction:column;
+            /* Subtle silk‑like gradient background */
             background-image:
                 radial-gradient(circle at 20% 20%, rgba(211,84,0,0.03)0%,transparent 50%),
                 radial-gradient(circle at 80% 80%, rgba(211,84,0,0.03)0%,transparent 50%);
@@ -96,7 +97,7 @@
             perspective:1000px;
         }
         .card{
-            width:100%;max-width:800px;
+            width:100%;max-width:860px;
             background:var(--bg-card);
             border-radius:var(--radius);
             padding:2.5rem;
@@ -118,44 +119,97 @@
         }
         .card-header{text-align:center;margin-bottom:2rem;}
         .card-header h1{
-            font-size:2rem;font-weight:600;margin-bottom:0.5rem;letter-spacing:-0.5px;
+            font-size:2.2rem;font-weight:600;margin-bottom:0.5rem;letter-spacing:-0.5px;
         }
         .card-header h1 span{color:var(--primary);}
         .card-header p{
             color:var(--text-muted);font-size:1rem;line-height:1.5;
         }
 
-        /* ----- TERMS CONTENT ----- */
-        .terms-content{
-            line-height:1.7;
-            font-size:1rem;
+        /* ----- ANIMATED SECTIONS ----- */
+        .terms-section{
+            opacity:0;
+            transform:translateY(20px);
+            animation: fadeInUp .6s ease forwards;
+        }
+        .terms-section:nth-child(1){animation-delay:0.1s;}
+        .terms-section:nth-child(2){animation-delay:0.2s;}
+        .terms-section:nth-child(3){animation-delay:0.3s;}
+        .terms-section:nth-child(4){animation-delay:0.4s;}
+        .terms-section:nth-child(5){animation-delay:0.5s;}
+        .terms-section:nth-child(6){animation-delay:0.6s;}
+        .terms-section:nth-child(7){animation-delay:0.7s;}
+        .terms-section:nth-child(8){animation-delay:0.8s;}
+        .terms-section:nth-child(9){animation-delay:0.9s;}
+        .terms-section:nth-child(10){animation-delay:1.0s;}
+
+        @keyframes fadeInUp{
+            to{
+                opacity:1;
+                transform:translateY(0);
+            }
+        }
+
+        .terms-section h2{
+            display:flex;
+            align-items:center;
+            gap:0.8rem;
+            font-size:1.6rem;
+            margin-top:2.2rem;
+            margin-bottom:1rem;
             color:var(--text-main);
         }
-        .terms-content h2{
-            font-size:1.5rem;margin-top:2rem;margin-bottom:1rem;color:var(--text-main);
+        .terms-section h2 i{
+            font-size:1.8rem;
+            color:var(--primary);
         }
-        .terms-content h3{
-            font-size:1.25rem;margin-top:1.5rem;margin-bottom:0.8rem;color:var(--text-main);
+        .terms-section h3{
+            font-size:1.3rem;
+            margin-top:1.5rem;
+            margin-bottom:0.8rem;
+            color:var(--text-main);
+            display:flex;
+            align-items:center;
+            gap:0.6rem;
         }
-        .terms-content p{margin-bottom:1rem;}
-        .terms-content ul{margin-left:2rem;margin-bottom:1rem;}
-        .terms-content li{margin-bottom:0.5rem;}
+        .terms-section h3 i{
+            font-size:1.4rem;
+            color:var(--primary-light);
+        }
+        .terms-section p{margin-bottom:1.2rem;line-height:1.7;}
+        .terms-section ul{margin-left:2rem;margin-bottom:1.2rem;}
+        .terms-section li{margin-bottom:0.6rem;position:relative;}
+        .terms-section li::before{
+            content:"";
+            position:absolute;left:-1.2rem;top:0.6rem;
+            width:6px;height:6px;
+            background:var(--primary);
+            border-radius:50%;
+        }
 
         /* ----- FOOTER / BACK ----- */
         .back-link{
             display:inline-block;
-            margin-top:2rem;
+            margin-top:2.5rem;
             color:var(--primary);
             font-weight:600;
             text-decoration:none;
+            font-size:0.95rem;
+            display:flex;
+            align-items:center;
+            gap:0.5rem;
+            transition:color .2s;
         }
-        .back-link:hover{text-decoration:underline;}
+        .back-link:hover{color:var(--primary-light);text-decoration:underline;}
+        .back-link i{font-size:1.2rem;}
 
         @media(max-width:600px){
             main{padding:1rem;}
             .card{padding:1.5rem;}
             .nav-logo{font-size:1.8rem;}
             .nav-logo img{width:50px;height:50px;}
+            .terms-section h2{font-size:1.4rem;}
+            .terms-section h3{font-size:1.15rem;}
         }
     </style>
 </head>
@@ -177,50 +231,80 @@
             <p>Please read the following terms carefully before using TaskVault.</p>
         </div>
 
-        <div class="terms-content">
-            <h2>1. Acceptance of Terms</h2>
+        <!-- SECTION 1 -->
+        <section class="terms-section">
+            <h2><i class="ph ph-check-circle"></i> Acceptance of Terms</h2>
             <p>By accessing or using the TaskVault website, mobile application, or any related services (“Service”), you agree to be bound by these Terms of Service (“Terms”). If you do not agree to these Terms, please do not use the Service.</p>
+        </section>
 
-            <h2>2. Account Registration</h2>
+        <!-- SECTION 2 -->
+        <section class="terms-section">
+            <h2><i class="ph ph-user-plus"></i> Account Registration</h2>
             <p>To use certain features of the Service you must create an account. You agree to provide accurate, current, and complete information during the registration process and to update such information to keep it accurate, current and complete.</p>
+        </section>
 
-            <h2>3. User Conduct</h2>
+        <!-- SECTION 3 -->
+        <section class="terms-section">
+            <h2><i class="ph ph-shield-check"></i> User Conduct</h2>
             <p>You agree not to:</p>
             <ul>
-                <li>Use the Service for any unlawful purpose or in violation of any local, state, national or international law.</li>
-                <li>Impersonate any person or entity, or falsely state or otherwise misrepresent your affiliation with a person or entity.</li>
-                <li>Interfere with or disrupt the Service or servers or networks connected to the Service.</li>
-                <li>Attempt to gain unauthorized access to the Service, other accounts, computer systems or networks connected to the Service.</li>
-                <li>Harvest or collect information about other users without their consent.</li>
+                <li><i class="ph ph-ban"></i> Use the Service for any unlawful purpose or in violation of any local, state, national or international law.</li>
+                <li><i class="ph ph-user-slash"></i> Impersonate any person or entity, or falsely state or otherwise misrepresent your affiliation with a person or entity.</li>
+                <li><i class="ph ph-zap-off"></i> Interfere with or disrupt the Service or servers or networks connected to the Service.</li>
+                <li><i class="ph ph-key"></i> Attempt to gain unauthorized access to the Service, other accounts, computer systems or networks connected to the Service.</li>
+                <li><i class="ph ph-eye-slash"></i> Harvest or collect information about other users without their consent.</li>
             </ul>
+        </section>
 
-            <h2>4. Earnings and Payouts</h2>
+        <!-- SECTION 4 -->
+        <section class="terms-section">
+            <h2><i class="ph ph-cash"></i> Earnings and Payouts</h2>
             <p>Earnings are accrued based on gameplay performance as described in the Service. All payouts are subject to verification, applicable fees, and minimum withdrawal thresholds. TaskVault reserves the right to modify earning rates, payout methods, and eligibility criteria at any time.</p>
+        </section>
 
-            <h2>5. Intellectual Property</h2>
+        <!-- SECTION 5 -->
+        <section class="terms-section">
+            <h2><i class="ph ph-copyright"></i> Intellectual Property</h2>
             <p>All content, trademarks, logos, and software provided by TaskVault are the property of TaskVault or its licensors and are protected by copyright, trademark, and other intellectual property laws.</p>
+        </section>
 
-            <h2>6. Disclaimer of Warranties</h2>
+        <!-- SECTION 6 -->
+        <section class="terms-section">
+            <h2><i class="ph ph-alert-triangle"></i> Disclaimer of Warranties</h2>
             <p>THE SERVICE IS PROVIDED “AS IS” AND “AS AVAILABLE” WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR NON-INFRINGEMENT.</p>
+        </section>
 
-            <h2>7. Limitation of Liability</h2>
-            <p>TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, IN NO EVENT SHALL TASKVAULT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL OR PUNITIVE DAMAGES, OR ANY LOSS OF PROFITS OR REVENUES, WHETHER INCURRED DIRECTLY OR INDIRECTLY, OR ANY LOSS OF DATA, USE, GOOD-WILL, OR OTHER INTANGIBLE LOSSES.</p>
+        <!-- SECTION 7 -->
+        <section class="terms-section">
+            <h2><i class="ph ph-gavel"></i> Limitation of Liability</h2>
+            <p>TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, IN NO EVENT SHALL TASKVAULT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL OR PUNITIVE DAMAGES, OR ANY LOSS OF PROFITS OR REVENUES, WHETHER INCURRED DIRECTLY OR INDIRECTLY, OR ANY LOSS OF DATA, USE, GOOD‑WILL, OR OTHER INTANGIBLE LOSSES.</p>
+        </section>
 
-            <h2>8. Governing Law</h2>
+        <!-- SECTION 8 -->
+        <section class="terms-section">
+            <h2><i class="ph ph-law"></i> Governing Law</h2>
             <p>These Terms shall be governed by and construed in accordance with the laws of [Your Country/State], without regard to its conflict of law principles.</p>
+        </section>
 
-            <h2>9. Changes to Terms</h2>
+        <!-- SECTION 9 -->
+        <section class="terms-section">
+            <h2><i class="ph ph-repeat"></i> Changes to Terms</h2>
             <p>TaskVault reserves the right, at its sole discretion, to modify or replace these Terms at any time. Continued use of the Service after any such changes constitutes your acceptance of the new Terms.</p>
+        </section>
 
-            <h2>10. Contact Us</h2>
+        <!-- SECTION 10 -->
+        <section class="terms-section">
+            <h2><i class="ph ph-message-circle"></i> Contact Us</h2>
             <p>If you have any questions about these Terms, please contact us at <a href="mailto:support@taskvault.com">support@taskvault.com</a>.</p>
-        </div>
+        </section>
 
-        <a href="register.html" class="back-link">&larr; Back to Register</a>
+        <a href="register.html" class="back-link">
+            <i class="ph ph-arrow-left"></i> Back to Register
+        </a>
     </div>
 </main>
 
-<!-- FIREBASE INITIALIZATION (so you can log auth/firestore activity if desired) -->
+<!-- FIREBASE INITIALIZATION (optional tracking) -->
 <script type="module">
     // ---------- YOUR FIREBASE CONFIG (EXACTLY AS YOU PROVIDED) ----------
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
@@ -246,7 +330,7 @@
     const db = getFirestore(app);
 
     // Optional: log a page‑view event to Firestore under a "pageViews" collection
-    // (you can remove this block if you don’t want any tracking)
+    // (remove this block if you don’t want any tracking)
     onAuthStateChanged(auth, (user) => {
         const uid = user ? user.uid : 'anonymous';
         setDoc(doc(db, "pageViews", `${uid}_${Date.now()}`), {
