@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskVault – Terms of Service</title>
+
+    <!-- Favicon -->
+    <link rel="icon"
+          href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg"
+          type="image/jpeg">
+
+    <!-- Fonts & Icons (same silk theme as other pages) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <style>
+        /* ---------- SILK THEME (matches register/login) ---------- */
+        :root {
+            --primary: #d35400;          /* Deep Burnt Orange */
+            --primary-light: #e67e22;    /* Soft Orange */
+            --primary-glow: rgba(211,84,0,0.15);
+            --bg-body: #f8f6f2;          /* Creamy Silk Base */
+            --bg-card: #ffffff;          /* Pure Silk White */
+            --bg-input: #f0ece6;         /* Slightly darker silk for inputs */
+            --text-main: #2c2c2c;
+            --text-muted: #7f8c8d;
+            --border-color: #e0dcd5;
+            --radius: 16px;
+            --shadow-soft: 0 10px 40px -10px rgba(0,0,0,0.08);
+            --shadow-input: inset 0 2px 4px rgba(0,0,0,0.02);
+            --font-main: 'Outfit', sans-serif;
+            --transition: all 0.4s cubic-bezier(0.25,0.8,0.25,1);
+        }
+
+        * { box-sizing: border-box; margin:0; padding:0; }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            min-height:100vh;
+            display:flex;
+            flex-direction:column;
+            background-image:
+                radial-gradient(circle at 20% 20%, rgba(211,84,0,0.03)0%,transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(211,84,0,0.03)0%,transparent 50%);
+        }
+        body::before{
+            content:"";
+            position:fixed;top:0;left:0;width:100%;height:100%;
+            background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events:none;z-index:9999;
+        }
+
+        /* ----- NAV ----- */
+        nav{
+            padding:2rem 1rem 1rem;
+            display:flex;
+            justify-content:center;
+            background:transparent;
+            position:relative;
+            z-index:10;
+        }
+        .nav-logo{
+            display:flex;
+            align-items:center;
+            gap:15px;
+            font-size:2.2rem;
+            font-weight:700;
+            color:var(--text-main);
+            text-decoration:none;
+            letter-spacing:-1px;
+            transition:transform .3s ease;
+        }
+        .nav-logo:hover{transform:scale(1.02);}
+        .nav-logo img{
+            width:60px;height:60px;
+            border-radius:50%;
+            border:3px solid var(--primary);
+            box-shadow:0 6px 20px var(--primary-glow);
+            object-fit:cover;
+        }
+        .nav-logo span{color:var(--primary);}
+
+        /* ----- MAIN CONTENT ----- */
+        main{
+            flex:1;
+            display:flex;
+            justify-content:center;
+            align-items:flex-start;
+            padding:2rem;
+            perspective:1000px;
+        }
+        .card{
+            width:100%;max-width:800px;
+            background:var(--bg-card);
+            border-radius:var(--radius);
+            padding:2.5rem;
+            box-shadow:var(--shadow-soft);
+            border:1px solid rgba(255,255,255,0.6);
+            position:relative;
+            overflow:hidden;
+            animation:floatUp .8s ease-out;
+        }
+        .card::before{
+            content:"";
+            position:absolute;top:0;left:0;right:0;
+            height:4px;
+            background:linear-gradient(90deg,var(--primary-light),var(--primary));
+        }
+        @keyframes floatUp{
+            from{opacity:0;transform:translateY(20px)rotateX(5deg);}
+            to{opacity:1;transform:translateY(0)rotateX(0);}
+        }
+        .card-header{text-align:center;margin-bottom:2rem;}
+        .card-header h1{
+            font-size:2rem;font-weight:600;margin-bottom:0.5rem;letter-spacing:-0.5px;
+        }
+        .card-header h1 span{color:var(--primary);}
+        .card-header p{
+            color:var(--text-muted);font-size:1rem;line-height:1.5;
+        }
+
+        /* ----- TERMS CONTENT ----- */
+        .terms-content{
+            line-height:1.7;
+            font-size:1rem;
+            color:var(--text-main);
+        }
+        .terms-content h2{
+            font-size:1.5rem;margin-top:2rem;margin-bottom:1rem;color:var(--text-main);
+        }
+        .terms-content h3{
+            font-size:1.25rem;margin-top:1.5rem;margin-bottom:0.8rem;color:var(--text-main);
+        }
+        .terms-content p{margin-bottom:1rem;}
+        .terms-content ul{margin-left:2rem;margin-bottom:1rem;}
+        .terms-content li{margin-bottom:0.5rem;}
+
+        /* ----- FOOTER / BACK ----- */
+        .back-link{
+            display:inline-block;
+            margin-top:2rem;
+            color:var(--primary);
+            font-weight:600;
+            text-decoration:none;
+        }
+        .back-link:hover{text-decoration:underline;}
+
+        @media(max-width:600px){
+            main{padding:1rem;}
+            .card{padding:1.5rem;}
+            .nav-logo{font-size:1.8rem;}
+            .nav-logo img{width:50px;height:50px;}
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAVIGATION -->
+<nav>
+    <a href="index.html" class="nav-logo">
+        <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" alt="Logo">
+        Task<span>Vault</span>
+    </a>
+</nav>
+
+<!-- MAIN CONTENT -->
+<main>
+    <div class="card">
+        <div class="card-header">
+            <h1>Terms of <span>Service</span></h1>
+            <p>Please read the following terms carefully before using TaskVault.</p>
+        </div>
+
+        <div class="terms-content">
+            <h2>1. Acceptance of Terms</h2>
+            <p>By accessing or using the TaskVault website, mobile application, or any related services (“Service”), you agree to be bound by these Terms of Service (“Terms”). If you do not agree to these Terms, please do not use the Service.</p>
+
+            <h2>2. Account Registration</h2>
+            <p>To use certain features of the Service you must create an account. You agree to provide accurate, current, and complete information during the registration process and to update such information to keep it accurate, current and complete.</p>
+
+            <h2>3. User Conduct</h2>
+            <p>You agree not to:</p>
+            <ul>
+                <li>Use the Service for any unlawful purpose or in violation of any local, state, national or international law.</li>
+                <li>Impersonate any person or entity, or falsely state or otherwise misrepresent your affiliation with a person or entity.</li>
+                <li>Interfere with or disrupt the Service or servers or networks connected to the Service.</li>
+                <li>Attempt to gain unauthorized access to the Service, other accounts, computer systems or networks connected to the Service.</li>
+                <li>Harvest or collect information about other users without their consent.</li>
+            </ul>
+
+            <h2>4. Earnings and Payouts</h2>
+            <p>Earnings are accrued based on gameplay performance as described in the Service. All payouts are subject to verification, applicable fees, and minimum withdrawal thresholds. TaskVault reserves the right to modify earning rates, payout methods, and eligibility criteria at any time.</p>
+
+            <h2>5. Intellectual Property</h2>
+            <p>All content, trademarks, logos, and software provided by TaskVault are the property of TaskVault or its licensors and are protected by copyright, trademark, and other intellectual property laws.</p>
+
+            <h2>6. Disclaimer of Warranties</h2>
+            <p>THE SERVICE IS PROVIDED “AS IS” AND “AS AVAILABLE” WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR NON-INFRINGEMENT.</p>
+
+            <h2>7. Limitation of Liability</h2>
+            <p>TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, IN NO EVENT SHALL TASKVAULT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL OR PUNITIVE DAMAGES, OR ANY LOSS OF PROFITS OR REVENUES, WHETHER INCURRED DIRECTLY OR INDIRECTLY, OR ANY LOSS OF DATA, USE, GOOD-WILL, OR OTHER INTANGIBLE LOSSES.</p>
+
+            <h2>8. Governing Law</h2>
+            <p>These Terms shall be governed by and construed in accordance with the laws of [Your Country/State], without regard to its conflict of law principles.</p>
+
+            <h2>9. Changes to Terms</h2>
+            <p>TaskVault reserves the right, at its sole discretion, to modify or replace these Terms at any time. Continued use of the Service after any such changes constitutes your acceptance of the new Terms.</p>
+
+            <h2>10. Contact Us</h2>
+            <p>If you have any questions about these Terms, please contact us at <a href="mailto:support@taskvault.com">support@taskvault.com</a>.</p>
+        </div>
+
+        <a href="register.html" class="back-link">&larr; Back to Register</a>
+    </div>
+</main>
+
+<!-- FIREBASE INITIALIZATION (so you can log auth/firestore activity if desired) -->
+<script type="module">
+    // ---------- YOUR FIREBASE CONFIG (EXACTLY AS YOU PROVIDED) ----------
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-analytics.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, serverTimestamp } from
+        "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyAv6QCpopa0Q77AVTyjU5cqJEIKIE9OVTs",
+        authDomain: "taskvault-412a0.firebaseapp.com",
+        projectId: "taskvault-412a0",
+        storageBucket: "taskvault-412a0.firebasestorage.app",
+        messagingSenderId: "420716701831",
+        appId: "1:420716701831:web:c987d91f7f4c8684eb7022",
+        measurementId: "G-93JG3LB08B"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // Optional: log a page‑view event to Firestore under a "pageViews" collection
+    // (you can remove this block if you don’t want any tracking)
+    onAuthStateChanged(auth, (user) => {
+        const uid = user ? user.uid : 'anonymous';
+        setDoc(doc(db, "pageViews", `${uid}_${Date.now()}`), {
+            uid,
+            page: "terms.html",
+            timestamp: serverTimestamp(),
+            userAgent: navigator.userAgent
+        }).catch(console.error);
+    });
+</script>
+</body>
+</html>
