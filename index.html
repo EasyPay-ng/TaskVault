@@ -1,177 +1,208 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>TaskVault - #1 Gaming Platform in Africa</title>
+<title>TaskVault - #1 Gaming Platform in Africa</title>
 
-  <meta property="og:title" content="TaskVault - #1 Gaming Platform in Africa">
-  <meta property="og:description" content="Earn daily with TaskVault. Fast withdrawals, referrals and rewards.">
-  <meta property="og:image" content="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg">
+<link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-  <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg">
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:sans-serif;
+}
 
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+body{
+  overflow-x:hidden; /* ✅ fixes horizontal scroll */
+}
 
-  <style>
-    *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
-    body{background:#fff;color:#222;}
+/* HEADER */
+header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:12px 5%;
+}
 
-    header{
-      display:flex;justify-content:space-between;align-items:center;
-      padding:18px 8%;box-shadow:0 2px 12px rgba(0,0,0,0.05);
-    }
+header img{height:40px;}
 
-    header img{height:50px;}
+.auth-buttons a{
+  padding:8px 14px;
+  margin-left:6px;
+  border-radius:6px;
+  font-size:13px;
+  text-decoration:none;
+}
 
-    .auth-buttons a{
-      margin-left:10px;padding:10px 18px;border-radius:8px;
-      text-decoration:none;font-size:15px;font-weight:500;
-    }
+.login{
+  border:1px solid #ff7a00;
+  color:#ff7a00;
+}
 
-    .login{border:1px solid #ff7a00;color:#ff7a00;}
-    .register{background:#ff7a00;color:white;}
+.register{
+  background:#ff7a00;
+  color:white;
+}
 
-    /* HERO */
-    .hero{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      padding:80px 8%;
-      background:linear-gradient(135deg,#fff,#fff5ec);
-      flex-wrap:wrap;
-    }
+/* HERO */
+.hero{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:40px 5%;
+  gap:20px;
+  flex-wrap:wrap; /* ✅ fixes mobile */
+}
 
-    .hero-text{
-      flex:1;
-      min-width:280px;
-    }
+.hero-text{
+  flex:1;
+}
 
-    .hero-text h1{
-      font-size:42px;
-      line-height:1.3;
-    }
+.hero-text h1{
+  font-size:26px;
+}
 
-    .hero-text span{color:#ff7a00;}
+.hero-text span{
+  color:#ff7a00;
+}
 
-    .hero-text p{
-      margin:20px 0;
-      font-size:18px;
-      line-height:1.7;
-      color:#555;
-      max-width:500px;
-    }
+.hero-text p{
+  margin:15px 0;
+  font-size:14px;
+  line-height:1.6;
+}
 
-    .hero-buttons a{
-      margin-right:10px;
-      padding:14px 26px;
-      border-radius:8px;
-      font-weight:600;
-      text-decoration:none;
-    }
+.hero-buttons a{
+  display:inline-block;
+  margin:5px 5px 0 0;
+  padding:10px 16px;
+  border-radius:6px;
+  font-size:14px;
+}
 
-    .primary{background:#ff7a00;color:white;}
-    .secondary{border:1px solid #ff7a00;color:#ff7a00;}
+.primary{
+  background:#ff7a00;
+  color:white;
+}
 
-    /* IMAGE SIDE */
-    .hero-image{
-      flex:1;
-      text-align:center;
-      min-width:280px;
-    }
+.secondary{
+  border:1px solid #ff7a00;
+  color:#ff7a00;
+}
 
-    .hero-image img{
-      width:320px;
-      max-width:100%;
-      animation: float 3s ease-in-out infinite;
-    }
+/* IMAGE */
+.hero-image{
+  flex:1;
+  text-align:center;
+}
 
-    @keyframes float {
-      0%{transform:translateY(0);}
-      50%{transform:translateY(-10px);}
-      100%{transform:translateY(0);}
-    }
+.hero-image img{
+  width:220px;
+  max-width:100%;
+}
 
-    /* FEATURES */
-    .features{
-      padding:70px 20px;
-    }
+/* FEATURES */
+.features{
+  padding:40px 5%;
+}
 
-    .feature-grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-      gap:25px;
-    }
+.feature-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:15px;
+}
 
-    .card{
-      padding:30px;
-      border-radius:12px;
-      background:#fff;
-      box-shadow:0 6px 20px rgba(0,0,0,0.05);
-      transition:0.3s;
-      text-align:center;
-    }
+.card{
+  padding:15px;
+  background:#fff;
+  border-radius:10px;
+  box-shadow:0 3px 10px rgba(0,0,0,0.05);
+}
 
-    .card:hover{transform:translateY(-5px);}
+.card i{
+  color:#ff7a00;
+  margin-bottom:8px;
+}
 
-    .card i{
-      font-size:32px;
-      color:#ff7a00;
-      margin-bottom:12px;
-    }
+.card h3{
+  font-size:14px;
+  margin-bottom:5px;
+}
 
-    .card h3{margin-bottom:10px;}
-    .card p{font-size:15px;color:#666;line-height:1.6;}
+.card p{
+  font-size:12px;
+}
 
-    /* FAQ */
-    .faq{
-      padding:60px 20px;
-      background:#fff5ec;
-    }
+/* FAQ */
+.faq{
+  padding:40px 5%;
+  background:#fff5ec;
+}
 
-    .faq h2{text-align:center;margin-bottom:30px;}
+.faq-item{
+  background:white;
+  margin-bottom:10px;
+  border-radius:8px;
+  overflow:hidden;
+}
 
-    .faq-item{
-      max-width:700px;
-      margin:10px auto;
-      padding:18px;
-      background:white;
-      border-radius:10px;
-      cursor:pointer;
-      box-shadow:0 4px 12px rgba(0,0,0,0.05);
-    }
+/* ✅ stable FAQ */
+.faq-question{
+  padding:12px;
+  font-size:14px;
+  font-weight:bold;
+  cursor:pointer;
+}
 
-    .faq-answer{
-      margin-top:10px;
-      display:none;
-      color:#555;
-    }
+.faq-answer{
+  max-height:0;
+  overflow:hidden;
+  transition:max-height 0.3s ease;
+  padding:0 12px;
+  font-size:13px;
+}
 
-    footer{
-      text-align:center;
-      padding:20px;
-      background:#f9f9f9;
-      font-size:14px;
-    }
+.faq-item.active .faq-answer{
+  max-height:200px;
+  padding:10px 12px;
+}
 
-    @media(max-width:768px){
-      .hero{
-        flex-direction:column;
-        text-align:center;
-      }
+/* FOOTER */
+footer{
+  text-align:center;
+  padding:15px;
+  font-size:12px;
+}
 
-      .hero-text h1{
-        font-size:30px;
-      }
+/* ✅ DESKTOP FIX */
+@media(min-width:768px){
 
-      .hero-text p{
-        font-size:16px;
-        margin:auto;
-      }
-    }
-  </style>
+  .hero{
+    padding:80px 10%;
+  }
+
+  .hero-text h1{
+    font-size:40px;
+  }
+
+  .hero-text p{
+    font-size:16px;
+  }
+
+  .hero-image img{
+    width:320px;
+  }
+
+  .feature-grid{
+    grid-template-columns:repeat(4,1fr);
+  }
+}
+</style>
 </head>
 
 <body>
@@ -185,25 +216,22 @@
 </header>
 
 <section class="hero">
-
   <div class="hero-text">
     <h1>TaskVault <br><span>#1 Gaming Platform in Africa</span></h1>
     <p>
-      Earn daily through gaming, referrals, and leaderboard rewards. 
-      Enjoy instant deposits, fast 24-hour withdrawals, and a reliable earning system built for everyone.
+      Earn daily through gaming, referrals and leaderboard rewards.
+      Enjoy instant deposits and fast 24-hour withdrawals.
     </p>
 
     <div class="hero-buttons">
-      <a href="register.html" class="primary">Create Account</a>
+      <a href="register.html" class="primary">Get Started</a>
       <a href="login.html" class="secondary">Login</a>
     </div>
   </div>
 
   <div class="hero-image">
-    <!-- Device / Phone Illustration -->
     <img src="https://cdn-icons-png.flaticon.com/512/1055/1055687.png">
   </div>
-
 </section>
 
 <section class="features">
@@ -212,53 +240,51 @@
     <div class="card">
       <i class="fas fa-money-bill-wave"></i>
       <h3>Fast Withdrawals</h3>
-      <p>Withdraw your earnings within 24 hours with a reliable and trusted system.</p>
+      <p>Processed within 24 hours.</p>
     </div>
 
     <div class="card">
       <i class="fas fa-bolt"></i>
       <h3>Instant Deposits</h3>
-      <p>Fund your account instantly using crypto or bank transfer.</p>
+      <p>Crypto & bank supported.</p>
     </div>
 
     <div class="card">
       <i class="fas fa-users"></i>
-      <h3>Referral Earnings</h3>
-      <p>Earn passive income by inviting others to the platform.</p>
+      <h3>Referrals</h3>
+      <p>Earn commissions daily.</p>
     </div>
 
     <div class="card">
       <i class="fas fa-trophy"></i>
-      <h3>Leaderboard Rewards</h3>
-      <p>Top users earn extra bonuses and rewards regularly.</p>
+      <h3>Leaderboard</h3>
+      <p>Top users earn more.</p>
     </div>
 
   </div>
 </section>
 
 <section class="faq">
-  <h2>FAQs</h2>
 
   <div class="faq-item" onclick="toggleFAQ(this)">
-    <b>How fast are withdrawals?</b>
-    <div class="faq-answer">All withdrawals are processed within 24 hours.</div>
+    <div class="faq-question">How fast are withdrawals?</div>
+    <div class="faq-answer">Withdrawals are processed within 24 hours.</div>
   </div>
 
   <div class="faq-item" onclick="toggleFAQ(this)">
-    <b>How do I earn?</b>
-    <div class="faq-answer">Through referrals, gaming, and leaderboard activities.</div>
+    <div class="faq-question">How do I earn?</div>
+    <div class="faq-answer">Through referrals, gameplay and rewards.</div>
   </div>
 
 </section>
 
 <footer>
-  © 2026 TaskVault | <a href="terms.html">Terms</a>
+  © TaskVault | <a href="terms.html">Terms</a>
 </footer>
 
 <script>
 function toggleFAQ(el){
-  let ans = el.querySelector(".faq-answer");
-  ans.style.display = ans.style.display === "block" ? "none" : "block";
+  el.classList.toggle("active");
 }
 </script>
 
