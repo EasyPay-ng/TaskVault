@@ -6,26 +6,23 @@
     <title>TaskVault — Register</title>
 
     <!-- Favicon -->
-    <link rel="icon"
-          href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg"
-          type="image/jpeg">
+    <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" type="image/jpeg">
 
     <!-- Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap"
-          rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
     <style>
-        /* ---------- SILK THEME ---------- */
+        /* --- SILK THEME VARIABLES --- */
         :root {
-            --primary: #d35400;          /* Deep Burnt Orange */
-            --primary-light: #e67e22;    /* Soft Orange */
-            --primary-glow: rgba(211,84,0,0.15);
-            --bg-body: #f8f6f2;          /* Creamy Silk Base */
-            --bg-card: #ffffff;          /* Pure Silk White */
-            --bg-input: #f0ece6;         /* Slightly darker silk for inputs */
+            --primary: #d35400;
+            --primary-light: #e67e22;
+            --primary-glow: rgba(211, 84, 0, 0.15);
+            --bg-body: #f8f6f2;
+            --bg-card: #ffffff;
+            --bg-input: #f0ece6;
             --text-main: #2c2c2c;
             --text-muted: #7f8c8d;
             --border-color: #e0dcd5;
@@ -33,582 +30,702 @@
             --shadow-soft: 0 10px 40px -10px rgba(0,0,0,0.08);
             --shadow-input: inset 0 2px 4px rgba(0,0,0,0.02);
             --font-main: 'Outfit', sans-serif;
-            --transition: all 0.4s cubic-bezier(0.25,0.8,0.25,1);
+            --transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
-        * { box-sizing: border-box; margin:0; padding:0; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             font-family: var(--font-main);
             background-color: var(--bg-body);
             color: var(--text-main);
-            min-height:100vh;
-            display:flex;
-            flex-direction:column;
-            background-image:
-                radial-gradient(circle at 20% 20%, rgba(211,84,0,0.03)0%,transparent 50%),
-                radial-gradient(circle at 80% 80%, rgba(211,84,0,0.03)0%,transparent 50%);
-        }
-        body::before{
-            content:"";
-            position:fixed;top:0;left:0;width:100%;height:100%;
-            background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
-            pointer-events:none;z-index:9999;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-image: 
+                radial-gradient(circle at 20% 20%, rgba(211, 84, 0, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(211, 84, 0, 0.03) 0%, transparent 50%);
         }
 
-        /* ----- NAV ----- */
-        nav{
-            padding:2rem 1rem 1rem;
-            display:flex;
-            justify-content:center;
-            background:transparent;
-            position:relative;
-            z-index:10;
-        }
-        .nav-logo{
-            display:flex;
-            align-items:center;
-            gap:15px;
-            font-size:2.2rem;
-            font-weight:700;
-            color:var(--text-main);
-            text-decoration:none;
-            letter-spacing:-1px;
-            transition:transform .3s ease;
-        }
-        .nav-logo:hover{transform:scale(1.02);}
-        .nav-logo img{
-            width:60px;height:60px;
-            border-radius:50%;
-            border:3px solid var(--primary);
-            box-shadow:0 6px 20px var(--primary-glow);
-            object-fit:cover;
-        }
-        .nav-logo span{color:var(--primary);}
-
-        /* ----- MAIN CARD ----- */
-        main{
-            flex:1;
-            display:flex;
-            justify-content:center;
-            align-items:center;
-            padding:2rem;
-            perspective:1000px;
-        }
-        .card{
-            width:100%;max-width:500px;
-            background:var(--bg-card);
-            border-radius:var(--radius);
-            padding:2.5rem;
-            box-shadow:var(--shadow-soft);
-            border:1px solid rgba(255,255,255,0.6);
-            position:relative;
-            overflow:hidden;
-            animation:floatUp .8s ease-out;
-        }
-        .card::before{
-            content:"";
-            position:absolute;top:0;left:0;right:0;
-            height:4px;
-            background:linear-gradient(90deg,var(--primary-light),var(--primary));
-        }
-        @keyframes floatUp{
-            from{opacity:0;transform:translateY(20px)rotateX(5deg);}
-            to{opacity:1;transform:translateY(0)rotateX(0);}
-        }
-        .card-header{text-align:center;margin-bottom:2rem;}
-        .card-header h1{
-            font-size:1.8rem;font-weight:600;margin-bottom:0.5rem;letter-spacing:-0.5px;
-        }
-        .card-header h1 span{color:var(--primary);}
-        .card-header p{
-            color:var(--text-muted);font-size:0.95rem;font-weight:400;
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 9999;
         }
 
-        /* ----- FORM ----- */
-        .form-group{margin-bottom:1.5rem;position:relative;}
-        .label-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;}
-        label{
-            font-size:0.85rem;font-weight:500;color:var(--text-main);letter-spacing:0.3px;
+        /* Navigation */
+        nav {
+            padding: 2rem 1rem 1rem;
+            display: flex;
+            justify-content: center;
+            background: transparent;
+            position: relative;
+            z-index: 10;
         }
-        .input-wrapper{
-            display:flex;align-items:center;
-            background:var(--bg-input);
-            border:1px solid transparent;
-            border-radius:12px;
-            padding:0 1rem;
-            transition:var(--transition);
-            box-shadow:var(--shadow-input);
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--text-main);
+            text-decoration: none;
+            letter-spacing: -1px;
+            transition: transform 0.3s ease;
         }
-        .input-wrapper:focus-within{
-            background:#fff;
-            border-color:var(--primary-light);
-            box-shadow:0 0 0 4px var(--primary-glow);
-            transform:translateY(-1px);
+
+        .nav-logo:hover { transform: scale(1.02); }
+
+        .nav-logo img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 3px solid var(--primary);
+            box-shadow: 0 6px 20px var(--primary-glow);
+            object-fit: cover;
         }
-        .input-icon{
-            color:var(--text-muted);font-size:1.25rem;margin-right:0.75rem;
-            transition:color .3s;
+
+        .nav-logo span { color: var(--primary); }
+
+        /* Main Container */
+        main {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            perspective: 1000px;
         }
-        .input-wrapper:focus-within .input-icon{color:var(--primary);}
-        .input{
-            width:100%;background:transparent;border:none;
-            color:var(--text-main);padding:0.9rem 0;
-            font-size:1rem;outline:none;
-            font-family:var(--font-main);font-weight:500;
+
+        .card {
+            width: 100%;
+            max-width: 500px;
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 2.5rem;
+            box-shadow: var(--shadow-soft);
+            border: 1px solid rgba(255,255,255,0.6);
+            position: relative;
+            overflow: hidden;
+            animation: floatUp 0.8s ease-out;
         }
-        .input::placeholder{color:#b0b0b0;font-weight:400;}
-        select.input{
-            cursor:pointer;appearance:none;
-            background-image:url("data:image/svg+xml;charset=US-ASCII,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%237f8c8d' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-            background-repeat:no-repeat;
-            background-position:right .5rem center;
-            background-size:1.2rem;
-            padding-right:2.5rem;
+
+        .card::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-light), var(--primary));
         }
-        .toggle-password{
-            background:none;border:none;color:var(--text-muted);
-            cursor:pointer;padding:.5rem;display:flex;align-items:center;justify-content:center;
-            transition:color .3s;
+
+        @keyframes floatUp {
+            from { opacity: 0; transform: translateY(20px) rotateX(5deg); }
+            to { opacity: 1; transform: translateY(0) rotateX(0); }
         }
-        .toggle-password:hover{color:var(--primary);}
-        .error-msg{
-            color:#c0392b;font-size:.8rem;margin-top:.4rem;
-            display:flex;align-items:center;gap:4px;opacity:0;height:0;overflow:hidden;transition:.3s;
-            font-weight:500;
+
+        .card-header { text-align: center; margin-bottom: 2rem; }
+        .card-header h1 { font-size: 1.8rem; font-weight: 600; margin-bottom: 0.5rem; letter-spacing: -0.5px; }
+        .card-header h1 span { color: var(--primary); }
+        .card-header p { color: var(--text-muted); font-size: 0.95rem; font-weight: 400; }
+
+        /* Success Message */
+        .success-message {
+            display: none;
+            text-align: center;
+            padding: 2rem;
         }
-        .form-group.error .error-msg{opacity:1;height:auto;margin-bottom:.5rem;}
-        .form-group.error .input-wrapper{
-            border-color:#c0392b;
-            box-shadow:0 0 0 4px rgba(192,57,43,0.1);
+        .success-message.active { display: block; }
+        .success-icon-large {
+            width: 80px;
+            height: 80px;
+            background: #27ae60;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            color: white;
+            font-size: 40px;
         }
+        .success-message h2 { font-size: 1.5rem; margin-bottom: 1rem; color: var(--text-main); }
+        .success-message p { color: var(--text-muted); margin-bottom: 1.5rem; line-height: 1.6; }
+        .resend-btn {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .resend-btn:hover { background: var(--primary); color: white; }
+        .resend-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* Form Elements */
+        .form-group { margin-bottom: 1.5rem; position: relative; }
+        .label-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+        
+        label { font-size: 0.85rem; font-weight: 500; color: var(--text-main); letter-spacing: 0.3px; }
+
+        .input-wrapper {
+            display: flex;
+            align-items: center;
+            background: var(--bg-input);
+            border: 1px solid transparent;
+            border-radius: 12px;
+            padding: 0 1rem;
+            transition: var(--transition);
+            box-shadow: var(--shadow-input);
+        }
+
+        .input-wrapper:focus-within {
+            background: #fff;
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 4px var(--primary-glow);
+            transform: translateY(-1px);
+        }
+
+        .input-icon { color: var(--text-muted); font-size: 1.25rem; margin-right: 0.75rem; transition: color 0.3s; }
+        .input-wrapper:focus-within .input-icon { color: var(--primary); }
+
+        .input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: var(--text-main);
+            padding: 0.9rem 0;
+            font-size: 1rem;
+            outline: none;
+            font-family: var(--font-main);
+            font-weight: 500;
+        }
+        .input::placeholder { color: #b0b0b0; font-weight: 400; }
+
+        select.input { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%237f8c8d' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 0.5rem center; background-size: 1.2rem; padding-right: 2.5rem; }
+
+        .toggle-password { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 0.5rem; display: flex; align-items: center; justify-content: center; transition: color 0.3s; }
+        .toggle-password:hover { color: var(--primary); }
+
+        .error-msg { color: #c0392b; font-size: 0.8rem; margin-top: 0.4rem; display: flex; align-items: center; gap: 4px; opacity: 0; height: 0; overflow: hidden; transition: 0.3s; font-weight: 500; }
+        .form-group.error .error-msg { opacity: 1; height: auto; margin-bottom: 0.5rem; }
+        .form-group.error .input-wrapper { border-color: #c0392b; box-shadow: 0 0 0 4px rgba(192, 57, 43, 0.1); }
+
         /* Password Strength */
-        .password-strength{display:flex;gap:6px;margin-top:10px;height:4px;}
-        .strength-bar{
-            flex:1;background:#e0dcd5;border-radius:4px;transition:all .4s ease;
+        .password-strength { display: flex; gap: 6px; margin-top: 10px; height: 4px; }
+        .strength-bar { flex: 1; background: #e0dcd5; border-radius: 4px; transition: all 0.4s ease; }
+        .strength-bar.active { background: var(--primary); }
+
+        /* Terms Checkbox */
+        .terms-group { display: flex; align-items: flex-start; gap: 12px; margin-top: 1.5rem; cursor: pointer; user-select: none; }
+        .custom-checkbox {
+            width: 22px; height: 22px; border: 2px solid #d0d0d0; border-radius: 6px; display: flex; align-items: center; justify-content: center;
+            transition: var(--transition); flex-shrink: 0; margin-top: 2px; background: #fff;
         }
-        .strength-bar.active{background:var(--primary);}
-        /* Terms */
-        .terms-group{
-            display:flex;align-items:flex-start;gap:12px;margin-top:1.5rem;cursor:pointer;user-select:none;
-        }
-        .custom-checkbox{
-            width:22px;height:22px;border:2px solid #d0d0d0;border-radius:6px;
-            display:flex;align-items:center;justify-content:center;
-            transition:var(--transition);flex-shrink:0;margin-top:2px;background:#fff;
-        }
-        .custom-checkbox i{
-            font-size:14px;color:#fff;opacity:0;transform:scale(.5);transition:var(--transition);
-        }
-        .terms-group input{display:none;}
-        .terms-group input:checked + .custom-checkbox{
-            background:var(--primary);border-color:var(--primary);
-            box-shadow:0 2px 8px var(--primary-glow);
-        }
-        .terms-group input:checked + .custom-checkbox i{
-            opacity:1;transform:scale(1);
-        }
-        .terms-text{
-            font-size:.85rem;color:var(--text-muted);line-height:1.4;
-        }
-        .terms-text a{
-            color:var(--primary);text-decoration:none;font-weight:500;
-        }
-        .terms-text a:hover{text-decoration:underline;}
+        .custom-checkbox i { font-size: 14px; color: #fff; opacity: 0; transform: scale(0.5); transition: var(--transition); }
+        .terms-group input { display: none; }
+        .terms-group input:checked + .custom-checkbox { background: var(--primary); border-color: var(--primary); box-shadow: 0 2px 8px var(--primary-glow); }
+        .terms-group input:checked + .custom-checkbox i { opacity: 1; transform: scale(1); }
+        .terms-text { font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; }
+        .terms-text a { color: var(--primary); text-decoration: none; font-weight: 500; }
+        .terms-text a:hover { text-decoration: underline; }
+
         /* Submit Button */
-        .btn-submit{
-            width:100%;padding:1.1rem;background:linear-gradient(135deg,var(--primary)0%,var(--primary-light)100%);
-            color:white;border:none;border-radius:12px;font-size:1rem;font-weight:600;cursor:pointer;
-            margin-top:2rem;display:flex;align-items:center;justify-content:center;gap:10px;
-            transition:var(--transition);position:relative;overflow:hidden;
-            box-shadow:0 4px 15px var(--primary-glow);
-            font-family:var(--font-main);letter-spacing:.5px;
+        .btn-submit {
+            width: 100%; padding: 1.1rem; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white; border: none; border-radius: 12px; font-size: 1rem; font-weight: 600; cursor: pointer;
+            margin-top: 2rem; display: flex; align-items: center; justify-content: center; gap: 10px;
+            transition: var(--transition); position: relative; overflow: hidden; box-shadow: 0 4px 15px var(--primary-glow);
+            font-family: var(--font-main); letter-spacing: 0.5px;
         }
-        .btn-submit:hover{
-            transform:translateY(-2px);box-shadow:0 8px 25px var(--primary-glow);
+        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 25px var(--primary-glow); }
+        .btn-submit:active { transform: translateY(0); }
+        .btn-submit.loading { pointer-events: none; opacity: 0.8; }
+        .spinner { width: 20px; height: 20px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite; display: none; }
+        .btn-submit.loading .spinner { display: block; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .login-link { text-align: center; margin-top: 1.5rem; color: var(--text-muted); font-size: 0.9rem; }
+        .login-link a { color: var(--primary); font-weight: 600; text-decoration: none; margin-left: 4px; }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transform: translateX(150%);
+            transition: transform 0.4s ease;
+            z-index: 10000;
+            border-left: 4px solid var(--primary);
+            max-width: 400px;
         }
-        .btn-submit:active{transform:translateY(0);}
-        .btn-submit.loading{pointer-events:none;opacity:0.8;}
-        .spinner{
-            width:20px;height:20px;border:2px solid rgba(255,255,255,0.3);
-            border-top-color:white;border-radius:50%;animation:spin .8s linear infinite;display:none;
-        }
-        .btn-submit.loading .spinner{display:block;}
-        @keyframes spin{to{transform:rotate(360deg);}}
-        .login-link{
-            text-align:center;margin-top:1.5rem;color:var(--text-muted);font-size:.9rem;
-        }
-        .login-link a{
-            color:var(--primary);font-weight:600;text-decoration:none;margin-left:4px;
-        }
-        @media(max-width:600px){
-            main{padding:1rem;}
-            .card{padding:1.8rem;}
-            .nav-logo{font-size:1.8rem;}
-            .nav-logo img{width:50px;height:50px;}
+        .toast.show { transform: translateX(0); }
+        .toast.success { border-left-color: #27ae60; }
+        .toast.error { border-left-color: #c0392b; }
+        .toast i { font-size: 24px; }
+        .toast.success i { color: #27ae60; }
+        .toast.error i { color: #c0392b; }
+        .toast-content { flex: 1; }
+        .toast-title { font-weight: 600; font-size: 0.95rem; margin-bottom: 2px; }
+        .toast-message { font-size: 0.85rem; color: var(--text-muted); }
+
+        @media (max-width: 600px) {
+            main { padding: 1rem; }
+            .card { padding: 1.8rem; }
+            .nav-logo { font-size: 1.8rem; }
+            .nav-logo img { width: 50px; height: 50px; }
+            .toast { left: 20px; right: 20px; max-width: none; }
         }
     </style>
 </head>
 <body>
 
-<!-- NAVIGATION -->
-<nav>
-    <a href="index.html" class="nav-logo">
-        <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" alt="Logo">
-        Task<span>Vault</span>
-    </a>
-</nav>
-
-<!-- MAIN CONTENT -->
-<main>
-    <div class="card">
-        <div class="card-header">
-            <h1>Join <span>TaskVault</span></h1>
-            <p>Experience premium gaming rewards. Register to start earning.</p>
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <i class="ph ph-check-circle"></i>
+        <div class="toast-content">
+            <div class="toast-title">Success</div>
+            <div class="toast-message">Operation completed</div>
         </div>
-
-        <form id="registerForm" novalidate>
-            <!-- Username -->
-            <div class="form-group" id="group-username">
-                <div class="label-row"><label for="username">Username</label></div>
-                <div class="input-wrapper">
-                    <i class="ph ph-user input-icon"></i>
-                    <input type="text" id="username" class="input"
-                           placeholder="Choose a unique username" required>
-                </div>
-                <div class="error-msg"><i class="ph ph-warning-circle"></i> Username must be 3+ characters.</div>
-            </div>
-
-            <!-- Email -->
-            <div class="form-group" id="group-email">
-                <div class="label-row"><label for="email">Email Address</label></div>
-                <div class="input-wrapper">
-                    <i class="ph ph-envelope-simple input-icon"></i>
-                    <input type="email" id="email" class="input"
-                           placeholder="name@example.com" required>
-                </div>
-                <div class="error-msg"><i class="ph ph-warning-circle"></i> Please enter a valid email.</div>
-            </div>
-
-            <!-- Phone Section -->
-            <div class="phone-grid">
-                <!-- Country -->
-                <div class="form-group" id="group-country" style="margin-bottom:1.5rem;">
-                    <div class="label-row"><label for="country">Country</label></div>
-                    <div class="input-wrapper">
-                        <i class="ph ph-globe input-icon"></i>
-                        <select id="country" class="input" required>
-                            <option value="" disabled selected>Select Country</option>
-                            <!-- Specific requests -->
-                            <option value="NG">Nigeria (+234)</option>
-                            <option value="CM">Cameroon (+237)</option>
-                            <option value="GH">Ghana (+233)</option>
-                            <option value="PH">Philippines (+63)</option>
-                            <option value="CN">China (+86)</option>
-                            <option value="GA">Gabon (+241)</option>
-                            <option value="US">United States (+1)</option>
-                            <option value="GB">United Kingdom (+44)</option>
-                            <option value="CA">Canada (+1)</option>
-                            <option value="HU">Hungary (+36)</option>
-                            <!-- Rest of world (compact) -->
-                            <optgroup label="Africa">
-                                <option value="ZA">South Africa (+27)</option>
-                                <option value="KE">Kenya (+254)</option>
-                                <option value="ET">Ethiopia (+251)</option>
-                                <option value="EG">Egypt (+20)</option>
-                                <option value="TZ">Tanzania (+255)</option>
-                                <option value="UG">Uganda (+256)</option>
-                                <option value="DZ">Algeria (+213)</option>
-                                <option value="MA">Morocco (+212)</option>
-                                <option value="SN">Senegal (+221)</option>
-                                <option value="CI">Côte d'Ivoire (+225)</option>
-                            </optgroup>
-                            <optgroup label="Asia">
-                                <option value="IN">India (+91)</option>
-                                <option value="JP">Japan (+81)</option>
-                                <option value="KR">South Korea (+82)</option>
-                                <option value="VN">Vietnam (+84)</option>
-                                <option value="TH">Thailand (+66)</option>
-                                <option value="MY">Malaysia (+60)</option>
-                                <option value="ID">Indonesia (+62)</option>
-                                <option value="SG">Singapore (+65)</option>
-                                <option value="PK">Pakistan (+92)</option>
-                                <option value="BD">Bangladesh (+880)</option>
-                            </optgroup>
-                            <optgroup label="Europe">
-                                <option value="DE">Germany (+49)</option>
-                                <option value="FR">France (+33)</option>
-                                <option value="IT">Italy (+39)</option>
-                                <option value="ES">Spain (+34)</option>
-                                <option value="NL">Netherlands (+31)</option>
-                                <option value="PL">Poland (+48)</option>
-                                <option value="SE">Sweden (+46)</option>
-                                <option value="NO">Norway (+47)</option>
-                                <option value="FI">Finland (+358)</option>
-                                <option value="IE">Ireland (+353)</option>
-                            </optgroup>
-                            <optgroup label="Americas">
-                                <option value="MX">Mexico (+52)</option>
-                                <option value="BR">Brazil (+55)</option>
-                                <option value="AR">Argentina (+54)</option>
-                                <option value="CO">Colombia (+57)</option>
-                                <option value="PE">Peru (+51)</option>
-                                <option value="CL">Chile (+56)</option>
-                                <option value="VE">Venezuela (+58)</option>
-                            </optgroup>
-                            <optgroup label="Oceania">
-                                <option value="AU">Australia (+61)</option>
-                                <option value="NZ">New Zealand (+64)</option>
-                                <option value="FJ">Fiji (+679)</option>
-                            </optgroup>
-                        </select>
-                    </div>
-                    <div class="error-msg"><i class="ph ph-warning-circle"></i> Select your country.</div>
-                </div>
-
-                <!-- Phone -->
-                <div class="form-group" id="group-phone">
-                    <div class="label-row"><label for="phone">Phone Number</label></div>
-                    <div class="input-wrapper">
-                        <i class="ph ph-phone input-icon"></i>
-                        <input type="tel" id="phone" class="input"
-                               placeholder="555 123 4567" required>
-                    </div>
-                    <div class="error-msg"><i class="ph ph-warning-circle"></i> Valid phone number required.</div>
-                </div>
-            </div>
-
-            <!-- Password -->
-            <div class="form-group" id="group-password">
-                <div class="label-row"><label for="password">Password</label></div>
-                <div class="input-wrapper">
-                    <i class="ph ph-lock-key input-icon"></i>
-                    <input type="password" id="password" class="input"
-                           placeholder="••••••••" required>
-                    <button type="button" class="toggle-password"
-                            onclick="togglePassword('password')">
-                        <i class="ph ph-eye"></i>
-                    </button>
-                </div>
-                <div class="password-strength">
-                    <div class="strength-bar" id="bar-1"></div>
-                    <div class="strength-bar" id="bar-2"></div>
-                    <div class="strength-bar" id="bar-3"></div>
-                    <div class="strength-bar" id="bar-4"></div>
-                </div>
-                <div class="error-msg"><i class="ph ph-warning-circle"></i> Password too weak.</div>
-            </div>
-
-            <!-- Confirm Password -->
-            <div class="form-group" id="group-confirm">
-                <div class="label-row"><label for="confirmPassword">Confirm Password</label></div>
-                <div class="input-wrapper">
-                    <i class="ph ph-lock-key input-icon"></i>
-                    <input type="password" id="confirmPassword" class="input"
-                           placeholder="••••••••" required>
-                    <button type="button" class="toggle-password"
-                            onclick="togglePassword('confirmPassword')">
-                        <i class="ph ph-eye"></i>
-                    </button>
-                </div>
-                <div class="error-msg"><i class="ph ph-warning-circle"></i> Passwords do not match.</div>
-            </div>
-
-            <!-- Terms -->
-            <label class="terms-group">
-                <input type="checkbox" id="terms" required>
-                <div class="custom-checkbox"><i class="ph ph-check"></i></div>
-                <div class="terms-text">
-                    I agree to the <a href="#">Terms of Service</a>. I confirm I am at least 18 years old.
-                </div>
-            </label>
-            <div class="error-msg" id="terms-error" style="margin-top:5px;">
-                <i class="ph ph-warning-circle"></i> You must accept the terms.
-            </div>
-
-            <!-- Submit Button -->
-            <button type="submit" class="btn-submit" id="submitBtn">
-                <span class="btn-text">Create Account</span>
-                <div class="spinner"></div>
-            </button>
-
-            <div class="login-link">
-                Already have an account? <a href="login.html">Log In</a>
-            </div>
-        </form>
     </div>
-</main>
 
-<!-- FIREBASE & JS -->
-<script type="module">
-    // ---------- YOUR FIREBASE CONFIG (EXACTLY AS YOU PROVIDED) ----------
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-analytics.js";
-    import { getAuth, createUserWithEmailAndPassword, sendEmailVerification } from
-        "https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js";
-    import { getFirestore, doc, setDoc } from
-        "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+    <!-- Navigation -->
+    <nav>
+        <a href="index.html" class="nav-logo">
+            <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" alt="Logo">
+            Task<span>Vault</span>
+        </a>
+    </nav>
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyAv6QCpopa0Q77AVTyjU5cqJEIKIE9OVTs",
-        authDomain: "taskvault-412a0.firebaseapp.com",
-        projectId: "taskvault-412a0",
-        storageBucket: "taskvault-412a0.firebasestorage.app",
-        messagingSenderId: "420716701831",
-        appId: "1:420716701831:web:c987d91f7f4c8684eb7022",
-        measurementId: "G-93JG3LB08B"
-    };
+    <!-- Main Content -->
+    <main>
+        <div class="card">
+            <!-- Registration Form -->
+            <div id="registerFormContainer">
+                <div class="card-header">
+                    <h1>Join <span>TaskVault</span></h1>
+                    <p>Experience premium gaming rewards. Register to start earning.</p>
+                </div>
 
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+                <form id="registerForm" novalidate>
+                    
+                    <!-- Username -->
+                    <div class="form-group" id="group-username">
+                        <div class="label-row">
+                            <label for="username">Username</label>
+                        </div>
+                        <div class="input-wrapper">
+                            <i class="ph ph-user input-icon"></i>
+                            <input type="text" id="username" class="input" placeholder="Choose a unique username" required>
+                        </div>
+                        <div class="error-msg"><i class="ph ph-warning-circle"></i> Username must be 3+ characters.</div>
+                    </div>
 
-    // ---------- UI LOGIC ----------
-    // Password toggle
-    window.togglePassword = (id) => {
-        const input = document.getElementById(id);
-        const icon = input.nextElementSibling.querySelector('i');
-        if (input.type === "password") {
-            input.type = "text";
-            icon.classList.replace('ph-eye', 'ph-eye-slash');
-        } else {
-            input.type = "password";
-            icon.classList.replace('ph-eye-slash', 'ph-eye');
-        }
-    };
+                    <!-- Email -->
+                    <div class="form-group" id="group-email">
+                        <div class="label-row">
+                            <label for="email">Email Address</label>
+                        </div>
+                        <div class="input-wrapper">
+                            <i class="ph ph-envelope-simple input-icon"></i>
+                            <input type="email" id="email" class="input" placeholder="name@example.com" required>
+                        </div>
+                        <div class="error-msg"><i class="ph ph-warning-circle"></i> Please enter a valid email.</div>
+                    </div>
 
-    // Password strength meter
-    const passwordInput = document.getElementById('password');
-    const bars = [
-        document.getElementById('bar-1'),
-        document.getElementById('bar-2'),
-        document.getElementById('bar-3'),
-        document.getElementById('bar-4')
-    ];
-    passwordInput.addEventListener('input', e => {
-        const val = e.target.value;
-        let strength = 0;
-        if (val.length > 5) strength++;
-        if (val.length > 8) strength++;
-        if (/[A-Z]/.test(val) && /[0-9]/.test(val)) strength++;
-        if (/[^A-Za-z0-9]/.test(val)) strength++;
+                    <!-- Phone Section -->
+                    <div class="phone-grid">
+                        <!-- Country -->
+                        <div class="form-group" id="group-country" style="margin-bottom: 1.5rem;">
+                            <div class="label-row">
+                                <label for="country">Country</label>
+                            </div>
+                            <div class="input-wrapper">
+                                <i class="ph ph-globe input-icon"></i>
+                                <select id="country" class="input" required>
+                                    <option value="" disabled selected>Select Country</option>
+                                    <option value="NG">Nigeria (+234)</option>
+                                    <option value="CM">Cameroon (+237)</option>
+                                    <option value="GH">Ghana (+233)</option>
+                                    <option value="PH">Philippines (+63)</option>
+                                    <option value="CN">China (+86)</option>
+                                    <option value="GA">Gabon (+241)</option>
+                                    <option value="US">United States (+1)</option>
+                                    <option value="GB">United Kingdom (+44)</option>
+                                    <option value="CA">Canada (+1)</option>
+                                    <option value="HU">Hungary (+36)</option>
+                                    <option value="ZA">South Africa (+27)</option>
+                                    <option value="AU">Australia (+61)</option>
+                                    <option value="DE">Germany (+49)</option>
+                                    <option value="FR">France (+33)</option>
+                                    <option value="IN">India (+91)</option>
+                                    <option value="JP">Japan (+81)</option>
+                                    <option value="BR">Brazil (+55)</option>
+                                </select>
+                            </div>
+                            <div class="error-msg"><i class="ph ph-warning-circle"></i> Select your country.</div>
+                        </div>
 
-        bars.forEach((bar, idx) => {
-            if (idx < strength) {
-                bar.classList.add('active');
-                if (strength <= 1) bar.style.background = '#e74c3c';
-                else if (strength <= 2) bar.style.background = '#f39c12';
-                else if (strength <= 3) bar.style.background = '#27ae60';
-                else bar.style.background = '#2ecc71';
-            } else {
-                bar.classList.remove('active');
-                bar.style.background = '#e0dcd5';
-            }
-        });
-    });
+                        <!-- Phone -->
+                        <div class="form-group" id="group-phone">
+                            <div class="label-row">
+                                <label for="phone">Phone Number</label>
+                            </div>
+                            <div class="input-wrapper">
+                                <i class="ph ph-phone input-icon"></i>
+                                <input type="tel" id="phone" class="input" placeholder="555 123 4567" required>
+                            </div>
+                            <div class="error-msg"><i class="ph ph-warning-circle"></i> Valid phone number required.</div>
+                        </div>
+                    </div>
 
-    // Form validation & submission
-    const form = document.getElementById('registerForm');
-    const submitBtn = document.getElementById('submitBtn');
+                    <!-- Password -->
+                    <div class="form-group" id="group-password">
+                        <div class="label-row">
+                            <label for="password">Password</label>
+                        </div>
+                        <div class="input-wrapper">
+                            <i class="ph ph-lock-key input-icon"></i>
+                            <input type="password" id="password" class="input" placeholder="••••••••" required>
+                            <button type="button" class="toggle-password" onclick="togglePassword('password')">
+                                <i class="ph ph-eye"></i>
+                            </button>
+                        </div>
+                        <div class="password-strength">
+                            <div class="strength-bar" id="bar-1"></div>
+                            <div class="strength-bar" id="bar-2"></div>
+                            <div class="strength-bar" id="bar-3"></div>
+                            <div class="strength-bar" id="bar-4"></div>
+                        </div>
+                        <div class="error-msg"><i class="ph ph-warning-circle"></i> Password too weak.</div>
+                    </div>
 
-    form.addEventListener('submit', async e => {
-        e.preventDefault();
-        let isValid = true;
+                    <!-- Confirm Password -->
+                    <div class="form-group" id="group-confirm">
+                        <div class="label-row">
+                            <label for="confirmPassword">Confirm Password</label>
+                        </div>
+                        <div class="input-wrapper">
+                            <i class="ph ph-lock-key input-icon"></i>
+                            <input type="password" id="confirmPassword" class="input" placeholder="••••••••" required>
+                            <button type="button" class="toggle-password" onclick="togglePassword('confirmPassword')">
+                                <i class="ph ph-eye"></i>
+                            </button>
+                        </div>
+                        <div class="error-msg"><i class="ph ph-warning-circle"></i> Passwords do not match.</div>
+                    </div>
 
-        // Reset errors
-        document.querySelectorAll('.form-group').forEach(g => g.classList.remove('error'));
-        document.getElementById('terms-error').style.display = 'none';
+                    <!-- Terms Checkbox -->
+                    <label class="terms-group">
+                        <input type="checkbox" id="terms" required>
+                        <div class="custom-checkbox">
+                            <i class="ph ph-check"></i>
+                        </div>
+                        <div class="terms-text">
+                            I agree to the <a href="#">Terms of Service</a>. I confirm I am at least 18 years old.
+                        </div>
+                    </label>
+                    <div class="error-msg" id="terms-error" style="margin-top: 5px;"><i class="ph ph-warning-circle"></i> You must accept the terms.</div>
 
-        // ---- Validation helpers ----
-        const showError = (groupId, msgId) => {
-            document.getElementById(groupId).classList.add('error');
-            document.getElementById(msgId).style.display = 'block';
-            isValid = false;
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn-submit" id="submitBtn">
+                        <span class="btn-text">Create Account</span>
+                        <div class="spinner"></div>
+                    </button>
+
+                    <div class="login-link">
+                        Already have an account? <a href="login.html">Log In</a>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Success Message (Verification Email Sent) -->
+            <div class="success-message" id="successMessage">
+                <div class="success-icon-large">
+                    <i class="ph ph-envelope-simple-open"></i>
+                </div>
+                <h2>Verify Your Email</h2>
+                <p>We've sent a verification link to <strong id="verifiedEmail">your email</strong>. Please check your inbox and click the link to activate your account.</p>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">Didn't receive it? Check your spam folder or click below to resend.</p>
+                <button class="resend-btn" id="resendBtn" onclick="resendVerification()">
+                    Resend Verification Email
+                </button>
+                <div class="login-link" style="margin-top: 1.5rem;">
+                    <a href="login.html">Go to Login</a>
+                </div>
+            </div>
+        </div>
+    </main>
+        <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
+        import { 
+            getAuth, 
+            createUserWithEmailAndPassword, 
+            sendEmailVerification,
+            reload,
+            onAuthStateChanged
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { 
+            getFirestore, 
+            doc, 
+            setDoc, 
+            serverTimestamp 
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // YOUR Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAv6QCpopa0Q77AVTyjU5cqJEIKIE9OVTs",
+            authDomain: "taskvault-412a0.firebaseapp.com",
+            databaseURL: "https://taskvault-412a0-default-rtdb.firebaseio.com",
+            projectId: "taskvault-412a0",
+            storageBucket: "taskvault-412a0.firebasestorage.app",
+            messagingSenderId: "420716701831",
+            appId: "1:420716701831:web:c987d91f7f4c8684eb7022",
+            measurementId: "G-93JG3LB08B"
         };
 
-        // Username
-        const username = document.getElementById('username');
-        if (username.value.length < 3) showError('group-username', 'errorUsername');
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-        // Email
-        const email = document.getElementById('email');
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email.value)) showError('group-email', 'errorEmail');
-
-        // Country & Phone
-        const country = document.getElementById('country');
-        const phone = document.getElementById('phone');
-        const phoneRegex = /^[\d\s\-\+\(\)]{7,20}$/;
-        if (country.value === "") showError('group-country', 'errorCountry');
-        if (!phoneRegex.test(phone.value)) showError('group-phone', 'errorPhone');
-
-        // Password
-        const password = document.getElementById('password');
-        if (password.value.length < 8) showError('group-password', 'errorPassword');
-
-        // Confirm Password
-        const confirmPassword = document.getElementById('confirmPassword');
-        if (password.value !== confirmPassword.value)
-            showError('group-confirm', 'errorConfirmPassword');
-
-        // Terms
-        const terms = document.getElementById('terms');
-        if (!terms.checked) {
-            document.getElementById('terms-error').style.display = 'flex';
-            isValid = false;
+        // UI Functions
+        function showToast(title, message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.querySelector('.toast-title').innerText = title;
+            toast.querySelector('.toast-message').innerText = message;
+            toast.querySelector('i').className = type === 'success' ? 'ph ph-check-circle' : 'ph ph-warning-circle';
+            toast.className = `toast ${type} show`;
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 5000);
         }
 
-        if (!isValid) return;
+        // Password Toggle
+        window.togglePassword = function(id) {
+            const input = document.getElementById(id);
+            const icon = input.nextElementSibling.querySelector('i');
+            
+            if (input.type === "password") {
+                input.type = "text";
+                icon.classList.replace('ph-eye', 'ph-eye-slash');
+            } else {
+                input.type = "password";
+                icon.classList.replace('ph-eye-slash', 'ph-eye');
+            }
+        }
 
-        // ---- Disable button & show loading ----
-        submitBtn.classList.add('loading');
-        submitBtn.innerHTML = '<div class="spinner"></div>';
+        // Password Strength Meter
+        const passwordInput = document.getElementById('password');
+        const bars = [
+            document.getElementById('bar-1'),
+            document.getElementById('bar-2'),
+            document.getElementById('bar-3'),
+            document.getElementById('bar-4')
+        ];
 
-        try {
-            // 1️⃣ Create Auth user
-            const userCredential = await createUserWithEmailAndPassword(
-                auth, email.value.trim(), password.value.trim()
-            );
-            const user = userCredential.user;
+        passwordInput.addEventListener('input', (e) => {
+            const val = e.target.value;
+            let strength = 0;
 
-            // 2️⃣ (Optional) Send verification email – comment out if you don’t want to wait
-            await sendEmailVerification(user);
-            console.log("Verification email sent to:", email.value);
+            if (val.length > 5) strength++;
+            if (val.length > 8) strength++;
+            if (/[A-Z]/.test(val) && /[0-9]/.test(val)) strength++;
+            if (/[^A-Za-z0-9]/.test(val)) strength++;
 
-            // 3️⃣ Write profile to Firestore (this is where the username appears in Firebase)
-            await setDoc(doc(db, "users", user.uid), {
-                username: username.value.trim(),
-                email: email.value.trim(),
-                phone: phone.value.trim(),
-                country: country.value,
-                createdAt: new Date().toISOString()
+            bars.forEach((bar, index) => {
+                if (index < strength) {
+                    bar.classList.add('active');
+                    if (strength <= 1) bar.style.background = '#e74c3c';
+                    else if (strength <= 2) bar.style.background = '#f39c12';
+                    else if (strength <= 3) bar.style.background = '#27ae60';
+                    else bar.style.background = '#2ecc71';
+                } else {
+                    bar.classList.remove('active');
+                    bar.style.background = '#e0dcd5';
+                }
             });
+        });
 
-            // 4️⃣ Success feedback
-            submitBtn.style.background = '#27ae60'; // green
-            submitBtn.innerHTML = '<i class="ph ph-check-circle" style="font-size:1.2rem;"></i> Account Created';
-            alert("Registration successful! A verification email has been sent. Please check your inbox and then log in.");
+        // Form Submission
+        const form = document.getElementById('registerForm');
+        const submitBtn = document.getElementById('submitBtn');
 
-            // 5️⃣ Redirect to login page (as you requested)
-            setTimeout(() => { window.location.href = "login.html"; }, 1500);
-        } catch (err) {
-            console.error("Registration error:", err);
-            submitBtn.classList.remove('loading');
-            submitBtn.innerHTML = '<span class="btn-text">Create Account</span><div class="spinner"></div>';
-            submitBtn.style.background = ''; // reset
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            let isValid = true;
 
-            let msg = "Registration failed. Please try again.";
-            if (err.code === 'auth/email-already-in-use')
-                msg = "This email is already registered.";
-            else if (err.code === 'auth/weak-password')
-                msg = "Password is too weak.";
-            else if (err.code === 'auth/invalid-email')
-                msg = "Invalid email format.";
-            alert(msg);
+            // Reset Errors
+            document.querySelectorAll('.form-group').forEach(g => g.classList.remove('error'));
+            document.getElementById('terms-error').style.display = 'none';
+
+            // Get Values
+            const username = document.getElementById('username').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const country = document.getElementById('country').value;
+            const phone = document.getElementById('phone').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const terms = document.getElementById('terms').checked;
+
+            // Validate Username
+            if (username.length < 3) {
+                document.getElementById('group-username').classList.add('error');
+                isValid = false;
+            }
+
+            // Validate Email
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                document.getElementById('group-email').classList.add('error');
+                isValid = false;
+            }
+
+            // Validate Country & Phone
+            const phoneRegex = /^[\d\s\-\+\(\)]{7,20}$/; 
+
+            if (country === "") {
+                document.getElementById('group-country').classList.add('error');
+                isValid = false;
+            }
+            if (!phoneRegex.test(phone)) {
+                document.getElementById('group-phone').classList.add('error');
+                isValid = false;
+            }
+
+            // Validate Password
+            if (password.length < 8) {
+                document.getElementById('group-password').classList.add('error');
+                isValid = false;
+            }
+
+            // Validate Confirm Password
+            if (password !== confirmPassword) {
+                document.getElementById('group-confirm').classList.add('error');
+                isValid = false;
+            }
+
+            // Validate Terms
+            if (!terms) {
+                document.getElementById('terms-error').style.display = 'flex';
+                isValid = false;
+            }
+
+            if (!isValid) return;
+
+            // Start Loading
+            submitBtn.classList.add('loading');
+            submitBtn.querySelector('.btn-text').innerText = 'Creating Account...';
+
+            try {
+                // 1. Create user in Firebase Auth
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                // 2. Send verification email
+                await sendEmailVerification(user);
+
+                // 3. Store additional user data in Firestore
+                await setDoc(doc(db, "users", user.uid), {
+                    username: username,
+                    email: email,
+                    country: country,
+                    phone: phone,
+                    createdAt: serverTimestamp(),
+                    emailVerified: false,
+                    balance: 0,
+                    status: 'active',
+                    uid: user.uid
+                });
+
+                // 4. Show success message
+                document.getElementById('registerFormContainer').style.display = 'none';
+                document.getElementById('successMessage').classList.add('active');
+                document.getElementById('verifiedEmail').innerText = email;
+
+                showToast('Success!', 'Verification email sent. Please check your inbox.');
+
+            } catch (error) {
+                console.error("Registration error:", error);
+                
+                let errorMessage = "Registration failed. Please try again.";
+                
+                switch(error.code) {
+                    case 'auth/email-already-in-use':
+                        errorMessage = "This email is already registered. Please login.";
+                        document.getElementById('group-email').classList.add('error');
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage = "Invalid email address.";
+                        document.getElementById('group-email').classList.add('error');
+                        break;
+                    case 'auth/weak-password':
+                        errorMessage = "Password is too weak. Use at least 8 characters.";
+                        document.getElementById('group-password').classList.add('error');
+                        break;
+                    case 'auth/network-request-failed':
+                        errorMessage = "Network error. Check your connection.";
+                        break;
+                }
+                
+                showToast('Error', errorMessage, 'error');
+                submitBtn.classList.remove('loading');
+                submitBtn.querySelector('.btn-text').innerText = 'Create Account';
+            }
+        });
+
+        // Resend verification email
+        window.resendVerification = async function() {
+            const resendBtn = document.getElementById('resendBtn');
+            resendBtn.disabled = true;
+            resendBtn.innerText = 'Sending...';
+
+            try {
+                const user = auth.currentUser;
+                
+                if (user) {
+                    await reload(user);
+                    
+                    if (user.emailVerified) {
+                        showToast('Already Verified', 'Your email is already verified. You can login now.');
+                        return;
+                    }
+                    
+                    await sendEmailVerification(user);
+                    showToast('Sent!', 'Verification email resent successfully.');
+                } else {
+                    showToast('Error', 'Please register again.', 'error');
+                }
+            } catch (error) {
+                console.error(error);
+                showToast('Error', 'Failed to resend. Try again later.', 'error');
+            } finally {
+                resendBtn.disabled = false;
+                resendBtn.innerText = 'Resend Verification Email';
+            }
         }
-    });
-</script>
+
+        // Check auth state
+        onAuthStateChanged(auth, (user) => {
+            if (user && user.emailVerified) {
+                window.location.href = "login.html";
+            }
+        });
+    </script>
 </body>
 </html>
