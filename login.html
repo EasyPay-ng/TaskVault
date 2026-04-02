@@ -37,11 +37,7 @@
             --transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             font-family: var(--font-main);
@@ -55,7 +51,6 @@
                 radial-gradient(circle at 80% 80%, rgba(211, 84, 0, 0.03) 0%, transparent 50%);
         }
 
-        /* Silk Texture Overlay */
         body::before {
             content: "";
             position: fixed;
@@ -136,42 +131,16 @@
             to { opacity: 1; transform: translateY(0) rotateX(0); }
         }
 
-        .card-header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        .card-header h1 {
-            font-size: 1.8rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            letter-spacing: -0.5px;
-        }
-
+        .card-header { text-align: center; margin-bottom: 2rem; }
+        .card-header h1 { font-size: 1.8rem; font-weight: 600; margin-bottom: 0.5rem; letter-spacing: -0.5px; }
         .card-header h1 span { color: var(--primary); }
-        
-        .card-header p {
-            color: var(--text-muted);
-            font-size: 0.95rem;
-            font-weight: 400;
-        }
+        .card-header p { color: var(--text-muted); font-size: 0.95rem; font-weight: 400; }
 
         /* Form Elements */
         .form-group { margin-bottom: 1.5rem; position: relative; }
+        .label-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
         
-        .label-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.5rem;
-        }
-
-        label {
-            font-size: 0.85rem;
-            font-weight: 500;
-            color: var(--text-main);
-            letter-spacing: 0.3px;
-        }
+        label { font-size: 0.85rem; font-weight: 500; color: var(--text-main); letter-spacing: 0.3px; }
 
         .input-wrapper {
             display: flex;
@@ -191,13 +160,7 @@
             transform: translateY(-1px);
         }
 
-        .input-icon {
-            color: var(--text-muted);
-            font-size: 1.25rem;
-            margin-right: 0.75rem;
-            transition: color 0.3s;
-        }
-
+        .input-icon { color: var(--text-muted); font-size: 1.25rem; margin-right: 0.75rem; transition: color 0.3s; }
         .input-wrapper:focus-within .input-icon { color: var(--primary); }
 
         .input {
@@ -211,171 +174,51 @@
             font-family: var(--font-main);
             font-weight: 500;
         }
-
         .input::placeholder { color: #b0b0b0; font-weight: 400; }
 
-        /* Password Toggle */
-        .toggle-password {
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            cursor: pointer;
-            padding: 0.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: color 0.3s;
-        }
+        .toggle-password { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 0.5rem; display: flex; align-items: center; justify-content: center; transition: color 0.3s; }
         .toggle-password:hover { color: var(--primary); }
 
-        /* Error Handling */
-        .error-msg {
-            color: #c0392b;
-            font-size: 0.8rem;
-            margin-top: 0.4rem;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            opacity: 0;
-            height: 0;
-            overflow: hidden;
-            transition: 0.3s;
-            font-weight: 500;
-        }
-        .form-group.error .error-msg {
-            opacity: 1;
-            height: auto;
-            margin-bottom: 0.5rem;
-        }
-        .form-group.error .input-wrapper {
-            border-color: #c0392b;
-            box-shadow: 0 0 0 4px rgba(192, 57, 43, 0.1);
-        }
+        .error-msg { color: #c0392b; font-size: 0.8rem; margin-top: 0.4rem; display: flex; align-items: center; gap: 4px; opacity: 0; height: 0; overflow: hidden; transition: 0.3s; font-weight: 500; }
+        .form-group.error .error-msg { opacity: 1; height: auto; margin-bottom: 0.5rem; }
+        .form-group.error .input-wrapper { border-color: #c0392b; box-shadow: 0 0 0 4px rgba(192, 57, 43, 0.1); }
 
-        /* Forgot Password Link */
-        .forgot-password {
-            text-align: right;
-            margin-top: -1rem;
-            margin-bottom: 1.5rem;
-        }
-        .forgot-password a {
-            font-size: 0.85rem;
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: 500;
-        }
+        .forgot-password { text-align: right; margin-top: -1rem; margin-bottom: 1.5rem; }
+        .forgot-password a { font-size: 0.85rem; color: var(--primary); text-decoration: none; font-weight: 500; }
         .forgot-password a:hover { text-decoration: underline; }
 
-        /* Submit Button */
         .btn-submit {
-            width: 100%;
-            padding: 1.1rem;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            transition: var(--transition);
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 4px 15px var(--primary-glow);
-            font-family: var(--font-main);
-            letter-spacing: 0.5px;
+            width: 100%; padding: 1.1rem; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white; border: none; border-radius: 12px; font-size: 1rem; font-weight: 600; cursor: pointer;
+            margin-top: 1rem; display: flex; align-items: center; justify-content: center; gap: 10px;
+            transition: var(--transition); position: relative; overflow: hidden; box-shadow: 0 4px 15px var(--primary-glow);
+            font-family: var(--font-main); letter-spacing: 0.5px;
         }
         
-        .btn-submit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px var(--primary-glow);
-        }
-        
+        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 25px var(--primary-glow); }
         .btn-submit:active { transform: translateY(0); }
+        .btn-submit.loading { pointer-events: none; opacity: 0.8; }
         
-        .btn-submit.loading {
-            pointer-events: none;
-            opacity: 0.8;
-        }
-        
-        .spinner {
-            width: 20px;
-            height: 20px;
-            border: 2px solid rgba(255,255,255,0.3);
-            border-top-color: white;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            display: none;
-        }
+        .spinner { width: 20px; height: 20px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite; display: none; }
         .btn-submit.loading .spinner { display: block; }
-
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* Divider */
-        .divider {
-            display: flex;
-            align-items: center;
-            text-align: center;
-            margin: 2rem 0 1.5rem;
-            color: var(--text-muted);
-            font-size: 0.85rem;
-        }
-        .divider::before, .divider::after {
-            content: '';
-            flex: 1;
-            border-bottom: 1px solid var(--border-color);
-        }
+        .divider { display: flex; align-items: center; text-align: center; margin: 2rem 0 1.5rem; color: var(--text-muted); font-size: 0.85rem; }
+        .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--border-color); }
         .divider span { padding: 0 10px; }
 
-        /* Social Login */
-        .social-login {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-        }
-
+        .social-login { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
         .btn-social {
-            padding: 0.8rem;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            background: #fff;
-            color: var(--text-main);
-            font-weight: 500;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: var(--transition);
+            padding: 0.8rem; border: 1px solid var(--border-color); border-radius: 12px; background: #fff;
+            color: var(--text-main); font-weight: 500; cursor: pointer; display: flex; align-items: center;
+            justify-content: center; gap: 8px; transition: var(--transition);
         }
-        
-        .btn-social:hover {
-            background: #f9f9f9;
-            border-color: #ccc;
-            transform: translateY(-2px);
-        }
-        
+        .btn-social:hover { background: #f9f9f9; border-color: #ccc; transform: translateY(-2px); }
         .btn-social i { font-size: 1.2rem; }
 
-        /* Footer */
-        .login-link {
-            text-align: center;
-            margin-top: 2rem;
-            color: var(--text-muted);
-            font-size: 0.9rem;
-        }
-        .login-link a {
-            color: var(--primary);
-            font-weight: 600;
-            text-decoration: none;
-            margin-left: 4px;
-        }
+        .login-link { text-align: center; margin-top: 2rem; color: var(--text-muted); font-size: 0.9rem; }
+        .login-link a { color: var(--primary); font-weight: 600; text-decoration: none; margin-left: 4px; }
 
-        /* Responsive */
         @media (max-width: 600px) {
             main { padding: 1rem; }
             .card { padding: 1.8rem; }
@@ -526,4 +369,3 @@
     </script>
 </body>
 </html>
-```
