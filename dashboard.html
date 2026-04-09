@@ -4,10 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Dashboard</title>
-   
-    <!-- Favicon -->
-    <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" type="image/jpeg">
-   
     <!-- FontAwesome for Icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <!-- Google Fonts -->
@@ -19,7 +15,7 @@
             --orange-main: #FF8C42;
             --orange-dark: #E67A35;
             --orange-light: #FFF0E6;
-            --silk-bg: #FDFBF7; /* Soft silk color */
+            --silk-bg: #FDFBF7;
             --white: #FFFFFF;
             --text-dark: #333333;
             --text-light: #888888;
@@ -34,22 +30,36 @@
         }
 
         body {
-            background-color: #e9ecef; /* Darker bg for desktop to contrast mobile app layout */
+            background-color: #e9ecef;
             display: flex;
             justify-content: center;
+            align-items: flex-start;
             min-height: 100vh;
+            padding: 20px;
         }
 
-        /* Mobile App Container */
+        /* Mobile App Container - responsive for both mobile and desktop */
         .app-container {
             width: 100%;
             max-width: 480px;
             background-color: var(--silk-bg);
             min-height: 100vh;
             position: relative;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            box-shadow: 0 0 30px rgba(0,0,0,0.15);
+            border-radius: 20px;
             overflow-x: hidden;
-            padding-bottom: 80px; /* Space for bottom nav */
+            padding-bottom: 100px;
+        }
+
+        /* Desktop larger view */
+        @media (min-width: 768px) {
+            .app-container {
+                max-width: 500px;
+                margin: 40px auto;
+                min-height: auto;
+                max-height: 90vh;
+                overflow-y: auto;
+            }
         }
 
         /* ==================== HEADER ==================== */
@@ -60,6 +70,7 @@
             padding: 20px 24px;
             background: var(--white);
             border-bottom: 1px solid rgba(255, 140, 66, 0.1);
+            border-radius: 20px 20px 0 0;
         }
 
         .user-info h2 {
@@ -84,15 +95,16 @@
             align-items: center;
             font-size: 18px;
             position: relative;
+            cursor: pointer;
         }
 
         .badge {
             position: absolute;
-            top: 8px;
-            right: 10px;
+            top: 6px;
+            right: 8px;
             width: 8px;
             height: 8px;
-            background: red;
+            background: #ff4444;
             border-radius: 50%;
         }
 
@@ -120,6 +132,17 @@
             width: 150px;
             height: 150px;
             background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+        }
+
+        .balance-card::before {
+            content: '';
+            position: absolute;
+            bottom: -30px;
+            left: -30px;
+            width: 100px;
+            height: 100px;
+            background: rgba(255,255,255,0.08);
             border-radius: 50%;
         }
 
@@ -206,6 +229,10 @@
             transform: scale(0.98);
         }
 
+        .btn-primary:hover {
+            background: var(--orange-dark);
+        }
+
         .btn-disabled {
             background: #E0E0E0;
             color: #9E9E9E;
@@ -228,7 +255,7 @@
             flex: 1;
             border: none;
             background: transparent;
-            font-size: 14px;
+            font-size: 13px;
             color: var(--text-dark);
             outline: none;
         }
@@ -241,19 +268,24 @@
             border-radius: 8px;
             cursor: pointer;
             font-weight: 500;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        .btn-copy:hover {
+            background: var(--orange-dark);
         }
 
         /* ==================== BOTTOM NAVIGATION ==================== */
         .bottom-nav {
-            position: fixed;
+            position: absolute;
             bottom: 0;
             width: 100%;
-            max-width: 480px;
             background: var(--white);
             display: flex;
             justify-content: space-around;
-            padding: 15px 0 25px 0;
-            box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+            padding: 12px 0 22px 0;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.08);
             border-top-left-radius: 20px;
             border-top-right-radius: 20px;
             z-index: 1000;
@@ -265,21 +297,27 @@
             align-items: center;
             color: var(--text-light);
             text-decoration: none;
-            font-size: 12px;
-            gap: 5px;
+            font-size: 11px;
+            gap: 4px;
             transition: 0.3s ease;
+            padding: 5px 10px;
+            border-radius: 10px;
         }
 
         .nav-item i {
-            font-size: 20px;
+            font-size: 22px;
         }
 
         .nav-item.active {
             color: var(--orange-main);
         }
 
+        .nav-item:hover {
+            color: var(--orange-dark);
+        }
+
         .nav-item.active i {
-            transform: translateY(-3px);
+            transform: translateY(-2px);
         }
 
         /* ==================== TOAST NOTIFICATION ==================== */
@@ -290,13 +328,15 @@
             transform: translateX(-50%);
             background: #333;
             color: white;
-            padding: 10px 20px;
+            padding: 12px 24px;
             border-radius: 30px;
             font-size: 14px;
             opacity: 0;
             visibility: hidden;
             transition: all 0.3s ease;
             z-index: 2000;
+            text-align: center;
+            max-width: 90%;
         }
 
         .toast.show {
@@ -304,18 +344,51 @@
             visibility: visible;
             top: 40px;
         }
+
+        /* ==================== LOADING OVERLAY ==================== */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(253, 251, 247, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--orange-light);
+            border-top: 4px solid var(--orange-main);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+    </div>
 
     <div class="app-container">
         <!-- HEADER -->
         <div class="header">
             <div class="user-info">
-                <h2>Welcome!</h2>
-                <p>Dashboard Overview</p>
+                <h2>Welcome Back</h2>
+                <p id="userEmail">Loading...</p>
             </div>
-            <div class="notification">
+            <div class="notification" onclick="showToast('No new notifications')">
                 <i class="fa-regular fa-bell"></i>
                 <div class="badge"></div>
             </div>
@@ -342,10 +415,10 @@
             </p>
             <div class="claim-amount">+0.01 TVC</div>
             <button id="claimBtn" class="btn btn-primary" onclick="claimDaily()">
-                Claim Now
+                <i class="fa-solid fa-gift"></i> Claim Now
             </button>
             <p id="claimStatus" style="text-align: center; font-size: 12px; color: var(--orange-main); margin-top: 10px; display: none;">
-                Next claim available tomorrow.
+                <i class="fa-solid fa-clock"></i> Next claim available tomorrow.
             </p>
         </div>
 
@@ -356,46 +429,51 @@
                 <div class="card-title">Referral Program</div>
             </div>
             <p style="font-size: 13px; color: var(--text-light);">
-                Invite friends and earn bonus TVC! Share your unique link below:
+                Invite friends and earn bonus TVC! Share your unique link:
             </p>
             <div class="ref-box">
-                <input type="text" id="refLink" class="ref-input" value="......." readonly>
-                <button class="btn-copy" onclick="copyReferral()">Copy</button>
+                <input type="text" id="refLink" class="ref-input" value="Loading..." readonly>
+                <button class="btn-copy" onclick="copyReferral()">
+                    <i class="fa-solid fa-copy"></i> Copy
+                </button>
             </div>
+            <p style="font-size: 11px; color: var(--orange-main); text-align: center; margin-top: 10px;">
+                Earn 0.005 TVC per referral!
+            </p>
         </div>
 
         <!-- BOTTOM NAVIGATION -->
-        <div class="bottom-nav">
-            <a href="#" class="nav-item">
+        <nav class="bottom-nav">
+            <a href="menu.html" class="nav-item">
                 <i class="fa-solid fa-bars"></i>
                 <span>Menu</span>
             </a>
-            <a href="#" class="nav-item">
+            <a href="deposit.html" class="nav-item">
                 <i class="fa-solid fa-arrow-down-to-line"></i>
                 <span>Deposit</span>
             </a>
-            <a href="#" class="nav-item">
+            <a href="withdraw.html" class="nav-item">
                 <i class="fa-solid fa-arrow-up-from-bracket"></i>
                 <span>Withdraw</span>
             </a>
-            <a href="#" class="nav-item active">
+            <a href="profile.html" class="nav-item active">
                 <i class="fa-solid fa-user"></i>
                 <span>Profile</span>
             </a>
-        </div>
+        </nav>
     </div>
 
     <!-- TOAST NOTIFICATION -->
     <div id="toast" class="toast">Message</div>
 
-    <!-- FIREBASE SDK SCRIPTS (Compat version for simplicity) -->
+    <!-- FIREBASE SDK SCRIPTS -->
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
 
     <script>
         // ==========================================
-        // 1. PASTE YOUR FIREBASE DETAILS HERE
+        // 🔥 PASTE YOUR FIREBASE DETAILS HERE 🔥
         // ==========================================
         const firebaseConfig = {
             apiKey: "YOUR_API_KEY",
@@ -415,26 +493,24 @@
         let userData = null;
 
         // ==========================================
-        // 2. AUTHENTICATION & DATA FETCHING
+        // AUTHENTICATION & DATA FETCHING
         // ==========================================
         
-        // Listen for Auth State
         auth.onAuthStateChanged((user) => {
             if (user) {
                 currentUser = user;
+                document.getElementById('userEmail').textContent = user.email || 'Anonymous User';
                 fetchUserData(user.uid);
             } else {
-                // For testing purposes, we automatically sign in anonymously
-                // so the dashboard works instantly. You can remove this and 
-                // link it to your actual login page later.
+                // Auto sign-in anonymously for testing
                 auth.signInAnonymously().catch((error) => {
                     console.error("Auth Error:", error);
                     showToast("Authentication Failed");
+                    hideLoading();
                 });
             }
         });
 
-        // Fetch user data from Firestore
         async function fetchUserData(uid) {
             const userRef = db.collection('users').doc(uid);
             
@@ -444,10 +520,11 @@
                     userData = doc.data();
                     updateUI();
                 } else {
-                    // Create new user profile if it doesn't exist
+                    // Create new user profile
                     const newProfile = {
                         balance: 0.00,
                         referralCode: generateRefCode(uid),
+                        referralCount: 0,
                         lastClaimDate: null,
                         createdAt: firebase.firestore.FieldValue.serverTimestamp()
                     };
@@ -457,24 +534,22 @@
                 }
             } catch (error) {
                 console.error("Error fetching data: ", error);
-                // Ensure UI still works locally if Firebase rules block it
                 document.getElementById('balanceDisplay').innerText = "0.00";
+                hideLoading();
             }
+            hideLoading();
         }
 
         // ==========================================
-        // 3. UI UPDATES & LOGIC
+        // UI UPDATES & LOGIC
         // ==========================================
         
         function updateUI() {
-            // Update Balance
             document.getElementById('balanceDisplay').innerText = userData.balance.toFixed(2);
             
-            // Update Referral Link
-            const baseUrl = window.location.origin + window.location.pathname;
+            const baseUrl = window.location.origin + window.location.pathname.replace('index.html', '');
             document.getElementById('refLink').value = `${baseUrl}?ref=${userData.referralCode}`;
 
-            // Check Daily Claim Status
             checkClaimStatus();
         }
 
@@ -482,66 +557,75 @@
             const btn = document.getElementById('claimBtn');
             const statusText = document.getElementById('claimStatus');
             
-            if (!userData.lastClaimDate) return; // Never claimed
+            if (!userData.lastClaimDate) {
+                // Never claimed - enable button
+                enableClaimButton(btn, statusText);
+                return;
+            }
 
-            // Convert Firestore timestamp to Date
             const lastClaim = userData.lastClaimDate.toDate ? userData.lastClaimDate.toDate() : new Date(userData.lastClaimDate);
             const now = new Date();
-            
-            // Calculate difference in hours
-            const diffTime = Math.abs(now - lastClaim);
-            const diffHours = Math.ceil(diffTime / (1000 * 60 * 60)); 
+            const diffHours = Math.ceil(Math.abs(now - lastClaim) / (1000 * 60 * 60));
 
             if (diffHours < 24) {
-                // Disable button
-                btn.classList.remove('btn-primary');
-                btn.classList.add('btn-disabled');
-                btn.innerText = "Claimed";
-                btn.disabled = true;
-                statusText.style.display = "block";
+                disableClaimButton(btn, statusText);
+                // Calculate remaining time
+                const remaining = 24 - diffHours;
+                statusText.innerHTML = `<i class="fa-solid fa-clock"></i> Next claim in ${remaining}h`;
             } else {
-                // Enable button
-                btn.classList.add('btn-primary');
-                btn.classList.remove('btn-disabled');
-                btn.innerText = "Claim Now";
-                btn.disabled = false;
-                statusText.style.display = "none";
+                enableClaimButton(btn, statusText);
             }
         }
 
+        function enableClaimButton(btn, statusText) {
+            btn.classList.add('btn-primary');
+            btn.classList.remove('btn-disabled');
+            btn.innerHTML = '<i class="fa-solid fa-gift"></i> Claim Now';
+            btn.disabled = false;
+            statusText.style.display = "none";
+        }
+
+        function disableClaimButton(btn, statusText) {
+            btn.classList.remove('btn-primary');
+            btn.classList.add('btn-disabled');
+            btn.innerHTML = '<i class="fa-solid fa-check"></i> Claimed';
+            btn.disabled = true;
+            statusText.style.display = "block";
+        }
+
         // ==========================================
-        // 4. ACTIONS (CLAIM & COPY)
+        // ACTIONS (CLAIM & COPY)
         // ==========================================
 
         async function claimDaily() {
-            if (!currentUser) return;
+            if (!currentUser) {
+                showToast("Please login first!");
+                return;
+            }
 
             const btn = document.getElementById('claimBtn');
-            btn.innerText = "Processing...";
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing...';
             btn.disabled = true;
 
             try {
                 const userRef = db.collection('users').doc(currentUser.uid);
-                
-                // Add 0.01 TVC and update time
-                const newBalance = (userData.balance || 0) + 0.01;
+                const newBalance = (parseFloat(userData.balance) || 0) + 0.01;
                 
                 await userRef.update({
                     balance: newBalance,
                     lastClaimDate: firebase.firestore.FieldValue.serverTimestamp()
                 });
 
-                // Update local data and UI
                 userData.balance = newBalance;
-                userData.lastClaimDate = new Date(); // Mock timestamp locally for instant UI update
+                userData.lastClaimDate = new Date();
                 
                 updateUI();
-                showToast("Successfully claimed 0.01 TVC!");
+                showToast("🎉 Successfully claimed 0.01 TVC!");
 
             } catch (error) {
                 console.error("Claim error:", error);
-                showToast("Error claiming. Try again.");
-                btn.innerText = "Claim Now";
+                showToast("❌ Error claiming. Try again.");
+                btn.innerHTML = '<i class="fa-solid fa-gift"></i> Claim Now';
                 btn.disabled = false;
             }
         }
@@ -549,37 +633,54 @@
         function copyReferral() {
             const refInput = document.getElementById('refLink');
             refInput.select();
-            refInput.setSelectionRange(0, 99999); /* For mobile devices */
+            refInput.setSelectionRange(0, 99999);
             
             navigator.clipboard.writeText(refInput.value).then(() => {
-                showToast("Referral link copied!");
+                showToast("✅ Referral link copied!");
+            }).catch(() => {
+                // Fallback for older browsers
+                document.execCommand('copy');
+                showToast("✅ Referral link copied!");
             });
         }
 
         // ==========================================
-        // 5. HELPER FUNCTIONS
+        // HELPER FUNCTIONS
         // ==========================================
 
         function generateRefCode(uid) {
-            // Creates a random 6 character code based on UID
-            return 'TVC' + uid.substring(0, 5).toUpperCase();
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let code = 'TVC';
+            for (let i = 0; i < 6; i++) {
+                code += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return code;
         }
 
         function showToast(message) {
             const toast = document.getElementById('toast');
-            toast.innerText = message;
+            toast.innerHTML = message;
             toast.classList.add('show');
             setTimeout(() => {
                 toast.classList.remove('show');
             }, 3000);
         }
 
-        // Bottom Nav Active State logic
-        document.querySelectorAll('.nav-item').forEach(item => {
-            item.addEventListener('click', function(e) {
-                e.preventDefault();
-                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-                this.classList.add('active');
+        function hideLoading() {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
+
+        // Highlight active nav based on current page
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentPage = window.location.pathname.split('/').pop();
+            const navItems = document.querySelectorAll('.nav-item');
+            
+            navItems.forEach(item => {
+                const href = item.getAttribute('href');
+                if (href === currentPage || 
+                    (currentPage === '' || currentPage === 'index.html') && href === 'profile.html') {
+                    item.classList.add('active');
+                }
             });
         });
     </script>
