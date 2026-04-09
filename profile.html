@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - TVC</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --orange-main: #FF8C42; --silk-bg: #FDFBF7; --white: #FFF; }
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; }
+        body { background:#e9ecef; display:flex; justify-content:center; min-height:100vh; }
+        .app { width:100%; max-width:480px; background:var(--silk-bg); min-height:100vh; padding-bottom:100px; }
+        .header { padding:20px; background:var(--white); border-bottom:1px solid #eee; }
+        .header h1 { color:var(--orange-main); font-size:22px; }
+        .content { padding:20px; }
+        .profile-card { background:var(--white); padding:25px; border-radius:16px; text-align:center; margin-bottom:20px; }
+        .avatar { width:80px; height:80px; border-radius:50%; background:var(--orange-main); display:flex; justify-content:center; align-items:center; margin:0 auto 15px; color:#fff; font-size:32px; }
+        .profile-card h2 { font-size:18px; margin-bottom:5px; }
+        .profile-card p { color:#888; font-size:13px; }
+        .info-list { background:var(--white); border-radius:12px; padding:15px; }
+        .info-item { display:flex; justify-content:space-between; padding:12px 0; border-bottom:1px solid #eee; }
+        .info-item:last-child { border:none; }
+        .info-item span:first-child { color:#888; }
+        .info-item span:last-child { font-weight:600; }
+        .btn { width:100%; padding:14px; border:none; border-radius:12px; background:#ff4444; color:#fff; font-size:16px; cursor:pointer; margin-top:20px; }
+        .bottom-nav { position:fixed; bottom:0; width:100%; max-width:480px; background:var(--white); display:flex; justify-content:space-around; padding:12px 0 22px; box-shadow:0 -5px 20px rgba(0,0,0,0.08); border-radius:20px 20px 0 0; }
+        .nav-item { display:flex; flex-direction:column; align-items:center; color:#888; text-decoration:none; font-size:11px; gap:4px; }
+        .nav-item i { font-size:22px; }
+        .nav-item.active { color:var(--orange-main); }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <div class="header">
+            <h1><i class="fa-solid fa-user"></i> Profile</h1>
+        </div>
+        <div class="content">
+            <div class="profile-card">
+                <div class="avatar"><i class="fa-solid fa-user"></i></div>
+                <h2 id="userName">User</h2>
+                <p id="userEmail">user@example.com</p>
+            </div>
+            <div class="info-list">
+                <div class="info-item"><span>User ID</span><span id="userId">---</span></div>
+                <div class="info-item"><span>Balance</span><span id="userBalance">0.00 TVC</span></div>
+                <div class="info-item"><span>Referrals</span><span id="userReferrals">0</span></div>
+                <div class="info-item"><span>Member Since</span><span id="userSince">---</span></div>
+            </div>
+            <button class="btn" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+        </div>
+        <nav class="bottom-nav">
+            <a href="menu.html" class="nav-item"><i class="fa-solid fa-bars"></i><span>Menu</span></a>
+            <a href="deposit.html" class="nav-item"><i class="fa-solid fa-arrow-down-to-line"></i><span>Deposit</span></a>
+            <a href="withdraw.html" class="nav-item"><i class="fa-solid fa-arrow-up-from-bracket"></i><span>Withdraw</span></a>
+            <a href="profile.html" class="nav-item active"><i class="fa-solid fa-user"></i><span>Profile</span></a>
+        </nav>
+    </div>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        auth.onAuthStateChanged(async (user) => {
+            if(user) {
+                document.getElementById('userName').textContent = user.displayName || user.email?.split('@')[0] || 'User';
+                document.getElementById('userEmail').textContent = user.email || 'Anonymous';
+                document.getElementById('userId').textContent = user.uid.substring(0,10)+'...';
+                
+                const doc = await db.collection('users').doc(user.uid).get();
+                if(doc.exists) {
+                    const d = doc.data();
+                    document.getElementById('userBalance').textContent = d.balance.toFixed(2)+' TVC';
+                    document.getElementById('userReferrals').textContent = d.referralCount || 0;
+                    document.getElementById('userSince').textContent = d.createdAt ? d.createdAt.toDate().toLocaleDateString() : '---';
+                }
+            }
+        });
+        function logout() { auth.signOut(); window.location.href='index.html'; }
+    </script>
+</body>
+</html>
