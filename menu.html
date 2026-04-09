@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --orange-main: #FF8C42; --silk-bg: #FDFBF7; --white: #FFF; --text-dark: #333; }
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; }
+        body { background:#e9ecef; display:flex; justify-content:center; min-height:100vh; }
+        .app { width:100%; max-width:480px; background:var(--silk-bg); min-height:100vh; padding-bottom:100px; }
+        .header { padding:20px; background:var(--white); border-bottom:1px solid #eee; }
+        .header h1 { color:var(--orange-main); font-size:22px; }
+        .menu-list { padding:20px; }
+        .menu-item { background:var(--white); padding:18px 20px; border-radius:12px; margin-bottom:12px; display:flex; align-items:center; gap:15px; cursor:pointer; transition:0.3s; }
+        .menu-item:hover { box-shadow:0 4px 15px rgba(255,140,66,0.2); }
+        .menu-item i { font-size:20px; color:var(--orange-main); width:30px; }
+        .bottom-nav { position:fixed; bottom:0; width:100%; max-width:480px; background:var(--white); display:flex; justify-content:space-around; padding:12px 0 22px; box-shadow:0 -5px 20px rgba(0,0,0,0.08); border-radius:20px 20px 0 0; }
+        .nav-item { display:flex; flex-direction:column; align-items:center; color:#888; text-decoration:none; font-size:11px; gap:4px; }
+        .nav-item i { font-size:22px; }
+        .nav-item.active { color:var(--orange-main); }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <div class="header">
+            <h1><i class="fa-solid fa-bars"></i> Menu</h1>
+        </div>
+        <div class="menu-list">
+            <div class="menu-item"><i class="fa-solid fa-wallet"></i> Wallet</div>
+            <div class="menu-item"><i class="fa-solid fa-chart-line"></i> Statistics</div>
+            <div class="menu-item"><i class="fa-solid fa-trophy"></i> Achievements</div>
+            <div class="menu-item"><i class="fa-solid fa-headset"></i> Support</div>
+            <div class="menu-item"><i class="fa-solid fa-gear"></i> Settings</div>
+            <div class="menu-item"><i class="fa-solid fa-right-from-bracket"></i> Logout</div>
+        </div>
+        <nav class="bottom-nav">
+            <a href="menu.html" class="nav-item active"><i class="fa-solid fa-bars"></i><span>Menu</span></a>
+            <a href="deposit.html" class="nav-item"><i class="fa-solid fa-arrow-down-to-line"></i><span>Deposit</span></a>
+            <a href="withdraw.html" class="nav-item"><i class="fa-solid fa-arrow-up-from-bracket"></i><span>Withdraw</span></a>
+            <a href="profile.html" class="nav-item"><i class="fa-solid fa-user"></i><span>Profile</span></a>
+        </nav>
+    </div>
+</body>
+</html>
