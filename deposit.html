@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deposit</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --orange-main: #FF8C42; --silk-bg: #FDFBF7; --white: #FFF; }
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; }
+        body { background:#e9ecef; display:flex; justify-content:center; min-height:100vh; }
+        .app { width:100%; max-width:480px; background:var(--silk-bg); min-height:100vh; padding-bottom:100px; }
+        .header { padding:20px; background:var(--white); border-bottom:1px solid #eee; }
+        .header h1 { color:var(--orange-main); font-size:22px; }
+        .content { padding:20px; }
+        .qr-box { background:var(--white); padding:20px; border-radius:16px; text-align:center; margin-bottom:20px; }
+        .qr-box img { width:180px; height:180px; background:#eee; border-radius:12px; }
+        .address-box { background:var(--white); padding:15px; border-radius:12px; border:1px dashed var(--orange-main); margin-bottom:20px; }
+        .address-box input { width:100%; border:none; background:transparent; font-size:14px; outline:none; }
+        .btn { width:100%; padding:14px; border:none; border-radius:12px; background:var(--orange-main); color:#fff; font-size:16px; cursor:pointer; }
+        .bottom-nav { position:fixed; bottom:0; width:100%; max-width:480px; background:var(--white); display:flex; justify-content:space-around; padding:12px 0 22px; box-shadow:0 -5px 20px rgba(0,0,0,0.08); border-radius:20px 20px 0 0; }
+        .nav-item { display:flex; flex-direction:column; align-items:center; color:#888; text-decoration:none; font-size:11px; gap:4px; }
+        .nav-item i { font-size:22px; }
+        .nav-item.active { color:var(--orange-main); }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <div class="header">
+            <h1><i class="fa-solid fa-arrow-down-to-line"></i> Deposit</h1>
+        </div>
+        <div class="content">
+            <div class="qr-box">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=TVC_ADDRESS_HERE" alt="QR Code">
+                <p style="margin-top:10px; color:#888; font-size:13px;">Scan to deposit TVC</p>
+            </div>
+            <div class="address-box">
+                <input type="text" value="0x1234...abcdTVC" readonly>
+            </div>
+            <button class="btn" onclick="alert('Address copied!')"><i class="fa-solid fa-copy"></i> Copy Address</button>
+        </div>
+        <nav class="bottom-nav">
+            <a href="menu.html" class="nav-item"><i class="fa-solid fa-bars"></i><span>Menu</span></a>
+            <a href="deposit.html" class="nav-item active"><i class="fa-solid fa-arrow-down-to-line"></i><span>Deposit</span></a>
+            <a href="withdraw.html" class="nav-item"><i class="fa-solid fa-arrow-up-from-bracket"></i><span>Withdraw</span></a>
+            <a href="profile.html" class="nav-item"><i class="fa-solid fa-user"></i><span>Profile</span></a>
+        </nav>
+    </div>
+</body>
+</html>
