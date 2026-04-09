@@ -1,436 +1,583 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Dashboard</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dashboard</title>
+    <!-- FontAwesome for Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ==================== THEME VARIABLES ==================== */
+        :root {
+            --orange-main: #FF8C42;
+            --orange-dark: #E67A35;
+            --orange-light: #FFF0E6;
+            --silk-bg: #FDFBF7; /* Soft silk color */
+            --white: #FFFFFF;
+            --text-dark: #333333;
+            --text-light: #888888;
+        }
 
-<!-- Favicon -->
-<link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" type="image/jpeg">
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-<!-- Google Font (Montserrat) -->
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+        body {
+            background-color: #e9ecef; /* Darker bg for desktop to contrast mobile app layout */
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
 
-<!-- Firebase SDK (modular v9) -->
-<script type="module">
-  // -----------------------------------------------------------------
-  // 👉 1️⃣ REPLACE THE OBJECT BELOW WITH YOUR OWN Firebase config  // -----------------------------------------------------------------
-  const firebaseConfig = {
-    apiKey:            "YOUR_API_KEY",
-    authDomain:        "YOUR_PROJECT_ID.firebaseapp.com",
-    projectId:         "YOUR_PROJECT_ID",
-    storageBucket:     "YOUR_PROJECT_ID.appspot.com",
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId:             "YOUR_APP_ID",
-    measurementId:     "YOUR_MEASUREMENT_ID"
-  };
+        /* Mobile App Container */
+        .app-container {
+            width: 100%;
+            max-width: 480px;
+            background-color: var(--silk-bg);
+            min-height: 100vh;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            overflow-x: hidden;
+            padding-bottom: 80px; /* Space for bottom nav */
+        }
 
-  // Initialise Firebase
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-  import {
-    getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut
-  } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-  import {
-    getFirestore, doc, getDoc, collection, getDocs, query, where
-  } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+        /* ==================== HEADER ==================== */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            background: var(--white);
+            border-bottom: 1px solid rgba(255, 140, 66, 0.1);
+        }
 
-  const app   = initializeApp(firebaseConfig);
-  const auth  = getAuth(app);
-  const db    = getFirestore(app);
-  // -----------------------------------------------------------------  // 🎨 Theme constants (silk‑white‑orange)
-  // -----------------------------------------------------------------  const THEME = {
-    primary:   "#ff8c00",   // orange – button, highlights
-    primaryD:  "#e07a00",   // darker orange
-    white:     "#ffffff",
-    mutedBg:   "#f5f5f5",
-    text:      "#333333",
-    textMuted: "#777777",
-    font:      "'Montserrat', sans-serif"
-  };
-</script>
+        .user-info h2 {
+            font-size: 18px;
+            color: var(--text-dark);
+            font-weight: 600;
+        }
 
-<!-- Chart.js (for the revenue line) -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+        .user-info p {
+            font-size: 12px;
+            color: var(--text-light);
+        }
 
-<style>
-  :root {
-    --color-primary:  var(--primary, #ff8c00);
-    --color-primary-dark: var(--primaryD, #e07a00);
-    --color-bg:       #ffffff;        /* white background */
-    --color-muted-bg: #f5f5f5;        /* soft gray for panels */
-    --color-text:     var(--text, #333333);
-    --color-muted:    var(--textMuted, #777777);
-    --font-family:    var(--font, 'Montserrat', sans-serif);
-  }
+        .notification {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--orange-light);
+            color: var(--orange-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+            position: relative;
+        }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+        .badge {
+            position: absolute;
+            top: 8px;
+            right: 10px;
+            width: 8px;
+            height: 8px;
+            background: red;
+            border-radius: 50%;
+        }
 
-  body {
-    font-family: var(--font-family);
-    background: var(--color-bg);
-    color: var(--color-text);
-    line-height: 1.6;
-  }
+        /* ==================== BALANCE CARD ==================== */
+        .balance-section {
+            padding: 20px 24px;
+        }
 
-  /* -----------------------------------------------------------------
-     Header
-   ----------------------------------------------------------------- */
-  .header {
-    background: var(--color-primary);
-    color: #fff;
-    padding: 1rem 2rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .header h1 { font-weight: 600; font-size: 1.4rem; }
-  .logout-btn {
-    background: transparent;
-    border: 2px solid #fff;
-    color: #fff;
-    padding: .5rem 1rem;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: 500;
-  }
-  .logout-btn:hover { background: var(--color-primary-dark); }
+        .balance-card {
+            background: linear-gradient(135deg, var(--orange-main) 0%, #FF6B35 100%);
+            border-radius: 20px;
+            padding: 25px 20px;
+            color: var(--white);
+            box-shadow: 0 10px 20px rgba(255, 140, 66, 0.3);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
 
-  /* -----------------------------------------------------------------     Layout (sidebar + main)
-   ----------------------------------------------------------------- */
-  .dashboard {
-    display: grid;
-    grid-template-columns: 260px 1fr;
-    gap: 1.5rem;
-    padding: 1.5rem 2rem;
-  }
-  .sidebar {
-    background: var(--color-muted-bg);
-    border-right: 2px solid var(--color-primary);
-    padding: 1.5rem 0;
-  }
-  .sidebar nav .nav-item {
-    padding: .75rem 1.5rem;
-    cursor: pointer;
-    color: var(--color-text);
-  }
-  .sidebar nav .nav-item:hover,
-  .sidebar nav .nav-item.active {
-    background: var(--color-primary);
-    color: #fff;
-  }
-  .sidebar nav .nav-item a {
-    text-decoration: none;
-    color: inherit;
-    display: block;
-  }
+        .balance-card::after {
+            content: '';
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 150px;
+            height: 150px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+        }
 
-  .content {
-    background: var(--color-bg);
-    border: 1px solid var(--color-muted-bg);
-    border-radius: 8px;
-    padding: 2rem;
-    box-shadow: 0 2px 5px rgba(0,0,0,.05);
-  }
+        .balance-title {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
 
-  .welcome { font-size: 1.2rem; margin-bottom: 2rem; }
+        .balance-amount {
+            font-size: 36px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
 
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-    margin-bottom: 2rem;
-  }
-  .stat-card {
-    background: var(--color-bg);
-    border: 1px solid var(--color-muted-bg);
-    border-radius: 8px;
-    padding: 1.5rem;
-    text-align: center;
-    box-shadow: 0 1px 3px rgba(0,0,0,.05);
-  }
-  .stat-card h3 { color: var(--color-muted); margin-bottom: .5rem; font-size: 1rem; }
-  .stat-card .value { font-size: 1.8rem; font-weight: 600; color: var(--color-primary); }
+        .currency {
+            font-size: 18px;
+            font-weight: 500;
+            opacity: 0.9;
+        }
 
-  .chart-container {
-    position: relative;
-    height: 260px;
-    background: var(--color-bg);
-    border: 1px solid var(--color-muted-bg);
-    border-radius: 8px;
-    padding: 1rem;
-  }
+        /* ==================== ACTION CARDS ==================== */
+        .card {
+            background: var(--white);
+            margin: 0 24px 20px 24px;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            border: 1px solid rgba(255, 140, 66, 0.1);
+        }
 
-  /* -----------------------------------------------------------------
-     Silk texture (subtle pattern) – transparent‑textures.com
-   ----------------------------------------------------------------- */
-  .silk-bg {
-    position: relative;
-    background-color: var(--color-bg);
-    background-image: url('https://www.transparenttextures.com/patterns/silk.png');
-    background-repeat: repeat;
-    background-size: 100% auto;
-  }
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
 
-  /* -----------------------------------------------------------------     Responsive (mobile)
-   ----------------------------------------------------------------- */
-  @media (max-width: 900px) {
-    .dashboard { grid-template-columns: 1fr; }
-    .sidebar { display: none; }
-  }
-</style>
+        .card-icon {
+            width: 35px;
+            height: 35px;
+            border-radius: 10px;
+            background: var(--orange-light);
+            color: var(--orange-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 12px;
+            font-size: 16px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        /* Daily Claim Specifics */
+        .claim-amount {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--orange-main);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: var(--orange-main);
+            color: var(--white);
+            box-shadow: 0 4px 15px rgba(255, 140, 66, 0.3);
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+
+        .btn-disabled {
+            background: #E0E0E0;
+            color: #9E9E9E;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        /* Referral Specifics */
+        .ref-box {
+            display: flex;
+            align-items: center;
+            background: var(--silk-bg);
+            border: 1px dashed var(--orange-main);
+            border-radius: 10px;
+            padding: 5px 5px 5px 15px;
+            margin-top: 10px;
+        }
+
+        .ref-input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            font-size: 14px;
+            color: var(--text-dark);
+            outline: none;
+        }
+
+        .btn-copy {
+            background: var(--orange-main);
+            color: var(--white);
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        /* ==================== BOTTOM NAVIGATION ==================== */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            max-width: 480px;
+            background: var(--white);
+            display: flex;
+            justify-content: space-around;
+            padding: 15px 0 25px 0;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            z-index: 1000;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--text-light);
+            text-decoration: none;
+            font-size: 12px;
+            gap: 5px;
+            transition: 0.3s ease;
+        }
+
+        .nav-item i {
+            font-size: 20px;
+        }
+
+        .nav-item.active {
+            color: var(--orange-main);
+        }
+
+        .nav-item.active i {
+            transform: translateY(-3px);
+        }
+
+        /* ==================== TOAST NOTIFICATION ==================== */
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 14px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 2000;
+        }
+
+        .toast.show {
+            opacity: 1;
+            visibility: visible;
+            top: 40px;
+        }
+    </style>
 </head>
-
 <body>
-  <!-- --------------------- Header --------------------- -->
-  <header class="header silk-bg">
-    <h1>Silk Dashboard</h1>
-    <button class="logout-btn" id="logoutBtn">Logout</button>
-  </header>
 
-  <!-- --------------------- Layout --------------------- -->
-  <aside class="dashboard silk-bg">
-    <!-- Sidebar -->
-    <section class="sidebar">
-      <nav>
-        <a href="#" class="nav-item active" data-route="home">Home</a>
-        <a href="#" class="nav-item" data-route="stats">Stats</a>
-        <a href="#" class="nav-item" data-route="reports">Reports</a>
-        <a href="#" class="nav-item" data-route="settings">Settings</a>
-      </nav>
-    </section>
-
-    <!-- Main Content -->
-    <section class="content silk-bg">
-      <div class="welcome" id="welcomeMsg">Welcome, <span id="userName"></span>!</div>
-
-      <div class="stats-grid" id="statsGrid">
-        <div class="stat-card">
-          <h3>Total Orders</h3>
-          <div class="value" id="totalOrders">--</div>
+    <div class="app-container">
+        <!-- HEADER -->
+        <div class="header">
+            <div class="user-info">
+                <h2>Welcome Back</h2>
+                <p>Dashboard Overview</p>
+            </div>
+            <div class="notification">
+                <i class="fa-regular fa-bell"></i>
+                <div class="badge"></div>
+            </div>
         </div>
-        <div class="stat-card">
-          <h3>Total Revenue</h3>
-          <div class="value" id="totalRevenue">$0</div>
+
+        <!-- MAIN BALANCE -->
+        <div class="balance-section">
+            <div class="balance-card">
+                <div class="balance-title">Main Balance</div>
+                <div class="balance-amount">
+                    <span id="balanceDisplay">0.00</span> <span class="currency">TVC</span>
+                </div>
+            </div>
         </div>
-        <div class="stat-card">
-          <h3>Active Users</h3>
-          <div class="value" id="activeUsers">0</div>
+
+        <!-- DAILY CLAIM -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon"><i class="fa-solid fa-gift"></i></div>
+                <div class="card-title">Daily Claim</div>
+            </div>
+            <p style="font-size: 13px; color: var(--text-light); text-align: center; margin-bottom: 10px;">
+                Claim your free TVC tokens every 24 hours.
+            </p>
+            <div class="claim-amount">+0.01 TVC</div>
+            <button id="claimBtn" class="btn btn-primary" onclick="claimDaily()">
+                Claim Now
+            </button>
+            <p id="claimStatus" style="text-align: center; font-size: 12px; color: var(--orange-main); margin-top: 10px; display: none;">
+                Next claim available tomorrow.
+            </p>
         </div>
-      </div>
 
-      <div class="chart-container">
-        <h3 style="margin-bottom: .5rem; color: var(--color-primary);">Revenue Over Time</h3>
-        <canvas id="revenueChart"></canvas>
-      </div>
-    </section>
-  </aside>
+        <!-- REFERRAL PROGRAM -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon"><i class="fa-solid fa-users"></i></div>
+                <div class="card-title">Referral Program</div>
+            </div>
+            <p style="font-size: 13px; color: var(--text-light);">
+                Invite friends and earn bonus TVC! Share your unique link below:
+            </p>
+            <div class="ref-box">
+                <input type="text" id="refLink" class="ref-input" value="Loading..." readonly>
+                <button class="btn-copy" onclick="copyReferral()">Copy</button>
+            </div>
+        </div>
 
-  <!-- ====================== SCRIPT (auth + UI) ====================== -->
-  <script type="module">
-    // -----------------------------------------------------------------
-    //  Auth state listener    // -----------------------------------------------------------------
-    document.addEventListener('DOMContentLoaded', () => {
-      onAuthStateChanged(auth, async (user) => {
-        if (user) {
-          // Signed in → show dashboard
-          $('#welcomeMsg').style.display = 'block';
-          $('#statsGrid').style.display = 'grid';
-          $('#logoutBtn').style.display = 'inline-block';
-          await renderUserInfo(user);
-          await loadUserStats(user.uid);
-        } else {
-          // Not signed in → show tiny sign‑in form
-          showSignInForm();
-        }
-      });
+        <!-- BOTTOM NAVIGATION -->
+        <div class="bottom-nav">
+            <a href="#" class="nav-item">
+                <i class="fa-solid fa-bars"></i>
+                <span>Menu</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fa-solid fa-arrow-down-to-line"></i>
+                <span>Deposit</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fa-solid fa-arrow-up-from-bracket"></i>
+                <span>Withdraw</span>
+            </a>
+            <a href="#" class="nav-item active">
+                <i class="fa-solid fa-user"></i>
+                <span>Profile</span>
+            </a>
+        </div>
+    </div>
 
-      // -----------------------------------------------------------------
-      //  Logout button
-      // -----------------------------------------------------------------
-      $('#logoutBtn').addEventListener('click', async () => {
-        await signOut(auth);
-      });
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast" class="toast">Message</div>
 
-      // -----------------------------------------------------------------
-      //  Simple Sign‑In form (shown only when not logged in)
-      // -----------------------------------------------------------------
-      async function showSignInForm() {
-        const body = document.body.innerHTML; // keep original markup as fallback
+    <!-- FIREBASE SDK SCRIPTS (Compat version for simplicity) -->
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
 
-        // Insert sign‑in UI (replace the whole <body> to keep things tidy)
-        document.body.innerHTML = `
-          <style>
-            .auth-card {
-              max-width: 380px;
-              margin: 6rem auto;
-              background: var(--color-bg);
-              border: 1px solid var(--color-muted-bg);
-              border-radius: 8px;
-              padding: 2rem;
-              box-shadow: 0 2px 5px rgba(0,0,0,.05);
+    <script>
+        // ==========================================
+        // 1. PASTE YOUR FIREBASE DETAILS HERE
+        // ==========================================
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        let currentUser = null;
+        let userData = null;
+
+        // ==========================================
+        // 2. AUTHENTICATION & DATA FETCHING
+        // ==========================================
+        
+        // Listen for Auth State
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                currentUser = user;
+                fetchUserData(user.uid);
+            } else {
+                // For testing purposes, we automatically sign in anonymously
+                // so the dashboard works instantly. You can remove this and 
+                // link it to your actual login page later.
+                auth.signInAnonymously().catch((error) => {
+                    console.error("Auth Error:", error);
+                    showToast("Authentication Failed");
+                });
             }
-            .auth-card h2 { text-align:center; color:var(--color-primary); margin-bottom:1.5rem; }
-            .auth-card label { display:block; margin-top:.75rem; }
-            .auth-card input {
-              width:100%; padding:.75rem; margin-top:.4rem;
-              border:1px solid #ccc; border-radius:4px; font-family:inherit;
-            }
-            .auth-card button {
-              width:100%; margin-top:1rem; padding:.75rem;
-              background:var(--color-primary); color:#fff;
-              border:none; border-radius:4px; cursor:pointer;
-            }
-            .auth-card button:hover { background:var(--color-primary-dark); }
-          </style>
-          <section class="auth-card silk-bg">
-            <h2>Sign In</h2>
-            <form id="signInForm">
-              <label for="email">Email</label>
-              <input type="email" id="email" required>
-              <label for="pwd">Password</label>
-              <input type="password" id="pwd" required>
-              <button type="submit">Sign In</button>
-            </form>
-          </section>
-        `;
-
-        // Sign‑in handler        $('#signInForm').addEventListener('submit', async (e) => {
-          e.preventDefault();
-          const email = $('#email').value;
-          const pwd   = $('#pwd').value;
-          try {
-            await signInWithEmailAndPassword(auth, email, pwd);
-          } catch (err) {
-            console.error(err);
-            alert('Sign‑in failed: ' + err.message);
-          }
         });
-      }
 
-      // -----------------------------------------------------------------
-      //  Render user name and show dashboard elements (if hidden)
-      // -----------------------------------------------------------------
-      async function renderUserInfo(user) {
-        $('#userName').textContent = user.displayName || user.email.split('@')[0];
-        // hide sign‑in UI if it exists (we keep the layout as original)
-        const signInDiv = document.getElementById('signInDiv');
-        if (signInDiv) signInDiv.style.display = 'none';
-      }
-
-      // -----------------------------------------------------------------
-      //  Load user data from Firestore and populate UI + chart
-      // -----------------------------------------------------------------
-      async function loadUserStats(uid) {
-        try {
-          // ---- 1️⃣ Pull the summary document from `users/UID` ----------
-          const userRef = doc(db, 'users', uid);
-          const uSnap = await getDoc(userRef);
-          if (!uSnap.exists()) {
-            console.warn('User document not found for UID:', uid);
-            return;
-          }
-          const uData = uSnap.data();
-
-          // ---- 2️⃣ Fill the three statistic cards -----------------------
-          $('#totalOrders').textContent = uData.totalOrders ?? '--';
-          $('#totalRevenue').textContent = uData.totalRevenue
-            ? `$${uData.totalRevenue.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`
-            : '$0';
-          $('#activeUsers').textContent = uData.activeUsers ?? '--';
-
-          // ---- 3️⃣ Pull revenue history for the last 12 months -----------
-          const now = new Date();
-          const start = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
-
-          const revenueCol = collection(db, 'revenue');
-          const revenueQ = query(
-            revenueCol,
-            where('uid', '==', uid),
-            where('date', '>=', start)
-          );
-
-          const revSnap = await getDocs(revenueQ);
-
-          // Prepare data for Chart.js (sorted by date asc)
-          const raw = revSnap.docs.map(d => {
-            const dData = d.data();
-            // Expect `date` to be a Firestore Timestamp
-            const ts = dData.date?.toDate?.() || new Date(dData.date?.seconds * 1000);
-            return { date: ts, amount: Number(dData.amount ?? 0) };
-          });
-
-          // If the same month appears more than once we sum it
-          const bucket = {};
-          raw.forEach(r => {
-            const monthKey = r.date.toLocaleString(undefined, { month: 'short', year: 'numeric' });
-            bucket[monthKey] = (bucket[monthKey] ?? 0) + r.amount;
-          });
-
-          const labels = Object.keys(bucket).sort(); // chronological order
-          const values = labels.map(l => bucket[l]);
-
-          // ---- 4️⃣ Render the line chart --------------------------------
-          createRevenueChart(labels, values);
-        } catch (err) {
-          console.error('Error while loading user stats:', err);
-        }
-      }
-
-      // -----------------------------------------------------------------
-      //  Chart.js line chart (Revenue Over Time)
-      // -----------------------------------------------------------------
-      function createRevenueChart(labels, values) {
-        const ctx = $('#revenueChart').getContext('2d');
-
-        // Destroy previous instance (if any)
-        if (window.revenueChart) window.revenueChart.destroy();
-
-        window.revenueChart = new Chart(ctx, {
-          type: 'line',
-          data: {
-            labels: labels,
-            datasets: [{
-              label: 'Revenue ($)',
-              data: values,
-              borderColor: '#ff8c00',
-              backgroundColor: 'rgba(255,140,0,0.2)',
-              tension: 0.3,
-              fill: true,
-              pointRadius: 3,
-              pointHoverRadius: 6,
-            }]
-          },
-          options: {
-            responsive: true,
-            plugins: {
-              legend: { display: false },
-              tooltip: {
-                callbacks: {
-                  label: ctx => `$${ctx.parsed.y.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`
+        // Fetch user data from Firestore
+        async function fetchUserData(uid) {
+            const userRef = db.collection('users').doc(uid);
+            
+            try {
+                const doc = await userRef.get();
+                if (doc.exists) {
+                    userData = doc.data();
+                    updateUI();
+                } else {
+                    // Create new user profile if it doesn't exist
+                    const newProfile = {
+                        balance: 0.00,
+                        referralCode: generateRefCode(uid),
+                        lastClaimDate: null,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    };
+                    await userRef.set(newProfile);
+                    userData = newProfile;
+                    updateUI();
                 }
-              }
-            },
-            scales: {
-              y: {
-                beginAtZero: true,
-                ticks: {
-                  callback: v => `$${v}`
-                }
-              },
-              x: {
-                ticks: { maxTicksLimit: 12 }
-              }
+            } catch (error) {
+                console.error("Error fetching data: ", error);
+                // Ensure UI still works locally if Firebase rules block it
+                document.getElementById('balanceDisplay').innerText = "0.00";
             }
-          }
-        });
-      }
-    });
+        }
 
-    // -----------------------------------------------------------------
-    //  Helper to find an element – short alias
-    // -----------------------------------------------------------------
-    const $ = s => document.querySelector(s);
-    const $$ = s => document.querySelectorAll(s);
-  </script>
+        // ==========================================
+        // 3. UI UPDATES & LOGIC
+        // ==========================================
+        
+        function updateUI() {
+            // Update Balance
+            document.getElementById('balanceDisplay').innerText = userData.balance.toFixed(2);
+            
+            // Update Referral Link
+            const baseUrl = window.location.origin + window.location.pathname;
+            document.getElementById('refLink').value = `${baseUrl}?ref=${userData.referralCode}`;
+
+            // Check Daily Claim Status
+            checkClaimStatus();
+        }
+
+        function checkClaimStatus() {
+            const btn = document.getElementById('claimBtn');
+            const statusText = document.getElementById('claimStatus');
+            
+            if (!userData.lastClaimDate) return; // Never claimed
+
+            // Convert Firestore timestamp to Date
+            const lastClaim = userData.lastClaimDate.toDate ? userData.lastClaimDate.toDate() : new Date(userData.lastClaimDate);
+            const now = new Date();
+            
+            // Calculate difference in hours
+            const diffTime = Math.abs(now - lastClaim);
+            const diffHours = Math.ceil(diffTime / (1000 * 60 * 60)); 
+
+            if (diffHours < 24) {
+                // Disable button
+                btn.classList.remove('btn-primary');
+                btn.classList.add('btn-disabled');
+                btn.innerText = "Claimed";
+                btn.disabled = true;
+                statusText.style.display = "block";
+            } else {
+                // Enable button
+                btn.classList.add('btn-primary');
+                btn.classList.remove('btn-disabled');
+                btn.innerText = "Claim Now";
+                btn.disabled = false;
+                statusText.style.display = "none";
+            }
+        }
+
+        // ==========================================
+        // 4. ACTIONS (CLAIM & COPY)
+        // ==========================================
+
+        async function claimDaily() {
+            if (!currentUser) return;
+
+            const btn = document.getElementById('claimBtn');
+            btn.innerText = "Processing...";
+            btn.disabled = true;
+
+            try {
+                const userRef = db.collection('users').doc(currentUser.uid);
+                
+                // Add 0.01 TVC and update time
+                const newBalance = (userData.balance || 0) + 0.01;
+                
+                await userRef.update({
+                    balance: newBalance,
+                    lastClaimDate: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                // Update local data and UI
+                userData.balance = newBalance;
+                userData.lastClaimDate = new Date(); // Mock timestamp locally for instant UI update
+                
+                updateUI();
+                showToast("Successfully claimed 0.01 TVC!");
+
+            } catch (error) {
+                console.error("Claim error:", error);
+                showToast("Error claiming. Try again.");
+                btn.innerText = "Claim Now";
+                btn.disabled = false;
+            }
+        }
+
+        function copyReferral() {
+            const refInput = document.getElementById('refLink');
+            refInput.select();
+            refInput.setSelectionRange(0, 99999); /* For mobile devices */
+            
+            navigator.clipboard.writeText(refInput.value).then(() => {
+                showToast("Referral link copied!");
+            });
+        }
+
+        // ==========================================
+        // 5. HELPER FUNCTIONS
+        // ==========================================
+
+        function generateRefCode(uid) {
+            // Creates a random 6 character code based on UID
+            return 'TVC' + uid.substring(0, 5).toUpperCase();
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.innerText = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Bottom Nav Active State logic
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+    </script>
 </body>
 </html>
