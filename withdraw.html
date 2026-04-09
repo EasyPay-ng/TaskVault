@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Withdraw</title>
+    
+  
+  
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --orange-main: #FF8C42; --silk-bg: #FDFBF7; --white: #FFF; }
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; }
+        body { background:#e9ecef; display:flex; justify-content:center; min-height:100vh; }
+        .app { width:100%; max-width:480px; background:var(--silk-bg); min-height:100vh; padding-bottom:100px; }
+        .header { padding:20px; background:var(--white); border-bottom:1px solid #eee; }
+        .header h1 { color:var(--orange-main); font-size:22px; }
+        .content { padding:20px; }
+        .input-group { margin-bottom:15px; }
+        .input-group label { display:block; margin-bottom:5px; font-size:14px; color:#666; }
+        .input-group input { width:100%; padding:14px; border:1px solid #ddd; border-radius:12px; font-size:16px; }
+        .balance-info { text-align:right; font-size:12px; color:var(--orange-main); margin-bottom:20px; cursor:pointer; }
+        .btn { width:100%; padding:14px; border:none; border-radius:12px; background:var(--orange-main); color:#fff; font-size:16px; cursor:pointer; }
+        .btn:disabled { background:#ccc; cursor:not-allowed; }
+        .bottom-nav { position:fixed; bottom:0; width:100%; max-width:480px; background:var(--white); display:flex; justify-content:space-around; padding:12px 0 22px; box-shadow:0 -5px 20px rgba(0,0,0,0.08); border-radius:20px 20px 0 0; }
+        .nav-item { display:flex; flex-direction:column; align-items:center; color:#888; text-decoration:none; font-size:11px; gap:4px; }
+        .nav-item i { font-size:22px; }
+        .nav-item.active { color:var(--orange-main); }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <div class="header">
+            <h1><i class="fa-solid fa-arrow-up-from-bracket"></i> Withdraw</h1>
+        </div>
+        <div class="content">
+            <div class="balance-info" onclick="fillMax()">Available: <strong>0.00 TVC</strong></div>
+            <div class="input-group">
+                <label>Amount (TVC)</label>
+                <input type="number" id="amount" placeholder="Enter amount" step="0.01" min="0.01">
+            </div>
+            <div class="input-group">
+                <label>Wallet Address</label>
+                <input type="text" id="address" placeholder="Enter your TVC wallet address">
+            </div>
+            <button class="btn" onclick="withdraw()"><i class="fa-solid fa-paper-plane"></i> Withdraw</button>
+        </div>
+        <nav class="bottom-nav">
+            <a href="menu.html" class="nav-item"><i class="fa-solid fa-bars"></i><span>Menu</span></a>
+            <a href="deposit.html" class="nav-item"><i class="fa-solid fa-arrow-down-to-line"></i><span>Deposit</span></a>
+            <a href="withdraw.html" class="nav-item active"><i class="fa-solid fa-arrow-up-from-bracket"></i><span>Withdraw</span></a>
+            <a href="profile.html" class="nav-item"><i class="fa-solid fa-user"></i><span>Profile</span></a>
+        </nav>
+    </div>
+    <script>
+        function fillMax() { document.getElementById('amount').value = '0.00'; alert('Enter your balance here'); }
+        function withdraw() { 
+            const amt = document.getElementById('amount').value;
+            const addr = document.getElementById('address').value;
+            if(!amt || !addr) { alert('Please fill all fields'); return; }
+            alert(`Withdrawal of ${amt} TVC to ${addr} submitted!`); 
+        }
+    </script>
+</body>
+</html>
