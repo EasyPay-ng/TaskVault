@@ -1,0 +1,23 @@
+{
+    "name": "CashClique",
+    "short_name": "CashClique",
+    "description": "Earn rewards daily",
+    "start_url": "/index.html",
+    "display": "standalone",
+    "background_color": "#FDFBF7",
+    "theme_color": "#FF8C42",
+    "orientation": "portrait",
+    "icons": [
+        {
+            "src": "https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg",
+            "sizes": "192x192",
+            "type": "image/jpeg"
+        },
+        {
+            "src": "https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg",
+            "sizes": "512x512",
+            "type": "image/jpeg"
+        }
+    ],
+    "gcm_sender_id": "103953800507"
+}
