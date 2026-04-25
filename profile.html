@@ -2,96 +2,962 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile - TVC</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Profile</title>
    
-    <!-- Favicon -->
     <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" type="image/jpeg">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        :root { --orange-main: #FF8C42; --silk-bg: #FDFBF7; --white: #FFF; }
-        * { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; }
-        body { background:#e9ecef; display:flex; justify-content:center; min-height:100vh; }
-        .app { width:100%; max-width:480px; background:var(--silk-bg); min-height:100vh; padding-bottom:100px; }
-        .header { padding:20px; background:var(--white); border-bottom:1px solid #eee; }
-        .header h1 { color:var(--orange-main); font-size:22px; }
-        .content { padding:20px; }
-        .profile-card { background:var(--white); padding:25px; border-radius:16px; text-align:center; margin-bottom:20px; }
-        .avatar { width:80px; height:80px; border-radius:50%; background:var(--orange-main); display:flex; justify-content:center; align-items:center; margin:0 auto 15px; color:#fff; font-size:32px; }
-        .profile-card h2 { font-size:18px; margin-bottom:5px; }
-        .profile-card p { color:#888; font-size:13px; }
-        .info-list { background:var(--white); border-radius:12px; padding:15px; }
-        .info-item { display:flex; justify-content:space-between; padding:12px 0; border-bottom:1px solid #eee; }
-        .info-item:last-child { border:none; }
-        .info-item span:first-child { color:#888; }
-        .info-item span:last-child { font-weight:600; }
-        .btn { width:100%; padding:14px; border:none; border-radius:12px; background:#ff4444; color:#fff; font-size:16px; cursor:pointer; margin-top:20px; }
-        .bottom-nav { position:fixed; bottom:0; width:100%; max-width:480px; background:var(--white); display:flex; justify-content:space-around; padding:12px 0 22px; box-shadow:0 -5px 20px rgba(0,0,0,0.08); border-radius:20px 20px 0 0; }
-        .nav-item { display:flex; flex-direction:column; align-items:center; color:#888; text-decoration:none; font-size:11px; gap:4px; }
-        .nav-item i { font-size:22px; }
-        .nav-item.active { color:var(--orange-main); }
+        :root {
+            --orange-main: #FF8C42;
+            --orange-dark: #E67A35;
+            --orange-light: #FFF0E6;
+            --silk-bg: #FDFBF7;
+            --white: #FFF;
+            --text-dark: #333;
+            --text-light: #888;
+            --success: #10B981;
+            --success-light: #D1FAE5;
+            --danger: #EF4444;
+            --danger-light: #FEE2E2;
+            --shadow-sm: 0 2px 6px rgba(255, 140, 66, 0.06);
+            --shadow-md: 0 4px 12px rgba(255, 140, 66, 0.1);
+            --shadow-lg: 0 8px 24px rgba(255, 140, 66, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            background: #e9ecef;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .app-container {
+            width: 100%;
+            height: 100dvh;
+            max-width: 430px;
+            background: var(--silk-bg);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (min-width: 768px) {
+            .app-container {
+                height: 92dvh;
+                max-height: 850px;
+                border-radius: 24px;
+                box-shadow: 0 0 40px rgba(0,0,0,0.12);
+            }
+        }
+
+        .scroll-content {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-bottom: 80px;
+        }
+
+        .scroll-content::-webkit-scrollbar {
+            width: 2px;
+        }
+        .scroll-content::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .scroll-content::-webkit-scrollbar-thumb {
+            background: var(--orange-light);
+            border-radius: 2px;
+        }
+
+        /* Header */
+        .header {
+            padding: 16px 20px 12px;
+            background: var(--white);
+            flex-shrink: 0;
+        }
+
+        .header h1 {
+            color: var(--text-dark);
+            font-size: 18px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header h1 i {
+            color: var(--orange-main);
+            font-size: 16px;
+        }
+
+        /* Profile Card */
+        .profile-section {
+            padding: 16px 20px;
+        }
+
+        .profile-card {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 24px;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(255, 140, 66, 0.06);
+        }
+
+        .avatar-wrapper {
+            position: relative;
+            width: 90px;
+            height: 90px;
+            margin: 0 auto 16px;
+        }
+
+        .avatar {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: var(--gradient-orange);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            font-size: 36px;
+            font-weight: 700;
+            overflow: hidden;
+            border: 3px solid var(--orange-light);
+            box-shadow: 0 4px 15px rgba(255, 140, 66, 0.2);
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .avatar-edit {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 32px;
+            height: 32px;
+            background: var(--orange-main);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 13px;
+            cursor: pointer;
+            border: 3px solid var(--white);
+            box-shadow: 0 2px 8px rgba(255, 140, 66, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .avatar-edit:hover {
+            transform: scale(1.1);
+            background: var(--orange-dark);
+        }
+
+        .avatar-edit input {
+            display: none;
+        }
+
+        .profile-card h2 {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 4px;
+        }
+
+        .profile-card p {
+            color: var(--text-light);
+            font-size: 12px;
+        }
+
+        /* Verification Status */
+        .verify-section {
+            padding: 0 20px 16px;
+        }
+
+        .verify-card {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(255, 140, 66, 0.06);
+        }
+
+        .verify-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .verify-title i {
+            color: var(--orange-main);
+            font-size: 12px;
+        }
+
+        .verify-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .verify-item:last-child {
+            border-bottom: none;
+        }
+
+        .verify-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .verify-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .verify-icon.email {
+            background: var(--orange-light);
+            color: var(--orange-main);
+        }
+
+        .verify-icon.kyc {
+            background: #E0E7FF;
+            color: #6366F1;
+        }
+
+        .verify-text h4 {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .verify-text p {
+            font-size: 10px;
+            color: var(--text-light);
+            margin-top: 1px;
+        }
+
+        /* Status Badge */
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            text-decoration: none;
+        }
+
+        .status-badge.verified {
+            background: var(--success-light);
+            color: var(--success);
+            animation: glowGreen 2s ease-in-out infinite;
+        }
+
+        .status-badge.unverified {
+            background: var(--danger-light);
+            color: var(--danger);
+            animation: glowRed 2s ease-in-out infinite;
+        }
+
+        @keyframes glowGreen {
+            0%, 100% { box-shadow: 0 0 4px rgba(16, 185, 129, 0.3); }
+            50% { box-shadow: 0 0 12px rgba(16, 185, 129, 0.6); }
+        }
+
+        @keyframes glowRed {
+            0%, 100% { box-shadow: 0 0 4px rgba(239, 68, 68, 0.3); }
+            50% { box-shadow: 0 0 12px rgba(239, 68, 68, 0.6); }
+        }
+
+        /* Info List */
+        .info-section {
+            padding: 0 20px 16px;
+        }
+
+        .info-card {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 8px 16px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(255, 140, 66, 0.06);
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 0;
+            border-bottom: 1px solid #f5f5f5;
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-light);
+            font-size: 13px;
+        }
+
+        .info-label i {
+            color: var(--orange-main);
+            font-size: 14px;
+            width: 20px;
+        }
+
+        .info-value {
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--text-dark);
+            font-family: 'SF Mono', monospace;
+        }
+
+        /* Logout Button */
+        .logout-section {
+            padding: 0 20px 16px;
+        }
+
+        .btn-logout {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+            color: #fff;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.25);
+        }
+
+        .btn-logout:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.35);
+        }
+
+        .btn-logout:active {
+            transform: scale(0.98);
+        }
+
+        /* KYC Popup Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: var(--white);
+            border-radius: 24px;
+            padding: 28px 24px;
+            width: 85%;
+            max-width: 340px;
+            text-align: center;
+            transform: scale(0.9) translateY(20px);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        }
+
+        .modal-overlay.show .modal-content {
+            transform: scale(1) translateY(0);
+        }
+
+        .modal-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 20px;
+            background: var(--danger-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            font-size: 28px;
+            color: var(--danger);
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: rotate(0); }
+            25% { transform: rotate(-10deg); }
+            75% { transform: rotate(10deg); }
+        }
+
+        .modal-content h3 {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .modal-content p {
+            font-size: 13px;
+            color: var(--text-light);
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .modal-btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .modal-btn.primary {
+            background: var(--gradient-orange);
+            color: white;
+            margin-bottom: 10px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .modal-btn.primary:hover {
+            background: var(--orange-dark);
+            transform: translateY(-2px);
+        }
+
+        .modal-btn.secondary {
+            background: var(--silk-bg);
+            color: var(--text-light);
+        }
+
+        .modal-btn.secondary:hover {
+            background: #f0f0f0;
+        }
+
+        /* Modern Bottom Nav */
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--white);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 8px 16px 16px;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.04);
+            border-top-left-radius: 24px;
+            border-top-right-radius: 24px;
+            z-index: 1000;
+            flex-shrink: 0;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-light);
+            text-decoration: none;
+            font-size: 9px;
+            gap: 3px;
+            transition: all 0.3s ease;
+            padding: 6px 14px;
+            border-radius: 14px;
+            font-weight: 500;
+            position: relative;
+        }
+
+        .nav-item i {
+            font-size: 20px;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .nav-item.active {
+            color: var(--orange-main);
+            background: var(--orange-light);
+        }
+
+        .nav-item.active i {
+            transform: translateY(-2px) scale(1.1);
+        }
+
+        .nav-item:hover {
+            color: var(--orange-dark);
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: var(--white);
+            color: var(--text-dark);
+            padding: 10px 18px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            z-index: 4000;
+            text-align: center;
+            max-width: 90%;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+            border: 1px solid rgba(255, 140, 66, 0.08);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toast.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+            top: 22px;
+        }
+
+        .toast.success { border-left: 3px solid #10B981; }
+        .toast.error { border-left: 3px solid #EF4444; }
+        .toast.info { border-left: 3px solid var(--orange-main); }
+
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+            opacity: 0;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .delay-1 { animation-delay: 0.08s; }
+        .delay-2 { animation-delay: 0.16s; }
+        .delay-3 { animation-delay: 0.24s; }
     </style>
 </head>
 <body>
-    <div class="app">
-        <div class="header">
+
+    <!-- KYC Modal -->
+    <div class="modal-overlay" id="kycModal">
+        <div class="modal-content">
+            <div class="modal-icon">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <h3>Verification Required</h3>
+            <p>Please complete your KYC verification to unlock all features and ensure account security.</p>
+            <button class="modal-btn primary" onclick="goToKYC()">
+                <i class="fa-solid fa-arrow-right"></i> Verify Now
+            </button>
+            <button class="modal-btn secondary" onclick="closeKYCModal()">Maybe Later</button>
+        </div>
+    </div>
+
+    <div class="app-container">
+        <!-- HEADER -->
+        <header class="header fade-in">
             <h1><i class="fa-solid fa-user"></i> Profile</h1>
+        </header>
+
+        <!-- SCROLLABLE CONTENT -->
+        <div class="scroll-content">
+            <!-- PROFILE CARD -->
+            <section class="profile-section fade-in delay-1">
+                <div class="profile-card">
+                    <div class="avatar-wrapper">
+                        <div class="avatar" id="userAvatar">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+                        <label class="avatar-edit" for="avatarInput" title="Change Photo">
+                            <i class="fa-solid fa-camera"></i>
+                            <input type="file" id="avatarInput" accept="image/*" onchange="handleAvatarUpload(this)">
+                        </label>
+                    </div>
+                    <h2 id="userName">User</h2>
+                    <p id="userEmail">user@example.com</p>
+                </div>
+            </section>
+
+            <!-- VERIFICATION STATUS -->
+            <section class="verify-section fade-in delay-2">
+                <div class="verify-card">
+                    <div class="verify-title">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        Verification Status
+                    </div>
+                    
+                    <div class="verify-item">
+                        <div class="verify-info">
+                            <div class="verify-icon email">
+                                <i class="fa-solid fa-envelope"></i>
+                            </div>
+                            <div class="verify-text">
+                                <h4>Email Verification</h4>
+                                <p id="emailStatusText">Checking...</p>
+                            </div>
+                        </div>
+                        <span class="status-badge" id="emailBadge">Checking</span>
+                    </div>
+
+                    <div class="verify-item">
+                        <div class="verify-info">
+                            <div class="verify-icon kyc">
+                                <i class="fa-solid fa-id-card"></i>
+                            </div>
+                            <div class="verify-text">
+                                <h4>KYC Verification</h4>
+                                <p id="kycStatusText">Checking...</p>
+                            </div>
+                        </div>
+                        <span class="status-badge" id="kycBadge">Checking</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- INFO LIST -->
+            <section class="info-section fade-in delay-3">
+                <div class="info-card">
+                    <div class="info-item">
+                        <span class="info-label">
+                            <i class="fa-solid fa-fingerprint"></i>
+                            User ID
+                        </span>
+                        <span class="info-value" id="userId">---</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">
+                            <i class="fa-solid fa-wallet"></i>
+                            Balance
+                        </span>
+                        <span class="info-value" id="userBalance">$0.000</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">
+                            <i class="fa-solid fa-calendar"></i>
+                            Member Since
+                        </span>
+                        <span class="info-value" id="userSince">---</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- LOGOUT -->
+            <section class="logout-section fade-in delay-3">
+                <button class="btn-logout" onclick="logout()">
+                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                </button>
+            </section>
         </div>
-        <div class="content">
-            <div class="profile-card">
-                <div class="avatar"><i class="fa-solid fa-user"></i></div>
-                <h2 id="userName">User</h2>
-                <p id="userEmail">user@example.com</p>
-            </div>
-            <div class="info-list">
-                <div class="info-item"><span>User ID</span><span id="userId">---</span></div>
-                <div class="info-item"><span>Balance</span><span id="userBalance">0.00 TVC</span></div>
-                <div class="info-item"><span>Referrals</span><span id="userReferrals">0</span></div>
-                <div class="info-item"><span>Member Since</span><span id="userSince">---</span></div>
-            </div>
-            <button class="btn" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
-        </div>
+
+        <!-- MODERN BOTTOM NAV -->
         <nav class="bottom-nav">
-            <a href="menu.html" class="nav-item"><i class="fa-solid fa-bars"></i><span>Menu</span></a>
-            <a href="deposit.html" class="nav-item"><i class="fa-solid fa-arrow-down-to-line"></i><span>Deposit</span></a>
-            <a href="withdraw.html" class="nav-item"><i class="fa-solid fa-arrow-up-from-bracket"></i><span>Withdraw</span></a>
-            <a href="profile.html" class="nav-item active"><i class="fa-solid fa-user"></i><span>Profile</span></a>
+            <a href="menu.html" class="nav-item">
+                <i class="fa-solid fa-bars-staggered"></i>
+                <span>Menu</span>
+            </a>
+            <a href="deposit.html" class="nav-item">
+                <i class="fa-solid fa-arrow-down-to-bracket"></i>
+                <span>Deposit</span>
+            </a>
+            <a href="withdraw.html" class="nav-item">
+                <i class="fa-solid fa-arrow-up-from-bracket"></i>
+                <span>Withdraw</span>
+            </a>
+            <a href="profile.html" class="nav-item active">
+                <i class="fa-solid fa-user"></i>
+                <span>Profile</span>
+            </a>
         </nav>
     </div>
+
+    <!-- TOAST -->
+    <div id="toast" class="toast">Message</div>
+
+    <!-- FIREBASE SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
-    <script>
+        <script>
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_AUTH_DOMAIN",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_STORAGE_BUCKET",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
+            apiKey: "AIzaSyAv6QCpopa0Q77AVTyjU5cqJEIKIE9OVTs",
+            authDomain: "taskvault-412a0.firebaseapp.com",
+            databaseURL: "https://taskvault-412a0-default-rtdb.firebaseio.com",
+            projectId: "taskvault-412a0",
+            storageBucket: "taskvault-412a0.firebasestorage.app",
+            messagingSenderId: "420716701831",
+            appId: "1:420716701831:web:c987d91f7f4c8684eb7022",
+            measurementId: "G-93JG3LB08B"
         };
+
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
 
+        let currentUser = null;
+        let userData = null;
+
         auth.onAuthStateChanged(async (user) => {
-            if(user) {
-                document.getElementById('userName').textContent = user.displayName || user.email?.split('@')[0] || 'User';
+            if (user) {
+                currentUser = user;
+                const displayName = user.email ? user.email.split('@')[0] : 'User';
+                document.getElementById('userName').textContent = displayName;
                 document.getElementById('userEmail').textContent = user.email || 'Anonymous';
-                document.getElementById('userId').textContent = user.uid.substring(0,10)+'...';
+                document.getElementById('userId').textContent = user.uid.substring(0, 12) + '...';
                 
+                // Set avatar initial
+                const avatarEl = document.getElementById('userAvatar');
+                avatarEl.innerHTML = displayName.charAt(0).toUpperCase();
+
+                // Fetch user data from Firestore
                 const doc = await db.collection('users').doc(user.uid).get();
-                if(doc.exists) {
-                    const d = doc.data();
-                    document.getElementById('userBalance').textContent = d.balance.toFixed(2)+' TVC';
-                    document.getElementById('userReferrals').textContent = d.referralCount || 0;
-                    document.getElementById('userSince').textContent = d.createdAt ? d.createdAt.toDate().toLocaleDateString() : '---';
+                if (doc.exists) {
+                    userData = doc.data();
+                    
+                    // Load profile picture if exists
+                    if (userData.profilePicture) {
+                        avatarEl.innerHTML = `<img src="${userData.profilePicture}" alt="Profile">`;
+                    }
+
+                    // Update balance
+                    document.getElementById('userBalance').textContent = '$' + (userData.balance || 0).toFixed(3);
+
+                    // Member since
+                    if (userData.createdAt) {
+                        const date = userData.createdAt.toDate ? userData.createdAt.toDate() : new Date(userData.createdAt);
+                        document.getElementById('userSince').textContent = date.toLocaleDateString('en-US', { 
+                            month: 'short', day: 'numeric', year: 'numeric' 
+                        });
+                    }
+
+                    // Check KYC status and show popup if not verified
+                    const kycVerified = userData.kycVerified === true;
+                    updateKYCStatus(kycVerified);
+
+                    if (!kycVerified) {
+                        setTimeout(() => showKYCModal(), 800);
+                    }
+                } else {
+                    // New user - show KYC popup
+                    updateKYCStatus(false);
+                    setTimeout(() => showKYCModal(), 800);
                 }
+
+                // Email verification status (from Firebase Auth)
+                updateEmailStatus(user.emailVerified);
+
+            } else {
+                window.location.href = 'index.html';
             }
         });
-        function logout() { auth.signOut(); window.location.href='index.html'; }
+
+        // ==========================================
+        // AVATAR UPLOAD (BASE64)
+        // ==========================================
+
+        function handleAvatarUpload(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            if (file.size > 2 * 1024 * 1024) {
+                showToast('Image too large. Max 2MB.', 'error');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const base64 = e.target.result;
+                
+                // Preview
+                const avatarEl = document.getElementById('userAvatar');
+                avatarEl.innerHTML = `<img src="${base64}" alt="Profile">`;
+
+                // Save to Firestore
+                if (currentUser) {
+                    try {
+                        await db.collection('users').doc(currentUser.uid).update({
+                            profilePicture: base64
+                        });
+                        showToast('Profile picture updated!', 'success');
+                    } catch (error) {
+                        console.error('Error saving avatar:', error);
+                        showToast('Failed to save photo', 'error');
+                    }
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // ==========================================
+        // VERIFICATION STATUS UPDATES
+        // ==========================================
+
+        function updateEmailStatus(isVerified) {
+            const badge = document.getElementById('emailBadge');
+            const text = document.getElementById('emailStatusText');
+            
+            if (isVerified) {
+                badge.className = 'status-badge verified';
+                badge.innerHTML = '<i class="fa-solid fa-check"></i> Verified';
+                text.textContent = 'Your email is verified';
+            } else {
+                badge.className = 'status-badge unverified';
+                badge.innerHTML = '<i class="fa-solid fa-xmark"></i> Unverified';
+                text.textContent = 'Please verify your email';
+                badge.onclick = () => sendEmailVerification();
+            }
+        }
+
+        function updateKYCStatus(isVerified) {
+            const badge = document.getElementById('kycBadge');
+            const text = document.getElementById('kycStatusText');
+            
+            if (isVerified) {
+                badge.className = 'status-badge verified';
+                badge.innerHTML = '<i class="fa-solid fa-check"></i> Verified';
+                text.textContent = 'KYC verification complete';
+                badge.onclick = null;
+                badge.style.cursor = 'default';
+            } else {
+                badge.className = 'status-badge unverified';
+                badge.innerHTML = '<i class="fa-solid fa-xmark"></i> Unverified';
+                text.textContent = 'Complete KYC to unlock features';
+                badge.onclick = () => goToKYC();
+                badge.style.cursor = 'pointer';
+            }
+        }
+
+        async function sendEmailVerification() {
+            if (!currentUser) return;
+            try {
+                await currentUser.sendEmailVerification();
+                showToast('Verification email sent!', 'success');
+            } catch (error) {
+                showToast('Error sending email. Try again.', 'error');
+                console.error(error);
+            }
+        }
+
+        // ==========================================
+        // KYC MODAL
+        // ==========================================
+
+        function showKYCModal() {
+            document.getElementById('kycModal').classList.add('show');
+        }
+
+        function closeKYCModal() {
+            document.getElementById('kycModal').classList.remove('show');
+        }
+
+        function goToKYC() {
+            closeKYCModal();
+            window.location.href = 'kyc.html';
+        }
+
+        // Close modal on overlay click
+        document.getElementById('kycModal').addEventListener('click', (e) => {
+            if (e.target.id === 'kycModal') closeKYCModal();
+        });
+
+        // ==========================================
+        // LOGOUT
+        // ==========================================
+
+        function logout() {
+            auth.signOut().then(() => {
+                showToast('Logged out successfully', 'success');
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1000);
+            }).catch((error) => {
+                showToast('Error logging out', 'error');
+                console.error(error);
+            });
+        }
+
+        // ==========================================
+        // TOAST
+        // ==========================================
+
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.className = 'toast ' + type;
+            let icon = 'fa-circle-info';
+            if (type === 'success') icon = 'fa-circle-check';
+            if (type === 'error') icon = 'fa-circle-xmark';
+            toast.innerHTML = `<i class="fa-solid ${icon}"></i> ${message}`;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // Initialize nav active state
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentPage = window.location.pathname.split('/').pop();
+            document.querySelectorAll('.nav-item').forEach(item => {
+                const href = item.getAttribute('href');
+                if (href === currentPage) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        });
     </script>
 </body>
 </html>
