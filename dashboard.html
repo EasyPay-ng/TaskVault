@@ -3,113 +3,197 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Dashboard</title>
+    <title>CashClique Dashboard</title>
     
     <!-- Favicon -->
     <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" type="image/jpeg">
     
-    <!-- FontAwesome for Icons -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
-        /* ==================== THEME VARIABLES ==================== */
+        /* ==================== ROOT VARIABLES ==================== */
         :root {
-            --orange-main: #FF8C42;
-            --orange-dark: #E67A35;
-            --orange-light: #FFF0E6;
-            --silk-bg: #FDFBF7;
-            --white: #FFFFFF;
-            --text-dark: #333333;
-            --text-light: #888888;
+            --primary: #6366F1;
+            --primary-dark: #4F46E5;
+            --primary-light: #EEF2FF;
+            --accent: #10B981;
+            --accent-light: #D1FAE5;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+            --bg: #0F172A;
+            --surface: #1E293B;
+            --surface-light: #334155;
+            --text-primary: #F8FAFC;
+            --text-secondary: #94A3B8;
+            --text-muted: #64748B;
+            --border: rgba(148, 163, 184, 0.1);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
+            --gradient-primary: linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #A855F7 100%);
+            --gradient-accent: linear-gradient(135deg, #10B981 0%, #34D399 100%);
+            --gradient-card: linear-gradient(145deg, #1E293B 0%, #0F172A 100%);
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Inter', sans-serif;
             -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            background-color: #e9ecef;
+            background: var(--bg);
+            color: var(--text-primary);
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: flex-start;
-            min-height: 100vh;
-            padding: 20px;
+            overflow-x: hidden;
         }
 
-        /* Mobile App Container - responsive for both mobile and desktop */
+        /* ==================== APP CONTAINER ==================== */
         .app-container {
             width: 100%;
-            max-width: 480px;
-            background-color: var(--silk-bg);
+            max-width: 430px;
             min-height: 100vh;
+            background: var(--bg);
             position: relative;
-            box-shadow: 0 0 30px rgba(0,0,0,0.15);
-            border-radius: 20px;
             overflow-x: hidden;
             padding-bottom: 100px;
         }
 
-        /* Desktop larger view */
         @media (min-width: 768px) {
             .app-container {
-                max-width: 500px;
-                margin: 40px auto;
+                max-width: 450px;
+                margin: 20px auto;
                 min-height: auto;
-                max-height: 90vh;
+                max-height: 95vh;
                 overflow-y: auto;
+                border-radius: 32px;
+                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+                border: 1px solid var(--border);
+            }
+            
+            .app-container::-webkit-scrollbar {
+                width: 4px;
+            }
+            .app-container::-webkit-scrollbar-track {
+                background: transparent;
+            }
+            .app-container::-webkit-scrollbar-thumb {
+                background: var(--surface-light);
+                border-radius: 4px;
             }
         }
 
-        /* ==================== HEADER ==================== */
+        /* ==================== GLASSMORPHISM HEADER ==================== */
         .header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 20px 24px 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 20px 24px;
-            background: var(--white);
-            border-bottom: 1px solid rgba(255, 140, 66, 0.1);
-            border-radius: 20px 20px 0 0;
         }
 
-        .user-info h2 {
-            font-size: 18px;
-            color: var(--text-dark);
-            font-weight: 600;
-        }
-
-        .user-info p {
-            font-size: 12px;
-            color: var(--text-light);
-        }
-
-        .notification {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: var(--orange-light);
-            color: var(--orange-main);
+        .user-greeting {
             display: flex;
-            justify-content: center;
             align-items: center;
-            font-size: 18px;
-            position: relative;
-            cursor: pointer;
+            gap: 12px;
         }
 
-        .badge {
+        .avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: var(--gradient-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 700;
+            color: white;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .avatar::after {
+            content: '';
             position: absolute;
-            top: 6px;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.15) 50%, transparent 70%);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) rotate(45deg); }
+        }
+
+        .greeting-text h1 {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .greeting-text h2 {
+            font-size: 16px;
+            color: var(--text-primary);
+            font-weight: 700;
+            margin-top: 2px;
+        }
+
+        .notification-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .notification-btn:hover {
+            background: var(--surface-light);
+            color: var(--text-primary);
+            transform: translateY(-2px);
+        }
+
+        .notification-btn .badge {
+            position: absolute;
+            top: 8px;
             right: 8px;
-            width: 8px;
-            height: 8px;
-            background: #ff4444;
+            width: 10px;
+            height: 10px;
+            background: var(--danger);
             border-radius: 50%;
+            border: 2px solid var(--surface);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            50% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
         }
 
         /* ==================== BALANCE CARD ==================== */
@@ -118,210 +202,650 @@
         }
 
         .balance-card {
-            background: linear-gradient(135deg, var(--orange-main) 0%, #FF6B35 100%);
-            border-radius: 20px;
-            padding: 25px 20px;
-            color: var(--white);
-            box-shadow: 0 10px 20px rgba(255, 140, 66, 0.3);
-            text-align: center;
+            background: var(--gradient-primary);
+            border-radius: 24px;
+            padding: 28px 24px;
             position: relative;
             overflow: hidden;
-        }
-
-        .balance-card::after {
-            content: '';
-            position: absolute;
-            top: -50px;
-            right: -50px;
-            width: 150px;
-            height: 150px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 50%;
+            box-shadow: 0 20px 40px -10px rgba(99, 102, 241, 0.4);
         }
 
         .balance-card::before {
             content: '';
             position: absolute;
-            bottom: -30px;
-            left: -30px;
-            width: 100px;
-            height: 100px;
+            top: -60px;
+            right: -60px;
+            width: 200px;
+            height: 200px;
             background: rgba(255,255,255,0.08);
             border-radius: 50%;
+            filter: blur(40px);
         }
 
-        .balance-title {
-            font-size: 14px;
-            opacity: 0.9;
-            margin-bottom: 5px;
+        .balance-card::after {
+            content: '';
+            position: absolute;
+            bottom: -40px;
+            left: -40px;
+            width: 150px;
+            height: 150px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 50%;
+            filter: blur(30px);
+        }
+
+        .balance-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .balance-label {
+            font-size: 13px;
+            color: rgba(255,255,255,0.7);
+            font-weight: 500;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .balance-icon {
+            width: 36px;
+            height: 36px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: white;
+            backdrop-filter: blur(10px);
         }
 
         .balance-amount {
-            font-size: 36px;
-            font-weight: 700;
-            letter-spacing: 1px;
-        }
-
-        .currency {
-            font-size: 18px;
-            font-weight: 500;
-            opacity: 0.9;
-        }
-
-        /* ==================== ACTION CARDS ==================== */
-        .card {
-            background: var(--white);
-            margin: 0 24px 20px 24px;
-            border-radius: 16px;
-            padding: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-            border: 1px solid rgba(255, 140, 66, 0.1);
-        }
-
-        .card-header {
+            font-size: 42px;
+            font-weight: 800;
+            color: white;
+            letter-spacing: -1px;
+            position: relative;
+            z-index: 1;
             display: flex;
-            align-items: center;
-            margin-bottom: 15px;
+            align-items: baseline;
+            gap: 4px;
         }
 
-        .card-icon {
-            width: 35px;
-            height: 35px;
-            border-radius: 10px;
-            background: var(--orange-light);
-            color: var(--orange-main);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-right: 12px;
-            font-size: 16px;
-        }
-
-        .card-title {
-            font-size: 16px;
+        .balance-amount .currency {
+            font-size: 20px;
             font-weight: 600;
-            color: var(--text-dark);
+            opacity: 0.8;
         }
 
-        /* Daily Claim Specifics */
-        .claim-amount {
-            font-size: 24px;
+        .balance-footer {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-pill {
+            background: rgba(255,255,255,0.12);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            padding: 8px 14px;
+            font-size: 12px;
+            color: rgba(255,255,255,0.9);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .stat-pill i {
+            font-size: 10px;
+        }
+
+        .stat-pill.up i { color: #34D399; }
+        .stat-pill.down i { color: #F87171; }
+
+        /* ==================== QUICK ACTIONS ==================== */
+        .quick-actions {
+            padding: 0 24px 20px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        .action-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-4px);
+        }
+
+        .action-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-icon.deposit {
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .action-icon.withdraw {
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+            box-shadow: 0 8px 20px rgba(245, 158, 11, 0.3);
+        }
+
+        .action-icon.transfer {
+            background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+        }
+
+        .action-icon.history {
+            background: linear-gradient(135deg, #EC4899 0%, #DB2777 100%);
+            box-shadow: 0 8px 20px rgba(236, 72, 153, 0.3);
+        }
+
+        .action-btn span {
+            font-size: 11px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        /* ==================== SECTION HEADERS ==================== */
+        .section-header {
+            padding: 0 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-size: 18px;
             font-weight: 700;
-            color: var(--orange-main);
-            margin-bottom: 15px;
-            text-align: center;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .btn {
-            width: 100%;
-            padding: 14px;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
+        .section-title i {
+            color: var(--primary);
+            font-size: 14px;
+        }
+
+        .section-link {
+            font-size: 13px;
+            color: var(--primary);
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
         }
 
-        .btn-primary {
-            background: var(--orange-main);
-            color: var(--white);
-            box-shadow: 0 4px 15px rgba(255, 140, 66, 0.3);
+        .section-link:hover {
+            color: var(--primary-dark);
         }
 
-        .btn-primary:active {
+        /* ==================== DAILY CLAIM CARD ==================== */
+        .claim-card {
+            margin: 0 24px 20px;
+            background: var(--gradient-card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .claim-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+        }
+
+        .claim-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .claim-badge {
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: white;
+            box-shadow: 0 8px 20px rgba(245, 158, 11, 0.3);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+
+        .claim-info h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .claim-info p {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .claim-reward {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .claim-reward .amount {
+            font-size: 36px;
+            font-weight: 800;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .claim-reward .label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .claim-btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 16px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .claim-btn.primary {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+        }
+
+        .claim-btn.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(99, 102, 241, 0.5);
+        }
+
+        .claim-btn.primary:active {
             transform: scale(0.98);
         }
 
-        .btn-primary:hover {
-            background: var(--orange-dark);
-        }
-
-        .btn-disabled {
-            background: #E0E0E0;
-            color: #9E9E9E;
+        .claim-btn.disabled {
+            background: var(--surface-light);
+            color: var(--text-muted);
             cursor: not-allowed;
-            box-shadow: none;
         }
 
-        /* Referral Specifics */
-        .ref-box {
+        .claim-status {
+            text-align: center;
+            margin-top: 14px;
+            font-size: 12px;
+            color: var(--text-secondary);
             display: flex;
             align-items: center;
-            background: var(--silk-bg);
-            border: 1px dashed var(--orange-main);
-            border-radius: 10px;
-            padding: 5px 5px 5px 15px;
-            margin-top: 10px;
+            justify-content: center;
+            gap: 6px;
         }
 
-        .ref-input {
+        .claim-status i {
+            color: var(--warning);
+        }
+
+        /* ==================== REFERRAL CARD ==================== */
+        .referral-card {
+            margin: 0 24px 20px;
+            background: var(--gradient-card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .referral-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, transparent 70%);
+        }
+
+        .referral-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 16px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .referral-badge {
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #10B981 0%, #34D399 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: white;
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .referral-info h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .referral-info p {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .referral-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-box {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .stat-box .value {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        .stat-box .label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
+        .referral-link-box {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .referral-link-box input {
             flex: 1;
-            border: none;
             background: transparent;
+            border: none;
+            padding: 12px 16px;
+            color: var(--text-primary);
             font-size: 13px;
-            color: var(--text-dark);
+            font-family: 'SF Mono', monospace;
             outline: none;
         }
 
-        .btn-copy {
-            background: var(--orange-main);
-            color: var(--white);
+        .referral-link-box input::selection {
+            background: var(--primary);
+            color: white;
+        }
+
+        .copy-btn {
+            background: var(--gradient-primary);
+            color: white;
             border: none;
-            padding: 10px 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 500;
+            padding: 12px 20px;
+            border-radius: 12px;
             font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
             white-space: nowrap;
         }
 
-        .btn-copy:hover {
-            background: var(--orange-dark);
+        .copy-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        .copy-btn:active {
+            transform: scale(0.95);
+        }
+
+        .referral-note {
+            text-align: center;
+            margin-top: 14px;
+            font-size: 12px;
+            color: var(--accent);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ==================== ACTIVITY SECTION ==================== */
+        .activity-section {
+            padding: 0 24px 20px;
+        }
+
+        .activity-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .activity-item {
+            background: var(--gradient-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .activity-item:hover {
+            background: var(--surface);
+            transform: translateX(4px);
+        }
+
+        .activity-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .activity-icon.claim {
+            background: rgba(245, 158, 11, 0.15);
+            color: #F59E0B;
+        }
+
+        .activity-icon.referral {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10B981;
+        }
+
+        .activity-icon.deposit {
+            background: rgba(59, 130, 246, 0.15);
+            color: #3B82F6;
+        }
+
+        .activity-details {
+            flex: 1;
+        }
+
+        .activity-details h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .activity-details p {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .activity-amount {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .activity-amount.negative {
+            color: var(--danger);
         }
 
         /* ==================== BOTTOM NAVIGATION ==================== */
         .bottom-nav {
-            position: absolute;
+            position: fixed;
             bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
             width: 100%;
-            background: var(--white);
+            max-width: 430px;
+            background: rgba(30, 41, 59, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border);
             display: flex;
             justify-content: space-around;
-            padding: 12px 0 22px 0;
-            box-shadow: 0 -5px 20px rgba(0,0,0,0.08);
-            border-top-left-radius: 20px;
-            border-top-right-radius: 20px;
+            padding: 12px 0 24px;
             z-index: 1000;
+            border-radius: 24px 24px 0 0;
+        }
+
+        @media (min-width: 768px) {
+            .bottom-nav {
+                position: absolute;
+                bottom: 0;
+                max-width: 450px;
+            }
         }
 
         .nav-item {
             display: flex;
             flex-direction: column;
             align-items: center;
-            color: var(--text-light);
-            text-decoration: none;
-            font-size: 11px;
             gap: 4px;
-            transition: 0.3s ease;
-            padding: 5px 10px;
-            border-radius: 10px;
+            text-decoration: none;
+            color: var(--text-muted);
+            font-size: 11px;
+            font-weight: 500;
+            padding: 6px 16px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            position: relative;
         }
 
         .nav-item i {
             font-size: 22px;
+            transition: all 0.3s ease;
         }
 
         .nav-item.active {
-            color: var(--orange-main);
-        }
-
-        .nav-item:hover {
-            color: var(--orange-dark);
+            color: var(--primary);
         }
 
         .nav-item.active i {
             transform: translateY(-2px);
+        }
+
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            width: 20px;
+            height: 3px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+
+        .nav-item:hover {
+            color: var(--text-secondary);
         }
 
         /* ==================== TOAST NOTIFICATION ==================== */
@@ -329,25 +853,35 @@
             position: fixed;
             top: 20px;
             left: 50%;
-            transform: translateX(-50%);
-            background: #333;
-            color: white;
-            padding: 12px 24px;
-            border-radius: 30px;
+            transform: translateX(-50%) translateY(-100px);
+            background: var(--surface);
+            color: var(--text-primary);
+            padding: 14px 28px;
+            border-radius: 16px;
             font-size: 14px;
+            font-weight: 600;
             opacity: 0;
             visibility: hidden;
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
             z-index: 2000;
             text-align: center;
             max-width: 90%;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .toast.show {
             opacity: 1;
             visibility: visible;
-            top: 40px;
+            transform: translateX(-50%) translateY(0);
         }
+
+        .toast.success { border-left: 4px solid var(--accent); }
+        .toast.error { border-left: 4px solid var(--danger); }
+        .toast.info { border-left: 4px solid var(--primary); }
 
         /* ==================== LOADING OVERLAY ==================== */
         .loading-overlay {
@@ -356,104 +890,267 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(253, 251, 247, 0.9);
+            background: var(--bg);
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 3000;
+            gap: 20px;
         }
 
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid var(--orange-light);
-            border-top: 4px solid var(--orange-main);
+        .loader {
+            width: 50px;
+            height: 50px;
+            border: 3px solid var(--surface-light);
+            border-top-color: var(--primary);
             border-radius: 50%;
-            animation: spin 1s linear infinite;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .loader-text {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            letter-spacing: 2px;
+            text-transform: uppercase;
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            to { transform: rotate(360deg); }
         }
+
+        /* ==================== SCROLLBAR ==================== */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--surface-light);
+            border-radius: 4px;
+        }
+
+        /* ==================== ANIMATIONS ==================== */
+        .fade-in {
+            animation: fadeIn 0.6s ease-out forwards;
+            opacity: 0;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+        .delay-4 { animation-delay: 0.4s; }
     </style>
 </head>
 <body>
 
     <!-- Loading Overlay -->
     <div class="loading-overlay" id="loadingOverlay">
-        <div class="spinner"></div>
+        <div class="loader"></div>
+        <div class="loader-text">Loading</div>
     </div>
 
     <div class="app-container">
         <!-- HEADER -->
-        <div class="header">
-            <div class="user-info">
-                <h2>Welcome Back</h2>
-                <p id="userEmail">Loading...</p>
+        <header class="header fade-in">
+            <div class="user-greeting">
+                <div class="avatar" id="userAvatar">U</div>
+                <div class="greeting-text">
+                    <h1>Good Day</h1>
+                    <h2 id="userEmail">Loading...</h2>
+                </div>
             </div>
-            <div class="notification" onclick="showToast('No new notifications')">
+            <div class="notification-btn" onclick="showToast('No new notifications', 'info')">
                 <i class="fa-regular fa-bell"></i>
                 <div class="badge"></div>
             </div>
-        </div>
+        </header>
 
-        <!-- MAIN BALANCE -->
-        <div class="balance-section">
+        <!-- BALANCE SECTION -->
+        <section class="balance-section fade-in delay-1">
             <div class="balance-card">
-                <div class="balance-title">Main Balance</div>
+                <div class="balance-header">
+                    <span class="balance-label">Total Balance</span>
+                    <div class="balance-icon">
+                        <i class="fa-solid fa-wallet"></i>
+                    </div>
+                </div>
                 <div class="balance-amount">
-                    <span id="balanceDisplay">0.00</span> <span class="currency">TVC</span>
+                    <span class="currency">$</span>
+                    <span id="balanceDisplay">0.00</span>
+                </div>
+                <div class="balance-footer">
+                    <div class="stat-pill up">
+                        <i class="fa-solid fa-arrow-trend-up"></i>
+                        <span>+2.4% today</span>
+                    </div>
+                    <div class="stat-pill">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <span>Secured</span>
+                    </div>
                 </div>
             </div>
-        </div>
+        </section>
+
+        <!-- QUICK ACTIONS -->
+        <section class="quick-actions fade-in delay-2">
+            <div class="action-btn" onclick="window.location.href='deposit.html'">
+                <div class="action-icon deposit">
+                    <i class="fa-solid fa-arrow-down"></i>
+                </div>
+                <span>Deposit</span>
+            </div>
+            <div class="action-btn" onclick="window.location.href='withdraw.html'">
+                <div class="action-icon withdraw">
+                    <i class="fa-solid fa-arrow-up"></i>
+                </div>
+                <span>Withdraw</span>
+            </div>
+            <div class="action-btn" onclick="showToast('Coming soon!', 'info')">
+                <div class="action-icon transfer">
+                    <i class="fa-solid fa-paper-plane"></i>
+                </div>
+                <span>Transfer</span>
+            </div>
+            <div class="action-btn" onclick="showToast('Coming soon!', 'info')">
+                <div class="action-icon history">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                </div>
+                <span>History</span>
+            </div>
+        </section>
 
         <!-- DAILY CLAIM -->
-        <div class="card">
-            <div class="card-header">
-                <div class="card-icon"><i class="fa-solid fa-gift"></i></div>
-                <div class="card-title">Daily Claim</div>
+        <section class="fade-in delay-3">
+            <div class="section-header">
+                <h3 class="section-title">
+                    <i class="fa-solid fa-gift"></i>
+                    Daily Reward
+                </h3>
             </div>
-            <p style="font-size: 13px; color: var(--text-light); text-align: center; margin-bottom: 10px;">
-                Claim your free TVC tokens every 24 hours.
-            </p>
-            <div class="claim-amount">+0.01 TVC</div>
-            <button id="claimBtn" class="btn btn-primary" onclick="claimDaily()">
-                <i class="fa-solid fa-gift"></i> Claim Now
-            </button>
-            <p id="claimStatus" style="text-align: center; font-size: 12px; color: var(--orange-main); margin-top: 10px; display: none;">
-                <i class="fa-solid fa-clock"></i> Next claim available tomorrow.
-            </p>
-        </div>
+            <div class="claim-card">
+                <div class="claim-header">
+                    <div class="claim-badge">
+                        <i class="fa-solid fa-gift"></i>
+                    </div>
+                    <div class="claim-info">
+                        <h3>Daily Claim</h3>
+                        <p>Claim your free reward every 24 hours</p>
+                    </div>
+                </div>
+                <div class="claim-reward">
+                    <span class="amount">$0.01</span>
+                    <span class="label">reward</span>
+                </div>
+                <button id="claimBtn" class="claim-btn primary" onclick="claimDaily()">
+                    <i class="fa-solid fa-gift"></i> Claim Now
+                </button>
+                <p id="claimStatus" class="claim-status" style="display: none;">
+                    <i class="fa-solid fa-clock"></i>
+                    <span>Next claim available tomorrow</span>
+                </p>
+            </div>
+        </section>
 
         <!-- REFERRAL PROGRAM -->
-        <div class="card">
-            <div class="card-header">
-                <div class="card-icon"><i class="fa-solid fa-users"></i></div>
-                <div class="card-title">Referral Program</div>
+        <section class="fade-in delay-4">
+            <div class="section-header">
+                <h3 class="section-title">
+                    <i class="fa-solid fa-users"></i>
+                    Refer & Earn
+                </h3>
             </div>
-            <p style="font-size: 13px; color: var(--text-light);">
-                Invite friends and earn bonus TVC! Share your unique link:
-            </p>
-            <div class="ref-box">
-                <input type="text" id="refLink" class="ref-input" value="Loading..." readonly>
-                <button class="btn-copy" onclick="copyReferral()">
-                    <i class="fa-solid fa-copy"></i> Copy
-                </button>
+            <div class="referral-card">
+                <div class="referral-header">
+                    <div class="referral-badge">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                    <div class="referral-info">
+                        <h3>Invite Friends</h3>
+                        <p>Earn rewards for every referral</p>
+                    </div>
+                </div>
+                <div class="referral-stats">
+                    <div class="stat-box">
+                        <div class="value" id="refCount">0</div>
+                        <div class="label">Referrals</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="value" id="refEarnings">$0.00</div>
+                        <div class="label">Earned</div>
+                    </div>
+                </div>
+                <div class="referral-link-box">
+                    <input type="text" id="refLink" value="Loading..." readonly>
+                    <button class="copy-btn" onclick="copyReferral()">
+                        <i class="fa-regular fa-copy"></i> Copy
+                    </button>
+                </div>
+                <p class="referral-note">
+                    <i class="fa-solid fa-circle-info"></i>
+                    Earn $0.005 per successful referral
+                </p>
             </div>
-            <p style="font-size: 11px; color: var(--orange-main); text-align: center; margin-top: 10px;">
-                Earn 0.005 TVC per referral!
-            </p>
-        </div>
+        </section>
+
+        <!-- RECENT ACTIVITY -->
+        <section class="activity-section fade-in delay-4">
+            <div class="section-header">
+                <h3 class="section-title">
+                    <i class="fa-solid fa-bolt"></i>
+                    Recent Activity
+                </h3>
+                <span class="section-link" onclick="showToast('Full history coming soon!', 'info')">View All</span>
+            </div>
+            <div class="activity-list" id="activityList">
+                <div class="activity-item">
+                    <div class="activity-icon claim">
+                        <i class="fa-solid fa-gift"></i>
+                    </div>
+                    <div class="activity-details">
+                        <h4>Daily Claim</h4>
+                        <p>Reward claimed</p>
+                    </div>
+                    <div class="activity-amount">+$0.01</div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-icon referral">
+                        <i class="fa-solid fa-user-plus"></i>
+                    </div>
+                    <div class="activity-details">
+                        <h4>New Referral</h4>
+                        <p>User joined via your link</p>
+                    </div>
+                    <div class="activity-amount">+$0.005</div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-icon deposit">
+                        <i class="fa-solid fa-arrow-down"></i>
+                    </div>
+                    <div class="activity-details">
+                        <h4>Deposit</h4>
+                        <p>Added to balance</p>
+                    </div>
+                    <div class="activity-amount">+$10.00</div>
+                </div>
+            </div>
+        </section>
 
         <!-- BOTTOM NAVIGATION -->
         <nav class="bottom-nav">
             <a href="menu.html" class="nav-item">
-                <i class="fa-solid fa-bars"></i>
+                <i class="fa-solid fa-bars-staggered"></i>
                 <span>Menu</span>
             </a>
             <a href="deposit.html" class="nav-item">
-                <i class="fa-solid fa-arrow-down-to-line"></i>
+                <i class="fa-solid fa-arrow-down-to-bracket"></i>
                 <span>Deposit</span>
             </a>
             <a href="withdraw.html" class="nav-item">
@@ -470,14 +1167,13 @@
     <!-- TOAST NOTIFICATION -->
     <div id="toast" class="toast">Message</div>
 
-    <!-- FIREBASE SDK SCRIPTS -->
+    <!-- FIREBASE SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
-
-    <script>
+        <script>
         // ==========================================
-        // 🔥 PASTE YOUR FIREBASE DETAILS HERE 🔥
+        // 🔥 FIREBASE CONFIGURATION
         // ==========================================
         const firebaseConfig = {
             apiKey: "YOUR_API_KEY",
@@ -503,13 +1199,15 @@
         auth.onAuthStateChanged((user) => {
             if (user) {
                 currentUser = user;
-                document.getElementById('userEmail').textContent = user.email || 'Anonymous User';
+                const displayName = user.email ? user.email.split('@')[0] : 'User';
+                document.getElementById('userEmail').textContent = displayName;
+                document.getElementById('userAvatar').textContent = displayName.charAt(0).toUpperCase();
                 fetchUserData(user.uid);
             } else {
                 // Auto sign-in anonymously for testing
                 auth.signInAnonymously().catch((error) => {
                     console.error("Auth Error:", error);
-                    showToast("Authentication Failed");
+                    showToast("Authentication Failed", "error");
                     hideLoading();
                 });
             }
@@ -529,6 +1227,7 @@
                         balance: 0.00,
                         referralCode: generateRefCode(uid),
                         referralCount: 0,
+                        referralEarnings: 0.00,
                         lastClaimDate: null,
                         createdAt: firebase.firestore.FieldValue.serverTimestamp()
                     };
@@ -549,12 +1248,36 @@
         // ==========================================
         
         function updateUI() {
-            document.getElementById('balanceDisplay').innerText = userData.balance.toFixed(2);
+            // Update balance with animation
+            animateValue('balanceDisplay', 0, userData.balance, 1000);
             
+            // Update referral stats
+            document.getElementById('refCount').textContent = userData.referralCount || 0;
+            document.getElementById('refEarnings').textContent = '$' + (userData.referralEarnings || 0).toFixed(2);
+
+            // Update referral link
             const baseUrl = window.location.origin + window.location.pathname.replace('index.html', '');
             document.getElementById('refLink').value = `${baseUrl}?ref=${userData.referralCode}`;
 
             checkClaimStatus();
+        }
+
+        function animateValue(id, start, end, duration) {
+            const obj = document.getElementById(id);
+            const startTime = performance.now();
+            
+            function update(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const easeOut = 1 - Math.pow(1 - progress, 3);
+                const current = start + (end - start) * easeOut;
+                obj.innerText = current.toFixed(2);
+                
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                }
+            }
+            requestAnimationFrame(update);
         }
 
         function checkClaimStatus() {
@@ -562,39 +1285,38 @@
             const statusText = document.getElementById('claimStatus');
             
             if (!userData.lastClaimDate) {
-                // Never claimed - enable button
                 enableClaimButton(btn, statusText);
                 return;
             }
 
             const lastClaim = userData.lastClaimDate.toDate ? userData.lastClaimDate.toDate() : new Date(userData.lastClaimDate);
             const now = new Date();
-            const diffHours = Math.ceil(Math.abs(now - lastClaim) / (1000 * 60 * 60));
+            const diffMs = now - lastClaim;
+            const diffHours = diffMs / (1000 * 60 * 60);
 
             if (diffHours < 24) {
                 disableClaimButton(btn, statusText);
-                // Calculate remaining time
-                const remaining = 24 - diffHours;
-                statusText.innerHTML = `<i class="fa-solid fa-clock"></i> Next claim in ${remaining}h`;
+                const remaining = Math.ceil(24 - diffHours);
+                statusText.innerHTML = `<i class="fa-solid fa-clock"></i><span>Next claim in ${remaining}h</span>`;
             } else {
                 enableClaimButton(btn, statusText);
             }
         }
 
         function enableClaimButton(btn, statusText) {
-            btn.classList.add('btn-primary');
-            btn.classList.remove('btn-disabled');
+            btn.classList.add('primary');
+            btn.classList.remove('disabled');
             btn.innerHTML = '<i class="fa-solid fa-gift"></i> Claim Now';
             btn.disabled = false;
             statusText.style.display = "none";
         }
 
         function disableClaimButton(btn, statusText) {
-            btn.classList.remove('btn-primary');
-            btn.classList.add('btn-disabled');
-            btn.innerHTML = '<i class="fa-solid fa-check"></i> Claimed';
+            btn.classList.remove('primary');
+            btn.classList.add('disabled');
+            btn.innerHTML = '<i class="fa-solid fa-check-circle"></i> Claimed';
             btn.disabled = true;
-            statusText.style.display = "block";
+            statusText.style.display = "flex";
         }
 
         // ==========================================
@@ -603,12 +1325,12 @@
 
         async function claimDaily() {
             if (!currentUser) {
-                showToast("Please login first!");
+                showToast("Please login first!", "error");
                 return;
             }
 
             const btn = document.getElementById('claimBtn');
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing...';
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Processing...';
             btn.disabled = true;
 
             try {
@@ -624,11 +1346,11 @@
                 userData.lastClaimDate = new Date();
                 
                 updateUI();
-                showToast("🎉 Successfully claimed 0.01 TVC!");
+                showToast("Successfully claimed $0.01!", "success");
 
             } catch (error) {
                 console.error("Claim error:", error);
-                showToast("❌ Error claiming. Try again.");
+                showToast("Error claiming. Try again.", "error");
                 btn.innerHTML = '<i class="fa-solid fa-gift"></i> Claim Now';
                 btn.disabled = false;
             }
@@ -640,11 +1362,10 @@
             refInput.setSelectionRange(0, 99999);
             
             navigator.clipboard.writeText(refInput.value).then(() => {
-                showToast("✅ Referral link copied!");
+                showToast("Referral link copied!", "success");
             }).catch(() => {
-                // Fallback for older browsers
                 document.execCommand('copy');
-                showToast("✅ Referral link copied!");
+                showToast("Referral link copied!", "success");
             });
         }
 
@@ -654,16 +1375,25 @@
 
         function generateRefCode(uid) {
             const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-            let code = 'TVC';
+            let code = 'CC';
             for (let i = 0; i < 6; i++) {
                 code += chars.charAt(Math.floor(Math.random() * chars.length));
             }
             return code;
         }
 
-        function showToast(message) {
+        function showToast(message, type = 'info') {
             const toast = document.getElementById('toast');
             toast.innerHTML = message;
+            toast.className = 'toast ' + type;
+            
+            // Add icon based on type
+            let icon = 'fa-circle-info';
+            if (type === 'success') icon = 'fa-circle-check';
+            if (type === 'error') icon = 'fa-circle-xmark';
+            
+            toast.innerHTML = `<i class="fa-solid ${icon}"></i> ${message}`;
+            
             toast.classList.add('show');
             setTimeout(() => {
                 toast.classList.remove('show');
@@ -674,8 +1404,20 @@
             document.getElementById('loadingOverlay').style.display = 'none';
         }
 
-        // Highlight active nav based on current page
+        // Set greeting based on time
+        function setGreeting() {
+            const hour = new Date().getHours();
+            let greeting = 'Good Day';
+            if (hour < 12) greeting = 'Good Morning';
+            else if (hour < 17) greeting = 'Good Afternoon';
+            else greeting = 'Good Evening';
+            document.querySelector('.greeting-text h1').textContent = greeting;
+        }
+
+        // Initialize
         document.addEventListener('DOMContentLoaded', () => {
+            setGreeting();
+            
             const currentPage = window.location.pathname.split('/').pop();
             const navItems = document.querySelectorAll('.nav-item');
             
