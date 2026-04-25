@@ -39,46 +39,60 @@
             -webkit-tap-highlight-color: transparent;
         }
 
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+
         body {
             background-color: #e9ecef;
             display: flex;
             justify-content: center;
-            align-items: flex-start;
-            min-height: 100vh;
-            padding: 20px;
+            align-items: center;
         }
 
         /* ==================== APP CONTAINER ==================== */
         .app-container {
             width: 100%;
+            height: 100vh;
             max-width: 480px;
             background-color: var(--silk-bg);
-            min-height: 100vh;
             position: relative;
-            box-shadow: 0 0 30px rgba(0,0,0,0.15);
-            border-radius: 20px;
-            overflow-x: hidden;
-            padding-bottom: 100px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
 
         @media (min-width: 768px) {
+            body {
+                padding: 0;
+                align-items: center;
+            }
             .app-container {
-                max-width: 500px;
-                margin: 40px auto;
-                min-height: auto;
-                max-height: 90vh;
-                overflow-y: auto;
+                height: 95vh;
+                max-height: 900px;
+                border-radius: 20px;
+                box-shadow: 0 0 30px rgba(0,0,0,0.15);
             }
-            .app-container::-webkit-scrollbar {
-                width: 4px;
-            }
-            .app-container::-webkit-scrollbar-track {
-                background: transparent;
-            }
-            .app-container::-webkit-scrollbar-thumb {
-                background: var(--orange-light);
-                border-radius: 4px;
-            }
+        }
+
+        /* ==================== SCROLLABLE CONTENT ==================== */
+        .scroll-content {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-bottom: 90px;
+        }
+
+        .scroll-content::-webkit-scrollbar {
+            width: 3px;
+        }
+        .scroll-content::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .scroll-content::-webkit-scrollbar-thumb {
+            background: var(--orange-light);
+            border-radius: 3px;
         }
 
         /* ==================== HEADER ==================== */
@@ -86,13 +100,10 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 20px 24px;
+            padding: 16px 20px;
             background: var(--white);
             border-bottom: 1px solid rgba(255, 140, 66, 0.1);
-            border-radius: 20px 20px 0 0;
-            position: sticky;
-            top: 0;
-            z-index: 100;
+            flex-shrink: 0;
         }
 
         .user-greeting {
@@ -102,60 +113,61 @@
         }
 
         .avatar {
-            width: 42px;
-            height: 42px;
-            border-radius: 14px;
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
             background: var(--gradient-orange);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 700;
             color: white;
             box-shadow: 0 4px 12px rgba(255, 140, 66, 0.3);
+            flex-shrink: 0;
         }
 
         .greeting-text h1 {
-            font-size: 12px;
+            font-size: 11px;
             color: var(--text-light);
             font-weight: 500;
         }
 
         .greeting-text h2 {
-            font-size: 16px;
+            font-size: 15px;
             color: var(--text-dark);
             font-weight: 700;
             margin-top: 1px;
         }
 
         .notification-btn {
-            width: 42px;
-            height: 42px;
+            width: 40px;
+            height: 40px;
             border-radius: 12px;
             background: var(--orange-light);
             color: var(--orange-main);
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 18px;
+            font-size: 17px;
             position: relative;
             cursor: pointer;
             transition: all 0.3s ease;
             border: none;
+            flex-shrink: 0;
         }
 
         .notification-btn:hover {
             background: var(--orange-main);
             color: white;
-            transform: translateY(-2px);
         }
 
         .notification-btn .badge {
             position: absolute;
             top: 6px;
             right: 6px;
-            width: 10px;
-            height: 10px;
+            width: 9px;
+            height: 9px;
             background: #ff4444;
             border-radius: 50%;
             border: 2px solid var(--orange-light);
@@ -164,18 +176,18 @@
 
         @keyframes pulse {
             0%, 100% { box-shadow: 0 0 0 0 rgba(255, 68, 68, 0.7); }
-            50% { box-shadow: 0 0 0 6px rgba(255, 68, 68, 0); }
+            50% { box-shadow: 0 0 0 5px rgba(255, 68, 68, 0); }
         }
 
         /* ==================== BALANCE CARD ==================== */
         .balance-section {
-            padding: 20px 24px;
+            padding: 16px 20px;
         }
 
         .balance-card {
             background: var(--gradient-orange);
-            border-radius: 24px;
-            padding: 28px 24px;
+            border-radius: 20px;
+            padding: 24px 20px;
             color: var(--white);
             box-shadow: var(--shadow-lg);
             text-align: center;
@@ -186,10 +198,10 @@
         .balance-card::after {
             content: '';
             position: absolute;
-            top: -50px;
-            right: -50px;
-            width: 150px;
-            height: 150px;
+            top: -40px;
+            right: -40px;
+            width: 120px;
+            height: 120px;
             background: rgba(255,255,255,0.1);
             border-radius: 50%;
         }
@@ -197,10 +209,10 @@
         .balance-card::before {
             content: '';
             position: absolute;
-            bottom: -30px;
-            left: -30px;
-            width: 100px;
-            height: 100px;
+            bottom: -20px;
+            left: -20px;
+            width: 80px;
+            height: 80px;
             background: rgba(255,255,255,0.08);
             border-radius: 50%;
         }
@@ -209,13 +221,13 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 16px;
+            margin-bottom: 14px;
             position: relative;
             z-index: 1;
         }
 
         .balance-label {
-            font-size: 13px;
+            font-size: 12px;
             opacity: 0.9;
             font-weight: 500;
             letter-spacing: 1px;
@@ -223,19 +235,18 @@
         }
 
         .balance-icon {
-            width: 36px;
-            height: 36px;
+            width: 32px;
+            height: 32px;
             background: rgba(255,255,255,0.15);
-            border-radius: 10px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 16px;
-            backdrop-filter: blur(10px);
+            font-size: 14px;
         }
 
         .balance-amount {
-            font-size: 40px;
+            font-size: 36px;
             font-weight: 800;
             letter-spacing: -1px;
             position: relative;
@@ -243,19 +254,19 @@
             display: flex;
             align-items: baseline;
             justify-content: center;
-            gap: 4px;
+            gap: 3px;
         }
 
         .balance-amount .currency {
-            font-size: 22px;
+            font-size: 18px;
             font-weight: 600;
             opacity: 0.9;
         }
 
         .balance-footer {
             display: flex;
-            gap: 10px;
-            margin-top: 18px;
+            gap: 8px;
+            margin-top: 16px;
             position: relative;
             z-index: 1;
             justify-content: center;
@@ -263,50 +274,49 @@
 
         .stat-pill {
             background: rgba(255,255,255,0.15);
-            backdrop-filter: blur(10px);
-            border-radius: 10px;
-            padding: 8px 14px;
-            font-size: 12px;
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 11px;
             color: rgba(255,255,255,0.95);
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 5px;
         }
 
         .stat-pill i {
-            font-size: 10px;
+            font-size: 9px;
         }
 
         /* ==================== QUICK ACTIONS ==================== */
         .quick-actions {
-            padding: 0 24px 20px;
+            padding: 0 20px 16px;
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
+            gap: 10px;
         }
 
         .action-btn {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             cursor: pointer;
             transition: all 0.3s ease;
             text-decoration: none;
         }
 
         .action-btn:hover {
-            transform: translateY(-4px);
+            transform: translateY(-3px);
         }
 
         .action-icon {
-            width: 52px;
-            height: 52px;
-            border-radius: 16px;
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            font-size: 16px;
             color: white;
             transition: all 0.3s ease;
             box-shadow: var(--shadow-md);
@@ -329,22 +339,22 @@
         }
 
         .action-btn span {
-            font-size: 11px;
+            font-size: 10px;
             color: var(--text-light);
             font-weight: 500;
         }
 
         /* ==================== SECTION HEADERS ==================== */
         .section-header {
-            padding: 0 24px;
+            padding: 0 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
         }
 
         .section-title {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 700;
             color: var(--text-dark);
             display: flex;
@@ -354,11 +364,11 @@
 
         .section-title i {
             color: var(--orange-main);
-            font-size: 14px;
+            font-size: 13px;
         }
 
         .section-link {
-            font-size: 12px;
+            font-size: 11px;
             color: var(--orange-main);
             font-weight: 600;
             cursor: pointer;
@@ -369,98 +379,88 @@
             color: var(--orange-dark);
         }
 
-        /* ==================== CARDS ==================== */
-        .card {
+        /* ==================== DAILY CLAIM CARD ==================== */
+        .claim-card {
             background: var(--white);
-            margin: 0 24px 20px 24px;
-            border-radius: 20px;
-            padding: 24px;
+            margin: 0 20px 16px;
+            border-radius: 18px;
+            padding: 20px;
             box-shadow: var(--shadow-sm);
             border: 1px solid rgba(255, 140, 66, 0.08);
-            position: relative;
-            overflow: hidden;
         }
 
-        .card-header {
+        .claim-header {
             display: flex;
             align-items: center;
-            gap: 14px;
-            margin-bottom: 18px;
+            gap: 12px;
+            margin-bottom: 16px;
         }
 
-        .card-badge {
-            width: 44px;
-            height: 44px;
-            border-radius: 14px;
+        .claim-badge {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
+            font-size: 18px;
             color: white;
             flex-shrink: 0;
-            box-shadow: var(--shadow-md);
-        }
-
-        .card-badge.gift {
-            background: linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%);
+            box-shadow: 0 6px 16px rgba(245, 158, 11, 0.25);
             animation: float 3s ease-in-out infinite;
-        }
-
-        .card-badge.users {
-            background: linear-gradient(135deg, #10B981 0%, #34D399 100%);
         }
 
         @keyframes float {
             0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
+            50% { transform: translateY(-4px); }
         }
 
-        .card-info h3 {
-            font-size: 15px;
+        .claim-info h3 {
+            font-size: 14px;
             font-weight: 700;
             color: var(--text-dark);
         }
 
-        .card-info p {
-            font-size: 12px;
+        .claim-info p {
+            font-size: 11px;
             color: var(--text-light);
-            margin-top: 2px;
+            margin-top: 1px;
         }
 
-        /* ==================== DAILY CLAIM ==================== */
         .claim-reward {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            margin-bottom: 18px;
+            gap: 6px;
+            margin-bottom: 16px;
         }
 
         .claim-reward .amount {
-            font-size: 32px;
+            font-size: 28px;
             font-weight: 800;
             color: var(--orange-main);
         }
 
         .claim-reward .label {
-            font-size: 14px;
+            font-size: 13px;
             color: var(--text-light);
             font-weight: 500;
         }
 
         .btn {
             width: 100%;
-            padding: 15px;
+            padding: 14px;
             border: none;
-            border-radius: 14px;
-            font-size: 15px;
+            border-radius: 12px;
+            font-size: 14px;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 8px;
         }
 
         .btn-primary {
@@ -488,125 +488,33 @@
 
         .claim-status {
             text-align: center;
-            margin-top: 14px;
-            font-size: 12px;
-            color: var(--orange-main);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-        }
-
-        /* ==================== REFERRAL ==================== */
-        .referral-stats {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 18px;
-        }
-
-        .stat-box {
-            background: var(--silk-bg);
-            border: 1px dashed var(--orange-main);
-            border-radius: 14px;
-            padding: 16px;
-            text-align: center;
-        }
-
-        .stat-box .value {
-            font-size: 20px;
-            font-weight: 800;
-            color: var(--text-dark);
-        }
-
-        .stat-box .label {
+            margin-top: 12px;
             font-size: 11px;
-            color: var(--text-light);
-            margin-top: 4px;
-            font-weight: 500;
-        }
-
-        .ref-box {
-            display: flex;
-            align-items: center;
-            background: var(--silk-bg);
-            border: 1px dashed var(--orange-main);
-            border-radius: 12px;
-            padding: 4px;
-            gap: 4px;
-        }
-
-        .ref-input {
-            flex: 1;
-            border: none;
-            background: transparent;
-            padding: 12px 14px;
-            font-size: 12px;
-            color: var(--text-dark);
-            outline: none;
-            font-family: 'SF Mono', monospace;
-        }
-
-        .ref-input::selection {
-            background: var(--orange-main);
-            color: white;
-        }
-
-        .btn-copy {
-            background: var(--gradient-orange);
-            color: var(--white);
-            border: none;
-            padding: 12px 18px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 13px;
-            white-space: nowrap;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .btn-copy:hover {
-            background: var(--orange-dark);
-            transform: translateY(-2px);
-        }
-
-        .btn-copy:active {
-            transform: scale(0.95);
-        }
-
-        .referral-note {
-            text-align: center;
-            margin-top: 14px;
-            font-size: 12px;
             color: var(--orange-main);
-            font-weight: 500;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
+            gap: 5px;
         }
 
         /* ==================== ACTIVITY SECTION ==================== */
         .activity-section {
-            padding: 0 24px 20px;
+            padding: 0 20px 16px;
         }
 
         .activity-list {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
         }
 
         .activity-item {
             background: var(--white);
-            border-radius: 16px;
-            padding: 16px;
+            border-radius: 14px;
+            padding: 14px;
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 12px;
             transition: all 0.3s ease;
             cursor: pointer;
             border: 1px solid rgba(255, 140, 66, 0.06);
@@ -614,18 +522,18 @@
         }
 
         .activity-item:hover {
-            transform: translateX(4px);
+            transform: translateX(3px);
             box-shadow: var(--shadow-md);
         }
 
         .activity-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 16px;
+            font-size: 14px;
             flex-shrink: 0;
         }
 
@@ -644,41 +552,73 @@
             color: #3B82F6;
         }
 
+        .activity-icon.withdraw {
+            background: #FEE2E2;
+            color: #EF4444;
+        }
+
         .activity-details {
             flex: 1;
+            min-width: 0;
         }
 
         .activity-details h4 {
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
             color: var(--text-dark);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .activity-details p {
-            font-size: 11px;
+            font-size: 10px;
             color: var(--text-light);
             margin-top: 1px;
         }
 
         .activity-amount {
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 700;
             color: var(--orange-main);
+            flex-shrink: 0;
+        }
+
+        .activity-amount.negative {
+            color: #EF4444;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 30px 20px;
+            color: var(--text-light);
+        }
+
+        .empty-state i {
+            font-size: 32px;
+            color: var(--orange-light);
+            margin-bottom: 8px;
+        }
+
+        .empty-state p {
+            font-size: 12px;
         }
 
         /* ==================== BOTTOM NAVIGATION ==================== */
         .bottom-nav {
             position: absolute;
             bottom: 0;
-            width: 100%;
+            left: 0;
+            right: 0;
             background: var(--white);
             display: flex;
             justify-content: space-around;
-            padding: 12px 0 22px;
+            padding: 10px 0 18px;
             box-shadow: 0 -5px 20px rgba(0,0,0,0.06);
             border-top-left-radius: 20px;
             border-top-right-radius: 20px;
             z-index: 1000;
+            flex-shrink: 0;
         }
 
         .nav-item {
@@ -687,16 +627,16 @@
             align-items: center;
             color: var(--text-light);
             text-decoration: none;
-            font-size: 11px;
-            gap: 4px;
+            font-size: 10px;
+            gap: 3px;
             transition: 0.3s ease;
-            padding: 5px 12px;
+            padding: 4px 14px;
             border-radius: 10px;
             font-weight: 500;
         }
 
         .nav-item i {
-            font-size: 22px;
+            font-size: 20px;
             transition: all 0.3s ease;
         }
 
@@ -720,9 +660,9 @@
             transform: translateX(-50%) translateY(-100px);
             background: var(--white);
             color: var(--text-dark);
-            padding: 14px 24px;
-            border-radius: 16px;
-            font-size: 14px;
+            padding: 12px 20px;
+            border-radius: 14px;
+            font-size: 13px;
             font-weight: 600;
             opacity: 0;
             visibility: hidden;
@@ -734,14 +674,14 @@
             border: 1px solid rgba(255, 140, 66, 0.1);
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
 
         .toast.show {
             opacity: 1;
             visibility: visible;
             transform: translateX(-50%) translateY(0);
-            top: 30px;
+            top: 25px;
         }
 
         .toast.success { border-left: 4px solid #10B981; }
@@ -761,20 +701,20 @@
             justify-content: center;
             align-items: center;
             z-index: 3000;
-            gap: 16px;
+            gap: 14px;
         }
 
         .spinner {
-            width: 44px;
-            height: 44px;
-            border: 4px solid var(--orange-light);
-            border-top: 4px solid var(--orange-main);
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--orange-light);
+            border-top: 3px solid var(--orange-main);
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
         }
 
         .loader-text {
-            font-size: 13px;
+            font-size: 12px;
             color: var(--text-light);
             font-weight: 600;
             letter-spacing: 2px;
@@ -791,14 +731,13 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(15px); }
+            from { opacity: 0; transform: translateY(12px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
         .delay-1 { animation-delay: 0.1s; }
         .delay-2 { animation-delay: 0.2s; }
         .delay-3 { animation-delay: 0.3s; }
-        .delay-4 { animation-delay: 0.4s; }
     </style>
 </head>
 <body>
@@ -815,7 +754,7 @@
             <div class="user-greeting">
                 <div class="avatar" id="userAvatar">U</div>
                 <div class="greeting-text">
-                    <h1>Welcome Back</h1>
+                    <h1 id="greetingText">Welcome Back</h1>
                     <h2 id="userEmail">Loading...</h2>
                 </div>
             </div>
@@ -825,175 +764,107 @@
             </button>
         </header>
 
-        <!-- MAIN BALANCE -->
-        <section class="balance-section fade-in delay-1">
-            <div class="balance-card">
-                <div class="balance-header">
-                    <span class="balance-label">Total Balance</span>
-                    <div class="balance-icon">
-                        <i class="fa-solid fa-wallet"></i>
+        <!-- SCROLLABLE CONTENT -->
+        <div class="scroll-content">
+            <!-- MAIN BALANCE -->
+            <section class="balance-section fade-in delay-1">
+                <div class="balance-card">
+                    <div class="balance-header">
+                        <span class="balance-label">Total Balance</span>
+                        <div class="balance-icon">
+                            <i class="fa-solid fa-wallet"></i>
+                        </div>
+                    </div>
+                    <div class="balance-amount">
+                        <span class="currency">$</span>
+                        <span id="balanceDisplay">0.00</span>
+                    </div>
+                    <div class="balance-footer">
+                        <div class="stat-pill">
+                            <i class="fa-solid fa-arrow-trend-up"></i>
+                            <span>+2.4% today</span>
+                        </div>
+                        <div class="stat-pill">
+                            <i class="fa-solid fa-shield-halved"></i>
+                            <span>Secured</span>
+                        </div>
                     </div>
                 </div>
-                <div class="balance-amount">
-                    <span class="currency">$</span>
-                    <span id="balanceDisplay">0.00</span>
-                </div>
-                <div class="balance-footer">
-                    <div class="stat-pill">
-                        <i class="fa-solid fa-arrow-trend-up"></i>
-                        <span>+2.4% today</span>
-                    </div>
-                    <div class="stat-pill">
-                        <i class="fa-solid fa-shield-halved"></i>
-                        <span>Secured</span>
-                    </div>
-                </div>
-            </div>
-        </section>
+            </section>
 
-        <!-- QUICK ACTIONS -->
-        <section class="quick-actions fade-in delay-2">
-            <a href="deposit.html" class="action-btn">
-                <div class="action-icon deposit">
-                    <i class="fa-solid fa-arrow-down"></i>
-                </div>
-                <span>Deposit</span>
-            </a>
-            <a href="withdraw.html" class="action-btn">
-                <div class="action-icon withdraw">
-                    <i class="fa-solid fa-arrow-up"></i>
-                </div>
-                <span>Withdraw</span>
-            </a>
-            <div class="action-btn" onclick="showToast('Coming soon!', 'info')">
-                <div class="action-icon transfer">
-                    <i class="fa-solid fa-paper-plane"></i>
-                </div>
-                <span>Transfer</span>
-            </div>
-            <div class="action-btn" onclick="showToast('Coming soon!', 'info')">
-                <div class="action-icon history">
-                    <i class="fa-solid fa-clock-rotate-left"></i>
-                </div>
-                <span>History</span>
-            </div>
-        </section>
-
-        <!-- DAILY CLAIM -->
-        <section class="fade-in delay-3">
-            <div class="section-header">
-                <h3 class="section-title">
-                    <i class="fa-solid fa-gift"></i>
-                    Daily Reward
-                </h3>
-            </div>
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-badge gift">
-                        <i class="fa-solid fa-gift"></i>
-                    </div>
-                    <div class="card-info">
-                        <h3>Daily Claim</h3>
-                        <p>Claim your free reward every 24 hours</p>
-                    </div>
-                </div>
-                <div class="claim-reward">
-                    <span class="amount">$0.01</span>
-                    <span class="label">reward</span>
-                </div>
-                <button id="claimBtn" class="btn btn-primary" onclick="claimDaily()">
-                    <i class="fa-solid fa-gift"></i> Claim Now
-                </button>
-                <p id="claimStatus" class="claim-status" style="display: none;">
-                    <i class="fa-solid fa-clock"></i>
-                    <span>Next claim available tomorrow</span>
-                </p>
-            </div>
-        </section>
-
-        <!-- REFERRAL PROGRAM -->
-        <section class="fade-in delay-4">
-            <div class="section-header">
-                <h3 class="section-title">
-                    <i class="fa-solid fa-users"></i>
-                    Refer & Earn
-                </h3>
-            </div>
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-badge users">
-                        <i class="fa-solid fa-users"></i>
-                    </div>
-                    <div class="card-info">
-                        <h3>Invite Friends</h3>
-                        <p>Earn rewards for every referral</p>
-                    </div>
-                </div>
-                <div class="referral-stats">
-                    <div class="stat-box">
-                        <div class="value" id="refCount">0</div>
-                        <div class="label">Referrals</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="value" id="refEarnings">$0.00</div>
-                        <div class="label">Earned</div>
-                    </div>
-                </div>
-                <div class="ref-box">
-                    <input type="text" id="refLink" class="ref-input" value="Loading..." readonly>
-                    <button class="btn-copy" onclick="copyReferral()">
-                        <i class="fa-regular fa-copy"></i> Copy
-                    </button>
-                </div>
-                <p class="referral-note">
-                    <i class="fa-solid fa-circle-info"></i>
-                    Earn $0.005 per successful referral
-                </p>
-            </div>
-        </section>
-
-        <!-- RECENT ACTIVITY -->
-        <section class="activity-section fade-in delay-4">
-            <div class="section-header">
-                <h3 class="section-title">
-                    <i class="fa-solid fa-bolt"></i>
-                    Recent Activity
-                </h3>
-                <span class="section-link" onclick="showToast('Full history coming soon!', 'info')">View All</span>
-            </div>
-            <div class="activity-list" id="activityList">
-                <div class="activity-item">
-                    <div class="activity-icon claim">
-                        <i class="fa-solid fa-gift"></i>
-                    </div>
-                    <div class="activity-details">
-                        <h4>Daily Claim</h4>
-                        <p>Reward claimed</p>
-                    </div>
-                    <div class="activity-amount">+$0.01</div>
-                </div>
-                <div class="activity-item">
-                    <div class="activity-icon referral">
-                        <i class="fa-solid fa-user-plus"></i>
-                    </div>
-                    <div class="activity-details">
-                        <h4>New Referral</h4>
-                        <p>User joined via your link</p>
-                    </div>
-                    <div class="activity-amount">+$0.005</div>
-                </div>
-                <div class="activity-item">
-                    <div class="activity-icon deposit">
+            <!-- QUICK ACTIONS -->
+            <section class="quick-actions fade-in delay-2">
+                <a href="deposit.html" class="action-btn">
+                    <div class="action-icon deposit">
                         <i class="fa-solid fa-arrow-down"></i>
                     </div>
-                    <div class="activity-details">
-                        <h4>Deposit</h4>
-                        <p>Added to balance</p>
+                    <span>Deposit</span>
+                </a>
+                <a href="withdraw.html" class="action-btn">
+                    <div class="action-icon withdraw">
+                        <i class="fa-solid fa-arrow-up"></i>
                     </div>
-                    <div class="activity-amount">+$10.00</div>
+                    <span>Withdraw</span>
+                </a>
+                <div class="action-btn" onclick="showToast('Coming soon!', 'info')">
+                    <div class="action-icon transfer">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </div>
+                    <span>Transfer</span>
                 </div>
-            </div>
-        </section>
+                <div class="action-btn" onclick="showToast('Coming soon!', 'info')">
+                    <div class="action-icon history">
+                        <i class="fa-solid fa-clock-rotate-left"></i>
+                    </div>
+                    <span>History</span>
+                </div>
+            </section>
+
+            <!-- DAILY CLAIM -->
+            <section class="fade-in delay-3">
+                <div class="section-header">
+                    <h3 class="section-title">
+                        <i class="fa-solid fa-gift"></i>
+                        Daily Reward
+                    </h3>
+                </div>
+                <div class="claim-card">
+                    <div class="claim-header">
+                        <div class="claim-badge">
+                            <i class="fa-solid fa-gift"></i>
+                        </div>
+                        <div class="claim-info">
+                            <h3>Daily Claim</h3>
+                            <p>Claim your free reward every 24 hours</p>
+                        </div>
+                    </div>
+                    <div class="claim-reward">
+                        <span class="amount">$0.01</span>
+                        <span class="label">reward</span>
+                    </div>
+                    <button id="claimBtn" class="btn btn-primary" onclick="claimDaily()">
+                        <i class="fa-solid fa-gift"></i> Claim Now
+                    </button>
+                    <p id="claimStatus" class="claim-status" style="display: none;">
+                        <i class="fa-solid fa-clock"></i>
+                        <span>Next claim available tomorrow</span>
+                    </p>
+                </div>
+            </section>
+
+            <!-- RECENT ACTIVITY (REAL DATA) -->
+            <section class="activity-section fade-in delay-3">
+                <div class="section-header">
+                    <h3 class="section-title">
+                        <i class="fa-solid fa-bolt"></i>
+                        Recent Activity
+                    </h3>
+                </div>
+                <div class="activity-list" id="activityList">
+                    <!-- Populated dynamically from Firestore -->
+                </div>
+            </section>
+        </div>
 
         <!-- BOTTOM NAVIGATION -->
         <nav class="bottom-nav">
@@ -1057,8 +928,8 @@
                 document.getElementById('userEmail').textContent = displayName;
                 document.getElementById('userAvatar').textContent = displayName.charAt(0).toUpperCase();
                 fetchUserData(user.uid);
+                fetchActivityFeed(user.uid);
             } else {
-                // Auto sign-in anonymously for testing
                 auth.signInAnonymously().catch((error) => {
                     console.error("Auth Error:", error);
                     showToast("Authentication Failed", "error");
@@ -1076,12 +947,8 @@
                     userData = doc.data();
                     updateUI();
                 } else {
-                    // Create new user profile
                     const newProfile = {
                         balance: 0.00,
-                        referralCode: generateRefCode(uid),
-                        referralCount: 0,
-                        referralEarnings: 0.00,
                         lastClaimDate: null,
                         createdAt: firebase.firestore.FieldValue.serverTimestamp()
                     };
@@ -1098,21 +965,129 @@
         }
 
         // ==========================================
+        // REAL ACTIVITY FEED FROM FIRESTORE
+        // ==========================================
+
+        async function fetchActivityFeed(uid) {
+            const activityList = document.getElementById('activityList');
+            
+            try {
+                // Query user's transactions/activities ordered by timestamp desc
+                const snapshot = await db.collection('users').doc(uid)
+                    .collection('activities')
+                    .orderBy('timestamp', 'desc')
+                    .limit(10)
+                    .get();
+
+                if (snapshot.empty) {
+                    renderEmptyState(activityList);
+                    return;
+                }
+
+                activityList.innerHTML = '';
+                snapshot.forEach(doc => {
+                    const activity = doc.data();
+                    renderActivityItem(activityList, activity);
+                });
+
+            } catch (error) {
+                console.error("Error fetching activities:", error);
+                // If collection doesn't exist yet, show empty state
+                renderEmptyState(activityList);
+            }
+        }
+
+        function renderActivityItem(container, activity) {
+            const item = document.createElement('div');
+            item.className = 'activity-item';
+
+            const iconConfig = getActivityIcon(activity.type);
+            const amountClass = activity.amount < 0 ? 'activity-amount negative' : 'activity-amount';
+            const amountPrefix = activity.amount < 0 ? '-' : '+';
+            const timeAgo = formatTimeAgo(activity.timestamp);
+
+            item.innerHTML = `
+                <div class="activity-icon ${iconConfig.class}">
+                    <i class="fa-solid ${iconConfig.icon}"></i>
+                </div>
+                <div class="activity-details">
+                    <h4>${activity.title || 'Activity'}</h4>
+                    <p>${timeAgo}</p>
+                </div>
+                <div class="${amountClass}">${amountPrefix}$${Math.abs(activity.amount || 0).toFixed(2)}</div>
+            `;
+
+            container.appendChild(item);
+        }
+
+        function getActivityIcon(type) {
+            const icons = {
+                claim: { icon: 'fa-gift', class: 'claim' },
+                deposit: { icon: 'fa-arrow-down', class: 'deposit' },
+                withdraw: { icon: 'fa-arrow-up', class: 'withdraw' },
+                referral: { icon: 'fa-user-plus', class: 'referral' },
+                bonus: { icon: 'fa-star', class: 'claim' },
+                default: { icon: 'fa-circle-check', class: 'claim' }
+            };
+            return icons[type] || icons.default;
+        }
+
+        function renderEmptyState(container) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fa-solid fa-clipboard-list"></i>
+                    <p>No activity yet. Start by claiming your daily reward!</p>
+                </div>
+            `;
+        }
+
+        function formatTimeAgo(timestamp) {
+            if (!timestamp) return 'Recently';
+            
+            const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+
+            if (diffMins < 1) return 'Just now';
+            if (diffMins < 60) return `${diffMins}m ago`;
+            if (diffHours < 24) return `${diffHours}h ago`;
+            if (diffDays < 7) return `${diffDays}d ago`;
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        }
+
+        // ==========================================
+        // LOG ACTIVITY HELPER (call after any action)
+        // ==========================================
+
+        async function logActivity(type, title, amount) {
+            if (!currentUser) return;
+            
+            try {
+                await db.collection('users').doc(currentUser.uid)
+                    .collection('activities')
+                    .add({
+                        type: type,
+                        title: title,
+                        amount: amount,
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                
+                // Refresh activity feed
+                fetchActivityFeed(currentUser.uid);
+            } catch (error) {
+                console.error("Error logging activity:", error);
+            }
+        }
+
+        // ==========================================
         // UI UPDATES & LOGIC
         // ==========================================
         
         function updateUI() {
-            // Update balance with animation
             animateValue('balanceDisplay', 0, userData.balance, 800);
-            
-            // Update referral stats
-            document.getElementById('refCount').textContent = userData.referralCount || 0;
-            document.getElementById('refEarnings').textContent = '$' + (userData.referralEarnings || 0).toFixed(2);
-
-            // Update referral link
-            const baseUrl = window.location.origin + window.location.pathname.replace('index.html', '');
-            document.getElementById('refLink').value = `${baseUrl}?ref=${userData.referralCode}`;
-
             checkClaimStatus();
         }
 
@@ -1174,7 +1149,7 @@
         }
 
         // ==========================================
-        // ACTIONS (CLAIM & COPY)
+        // ACTIONS
         // ==========================================
 
         async function claimDaily() {
@@ -1199,6 +1174,9 @@
                 userData.balance = newBalance;
                 userData.lastClaimDate = new Date();
                 
+                // Log this activity
+                await logActivity('claim', 'Daily Claim Reward', 0.01);
+                
                 updateUI();
                 showToast("Successfully claimed $0.01!", "success");
 
@@ -1210,31 +1188,9 @@
             }
         }
 
-        function copyReferral() {
-            const refInput = document.getElementById('refLink');
-            refInput.select();
-            refInput.setSelectionRange(0, 99999);
-            
-            navigator.clipboard.writeText(refInput.value).then(() => {
-                showToast("Referral link copied!", "success");
-            }).catch(() => {
-                document.execCommand('copy');
-                showToast("Referral link copied!", "success");
-            });
-        }
-
         // ==========================================
         // HELPER FUNCTIONS
         // ==========================================
-
-        function generateRefCode(uid) {
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-            let code = 'CC';
-            for (let i = 0; i < 6; i++) {
-                code += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            return code;
-        }
 
         function showToast(message, type = 'info') {
             const toast = document.getElementById('toast');
@@ -1256,14 +1212,13 @@
             document.getElementById('loadingOverlay').style.display = 'none';
         }
 
-        // Set greeting based on time
         function setGreeting() {
             const hour = new Date().getHours();
             let greeting = 'Welcome Back';
             if (hour < 12) greeting = 'Good Morning';
             else if (hour < 17) greeting = 'Good Afternoon';
             else greeting = 'Good Evening';
-            document.querySelector('.greeting-text h1').textContent = greeting;
+            document.getElementById('greetingText').textContent = greeting;
         }
 
         // Initialize
