@@ -2,50 +2,431 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Menu</title>
  
-    <!-- Favicon -->
     <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" type="image/jpeg">   
-   
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
     <style>
-        :root { --orange-main: #FF8C42; --silk-bg: #FDFBF7; --white: #FFF; --text-dark: #333; }
-        * { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; }
-        body { background:#e9ecef; display:flex; justify-content:center; min-height:100vh; }
-        .app { width:100%; max-width:480px; background:var(--silk-bg); min-height:100vh; padding-bottom:100px; }
-        .header { padding:20px; background:var(--white); border-bottom:1px solid #eee; }
-        .header h1 { color:var(--orange-main); font-size:22px; }
-        .menu-list { padding:20px; }
-        .menu-item { background:var(--white); padding:18px 20px; border-radius:12px; margin-bottom:12px; display:flex; align-items:center; gap:15px; cursor:pointer; transition:0.3s; }
-        .menu-item:hover { box-shadow:0 4px 15px rgba(255,140,66,0.2); }
-        .menu-item i { font-size:20px; color:var(--orange-main); width:30px; }
-        .bottom-nav { position:fixed; bottom:0; width:100%; max-width:480px; background:var(--white); display:flex; justify-content:space-around; padding:12px 0 22px; box-shadow:0 -5px 20px rgba(0,0,0,0.08); border-radius:20px 20px 0 0; }
-        .nav-item { display:flex; flex-direction:column; align-items:center; color:#888; text-decoration:none; font-size:11px; gap:4px; }
-        .nav-item i { font-size:22px; }
-        .nav-item.active { color:var(--orange-main); }
+        :root {
+            --orange-main: #FF8C42;
+            --orange-dark: #E67A35;
+            --orange-light: #FFF0E6;
+            --silk-bg: #FDFBF7;
+            --white: #FFF;
+            --text-dark: #333;
+            --text-light: #888;
+            --shadow-sm: 0 2px 6px rgba(255, 140, 66, 0.06);
+            --shadow-md: 0 4px 12px rgba(255, 140, 66, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            background: #e9ecef;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .app-container {
+            width: 100%;
+            height: 100dvh;
+            max-width: 430px;
+            background: var(--silk-bg);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (min-width: 768px) {
+            .app-container {
+                height: 92dvh;
+                max-height: 850px;
+                border-radius: 24px;
+                box-shadow: 0 0 40px rgba(0,0,0,0.12);
+            }
+        }
+
+        .scroll-content {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-bottom: 80px;
+        }
+
+        .scroll-content::-webkit-scrollbar {
+            width: 2px;
+        }
+        .scroll-content::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .scroll-content::-webkit-scrollbar-thumb {
+            background: var(--orange-light);
+            border-radius: 2px;
+        }
+
+        /* Header */
+        .header {
+            padding: 16px 20px 12px;
+            background: var(--white);
+            flex-shrink: 0;
+        }
+
+        .header h1 {
+            color: var(--text-dark);
+            font-size: 18px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header h1 i {
+            color: var(--orange-main);
+            font-size: 16px;
+        }
+
+        /* Menu List */
+        .menu-list {
+            padding: 16px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .menu-item {
+            background: var(--white);
+            padding: 14px 16px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: var(--text-dark);
+            border: 1px solid rgba(255, 140, 66, 0.06);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .menu-item:hover {
+            transform: translateX(4px);
+            box-shadow: var(--shadow-md);
+            border-color: rgba(255, 140, 66, 0.15);
+        }
+
+        .menu-item:active {
+            transform: scale(0.98);
+        }
+
+        .menu-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: var(--orange-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+        }
+
+        .menu-item:hover .menu-icon {
+            background: var(--orange-main);
+        }
+
+        .menu-item:hover .menu-icon i {
+            color: white;
+        }
+
+        .menu-icon i {
+            font-size: 16px;
+            color: var(--orange-main);
+            transition: all 0.3s ease;
+        }
+
+        .menu-text {
+            flex: 1;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .menu-arrow {
+            color: var(--text-light);
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .menu-item:hover .menu-arrow {
+            color: var(--orange-main);
+            transform: translateX(2px);
+        }
+
+        /* Logout special styling */
+        .menu-item.logout {
+            margin-top: 8px;
+        }
+
+        .menu-item.logout .menu-icon {
+            background: #FEE2E2;
+        }
+
+        .menu-item.logout .menu-icon i {
+            color: #EF4444;
+        }
+
+        .menu-item.logout:hover .menu-icon {
+            background: #EF4444;
+        }
+
+        /* Modern Bottom Nav */
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--white);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 8px 16px 16px;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.04);
+            border-top-left-radius: 24px;
+            border-top-right-radius: 24px;
+            z-index: 1000;
+            flex-shrink: 0;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-light);
+            text-decoration: none;
+            font-size: 9px;
+            gap: 3px;
+            transition: all 0.3s ease;
+            padding: 6px 14px;
+            border-radius: 14px;
+            font-weight: 500;
+            position: relative;
+        }
+
+        .nav-item i {
+            font-size: 20px;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .nav-item.active {
+            color: var(--orange-main);
+            background: var(--orange-light);
+        }
+
+        .nav-item.active i {
+            transform: translateY(-2px) scale(1.1);
+        }
+
+        .nav-item:hover {
+            color: var(--orange-dark);
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: var(--white);
+            color: var(--text-dark);
+            padding: 10px 18px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            z-index: 2000;
+            text-align: center;
+            max-width: 90%;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+            border: 1px solid rgba(255, 140, 66, 0.08);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toast.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+            top: 22px;
+        }
+
+        .toast.success { border-left: 3px solid #10B981; }
+        .toast.error { border-left: 3px solid #EF4444; }
+        .toast.info { border-left: 3px solid var(--orange-main); }
+
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+            opacity: 0;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .delay-1 { animation-delay: 0.08s; }
+        .delay-2 { animation-delay: 0.16s; }
+        .delay-3 { animation-delay: 0.24s; }
+        .delay-4 { animation-delay: 0.32s; }
+        .delay-5 { animation-delay: 0.40s; }
+        .delay-6 { animation-delay: 0.48s; }
     </style>
 </head>
 <body>
-    <div class="app">
-        <div class="header">
-            <h1><i class="fa-solid fa-bars"></i> Menu</h1>
+
+    <div class="app-container">
+        <!-- HEADER -->
+        <header class="header fade-in">
+            <h1><i class="fa-solid fa-bars-staggered"></i> Menu</h1>
+        </header>
+
+        <!-- SCROLLABLE CONTENT -->
+        <div class="scroll-content">
+            <div class="menu-list">
+                <a href="index.html" class="menu-item fade-in delay-1">
+                    <div class="menu-icon">
+                        <i class="fa-solid fa-wallet"></i>
+                    </div>
+                    <span class="menu-text">Wallet</span>
+                    <i class="fa-solid fa-chevron-right menu-arrow"></i>
+                </a>
+
+                <a href="games.html" class="menu-item fade-in delay-2">
+                    <div class="menu-icon">
+                        <i class="fa-solid fa-gamepad"></i>
+                    </div>
+                    <span class="menu-text">Games</span>
+                    <i class="fa-solid fa-chevron-right menu-arrow"></i>
+                </a>
+
+                <a href="leaderboard.html" class="menu-item fade-in delay-3">
+                    <div class="menu-icon">
+                        <i class="fa-solid fa-trophy"></i>
+                    </div>
+                    <span class="menu-text">Achievements</span>
+                    <i class="fa-solid fa-chevron-right menu-arrow"></i>
+                </a>
+
+                <a href="#" class="menu-item fade-in delay-4" onclick="showToast('Support coming soon!', 'info'); return false;">
+                    <div class="menu-icon">
+                        <i class="fa-solid fa-headset"></i>
+                    </div>
+                    <span class="menu-text">Support</span>
+                    <i class="fa-solid fa-chevron-right menu-arrow"></i>
+                </a>
+
+                <a href="settings.html" class="menu-item fade-in delay-5">
+                    <div class="menu-icon">
+                        <i class="fa-solid fa-gear"></i>
+                    </div>
+                    <span class="menu-text">Settings</span>
+                    <i class="fa-solid fa-chevron-right menu-arrow"></i>
+                </a>
+
+                <a href="#" class="menu-item logout fade-in delay-6" onclick="handleLogout(); return false;">
+                    <div class="menu-icon">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </div>
+                    <span class="menu-text">Logout</span>
+                    <i class="fa-solid fa-chevron-right menu-arrow"></i>
+                </a>
+            </div>
         </div>
-        <div class="menu-list">
-            <div href="dashboard.html" class="menu-item"><i class="fa-solid fa-wallet"></i> Wallet</div>
-            <div href="games.html" class="menu-item"><i class="fa-solid fa-gamepad"></i> Statistics</div>
-            <div href="leaderboard.html" class="menu-item"><i class="fa-solid fa-trophy"></i> Achievements</div>
-            <div class="menu-item"><i class="fa-solid fa-headset"></i> Support</div>
-            <div href="settings.html" class="menu-item"><i class="fa-solid fa-gear"></i> Settings</div>
-            <div href="index.html" class="menu-item"><i class="fa-solid fa-right-from-bracket"></i> Logout</div>
-        </div>
+
+        <!-- MODERN BOTTOM NAV -->
         <nav class="bottom-nav">
-            <a href="menu.html" class="nav-item active"><i class="fa-solid fa-bars"></i><span>Menu</span></a>
-            <a href="deposit.html" class="nav-item"><i class="fa-solid fa-wallet"></i><span>Deposit</span></a>
-            <a href="withdraw.html" class="nav-item"><i class="fa-solid fa-arrow-up-from-bracket"></i><span>Withdraw</span></a>
-            <a href="profile.html" class="nav-item"><i class="fa-solid fa-user"></i><span>Profile</span></a>
+            <a href="menu.html" class="nav-item active">
+                <i class="fa-solid fa-bars-staggered"></i>
+                <span>Menu</span>
+            </a>
+            <a href="deposit.html" class="nav-item">
+                <i class="fa-solid fa-arrow-down-to-bracket"></i>
+                <span>Deposit</span>
+            </a>
+            <a href="withdraw.html" class="nav-item">
+                <i class="fa-solid fa-arrow-up-from-bracket"></i>
+                <span>Withdraw</span>
+            </a>
+            <a href="profile.html" class="nav-item">
+                <i class="fa-solid fa-user"></i>
+                <span>Profile</span>
+            </a>
         </nav>
     </div>
+
+    <!-- TOAST -->
+    <div id="toast" class="toast">Message</div>
+
+    <!-- FIREBASE SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAv6QCpopa0Q77AVTyjU5cqJEIKIE9OVTs",
+            authDomain: "taskvault-412a0.firebaseapp.com",
+            databaseURL: "https://taskvault-412a0-default-rtdb.firebaseio.com",
+            projectId: "taskvault-412a0",
+            storageBucket: "taskvault-412a0.firebasestorage.app",
+            messagingSenderId: "420716701831",
+            appId: "1:420716701831:web:c987d91f7f4c8684eb7022",
+            measurementId: "G-93JG3LB08B"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.className = 'toast ' + type;
+            let icon = 'fa-circle-info';
+            if (type === 'success') icon = 'fa-circle-check';
+            if (type === 'error') icon = 'fa-circle-xmark';
+            toast.innerHTML = `<i class="fa-solid ${icon}"></i> ${message}`;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        function handleLogout() {
+            auth.signOut().then(() => {
+                showToast('Logged out successfully', 'success');
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1000);
+            }).catch((error) => {
+                showToast('Error logging out', 'error');
+                console.error(error);
+            });
+        }
+    </script>
 </body>
 </html>
