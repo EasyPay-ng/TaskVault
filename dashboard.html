@@ -5,16 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>CashClique Dashboard</title>
     
-    <!-- Favicon -->
     <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" type="image/jpeg">
-    
-    <!-- FontAwesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
-        /* ==================== THEME VARIABLES ==================== */
         :root {
             --orange-main: #FF8C42;
             --orange-dark: #E67A35;
@@ -23,12 +18,10 @@
             --white: #FFFFFF;
             --text-dark: #333333;
             --text-light: #888888;
-            --text-muted: #AAAAAA;
-            --shadow-sm: 0 2px 8px rgba(255, 140, 66, 0.08);
-            --shadow-md: 0 4px 15px rgba(255, 140, 66, 0.12);
-            --shadow-lg: 0 10px 30px rgba(255, 140, 66, 0.18);
+            --shadow-sm: 0 2px 6px rgba(255, 140, 66, 0.06);
+            --shadow-md: 0 4px 12px rgba(255, 140, 66, 0.1);
+            --shadow-lg: 0 8px 24px rgba(255, 140, 66, 0.15);
             --gradient-orange: linear-gradient(135deg, #FF8C42 0%, #FF6B35 100%);
-            --gradient-warm: linear-gradient(135deg, #FF8C42 0%, #FFB347 100%);
         }
 
         * {
@@ -54,8 +47,8 @@
         /* ==================== APP CONTAINER ==================== */
         .app-container {
             width: 100%;
-            height: 100vh;
-            max-width: 480px;
+            height: 100dvh;
+            max-width: 430px;
             background-color: var(--silk-bg);
             position: relative;
             overflow: hidden;
@@ -64,15 +57,11 @@
         }
 
         @media (min-width: 768px) {
-            body {
-                padding: 0;
-                align-items: center;
-            }
             .app-container {
-                height: 95vh;
-                max-height: 900px;
-                border-radius: 20px;
-                box-shadow: 0 0 30px rgba(0,0,0,0.15);
+                height: 92dvh;
+                max-height: 850px;
+                border-radius: 24px;
+                box-shadow: 0 0 40px rgba(0,0,0,0.12);
             }
         }
 
@@ -81,18 +70,18 @@
             flex: 1;
             overflow-y: auto;
             overflow-x: hidden;
-            padding-bottom: 90px;
+            padding-bottom: 80px;
         }
 
         .scroll-content::-webkit-scrollbar {
-            width: 3px;
+            width: 2px;
         }
         .scroll-content::-webkit-scrollbar-track {
             background: transparent;
         }
         .scroll-content::-webkit-scrollbar-thumb {
             background: var(--orange-light);
-            border-radius: 3px;
+            border-radius: 2px;
         }
 
         /* ==================== HEADER ==================== */
@@ -100,56 +89,54 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 16px 20px;
+            padding: 14px 20px 10px;
             background: var(--white);
-            border-bottom: 1px solid rgba(255, 140, 66, 0.1);
             flex-shrink: 0;
         }
 
         .user-greeting {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
         }
 
         .avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
             background: var(--gradient-orange);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 700;
             color: white;
-            box-shadow: 0 4px 12px rgba(255, 140, 66, 0.3);
+            box-shadow: 0 3px 10px rgba(255, 140, 66, 0.25);
             flex-shrink: 0;
         }
 
         .greeting-text h1 {
-            font-size: 11px;
+            font-size: 10px;
             color: var(--text-light);
-            font-weight: 500;
+            font-weight: 400;
         }
 
         .greeting-text h2 {
-            font-size: 15px;
+            font-size: 14px;
             color: var(--text-dark);
             font-weight: 700;
-            margin-top: 1px;
         }
 
         .notification-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
             background: var(--orange-light);
             color: var(--orange-main);
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 17px;
+            font-size: 15px;
             position: relative;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -164,10 +151,10 @@
 
         .notification-btn .badge {
             position: absolute;
-            top: 6px;
-            right: 6px;
-            width: 9px;
-            height: 9px;
+            top: 5px;
+            right: 5px;
+            width: 8px;
+            height: 8px;
             background: #ff4444;
             border-radius: 50%;
             border: 2px solid var(--orange-light);
@@ -175,22 +162,21 @@
         }
 
         @keyframes pulse {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(255, 68, 68, 0.7); }
-            50% { box-shadow: 0 0 0 5px rgba(255, 68, 68, 0); }
+            0%, 100% { box-shadow: 0 0 0 0 rgba(255, 68, 68, 0.6); }
+            50% { box-shadow: 0 0 0 4px rgba(255, 68, 68, 0); }
         }
 
         /* ==================== BALANCE CARD ==================== */
         .balance-section {
-            padding: 16px 20px;
+            padding: 10px 20px 14px;
         }
 
         .balance-card {
             background: var(--gradient-orange);
-            border-radius: 20px;
-            padding: 24px 20px;
+            border-radius: 18px;
+            padding: 20px 18px;
             color: var(--white);
             box-shadow: var(--shadow-lg);
-            text-align: center;
             position: relative;
             overflow: hidden;
         }
@@ -198,10 +184,10 @@
         .balance-card::after {
             content: '';
             position: absolute;
-            top: -40px;
-            right: -40px;
-            width: 120px;
-            height: 120px;
+            top: -30px;
+            right: -30px;
+            width: 100px;
+            height: 100px;
             background: rgba(255,255,255,0.1);
             border-radius: 50%;
         }
@@ -209,11 +195,11 @@
         .balance-card::before {
             content: '';
             position: absolute;
-            bottom: -20px;
-            left: -20px;
-            width: 80px;
-            height: 80px;
-            background: rgba(255,255,255,0.08);
+            bottom: -15px;
+            left: -15px;
+            width: 60px;
+            height: 60px;
+            background: rgba(255,255,255,0.06);
             border-radius: 50%;
         }
 
@@ -221,125 +207,120 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 14px;
+            margin-bottom: 10px;
             position: relative;
             z-index: 1;
         }
 
         .balance-label {
-            font-size: 12px;
-            opacity: 0.9;
+            font-size: 10px;
+            opacity: 0.85;
             font-weight: 500;
             letter-spacing: 1px;
             text-transform: uppercase;
         }
 
         .balance-icon {
-            width: 32px;
-            height: 32px;
-            background: rgba(255,255,255,0.15);
+            width: 28px;
+            height: 28px;
+            background: rgba(255,255,255,0.12);
             border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 14px;
+            font-size: 12px;
         }
 
         .balance-amount {
-            font-size: 36px;
+            font-size: 32px;
             font-weight: 800;
-            letter-spacing: -1px;
+            letter-spacing: -0.5px;
             position: relative;
             z-index: 1;
             display: flex;
             align-items: baseline;
-            justify-content: center;
-            gap: 3px;
+            gap: 2px;
         }
 
         .balance-amount .currency {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 600;
-            opacity: 0.9;
+            opacity: 0.85;
         }
 
         .balance-footer {
             display: flex;
-            gap: 8px;
-            margin-top: 16px;
+            gap: 6px;
+            margin-top: 12px;
             position: relative;
             z-index: 1;
-            justify-content: center;
         }
 
         .stat-pill {
-            background: rgba(255,255,255,0.15);
+            background: rgba(255,255,255,0.12);
             border-radius: 8px;
-            padding: 6px 12px;
-            font-size: 11px;
-            color: rgba(255,255,255,0.95);
+            padding: 5px 10px;
+            font-size: 10px;
+            color: rgba(255,255,255,0.9);
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 4px;
         }
 
         .stat-pill i {
-            font-size: 9px;
+            font-size: 8px;
         }
 
         /* ==================== QUICK ACTIONS ==================== */
         .quick-actions {
-            padding: 0 20px 16px;
+            padding: 0 20px 12px;
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
+            gap: 8px;
         }
 
         .action-btn {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 6px;
+            gap: 5px;
             cursor: pointer;
             transition: all 0.3s ease;
             text-decoration: none;
         }
 
         .action-btn:hover {
-            transform: translateY(-3px);
+            transform: translateY(-2px);
         }
 
         .action-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 14px;
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 16px;
+            font-size: 15px;
             color: white;
             transition: all 0.3s ease;
-            box-shadow: var(--shadow-md);
+            box-shadow: var(--shadow-sm);
         }
 
         .action-icon.deposit {
             background: linear-gradient(135deg, #10B981 0%, #059669 100%);
         }
-
         .action-icon.withdraw {
             background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
         }
-
         .action-icon.transfer {
             background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
         }
-
         .action-icon.history {
             background: linear-gradient(135deg, #EC4899 0%, #DB2777 100%);
         }
 
         .action-btn span {
-            font-size: 10px;
+            font-size: 9px;
             color: var(--text-light);
             font-weight: 500;
         }
@@ -350,129 +331,116 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
 
         .section-title {
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 700;
             color: var(--text-dark);
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
 
         .section-title i {
             color: var(--orange-main);
-            font-size: 13px;
-        }
-
-        .section-link {
-            font-size: 11px;
-            color: var(--orange-main);
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .section-link:hover {
-            color: var(--orange-dark);
+            font-size: 12px;
         }
 
         /* ==================== DAILY CLAIM CARD ==================== */
         .claim-card {
             background: var(--white);
-            margin: 0 20px 16px;
-            border-radius: 18px;
-            padding: 20px;
+            margin: 0 20px 14px;
+            border-radius: 16px;
+            padding: 16px;
             box-shadow: var(--shadow-sm);
-            border: 1px solid rgba(255, 140, 66, 0.08);
+            border: 1px solid rgba(255, 140, 66, 0.06);
         }
 
         .claim-header {
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 16px;
+            gap: 10px;
+            margin-bottom: 12px;
         }
 
         .claim-badge {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
             background: linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            font-size: 16px;
             color: white;
             flex-shrink: 0;
-            box-shadow: 0 6px 16px rgba(245, 158, 11, 0.25);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
             animation: float 3s ease-in-out infinite;
         }
 
         @keyframes float {
             0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-4px); }
+            50% { transform: translateY(-3px); }
         }
 
         .claim-info h3 {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 700;
             color: var(--text-dark);
         }
 
         .claim-info p {
-            font-size: 11px;
+            font-size: 10px;
             color: var(--text-light);
-            margin-top: 1px;
         }
 
         .claim-reward {
             display: flex;
-            align-items: center;
+            align-items: baseline;
             justify-content: center;
-            gap: 6px;
-            margin-bottom: 16px;
+            gap: 4px;
+            margin-bottom: 12px;
         }
 
         .claim-reward .amount {
-            font-size: 28px;
+            font-size: 24px;
             font-weight: 800;
             color: var(--orange-main);
         }
 
         .claim-reward .label {
-            font-size: 13px;
+            font-size: 12px;
             color: var(--text-light);
             font-weight: 500;
         }
 
         .btn {
             width: 100%;
-            padding: 14px;
+            padding: 12px;
             border: none;
-            border-radius: 12px;
-            font-size: 14px;
+            border-radius: 10px;
+            font-size: 13px;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 6px;
         }
 
         .btn-primary {
             background: var(--gradient-orange);
             color: var(--white);
-            box-shadow: var(--shadow-md);
+            box-shadow: var(--shadow-sm);
         }
 
         .btn-primary:hover {
             background: var(--orange-dark);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
         }
 
         .btn-primary:active {
@@ -480,60 +448,60 @@
         }
 
         .btn-disabled {
-            background: #E0E0E0;
-            color: #9E9E9E;
+            background: #E8E8E8;
+            color: #AAAAAA;
             cursor: not-allowed;
             box-shadow: none;
         }
 
         .claim-status {
             text-align: center;
-            margin-top: 12px;
-            font-size: 11px;
+            margin-top: 10px;
+            font-size: 10px;
             color: var(--orange-main);
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 5px;
+            gap: 4px;
         }
 
         /* ==================== ACTIVITY SECTION ==================== */
         .activity-section {
-            padding: 0 20px 16px;
+            padding: 0 20px 12px;
         }
 
         .activity-list {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
         }
 
         .activity-item {
             background: var(--white);
-            border-radius: 14px;
-            padding: 14px;
+            border-radius: 12px;
+            padding: 12px;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             transition: all 0.3s ease;
             cursor: pointer;
-            border: 1px solid rgba(255, 140, 66, 0.06);
+            border: 1px solid rgba(255, 140, 66, 0.04);
             box-shadow: var(--shadow-sm);
         }
 
         .activity-item:hover {
-            transform: translateX(3px);
+            transform: translateX(2px);
             box-shadow: var(--shadow-md);
         }
 
         .activity-icon {
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 14px;
+            font-size: 12px;
             flex-shrink: 0;
         }
 
@@ -541,20 +509,17 @@
             background: var(--orange-light);
             color: var(--orange-main);
         }
-
-        .activity-icon.referral {
-            background: #D1FAE5;
-            color: #10B981;
-        }
-
         .activity-icon.deposit {
             background: #DBEAFE;
             color: #3B82F6;
         }
-
         .activity-icon.withdraw {
             background: #FEE2E2;
             color: #EF4444;
+        }
+        .activity-icon.referral {
+            background: #D1FAE5;
+            color: #10B981;
         }
 
         .activity-details {
@@ -563,7 +528,7 @@
         }
 
         .activity-details h4 {
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 600;
             color: var(--text-dark);
             white-space: nowrap;
@@ -572,13 +537,13 @@
         }
 
         .activity-details p {
-            font-size: 10px;
+            font-size: 9px;
             color: var(--text-light);
             margin-top: 1px;
         }
 
         .activity-amount {
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 700;
             color: var(--orange-main);
             flex-shrink: 0;
@@ -590,21 +555,21 @@
 
         .empty-state {
             text-align: center;
-            padding: 30px 20px;
+            padding: 24px 16px;
             color: var(--text-light);
         }
 
         .empty-state i {
-            font-size: 32px;
+            font-size: 28px;
             color: var(--orange-light);
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
 
         .empty-state p {
-            font-size: 12px;
+            font-size: 11px;
         }
 
-        /* ==================== BOTTOM NAVIGATION ==================== */
+        /* ==================== MODERN BOTTOM NAV ==================== */
         .bottom-nav {
             position: absolute;
             bottom: 0;
@@ -613,10 +578,11 @@
             background: var(--white);
             display: flex;
             justify-content: space-around;
-            padding: 10px 0 18px;
-            box-shadow: 0 -5px 20px rgba(0,0,0,0.06);
-            border-top-left-radius: 20px;
-            border-top-right-radius: 20px;
+            align-items: center;
+            padding: 8px 16px 16px;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.04);
+            border-top-left-radius: 24px;
+            border-top-right-radius: 24px;
             z-index: 1000;
             flex-shrink: 0;
         }
@@ -625,34 +591,53 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
             color: var(--text-light);
             text-decoration: none;
-            font-size: 10px;
+            font-size: 9px;
             gap: 3px;
-            transition: 0.3s ease;
-            padding: 4px 14px;
-            border-radius: 10px;
+            transition: all 0.3s ease;
+            padding: 6px 14px;
+            border-radius: 14px;
             font-weight: 500;
+            position: relative;
         }
 
         .nav-item i {
             font-size: 20px;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
         .nav-item.active {
             color: var(--orange-main);
+            background: var(--orange-light);
         }
 
         .nav-item.active i {
-            transform: translateY(-2px);
+            transform: translateY(-2px) scale(1.1);
+        }
+
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            width: 16px;
+            height: 3px;
+            background: var(--orange-main);
+            border-radius: 2px;
+            opacity: 0;
+            animation: dotIn 0.3s ease forwards;
+        }
+
+        @keyframes dotIn {
+            to { opacity: 1; top: 2px; }
         }
 
         .nav-item:hover {
             color: var(--orange-dark);
         }
 
-        /* ==================== TOAST NOTIFICATION ==================== */
+        /* ==================== TOAST ==================== */
         .toast {
             position: fixed;
             top: 20px;
@@ -660,9 +645,9 @@
             transform: translateX(-50%) translateY(-100px);
             background: var(--white);
             color: var(--text-dark);
-            padding: 12px 20px;
-            border-radius: 14px;
-            font-size: 13px;
+            padding: 10px 18px;
+            border-radius: 12px;
+            font-size: 12px;
             font-weight: 600;
             opacity: 0;
             visibility: hidden;
@@ -670,8 +655,8 @@
             z-index: 2000;
             text-align: center;
             max-width: 90%;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-            border: 1px solid rgba(255, 140, 66, 0.1);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+            border: 1px solid rgba(255, 140, 66, 0.08);
             display: flex;
             align-items: center;
             gap: 8px;
@@ -681,14 +666,14 @@
             opacity: 1;
             visibility: visible;
             transform: translateX(-50%) translateY(0);
-            top: 25px;
+            top: 22px;
         }
 
-        .toast.success { border-left: 4px solid #10B981; }
-        .toast.error { border-left: 4px solid #EF4444; }
-        .toast.info { border-left: 4px solid var(--orange-main); }
+        .toast.success { border-left: 3px solid #10B981; }
+        .toast.error { border-left: 3px solid #EF4444; }
+        .toast.info { border-left: 3px solid var(--orange-main); }
 
-        /* ==================== LOADING OVERLAY ==================== */
+        /* ==================== LOADING ==================== */
         .loading-overlay {
             position: fixed;
             top: 0;
@@ -701,12 +686,12 @@
             justify-content: center;
             align-items: center;
             z-index: 3000;
-            gap: 14px;
+            gap: 12px;
         }
 
         .spinner {
-            width: 40px;
-            height: 40px;
+            width: 36px;
+            height: 36px;
             border: 3px solid var(--orange-light);
             border-top: 3px solid var(--orange-main);
             border-radius: 50%;
@@ -714,7 +699,7 @@
         }
 
         .loader-text {
-            font-size: 12px;
+            font-size: 11px;
             color: var(--text-light);
             font-weight: 600;
             letter-spacing: 2px;
@@ -731,18 +716,17 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(12px); }
+            from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .delay-1 { animation-delay: 0.1s; }
-        .delay-2 { animation-delay: 0.2s; }
-        .delay-3 { animation-delay: 0.3s; }
+        .delay-1 { animation-delay: 0.08s; }
+        .delay-2 { animation-delay: 0.16s; }
+        .delay-3 { animation-delay: 0.24s; }
     </style>
 </head>
 <body>
 
-    <!-- Loading Overlay -->
     <div class="loading-overlay" id="loadingOverlay">
         <div class="spinner"></div>
         <div class="loader-text">Loading</div>
@@ -766,7 +750,7 @@
 
         <!-- SCROLLABLE CONTENT -->
         <div class="scroll-content">
-            <!-- MAIN BALANCE -->
+            <!-- BALANCE -->
             <section class="balance-section fade-in delay-1">
                 <div class="balance-card">
                     <div class="balance-header">
@@ -839,7 +823,7 @@
                         </div>
                     </div>
                     <div class="claim-reward">
-                        <span class="amount">$0.01</span>
+                        <span class="amount">$0.001</span>
                         <span class="label">reward</span>
                     </div>
                     <button id="claimBtn" class="btn btn-primary" onclick="claimDaily()">
@@ -852,7 +836,7 @@
                 </div>
             </section>
 
-            <!-- RECENT ACTIVITY (REAL DATA) -->
+            <!-- RECENT ACTIVITY -->
             <section class="activity-section fade-in delay-3">
                 <div class="section-header">
                     <h3 class="section-title">
@@ -860,13 +844,11 @@
                         Recent Activity
                     </h3>
                 </div>
-                <div class="activity-list" id="activityList">
-                    <!-- Populated dynamically from Firestore -->
-                </div>
+                <div class="activity-list" id="activityList"></div>
             </section>
         </div>
 
-        <!-- BOTTOM NAVIGATION -->
+        <!-- MODERN BOTTOM NAV -->
         <nav class="bottom-nav">
             <a href="menu.html" class="nav-item">
                 <i class="fa-solid fa-bars-staggered"></i>
@@ -887,17 +869,12 @@
         </nav>
     </div>
 
-    <!-- TOAST NOTIFICATION -->
     <div id="toast" class="toast">Message</div>
 
-    <!-- FIREBASE SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
-    <script>
-        // ==========================================
-        // 🔥 REAL FIREBASE CONFIGURATION
-        // ==========================================
+      <script>
         const firebaseConfig = {
             apiKey: "AIzaSyAv6QCpopa0Q77AVTyjU5cqJEIKIE9OVTs",
             authDomain: "taskvault-412a0.firebaseapp.com",
@@ -909,7 +886,6 @@
             measurementId: "G-93JG3LB08B"
         };
 
-        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
@@ -917,10 +893,6 @@
         let currentUser = null;
         let userData = null;
 
-        // ==========================================
-        // AUTHENTICATION & DATA FETCHING
-        // ==========================================
-        
         auth.onAuthStateChanged((user) => {
             if (user) {
                 currentUser = user;
@@ -940,7 +912,6 @@
 
         async function fetchUserData(uid) {
             const userRef = db.collection('users').doc(uid);
-            
             try {
                 const doc = await userRef.get();
                 if (doc.exists) {
@@ -957,22 +928,16 @@
                     updateUI();
                 }
             } catch (error) {
-                console.error("Error fetching data: ", error);
+                console.error("Error fetching data:", error);
                 document.getElementById('balanceDisplay').innerText = "0.00";
                 hideLoading();
             }
             hideLoading();
         }
 
-        // ==========================================
-        // REAL ACTIVITY FEED FROM FIRESTORE
-        // ==========================================
-
         async function fetchActivityFeed(uid) {
             const activityList = document.getElementById('activityList');
-            
             try {
-                // Query user's transactions/activities ordered by timestamp desc
                 const snapshot = await db.collection('users').doc(uid)
                     .collection('activities')
                     .orderBy('timestamp', 'desc')
@@ -986,13 +951,9 @@
 
                 activityList.innerHTML = '';
                 snapshot.forEach(doc => {
-                    const activity = doc.data();
-                    renderActivityItem(activityList, activity);
+                    renderActivityItem(activityList, doc.data());
                 });
-
             } catch (error) {
-                console.error("Error fetching activities:", error);
-                // If collection doesn't exist yet, show empty state
                 renderEmptyState(activityList);
             }
         }
@@ -1000,7 +961,6 @@
         function renderActivityItem(container, activity) {
             const item = document.createElement('div');
             item.className = 'activity-item';
-
             const iconConfig = getActivityIcon(activity.type);
             const amountClass = activity.amount < 0 ? 'activity-amount negative' : 'activity-amount';
             const amountPrefix = activity.amount < 0 ? '-' : '+';
@@ -1014,9 +974,8 @@
                     <h4>${activity.title || 'Activity'}</h4>
                     <p>${timeAgo}</p>
                 </div>
-                <div class="${amountClass}">${amountPrefix}$${Math.abs(activity.amount || 0).toFixed(2)}</div>
+                <div class="${amountClass}">${amountPrefix}$${Math.abs(activity.amount || 0).toFixed(3)}</div>
             `;
-
             container.appendChild(item);
         }
 
@@ -1043,7 +1002,6 @@
 
         function formatTimeAgo(timestamp) {
             if (!timestamp) return 'Recently';
-            
             const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
             const now = new Date();
             const diffMs = now - date;
@@ -1058,13 +1016,8 @@
             return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
         }
 
-        // ==========================================
-        // LOG ACTIVITY HELPER (call after any action)
-        // ==========================================
-
         async function logActivity(type, title, amount) {
             if (!currentUser) return;
-            
             try {
                 await db.collection('users').doc(currentUser.uid)
                     .collection('activities')
@@ -1074,18 +1027,12 @@
                         amount: amount,
                         timestamp: firebase.firestore.FieldValue.serverTimestamp()
                     });
-                
-                // Refresh activity feed
                 fetchActivityFeed(currentUser.uid);
             } catch (error) {
                 console.error("Error logging activity:", error);
             }
         }
 
-        // ==========================================
-        // UI UPDATES & LOGIC
-        // ==========================================
-        
         function updateUI() {
             animateValue('balanceDisplay', 0, userData.balance, 800);
             checkClaimStatus();
@@ -1094,17 +1041,13 @@
         function animateValue(id, start, end, duration) {
             const obj = document.getElementById(id);
             const startTime = performance.now();
-            
             function update(currentTime) {
                 const elapsed = currentTime - startTime;
                 const progress = Math.min(elapsed / duration, 1);
                 const easeOut = 1 - Math.pow(1 - progress, 3);
                 const current = start + (end - start) * easeOut;
-                obj.innerText = current.toFixed(2);
-                
-                if (progress < 1) {
-                    requestAnimationFrame(update);
-                }
+                obj.innerText = current.toFixed(3);
+                if (progress < 1) requestAnimationFrame(update);
             }
             requestAnimationFrame(update);
         }
@@ -1112,17 +1055,14 @@
         function checkClaimStatus() {
             const btn = document.getElementById('claimBtn');
             const statusText = document.getElementById('claimStatus');
-            
             if (!userData.lastClaimDate) {
                 enableClaimButton(btn, statusText);
                 return;
             }
-
             const lastClaim = userData.lastClaimDate.toDate ? userData.lastClaimDate.toDate() : new Date(userData.lastClaimDate);
             const now = new Date();
             const diffMs = now - lastClaim;
             const diffHours = diffMs / (1000 * 60 * 60);
-
             if (diffHours < 24) {
                 disableClaimButton(btn, statusText);
                 const remaining = Math.ceil(24 - diffHours);
@@ -1148,38 +1088,27 @@
             statusText.style.display = "flex";
         }
 
-        // ==========================================
-        // ACTIONS
-        // ==========================================
-
         async function claimDaily() {
             if (!currentUser) {
                 showToast("Please login first!", "error");
                 return;
             }
-
             const btn = document.getElementById('claimBtn');
             btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Processing...';
             btn.disabled = true;
 
             try {
                 const userRef = db.collection('users').doc(currentUser.uid);
-                const newBalance = (parseFloat(userData.balance) || 0) + 0.01;
-                
+                const newBalance = (parseFloat(userData.balance) || 0) + 0.001;
                 await userRef.update({
                     balance: newBalance,
                     lastClaimDate: firebase.firestore.FieldValue.serverTimestamp()
                 });
-
                 userData.balance = newBalance;
                 userData.lastClaimDate = new Date();
-                
-                // Log this activity
-                await logActivity('claim', 'Daily Claim Reward', 0.01);
-                
+                await logActivity('claim', 'Daily Claim Reward', 0.001);
                 updateUI();
-                showToast("Successfully claimed $0.01!", "success");
-
+                showToast("Successfully claimed $0.001!", "success");
             } catch (error) {
                 console.error("Claim error:", error);
                 showToast("Error claiming. Try again.", "error");
@@ -1188,24 +1117,15 @@
             }
         }
 
-        // ==========================================
-        // HELPER FUNCTIONS
-        // ==========================================
-
         function showToast(message, type = 'info') {
             const toast = document.getElementById('toast');
             toast.className = 'toast ' + type;
-            
             let icon = 'fa-circle-info';
             if (type === 'success') icon = 'fa-circle-check';
             if (type === 'error') icon = 'fa-circle-xmark';
-            
             toast.innerHTML = `<i class="fa-solid ${icon}"></i> ${message}`;
-            
             toast.classList.add('show');
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
+            setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
         function hideLoading() {
@@ -1221,17 +1141,12 @@
             document.getElementById('greetingText').textContent = greeting;
         }
 
-        // Initialize
         document.addEventListener('DOMContentLoaded', () => {
             setGreeting();
-            
             const currentPage = window.location.pathname.split('/').pop();
-            const navItems = document.querySelectorAll('.nav-item');
-            
-            navItems.forEach(item => {
+            document.querySelectorAll('.nav-item').forEach(item => {
                 const href = item.getAttribute('href');
-                if (href === currentPage || 
-                    (currentPage === '' || currentPage === 'index.html') && href === 'profile.html') {
+                if (href === currentPage || (currentPage === '' || currentPage === 'index.html') && href === 'profile.html') {
                     item.classList.add('active');
                 } else {
                     item.classList.remove('active');
@@ -1240,4 +1155,4 @@
         });
     </script>
 </body>
-</html>
+</html>  
