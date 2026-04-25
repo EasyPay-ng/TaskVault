@@ -20,6 +20,7 @@
             --text-light: #888;
             --shadow-sm: 0 2px 6px rgba(255, 140, 66, 0.06);
             --shadow-md: 0 4px 12px rgba(255, 140, 66, 0.1);
+            --shadow-lg: 0 10px 30px rgba(0,0,0,0.15);
         }
 
         * {
@@ -194,6 +195,19 @@
             background: #EF4444;
         }
 
+        /* Support WhatsApp styling */
+        .menu-item.whatsapp .menu-icon {
+            background: #D1FAE5;
+        }
+
+        .menu-item.whatsapp .menu-icon i {
+            color: #10B981;
+        }
+
+        .menu-item.whatsapp:hover .menu-icon {
+            background: #10B981;
+        }
+
         /* Modern Bottom Nav */
         .bottom-nav {
             position: absolute;
@@ -246,6 +260,145 @@
             color: var(--orange-dark);
         }
 
+        /* ==================== TASKS OVERLAY ==================== */
+        .tasks-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px);
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            z-index: 3000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .tasks-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .tasks-sheet {
+            background: var(--white);
+            border-radius: 24px 24px 0 0;
+            padding: 24px 20px 32px;
+            width: 100%;
+            max-width: 430px;
+            transform: translateY(100%);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .tasks-overlay.show .tasks-sheet {
+            transform: translateY(0);
+        }
+
+        .sheet-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .sheet-header h3 {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .sheet-close {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: var(--silk-bg);
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-light);
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .sheet-close:hover {
+            background: var(--orange-light);
+            color: var(--orange-main);
+        }
+
+        .task-option {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 16px;
+            background: var(--silk-bg);
+            border-radius: 16px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: var(--text-dark);
+            border: 1px solid transparent;
+        }
+
+        .task-option:hover {
+            background: var(--orange-light);
+            border-color: rgba(255, 140, 66, 0.15);
+            transform: translateX(4px);
+        }
+
+        .task-option:active {
+            transform: scale(0.98);
+        }
+
+        .task-option-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .task-option-icon.earn {
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+        }
+
+        .task-option-icon.manage {
+            background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+        }
+
+        .task-option-text {
+            flex: 1;
+        }
+
+        .task-option-text h4 {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .task-option-text p {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-top: 2px;
+        }
+
+        .task-option-arrow {
+            color: var(--text-light);
+            font-size: 14px;
+        }
+
         /* Toast */
         .toast {
             position: fixed;
@@ -261,7 +414,7 @@
             opacity: 0;
             visibility: hidden;
             transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            z-index: 2000;
+            z-index: 4000;
             text-align: center;
             max-width: 90%;
             box-shadow: 0 8px 30px rgba(0,0,0,0.12);
@@ -303,6 +456,38 @@
 </head>
 <body>
 
+    <!-- TASKS OVERLAY -->
+    <div class="tasks-overlay" id="tasksOverlay" onclick="closeTasksOverlay(event)">
+        <div class="tasks-sheet" onclick="event.stopPropagation()">
+            <div class="sheet-header">
+                <h3><i class="fa-solid fa-list-check" style="color: var(--orange-main); margin-right: 8px;"></i>Tasks</h3>
+                <button class="sheet-close" onclick="closeTasksOverlay()">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <a href="earn.html" class="task-option">
+                <div class="task-option-icon earn">
+                    <i class="fa-solid fa-bolt"></i>
+                </div>
+                <div class="task-option-text">
+                    <h4>Perform Tasks</h4>
+                    <p>Complete tasks and earn rewards</p>
+                </div>
+                <i class="fa-solid fa-chevron-right task-option-arrow"></i>
+            </a>
+            <a href="tasks.html" class="task-option">
+                <div class="task-option-icon manage">
+                    <i class="fa-solid fa-gear"></i>
+                </div>
+                <div class="task-option-text">
+                    <h4>Manage Tasks</h4>
+                    <p>View and manage your tasks</p>
+                </div>
+                <i class="fa-solid fa-chevron-right task-option-arrow"></i>
+            </a>
+        </div>
+    </div>
+
     <div class="app-container">
         <!-- HEADER -->
         <header class="header fade-in">
@@ -328,27 +513,27 @@
                     <i class="fa-solid fa-chevron-right menu-arrow"></i>
                 </a>
 
-                <a href="leaderboard.html" class="menu-item fade-in delay-3">
+                <a href="#" class="menu-item fade-in delay-3" onclick="openTasksOverlay(); return false;">
                     <div class="menu-icon">
-                        <i class="fa-solid fa-trophy"></i>
+                        <i class="fa-solid fa-list-check"></i>
                     </div>
-                    <span class="menu-text">Achievements</span>
+                    <span class="menu-text">Tasks</span>
                     <i class="fa-solid fa-chevron-right menu-arrow"></i>
                 </a>
 
-                <a href="#" class="menu-item fade-in delay-4" onclick="showToast('Support coming soon!', 'info'); return false;">
+                <a href="referral.html" class="menu-item fade-in delay-4">
                     <div class="menu-icon">
-                        <i class="fa-solid fa-headset"></i>
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                    <span class="menu-text">Referrals</span>
+                    <i class="fa-solid fa-chevron-right menu-arrow"></i>
+                </a>
+
+                <a href="https://wa.me/2348037402826" target="_blank" class="menu-item whatsapp fade-in delay-5">
+                    <div class="menu-icon">
+                        <i class="fa-brands fa-whatsapp"></i>
                     </div>
                     <span class="menu-text">Support</span>
-                    <i class="fa-solid fa-chevron-right menu-arrow"></i>
-                </a>
-
-                <a href="settings.html" class="menu-item fade-in delay-5">
-                    <div class="menu-icon">
-                        <i class="fa-solid fa-gear"></i>
-                    </div>
-                    <span class="menu-text">Settings</span>
                     <i class="fa-solid fa-chevron-right menu-arrow"></i>
                 </a>
 
@@ -369,7 +554,7 @@
                 <span>Menu</span>
             </a>
             <a href="deposit.html" class="nav-item">
-                <i class="fa-solid fa-wallet"></i>
+                <i class="fa-solid fa-arrow-down-to-bracket"></i>
                 <span>Deposit</span>
             </a>
             <a href="withdraw.html" class="nav-item">
@@ -389,8 +574,7 @@
     <!-- FIREBASE SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
-
-    <script>
+        <script>
         const firebaseConfig = {
             apiKey: "AIzaSyAv6QCpopa0Q77AVTyjU5cqJEIKIE9OVTs",
             authDomain: "taskvault-412a0.firebaseapp.com",
@@ -405,6 +589,27 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
 
+        // ==================== TASKS OVERLAY ====================
+
+        function openTasksOverlay() {
+            document.getElementById('tasksOverlay').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeTasksOverlay(event) {
+            // If event provided, only close if clicking overlay background
+            if (event && event.target !== event.currentTarget) return;
+            document.getElementById('tasksOverlay').classList.remove('show');
+            document.body.style.overflow = '';
+        }
+
+        // Close on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeTasksOverlay();
+        });
+
+        // ==================== TOAST ====================
+
         function showToast(message, type = 'info') {
             const toast = document.getElementById('toast');
             toast.className = 'toast ' + type;
@@ -415,6 +620,8 @@
             toast.classList.add('show');
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
+
+        // ==================== LOGOUT ====================
 
         function handleLogout() {
             auth.signOut().then(() => {
@@ -427,6 +634,13 @@
                 console.error(error);
             });
         }
+
+        // ==================== WHATSAPP SUPPORT ====================
+        // Opens WhatsApp directly with pre-filled message
+        document.querySelector('.menu-item.whatsapp').addEventListener('click', function(e) {
+            // The href already handles the redirect, this is just for analytics/logging if needed
+            console.log('Opening WhatsApp support...');
+        });
     </script>
 </body>
 </html>
