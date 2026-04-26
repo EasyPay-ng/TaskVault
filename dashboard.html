@@ -139,62 +139,128 @@
             justify-content: center;
         }
 
-        /* ==================== ACTIVATION BANNER ==================== */
-        .activate-banner {
-            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
-            margin: 0 20px 14px;
-            border-radius: 16px;
+        /* ==================== ACTIVATION MODAL ==================== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2600;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
             padding: 20px;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .activate-modal {
+            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+            border-radius: 20px;
+            padding: 28px 24px;
             color: white;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 8px 24px rgba(239, 68, 68, 0.25);
-            animation: glowRed 2s ease-in-out infinite;
-            display: none;
+            box-shadow: 0 20px 60px rgba(239, 68, 68, 0.4);
+            max-width: 360px;
+            width: 100%;
+            text-align: center;
+            transform: scale(0.9) translateY(20px);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
-        .activate-banner.show {
-            display: block;
-            animation: slideDown 0.5s ease-out;
+        .modal-overlay.show .activate-modal {
+            transform: scale(1) translateY(0);
         }
 
-        @keyframes glowRed {
-            0%, 100% { box-shadow: 0 8px 24px rgba(239, 68, 68, 0.25); }
-            50% { box-shadow: 0 8px 32px rgba(239, 68, 68, 0.45); }
-        }
-
-        @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .activate-banner::after {
+        .activate-modal::before {
             content: '';
             position: absolute;
-            top: -20px;
-            right: -20px;
-            width: 80px;
-            height: 80px;
-            background: rgba(255,255,255,0.1);
+            top: -30px;
+            right: -30px;
+            width: 100px;
+            height: 100px;
+            background: rgba(255,255,255,0.08);
             border-radius: 50%;
         }
 
-        .activate-banner h3 {
-            font-size: 15px;
-            font-weight: 800;
-            margin-bottom: 6px;
-            position: relative;
-            z-index: 1;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+        .activate-modal::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: -20px;
+            width: 80px;
+            height: 80px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 50%;
         }
 
-        .activate-banner p {
-            font-size: 11px;
+        .modal-close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 32px;
+            height: 32px;
+            background: rgba(255,255,255,0.15);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: rgba(255,255,255,0.25);
+            transform: rotate(90deg);
+        }
+
+        .modal-icon {
+            width: 56px;
+            height: 56px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin: 0 auto 16px;
+            position: relative;
+            z-index: 1;
+            animation: pulseGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.3); }
+            50% { box-shadow: 0 0 0 12px rgba(255,255,255,0); }
+        }
+
+        .activate-modal h3 {
+            font-size: 18px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .activate-modal p {
+            font-size: 12px;
             opacity: 0.9;
-            margin-bottom: 14px;
-            line-height: 1.5;
+            margin-bottom: 20px;
+            line-height: 1.6;
             position: relative;
             z-index: 1;
         }
@@ -203,9 +269,9 @@
             background: white;
             color: #EF4444;
             border: none;
-            padding: 12px 20px;
-            border-radius: 10px;
-            font-size: 13px;
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-size: 14px;
             font-weight: 700;
             cursor: pointer;
             display: inline-flex;
@@ -215,15 +281,16 @@
             position: relative;
             z-index: 1;
             text-decoration: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
         }
 
         .btn-activate:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
         }
 
         .btn-activate:active {
-            transform: scale(0.98);
+            transform: scale(0.97);
         }
 
         /* ==================== HEADER ==================== */
@@ -500,8 +567,7 @@
             color: var(--orange-main);
             font-size: 12px;
         }
-
-        /* ==================== DAILY CLAIM CARD ==================== */
+                /* ==================== DAILY CLAIM CARD ==================== */
         .claim-card {
             background: var(--white);
             margin: 0 20px 14px;
@@ -887,6 +953,23 @@
         <button class="close-banner" onclick="dismissNotifBanner()"><i class="fa-solid fa-xmark"></i></button>
     </div>
 
+    <!-- Activation Modal -->
+    <div class="modal-overlay" id="activateModal">
+        <div class="activate-modal">
+            <button class="modal-close" onclick="closeActivateModal()">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="modal-icon">
+                <i class="fa-solid fa-crown"></i>
+            </div>
+            <h3>ACTIVATE YOUR ACCOUNT NOW!</h3>
+            <p>Enjoy seamless experience with varieties of tasks, games and lots more events.</p>
+            <a href="activate.html" class="btn-activate">
+                <i class="fa-solid fa-bolt"></i> Activate
+            </a>
+        </div>
+    </div>
+
     <div class="loading-overlay" id="loadingOverlay">
         <div class="spinner"></div>
         <div class="loader-text">Loading</div>
@@ -910,17 +993,6 @@
 
         <!-- SCROLLABLE CONTENT -->
         <div class="scroll-content">
-            <!-- ACTIVATION BANNER (shown if plan is null or not silver) -->
-            <section class="fade-in delay-1" id="activateSection" style="display: none;">
-                <div class="activate-banner show" id="activateBanner">
-                    <h3><i class="fa-solid fa-crown"></i> ACTIVATE YOUR ACCOUNT NOW!</h3>
-                    <p>Enjoy seamless experience with varieties of tasks, games and lots more events.</p>
-                    <a href="activate.html" class="btn-activate">
-                        <i class="fa-solid fa-bolt"></i> Activate
-                    </a>
-                </div>
-            </section>
-
             <!-- BALANCE -->
             <section class="balance-section fade-in delay-1">
                 <div class="balance-card">
@@ -1187,7 +1259,7 @@
             localStorage.setItem('notifBannerDismissed', 'true');
         }
 
-        // ==================== ACTIVATION BANNER LOGIC ====================
+        // ==================== ACTIVATION MODAL LOGIC ====================
 
         function checkActivationStatus() {
             if (!userData) return;
@@ -1195,12 +1267,28 @@
             const plan = userData.plan;
             const isSilver = plan === 'silver' || plan === 'Silver' || plan === 'SILVER';
             
+            // Show modal only if user has NO plan OR is NOT on Silver plan
             if (!plan || !isSilver) {
-                document.getElementById('activateSection').style.display = 'block';
-            } else {
-                document.getElementById('activateSection').style.display = 'none';
+                showActivateModal();
             }
         }
+
+        function showActivateModal() {
+            const modal = document.getElementById('activateModal');
+            modal.classList.add('show');
+        }
+
+        function closeActivateModal() {
+            const modal = document.getElementById('activateModal');
+            modal.classList.remove('show');
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('activateModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeActivateModal();
+            }
+        });
 
         // ==================== AUTH & DATA ====================
 
