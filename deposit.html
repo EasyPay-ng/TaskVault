@@ -2,54 +2,1667 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Deposit</title>
-   
-    <!-- Favicon -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Deposit Funds | CashClique</title>
+
     <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" type="image/jpeg">
-    
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
     <style>
-        :root { --orange-main: #FF8C42; --silk-bg: #FDFBF7; --white: #FFF; }
-        * { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; }
-        body { background:#e9ecef; display:flex; justify-content:center; min-height:100vh; }
-        .app { width:100%; max-width:480px; background:var(--silk-bg); min-height:100vh; padding-bottom:100px; }
-        .header { padding:20px; background:var(--white); border-bottom:1px solid #eee; }
-        .header h1 { color:var(--orange-main); font-size:22px; }
-        .content { padding:20px; }
-        .qr-box { background:var(--white); padding:20px; border-radius:16px; text-align:center; margin-bottom:20px; }
-        .qr-box img { width:180px; height:180px; background:#eee; border-radius:12px; }
-        .address-box { background:var(--white); padding:15px; border-radius:12px; border:1px dashed var(--orange-main); margin-bottom:20px; }
-        .address-box input { width:100%; border:none; background:transparent; font-size:14px; outline:none; }
-        .btn { width:100%; padding:14px; border:none; border-radius:12px; background:var(--orange-main); color:#fff; font-size:16px; cursor:pointer; }
-        .bottom-nav { position:fixed; bottom:0; width:100%; max-width:480px; background:var(--white); display:flex; justify-content:space-around; padding:12px 0 22px; box-shadow:0 -5px 20px rgba(0,0,0,0.08); border-radius:20px 20px 0 0; }
-        .nav-item { display:flex; flex-direction:column; align-items:center; color:#888; text-decoration:none; font-size:11px; gap:4px; }
-        .nav-item i { font-size:22px; }
-        .nav-item.active { color:var(--orange-main); }
+        :root {
+            --orange-main: #FF8C42;
+            --orange-dark: #E67A35;
+            --orange-light: #FFF0E6;
+            --silk-bg: #FDFBF7;
+            --white: #FFFFFF;
+            --text-dark: #333333;
+            --text-light: #888888;
+            --shadow-sm: 0 2px 6px rgba(255, 140, 66, 0.06);
+            --shadow-md: 0 4px 12px rgba(255, 140, 66, 0.1);
+            --shadow-lg: 0 8px 24px rgba(255, 140, 66, 0.15);
+            --gradient-orange: linear-gradient(135deg, #FF8C42 0%, #FF6B35 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            background-color: #e9ecef;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .app-container {
+            width: 100%;
+            height: 100dvh;
+            max-width: 430px;
+            background-color: var(--silk-bg);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (min-width: 768px) {
+            .app-container {
+                height: 92dvh;
+                max-height: 850px;
+                border-radius: 24px;
+                box-shadow: 0 0 40px rgba(0,0,0,0.12);
+            }
+        }
+
+        .scroll-content {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 0 20px 100px;
+        }
+
+        .scroll-content::-webkit-scrollbar {
+            width: 2px;
+        }
+        .scroll-content::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .scroll-content::-webkit-scrollbar-thumb {
+            background: var(--orange-light);
+            border-radius: 2px;
+        }
+
+        /* ==================== TOP NAV ==================== */
+        .top-nav {
+            display: flex;
+            align-items: center;
+            padding: 14px 20px 10px;
+            background: var(--white);
+            flex-shrink: 0;
+        }
+
+        .nav-back-btn {
+            background: var(--orange-light);
+            border: none;
+            border-radius: 12px;
+            padding: 10px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--orange-main);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-back-btn:hover {
+            background: var(--orange-main);
+            color: white;
+            transform: translateX(-2px);
+        }
+
+        .nav-back-btn i {
+            font-size: 14px;
+        }
+
+        /* ==================== HEADER CONTENT ==================== */
+        .header-content {
+            text-align: center;
+            padding: 10px 20px 20px;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            border-radius: 16px;
+            object-fit: cover;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .header-content h2 {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 6px;
+        }
+
+        .header-content p.sub {
+            font-size: 12px;
+            color: var(--text-light);
+            font-weight: 400;
+        }
+
+        /* ==================== RATE DISPLAY BOX ==================== */
+        .rate-display-box {
+            background: var(--gradient-orange);
+            color: white;
+            padding: 18px;
+            border-radius: 16px;
+            margin: 0 0 16px;
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .rate-display-box::after {
+            content: '';
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            width: 60px;
+            height: 60px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+        }
+
+        .rate-display-box .label {
+            font-size: 10px;
+            opacity: 0.9;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+            position: relative;
+            z-index: 1;
+        }
+
+        .rate-display-box .value {
+            font-size: 22px;
+            font-weight: 800;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ==================== CHANNEL BUTTONS ==================== */
+        .channel-btn {
+            width: 100%;
+            background: var(--white);
+            border: 1px solid rgba(255, 140, 66, 0.08);
+            border-radius: 16px;
+            padding: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            margin-bottom: 12px;
+            transition: all 0.3s ease;
+            text-align: left;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .channel-btn:hover {
+            border-color: var(--orange-main);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .channel-btn:active {
+            transform: scale(0.98);
+        }
+
+        .channel-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .channel-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .icon-bank {
+            background: var(--orange-light);
+            color: var(--orange-main);
+        }
+
+        .icon-crypto {
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        .channel-text h3 {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .channel-text span {
+            font-size: 11px;
+            color: var(--text-light);
+            display: block;
+            margin-top: 2px;
+        }
+
+        .rate-info-small {
+            font-size: 10px;
+            color: var(--orange-main);
+            font-weight: 600;
+            margin-top: 3px;
+        }
+
+        .channel-btn > i {
+            color: #cbd5e1;
+            font-size: 14px;
+        }
+
+        /* ==================== CRYPTO OPTION ==================== */
+        .crypto-option {
+            width: 100%;
+            background: var(--white);
+            border: 1px solid rgba(255, 140, 66, 0.08);
+            border-radius: 16px;
+            padding: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            margin-bottom: 12px;
+            transition: all 0.3s ease;
+            text-align: left;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .crypto-option:hover {
+            border-color: var(--orange-main);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .crypto-option:active {
+            transform: scale(0.98);
+        }
+
+        .crypto-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .crypto-icon.trx { background: #ff060a; color: white; }
+        .crypto-icon.usdt { background: #26a17b; color: white; }
+        .crypto-icon.eth { background: #627eea; color: white; }
+        .crypto-icon.btc { background: #f7931a; color: white; }
+        .crypto-icon.ton { background: #0088cc; color: white; }
+
+        .crypto-info h3 {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .crypto-info span {
+            font-size: 11px;
+            color: var(--text-light);
+            display: block;
+            margin-top: 2px;
+        }
+
+        .crypto-option > i {
+            color: #cbd5e1;
+            font-size: 14px;
+        }
+
+        /* ==================== PAGE OVERLAY ==================== */
+        .page-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--silk-bg);
+            z-index: 100;
+            transform: translateX(100%);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .page-overlay.active {
+            transform: translateX(0);
+        }
+
+        .page-overlay::-webkit-scrollbar {
+            width: 2px;
+        }
+        .page-overlay::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .page-overlay::-webkit-scrollbar-thumb {
+            background: var(--orange-light);
+            border-radius: 2px;
+        }
+
+        .overlay-header {
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--white);
+            flex-shrink: 0;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .back-btn {
+            background: var(--orange-light);
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            font-size: 14px;
+            color: var(--orange-main);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: var(--orange-main);
+            color: white;
+        }
+
+        .overlay-title {
+            font-weight: 700;
+            font-size: 16px;
+            color: var(--text-dark);
+        }
+
+        .overlay-content {
+            padding: 20px;
+            max-width: 430px;
+            margin: 0 auto;
+            width: 100%;
+            flex: 1;
+        }
+
+        /* ==================== USER BADGE ==================== */
+        .user-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--white);
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            border: 1px solid rgba(255, 140, 66, 0.08);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .user-badge i {
+            color: var(--orange-main);
+            font-size: 18px;
+        }
+
+        .user-email {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        /* ==================== NOTICE BOX ==================== */
+        .notice-box {
+            background: var(--orange-light);
+            border-left: 3px solid var(--orange-main);
+            padding: 14px;
+            border-radius: 0 12px 12px 0;
+            margin-bottom: 20px;
+            font-size: 11px;
+            color: var(--orange-dark);
+            line-height: 1.6;
+        }
+
+        .notice-box strong {
+            font-weight: 700;
+        }
+
+        .notice-box i {
+            margin-right: 4px;
+        }
+
+        /* ==================== RATE INFO ==================== */
+        .rate-info {
+            background: var(--white);
+            border: 1px solid rgba(255, 140, 66, 0.12);
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 16px;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .rate-info .label {
+            font-size: 10px;
+            color: var(--text-light);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+        }
+
+        .rate-info .value {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--orange-main);
+        }
+
+        /* ==================== INPUT GROUP ==================== */
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-dark);
+        }
+
+        .amount-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .amount-wrapper span {
+            position: absolute;
+            left: 16px;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-light);
+        }
+
+        .amount-input {
+            width: 100%;
+            padding: 14px 16px 14px 40px;
+            font-size: 22px;
+            font-weight: 800;
+            border: 2px solid #e2e8f0;
+            border-radius: 14px;
+            outline: none;
+            transition: all 0.3s ease;
+            color: var(--text-dark);
+            background: var(--white);
+        }
+
+        .amount-input:focus {
+            border-color: var(--orange-main);
+            box-shadow: 0 0 0 4px rgba(255, 140, 66, 0.1);
+        }
+
+        .amount-input::placeholder {
+            color: #cbd5e1;
+            font-weight: 400;
+        }
+
+        .naira-eqv {
+            text-align: right;
+            font-size: 12px;
+            color: var(--text-light);
+            margin-top: 8px;
+            font-weight: 500;
+        }
+
+        .naira-eqv span {
+            color: var(--orange-main);
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        /* ==================== CRYPTO CALC ==================== */
+        .crypto-calc {
+            background: var(--white);
+            border: 1px solid rgba(255, 140, 66, 0.08);
+            border-radius: 12px;
+            padding: 14px;
+            margin-top: 10px;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .crypto-calc .label {
+            font-size: 11px;
+            color: var(--text-light);
+        }
+
+        .crypto-calc .value {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-top: 4px;
+        }
+
+        /* ==================== BUTTONS ==================== */
+        .btn-primary {
+            width: 100%;
+            background: var(--gradient-orange);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 14px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s ease;
+            margin-top: 16px;
+        }
+
+        .btn-primary:hover {
+            background: var(--orange-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+
+        /* ==================== TIMER BOX ==================== */
+        .timer-box {
+            background: #fef2f2;
+            color: #b91c1c;
+            text-align: center;
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 16px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border: 1px solid #fecaca;
+        }
+
+        .timer-box i {
+            font-size: 16px;
+        }
+
+        /* ==================== DETAILS CARD ==================== */
+        .details-card {
+            background: var(--white);
+            border: 1px solid rgba(255, 140, 66, 0.08);
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .detail-row {
+            padding: 14px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-row.highlight {
+            background: var(--orange-light);
+        }
+
+        .detail-label {
+            font-size: 11px;
+            color: var(--text-light);
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .detail-value {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-dark);
+            word-break: break-all;
+        }
+
+        .detail-row.highlight .detail-value {
+            color: var(--orange-main);
+            font-size: 16px;
+        }
+
+        .copy-btn {
+            background: var(--orange-light);
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            color: var(--orange-main);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .copy-btn:hover {
+            background: var(--orange-main);
+            color: white;
+        }
+
+        /* ==================== QR CONTAINER ==================== */
+        .qr-container {
+            width: 180px;
+            height: 180px;
+            background: var(--white);
+            border: 2px solid rgba(255, 140, 66, 0.12);
+            border-radius: 16px;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        #qrcode img {
+            display: block;
+            margin: 0 auto;
+        }
+
+        /* ==================== LOADER OVERLAY ==================== */
+        .loader-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(253, 251, 247, 0.95);
+            z-index: 9999;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .loader-overlay.active {
+            display: flex;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--orange-light);
+            border-top: 3px solid var(--orange-main);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 12px;
+        }
+
+        .loader-text {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-dark);
+            letter-spacing: 1px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ==================== SUCCESS MODAL ==================== */
+        .success-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 10000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+            padding: 20px;
+        }
+
+        .success-modal.active {
+            display: flex;
+        }
+
+        .success-box {
+            background: var(--white);
+            padding: 32px 24px;
+            border-radius: 20px;
+            text-align: center;
+            width: 100%;
+            max-width: 320px;
+            transform: scale(0.9);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .success-modal.active .success-box {
+            transform: scale(1);
+        }
+
+        .success-icon {
+            width: 64px;
+            height: 64px;
+            background: #ecfdf5;
+            color: #10b981;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin: 0 auto 16px;
+        }
+
+        .success-box h3 {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .success-box p {
+            font-size: 13px;
+            color: var(--text-light);
+            margin-bottom: 20px;
+        }
+
+        /* ==================== TOAST ==================== */
+        .toast {
+            position: fixed;
+            bottom: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--text-dark);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 99px;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        }
+
+        .toast.show {
+            bottom: 30px;
+        }
+
+        .toast i {
+            font-size: 14px;
+        }
+
+        /* ==================== DISABLED CRYPTO ==================== */
+        .crypto-option.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .crypto-locked {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 10px;
+            color: #ef4444;
+            font-weight: 600;
+            margin-top: 2px;
+        }
+
+        /* ==================== ANIMATIONS ==================== */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        .delay-1 { animation-delay: 0.1s; opacity: 0; }
+        .delay-2 { animation-delay: 0.2s; opacity: 0; }
     </style>
 </head>
 <body>
-    <div class="app">
-        <div class="header">
-            <h1><i class="fa-solid fa-arrow-down-to-line"></i> Deposit</h1>
-        </div>
-        <div class="content">
-            <div class="qr-box">
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=TVC_ADDRESS_HERE" alt="QR Code">
-                <p style="margin-top:10px; color:#888; font-size:13px;">Scan to deposit TVC</p>
-            </div>
-            <div class="address-box">
-                <input type="text" value="0x1234...abcdTVC" readonly>
-            </div>
-            <button class="btn" onclick="alert('Address copied!')"><i class="fa-solid fa-copy"></i> Copy Address</button>
-        </div>
-        <nav class="bottom-nav">
-            <a href="menu.html" class="nav-item"><i class="fa-solid fa-bars"></i><span>Menu</span></a>
-            <a href="deposit.html" class="nav-item active"><i class="fa-solid fa-arrow-down-to-line"></i><span>Deposit</span></a>
-            <a href="withdraw.html" class="nav-item"><i class="fa-solid fa-arrow-up-from-bracket"></i><span>Withdraw</span></a>
-            <a href="profile.html" class="nav-item"><i class="fa-solid fa-user"></i><span>Profile</span></a>
-        </nav>
+
+    <!-- LOADER -->
+    <div class="loader-overlay" id="mainLoader">
+        <div class="spinner"></div>
+        <p class="loader-text" id="loaderText">Processing...</p>
     </div>
+
+    <!-- SUCCESS MODAL -->
+    <div class="success-modal" id="successModal">
+        <div class="success-box">
+            <div class="success-icon"><i class="fa-solid fa-check"></i></div>
+            <h3>Success!</h3>
+            <p>Your wallet has been credited.</p>
+            <button class="btn-primary" onclick="window.location.href='dashboard.html'">Dashboard</button>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast" id="toastBox">
+        <i class="fa-solid fa-circle-info"></i>
+        <span id="toastMsg">Message</span>
+    </div>
+        <div class="app-container">
+        <!-- TOP NAV -->
+        <div class="top-nav">
+            <button class="nav-back-btn" onclick="window.location.href='dashboard.html'">
+                <i class="fa-solid fa-arrow-left"></i> Back
+            </button>
+        </div>
+
+        <!-- SCROLLABLE CONTENT -->
+        <div class="scroll-content">
+            <!-- HEADER -->
+            <div class="header-content fade-in">
+                <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1774094269/logo2_ago4ay.jpg" alt="CashClique" class="logo">
+                <h2>Deposit Funds</h2>
+                <p class="sub">Select a payment channel to fund your wallet.</p>
+            </div>
+
+            <!-- RATE DISPLAY -->
+            <div class="rate-display-box fade-in delay-1">
+                <div class="label">Current Rate</div>
+                <div class="value" id="mainRateValue">₦1,000 / $1</div>
+            </div>
+
+            <!-- BANK TRANSFER -->
+            <button class="channel-btn fade-in delay-1" onclick="selectBank()">
+                <div class="channel-left">
+                    <div class="channel-icon icon-bank"><i class="fa-solid fa-building-columns"></i></div>
+                    <div class="channel-text">
+                        <h3>Bank Transfer</h3>
+                        <span>Instant deposit via NGN</span>
+                        <div class="rate-info-small" id="bankRateInfo">₦1,000 per $1</div>
+                    </div>
+                </div>
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
+
+            <!-- CRYPTO -->
+            <button class="channel-btn fade-in delay-2" id="cryptoChannelBtn" onclick="selectCrypto()">
+                <div class="channel-left">
+                    <div class="channel-icon icon-crypto"><i class="fa-brands fa-bitcoin"></i></div>
+                    <div class="channel-text">
+                        <h3>Cryptocurrency</h3>
+                        <span>USDT, BTC, ETH, TRX, TON</span>
+                        <div class="rate-info-small" id="cryptoRateInfo">1 USDT = $1.00</div>
+                    </div>
+                </div>
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- ==================== CRYPTO SELECTION OVERLAY ==================== -->
+    <div class="page-overlay" id="overlayCryptoSelect">
+        <div class="overlay-header">
+            <button class="back-btn" onclick="closeOverlay('overlayCryptoSelect')"><i class="fa-solid fa-arrow-left"></i></button>
+            <div class="overlay-title">Select Cryptocurrency</div>
+        </div>
+        <div class="overlay-content">
+            <div class="user-badge">
+                <i class="fa-solid fa-circle-user"></i>
+                <span class="user-email" id="cryptoDisplayEmail">Loading...</span>
+            </div>
+
+            <div class="rate-info">
+                <div class="label">Live Crypto Rates (USD)</div>
+                <div class="value" id="cryptoRatesSummary">Loading...</div>
+            </div>
+
+            <div class="notice-box">
+                <i class="fa-solid fa-circle-info"></i>
+                <strong>Important:</strong> Rates are fixed. Select your preferred crypto.
+            </div>
+
+            <!-- USDT -->
+            <button class="crypto-option" onclick="selectCryptoNetwork('USDT')">
+                <div class="channel-left">
+                    <div class="crypto-icon usdt">₮</div>
+                    <div class="crypto-info">
+                        <h3>USDT (BEP20)</h3>
+                        <span id="usdtRateText">1 USDT = $1.00</span>
+                    </div>
+                </div>
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
+
+            <!-- TRX -->
+            <button class="crypto-option" onclick="selectCryptoNetwork('TRX')">
+                <div class="channel-left">
+                    <div class="crypto-icon trx">₮</div>
+                    <div class="crypto-info">
+                        <h3>TRX (TRC20)</h3>
+                        <span id="trxRateText">1 TRX = $0.12</span>
+                    </div>
+                </div>
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
+
+            <!-- ETH -->
+            <button class="crypto-option" onclick="selectCryptoNetwork('ETH')">
+                <div class="channel-left">
+                    <div class="crypto-icon eth">Ξ</div>
+                    <div class="crypto-info">
+                        <h3>Ethereum (ERC20)</h3>
+                        <span id="ethRateText">1 ETH = $3,000.00</span>
+                    </div>
+                </div>
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
+
+            <!-- BTC -->
+            <button class="crypto-option" onclick="selectCryptoNetwork('BTC')">
+                <div class="channel-left">
+                    <div class="crypto-icon btc">₿</div>
+                    <div class="crypto-info">
+                        <h3>Bitcoin (BTC)</h3>
+                        <span id="btcRateText">1 BTC = $65,000.00</span>
+                    </div>
+                </div>
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
+
+            <!-- TON -->
+            <button class="crypto-option" onclick="selectCryptoNetwork('TON')">
+                <div class="channel-left">
+                    <div class="crypto-icon ton">T</div>
+                    <div class="crypto-info">
+                        <h3>TON</h3>
+                        <span id="tonRateText">1 TON = $5.50</span>
+                    </div>
+                </div>
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- ==================== CRYPTO PAYMENT DETAILS OVERLAY ==================== -->
+    <div class="page-overlay" id="overlayCryptoPayment">
+        <div class="overlay-header">
+            <button class="back-btn" onclick="closeOverlay('overlayCryptoPayment')"><i class="fa-solid fa-arrow-left"></i></button>
+            <div class="overlay-title" id="cryptoPaymentTitle">Deposit</div>
+        </div>
+        <div class="overlay-content">
+            <div class="timer-box">
+                <i class="fa-solid fa-stopwatch"></i>
+                <span id="cryptoCountdown">30:00</span>
+            </div>
+
+            <div class="rate-info">
+                <div class="label">Current Rate</div>
+                <div class="value" id="selectedCryptoRate">Loading...</div>
+            </div>
+
+            <div class="qr-container" id="qrcode"></div>
+
+            <p style="font-size:12px; color:var(--text-light); margin-bottom:14px; text-align:center;">
+                Send <strong id="cryptoAmountNeeded">0</strong> <span id="selectedNetwork">USDT</span> to equal $100 USD
+            </p>
+
+            <div class="details-card">
+                <div class="detail-row">
+                    <div style="flex:1; min-width:0;">
+                        <span class="detail-label">Network</span>
+                        <span class="detail-value" id="displayNetwork">BEP20</span>
+                    </div>
+                </div>
+                <div class="detail-row">
+                    <div style="flex:1; min-width:0;">
+                        <span class="detail-label">Wallet Address</span>
+                        <span class="detail-value" id="cryptoAddress" style="font-size:11px;">0x...</span>
+                    </div>
+                    <button class="copy-btn" onclick="copyText(document.getElementById('cryptoAddress').innerText)"><i class="fa-regular fa-copy"></i></button>
+                </div>
+            </div>
+
+            <div class="notice-box" style="background:#fef2f2; border-left-color:#ef4444; color:#b91c1c;">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <strong>Warning:</strong> Wrong crypto/network = permanent loss.
+            </div>
+
+            <button class="btn-primary" onclick="proceedToCryptoVerification()">I Have Sent The Crypto</button>
+        </div>
+    </div>
+
+    <!-- ==================== CRYPTO VERIFICATION OVERLAY ==================== -->
+    <div class="page-overlay" id="overlayCryptoVerify">
+        <div class="overlay-header">
+            <button class="back-btn" onclick="closeOverlay('overlayCryptoVerify')"><i class="fa-solid fa-arrow-left"></i></button>
+            <div class="overlay-title">Verify Crypto Payment</div>
+        </div>
+        <div class="overlay-content" style="text-align:center; padding-top:30px;">
+            <i class="fa-solid fa-link" style="font-size:48px; color:#e2e8f0; margin-bottom:16px;"></i>
+            <h3 style="font-size:18px; font-weight:800; margin-bottom:8px; color:var(--text-dark);">Transaction Hash</h3>
+            <p style="font-size:12px; color:var(--text-light); margin-bottom:24px;">Enter the TxID from your wallet</p>
+
+            <input type="text" id="cryptoTransactionHash" class="amount-input" style="text-align:center; padding:14px; font-size:13px; font-weight:500;" placeholder="Enter Transaction Hash">
+
+            <div class="input-group" style="margin-top:16px; text-align:left;">
+                <label class="input-label">Amount Sent (in <span id="verifyCryptoType">USDT</span>)</label>
+                <div class="amount-wrapper">
+                    <span id="verifyCryptoSymbol">₮</span>
+                    <input type="number" class="amount-input" id="cryptoAmountInput" placeholder="0.00" step="0.000001" style="padding-left:50px; font-size:18px;">
+                </div>
+                <div class="crypto-calc">
+                    <div class="label">You will receive:</div>
+                    <div class="value" id="cryptoUsdValue">$0.00 USD</div>
+                </div>
+            </div>
+
+            <button class="btn-primary" onclick="verifyCryptoPayment()" style="margin-top:24px;">Verify & Credit Wallet <i class="fa-solid fa-check-circle"></i></button>
+        </div>
+    </div>
+
+    <!-- ==================== BANK AMOUNT OVERLAY ==================== -->
+    <div class="page-overlay" id="overlayAmount">
+        <div class="overlay-header">
+            <button class="back-btn" onclick="closeOverlay('overlayAmount')"><i class="fa-solid fa-arrow-left"></i></button>
+            <div class="overlay-title">Enter Amount</div>
+        </div>
+        <div class="overlay-content">
+            <div class="user-badge">
+                <i class="fa-solid fa-circle-user"></i>
+                <span class="user-email" id="displayEmail">Loading...</span>
+            </div>
+
+            <div class="rate-info">
+                <div class="label">Current Bank Rate</div>
+                <div class="value" id="bankRateDisplay">₦1,000 / $1</div>
+            </div>
+
+            <div class="notice-box">
+                <i class="fa-solid fa-circle-info"></i>
+                <strong>Notice:</strong> Min $0.1 | Rate is fixed at ₦1,000/$1<br>
+                Do not deposit via PALMPAY
+            </div>
+
+            <div class="input-group">
+                <label class="input-label">Amount (USD)</label>
+                <div class="amount-wrapper">
+                    <span>$</span>
+                    <input type="number" class="amount-input" id="amountInput" placeholder="0.00" min="0.1" step="0.1">
+                </div>
+                <div class="naira-eqv">You pay: <span id="nairaOutput">₦0</span></div>
+            </div>
+
+            <button class="btn-primary" onclick="proceedToPayment()">Continue <i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+    </div>
+
+    <!-- ==================== BANK PAYMENT DETAILS OVERLAY ==================== -->
+    <div class="page-overlay" id="overlayPayment">
+        <div class="overlay-header">
+            <button class="back-btn" onclick="closeOverlay('overlayPayment')"><i class="fa-solid fa-arrow-left"></i></button>
+            <div class="overlay-title">Make Transfer</div>
+        </div>
+        <div class="overlay-content">
+            <div class="timer-box">
+                <i class="fa-solid fa-stopwatch"></i>
+                <span id="countdown">30:00</span>
+            </div>
+
+            <div class="rate-info" style="background:var(--orange-light); border-color:var(--orange-main);">
+                <div class="label" style="color:var(--orange-dark);">Rate Used</div>
+                <div class="value" style="color:var(--orange-main);" id="bankRateUsed">₦1,000 / $1</div>
+            </div>
+
+            <p style="font-size:12px; color:var(--text-light); margin-bottom:14px; text-align:center;">Transfer exact amount to:</p>
+
+            <div class="details-card">
+                <div class="detail-row">
+                    <div>
+                        <span class="detail-label">Bank</span>
+                        <span class="detail-value">Palmpay LTD</span>
+                    </div>
+                    <button class="copy-btn" onclick="copyText('Palmpay)"><i class="fa-regular fa-copy"></i></button>
+                </div>
+                <div class="detail-row">
+                    <div>
+                        <span class="detail-label">Account</span>
+                        <span class="detail-value">8037402826</span>
+                    </div>
+                    <button class="copy-btn" onclick="copyText('8037402826')"><i class="fa-regular fa-copy"></i></button>
+                </div>
+                <div class="detail-row">
+                    <div>
+                        <span class="detail-label">Name</span>
+                        <span class="detail-value"MMuhammad Nasir</span>
+                    </div>
+                </div>
+                <div class="detail-row highlight">
+                    <div>
+                        <span class="detail-label">Amount</span>
+                        <span class="detail-value">₦<span id="finalNaira">0</span></span>
+                    </div>
+                    <button class="copy-btn" onclick="copyText(document.getElementById('finalNaira').innerText)"><i class="fa-regular fa-copy"></i></button>
+                </div>
+                <div class="detail-row">
+                    <div>
+                        <span class="detail-label">Remark (Required)</span>
+                        <span class="detail-value" id="generatedRemark">CC-XXXXXX</span>
+                    </div>
+                    <button class="copy-btn" onclick="copyText(document.getElementById('generatedRemark').innerText)"><i class="fa-regular fa-copy"></i></button>
+                </div>
+            </div>
+
+            <button class="btn-primary" onclick="proceedToVerification()">I Have Sent The Money</button>
+        </div>
+    </div>
+
+    <!-- ==================== BANK VERIFICATION OVERLAY ==================== -->
+    <div class="page-overlay" id="overlayVerify">
+        <div class="overlay-header">
+            <button class="back-btn" onclick="closeOverlay('overlayVerify')"><i class="fa-solid fa-arrow-left"></i></button>
+            <div class="overlay-title">Verify Payment</div>
+        </div>
+        <div class="overlay-content" style="text-align:center; padding-top:30px;">
+            <i class="fa-solid fa-shield-halved" style="font-size:48px; color:#e2e8f0; margin-bottom:16px;"></i>
+            <h3 style="font-size:18px; font-weight:800; margin-bottom:8px; color:var(--text-dark);">Transaction ID</h3>
+            <p style="font-size:12px; color:var(--text-light); margin-bottom:24px;">Enter 24-digit transaction number</p>
+
+            <input type="text" id="transactionId" class="amount-input" style="text-align:center; padding:14px; font-size:16px; letter-spacing:2px;" placeholder="Enter Transaction ID" maxlength="24">
+
+            <button class="btn-primary" onclick="verifyPayment()" style="margin-top:24px;">Verify <i class="fa-solid fa-check-circle"></i></button>
+        </div>
+    </div>
+
+    <!-- FIREBASE SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
+        <script>
+        // ==================== TASKVAULT FIREBASE CONFIG ====================
+        const firebaseConfig = {
+            apiKey: "AIzaSyAv6QCpopa0Q77AVTyjU5cqJEIKIE9OVTs",
+            authDomain: "taskvault-412a0.firebaseapp.com",
+            databaseURL: "https://taskvault-412a0-default-rtdb.firebaseio.com",
+            projectId: "taskvault-412a0",
+            storageBucket: "taskvault-412a0.firebasestorage.app",
+            messagingSenderId: "420716701831",
+            appId: "1:420716701831:web:c987d91f7f4c8684eb7022",
+            measurementId: "G-93JG3LB08B"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // ==================== FIXED RATES ====================
+        const FIXED_RATES = {
+            bank: 1000, // ₦1,000 per $1
+            crypto: {
+                USDT: 1.00,
+                TRX: 0.12,
+                ETH: 3000.00,
+                BTC: 65000.00,
+                TON: 5.50
+            }
+        };
+
+        // ==================== CRYPTO ADDRESSES ====================
+        const CRYPTO_ADDRESSES = {
+            'TRX': { address: 'TM4LHrGkq3qRKkt2U5Kqrpb3JJ2nKHGFiM', network: 'TRC20', symbol: '₮' },
+            'USDT': { address: '0xca5E14C59362045B2882C260FD149026C54B1FF0', network: 'BEP20', symbol: '₮' },
+            'ETH': { address: '0xca5E14C59362045B2882C260FD149026C54B1FF0', network: 'ERC20', symbol: 'Ξ' },
+            'BTC': { address: 'bc1qqh7vjlz343mmyne0jpuks6zzwqa87rveppsz6s', network: 'BTC', symbol: '₿' },
+            'TON': { address: 'UQASQgSpskW-871H2pkS0QlkTr_A1h3C38RmrLcLjyvOh-zi', network: 'TON', symbol: 'T' }
+        };
+
+        let currentUser = null;
+        let userData = null;
+        let userCountry = null;
+        let userNairaAmount = 0;
+        let timerInterval;
+        let cryptoTimerInterval;
+        let selectedCrypto = '';
+        let cryptoAmount = 0;
+        let qrCodeObj = null;
+
+        // ==================== AUTH & USER DATA ====================
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                currentUser = user;
+                const displayName = user.email ? user.email.split('@')[0] : 'User';
+                document.getElementById('displayEmail').textContent = displayName;
+                document.getElementById('cryptoDisplayEmail').textContent = displayName;
+                fetchUserData(user.uid);
+            } else {
+                auth.signInAnonymously().catch((error) => {
+                    console.error("Auth Error:", error);
+                    showToast("Authentication Failed");
+                });
+            }
+        });
+
+        async function fetchUserData(uid) {
+            try {
+                const doc = await db.collection('users').doc(uid).get();
+                if (doc.exists) {
+                    userData = doc.data();
+                    userCountry = userData.country || null;
+                    updateRateDisplays();
+                    checkCryptoAccess();
+                } else {
+                    // Create new user profile
+                    const newProfile = {
+                        balance: 0.00,
+                        plan: null,
+                        country: null,
+                        lastClaimDate: null,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    };
+                    await db.collection('users').doc(uid).set(newProfile);
+                    userData = newProfile;
+                    updateRateDisplays();
+                }
+            } catch (error) {
+                console.error("Error fetching user data:", error);
+                showToast("Error loading user data");
+            }
+        }
+
+        // ==================== CRYPTO ACCESS CHECK ====================
+        function checkCryptoAccess() {
+            const cryptoBtn = document.getElementById('cryptoChannelBtn');
+            const cryptoText = document.querySelector('#cryptoChannelBtn .channel-text span');
+            const cryptoRateInfo = document.getElementById('cryptoRateInfo');
+
+            // If user is from Nigeria, disable crypto deposit
+            if (userCountry && userCountry.toLowerCase() === 'nigeria') {
+                cryptoBtn.classList.add('disabled');
+                cryptoBtn.onclick = null;
+                cryptoBtn.style.cursor = 'not-allowed';
+                cryptoText.innerHTML = '<span style="color:#ef4444; font-weight:600;"><i class="fa-solid fa-lock"></i> Not available in Nigeria</span>';
+                cryptoRateInfo.style.display = 'none';
+            }
+        }
+
+        // ==================== UPDATE RATE DISPLAYS ====================
+        function updateRateDisplays() {
+            // Main page
+            document.getElementById('mainRateValue').textContent = `₦${FIXED_RATES.bank.toLocaleString()} / $1`;
+            document.getElementById('bankRateInfo').textContent = `₦${FIXED_RATES.bank.toLocaleString()} per $1`;
+            document.getElementById('cryptoRateInfo').textContent = `USDT: $${FIXED_RATES.crypto.USDT.toFixed(2)}`;
+
+            // Bank overlay
+            document.getElementById('bankRateDisplay').textContent = `₦${FIXED_RATES.bank.toLocaleString()} / $1`;
+            document.getElementById('bankRateUsed').textContent = `₦${FIXED_RATES.bank.toLocaleString()} / $1`;
+
+            // Crypto selection
+            document.getElementById('cryptoRatesSummary').innerHTML = 
+                `USDT: $${FIXED_RATES.crypto.USDT.toFixed(2)} | TRX: $${FIXED_RATES.crypto.TRX.toFixed(4)}<br>` +
+                `ETH: $${FIXED_RATES.crypto.ETH.toFixed(2)} | BTC: $${FIXED_RATES.crypto.BTC.toFixed(2)} | TON: $${FIXED_RATES.crypto.TON.toFixed(2)}`;
+
+            document.getElementById('usdtRateText').textContent = `1 USDT = $${FIXED_RATES.crypto.USDT.toFixed(2)}`;
+            document.getElementById('trxRateText').textContent = `1 TRX = $${FIXED_RATES.crypto.TRX.toFixed(4)}`;
+            document.getElementById('ethRateText').textContent = `1 ETH = $${FIXED_RATES.crypto.ETH.toFixed(2)}`;
+            document.getElementById('btcRateText').textContent = `1 BTC = $${FIXED_RATES.crypto.BTC.toFixed(2)}`;
+            document.getElementById('tonRateText').textContent = `1 TON = $${FIXED_RATES.crypto.TON.toFixed(2)}`;
+        }
+
+        // ==================== UI HELPERS ====================
+        function showLoader(text, duration, callback) {
+            document.getElementById('loaderText').textContent = text;
+            document.getElementById('mainLoader').classList.add('active');
+            setTimeout(() => {
+                document.getElementById('mainLoader').classList.remove('active');
+                if (callback) callback();
+            }, duration);
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toastBox');
+            document.getElementById('toastMsg').textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        function closeOverlay(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        function copyText(text) {
+            const rawText = text.replace(/,/g, '').replace(/₦/g, '').replace(/\$/g, '');
+            navigator.clipboard.writeText(rawText).then(() => {
+                showToast("Copied!");
+            }).catch(() => {
+                // Fallback
+                const textarea = document.createElement('textarea');
+                textarea.value = rawText;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                showToast("Copied!");
+            });
+        }
+
+        // ==================== QR CODE ====================
+        function generateQRCode(text) {
+            const qrContainer = document.getElementById('qrcode');
+            qrContainer.innerHTML = '';
+            qrCodeObj = new QRCode(qrContainer, {
+                text: text,
+                width: 160,
+                height: 160,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.M
+            });
+        }
+
+        // ==================== CRYPTO FLOW ====================
+        function selectCrypto() {
+            // Double-check access
+            if (userCountry && userCountry.toLowerCase() === 'nigeria') {
+                showToast("Crypto deposit not available in Nigeria");
+                return;
+            }
+            showLoader("Loading Crypto Options...", 800, () => {
+                document.getElementById('overlayCryptoSelect').classList.add('active');
+            });
+        }
+
+        function selectCryptoNetwork(crypto) {
+            selectedCrypto = crypto;
+            const cryptoData = CRYPTO_ADDRESSES[crypto];
+            const rate = FIXED_RATES.crypto[crypto];
+
+            document.getElementById('cryptoPaymentTitle').textContent = `Deposit ${crypto}`;
+            document.getElementById('selectedNetwork').textContent = crypto;
+            document.getElementById('displayNetwork').textContent = cryptoData.network;
+            document.getElementById('cryptoAddress').textContent = cryptoData.address;
+            document.getElementById('selectedCryptoRate').textContent = `1 ${crypto} = $${rate.toFixed(rate < 1 ? 4 : 2)}`;
+
+            // Calculate example: how much crypto for $100 USD
+            const amountFor100USD = 100 / rate;
+            const displayAmount = amountFor100USD >= 1 ? amountFor100USD.toFixed(4) : amountFor100USD.toFixed(6);
+            document.getElementById('cryptoAmountNeeded').textContent = displayAmount;
+
+            generateQRCode(cryptoData.address);
+
+            closeOverlay('overlayCryptoSelect');
+            setTimeout(() => {
+                document.getElementById('overlayCryptoPayment').classList.add('active');
+                startCryptoTimer();
+            }, 300);
+        }
+
+        function startCryptoTimer() {
+            clearInterval(cryptoTimerInterval);
+            let time = 1800;
+            const display = document.getElementById('cryptoCountdown');
+
+            cryptoTimerInterval = setInterval(() => {
+                const min = Math.floor(time / 60);
+                const sec = time % 60;
+                display.textContent = `${min}:${sec < 10 ? '0' : ''}${sec}`;
+                if (time-- <= 0) {
+                    clearInterval(cryptoTimerInterval);
+                    showToast("Payment session expired");
+                    setTimeout(() => window.location.reload(), 1500);
+                }
+            }, 1000);
+        }
+
+        function proceedToCryptoVerification() {
+            showLoader("Securing session...", 1200, () => {
+                document.getElementById('overlayCryptoVerify').classList.add('active');
+                document.getElementById('verifyCryptoType').textContent = selectedCrypto;
+                document.getElementById('verifyCryptoSymbol').textContent = CRYPTO_ADDRESSES[selectedCrypto].symbol;
+            });
+        }
+
+        // Calculate crypto to USD value
+        function calculateCryptoValue() {
+            const amount = parseFloat(document.getElementById('cryptoAmountInput').value) || 0;
+            const rate = FIXED_RATES.crypto[selectedCrypto];
+            const usdValue = amount * rate;
+            document.getElementById('cryptoUsdValue').textContent = `$${usdValue.toFixed(2)} USD`;
+        }
+
+        document.getElementById('cryptoAmountInput').addEventListener('input', calculateCryptoValue);
+
+        async function verifyCryptoPayment() {
+            const hash = document.getElementById('cryptoTransactionHash').value.trim();
+            const cryptoAmt = parseFloat(document.getElementById('cryptoAmountInput').value);
+
+            if (!hash || hash.length < 10) {
+                showToast("Invalid Transaction Hash");
+                return;
+            }
+            if (!cryptoAmt || cryptoAmt <= 0) {
+                showToast("Enter valid amount");
+                return;
+            }
+
+            // Calculate USD value
+            const rate = FIXED_RATES.crypto[selectedCrypto];
+            const usdAmount = cryptoAmt * rate;
+
+            showLoader("Verifying...", 2000, async () => {
+                try {
+                    // Check if hash already used
+                    const snapshot = await db.collection('transactions')
+                        .where('transactionHash', '==', hash)
+                        .get();
+
+                    if (!snapshot.empty) {
+                        showToast("Hash already used");
+                        return;
+                    }
+
+                    document.getElementById('loaderText').textContent = "Crediting Wallet...";
+                    document.getElementById('mainLoader').classList.add('active');
+
+                    // Credit user balance
+                    const userRef = db.collection('users').doc(currentUser.uid);
+                    await userRef.update({
+                        balance: firebase.firestore.FieldValue.increment(usdAmount)
+                    });
+
+                    // Log transaction
+                    await db.collection('transactions').add({
+                        userId: currentUser.uid,
+                        email: currentUser.email,
+                        type: 'deposit',
+                        method: 'crypto',
+                        cryptoType: selectedCrypto,
+                        cryptoAmount: cryptoAmt,
+                        cryptoRate: rate,
+                        amountUSD: usdAmount,
+                        transactionHash: hash,
+                        status: 'completed',
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+
+                    // Log activity
+                    await logActivity('deposit', `Crypto Deposit (${selectedCrypto})`, usdAmount);
+
+                    document.getElementById('mainLoader').classList.remove('active');
+                    document.getElementById('successModal').classList.add('active');
+                } catch (error) {
+                    console.error("Crypto verification error:", error);
+                    document.getElementById('mainLoader').classList.remove('active');
+                    showToast("Error occurred. Try again.");
+                }
+            });
+        }
+
+        // ==================== BANK FLOW ====================
+        function selectBank() {
+            showLoader("Loading...", 800, () => {
+                document.getElementById('overlayAmount').classList.add('active');
+            });
+        }
+
+        function calculateBankAmount() {
+            const usd = parseFloat(document.getElementById('amountInput').value) || 0;
+            userNairaAmount = usd * FIXED_RATES.bank;
+            document.getElementById('nairaOutput').textContent = `₦${userNairaAmount.toLocaleString()}`;
+        }
+
+        document.getElementById('amountInput').addEventListener('input', calculateBankAmount);
+
+        function proceedToPayment() {
+            const usd = parseFloat(document.getElementById('amountInput').value);
+            if (!usd || usd < 0.1) {
+                showToast("Minimum $0.1");
+                return;
+            }
+
+            showLoader("Generating...", 1500, () => {
+                document.getElementById('finalNaira').textContent = userNairaAmount.toLocaleString();
+                document.getElementById('bankRateUsed').textContent = `₦${FIXED_RATES.bank.toLocaleString()} / $1`;
+
+                const randomStr = Math.random().toString(36).substr(2, 4).toUpperCase();
+                const randomNum = Math.floor(1000 + Math.random() * 9000);
+                document.getElementById('generatedRemark').textContent = `CC-${randomStr}-${randomNum}`;
+
+                document.getElementById('overlayPayment').classList.add('active');
+                startTimer();
+            });
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            let time = 1800;
+            const display = document.getElementById('countdown');
+
+            timerInterval = setInterval(() => {
+                const min = Math.floor(time / 60);
+                const sec = time % 60;
+                display.textContent = `${min}:${sec < 10 ? '0' : ''}${sec}`;
+                if (time-- <= 0) {
+                    clearInterval(timerInterval);
+                    showToast("Session expired");
+                    setTimeout(() => window.location.reload(), 1500);
+                }
+            }, 1000);
+        }
+
+        function proceedToVerification() {
+            showLoader("Securing...", 1200, () => {
+                document.getElementById('overlayVerify').classList.add('active');
+            });
+        }
+
+        async function verifyPayment() {
+            const val = document.getElementById('transactionId').value.trim();
+
+            if (!/^\d{24}$/.test(val)) {
+                showToast("Enter 24-digit ID");
+                return;
+            }
+
+            const usdAmount = parseFloat(document.getElementById('amountInput').value);
+
+            showLoader("Verifying...", 2000, async () => {
+                try {
+                    // Check if transaction ID already used
+                    const snapshot = await db.collection('transactions')
+                        .where('transactionId', '==', val)
+                        .get();
+
+                    if (!snapshot.empty) {
+                        showToast("ID already used");
+                        return;
+                    }
+
+                    document.getElementById('loaderText').textContent = "Crediting...";
+                    document.getElementById('mainLoader').classList.add('active');
+
+                    // Credit user balance
+                    const userRef = db.collection('users').doc(currentUser.uid);
+                    await userRef.update({
+                        balance: firebase.firestore.FieldValue.increment(usdAmount)
+                    });
+
+                    // Log transaction
+                    await db.collection('transactions').add({
+                        userId: currentUser.uid,
+                        email: currentUser.email,
+                        type: 'deposit',
+                        method: 'bank',
+                        amountUSD: usdAmount,
+                        amountNGN: userNairaAmount,
+                        bankRate: FIXED_RATES.bank,
+                        transactionId: val,
+                        remark: document.getElementById('generatedRemark').textContent,
+                        status: 'completed',
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+
+                    // Log activity
+                    await logActivity('deposit', 'Bank Transfer Deposit', usdAmount);
+
+                    document.getElementById('mainLoader').classList.remove('active');
+                    document.getElementById('successModal').classList.add('active');
+                } catch (error) {
+                    console.error("Bank verification error:", error);
+                    document.getElementById('mainLoader').classList.remove('active');
+                    showToast("Error occurred. Try again.");
+                }
+            });
+        }
+
+        // ==================== ACTIVITY LOGGING ====================
+        async function logActivity(type, title, amount) {
+            if (!currentUser) return;
+            try {
+                await db.collection('users').doc(currentUser.uid)
+                    .collection('activities')
+                    .add({
+                        type: type,
+                        title: title,
+                        amount: amount,
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+            } catch (error) {
+                console.error("Error logging activity:", error);
+            }
+        }
+
+        // ==================== INIT ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            updateRateDisplays();
+        });
+    </script>
 </body>
 </html>
