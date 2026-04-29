@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Activate Account - CashClique</title>
+
+    <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" type="image/jpeg">
+    <link rel="manifest" href="manifest.json">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --orange-main: #FF8C42;
+            --orange-dark: #E67A35;
+            --orange-light: #FFF0E6;
+            --silk-bg: #FDFBF7;
+            --white: #FFFFFF;
+            --text-dark: #333333;
+            --text-light: #888888;
+            --shadow-sm: 0 2px 6px rgba(255, 140, 66, 0.06);
+            --shadow-md: 0 4px 12px rgba(255, 140, 66, 0.1);
+            --shadow-lg: 0 8px 24px rgba(255, 140, 66, 0.15);
+            --gradient-orange: linear-gradient(135deg, #FF8C42 0%, #FF6B35 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            background-color: #e9ecef;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .app-container {
+            width: 100%;
+            height: 100dvh;
+            max-width: 430px;
+            background-color: var(--silk-bg);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (min-width: 768px) {
+            .app-container {
+                height: 92dvh;
+                max-height: 850px;
+                border-radius: 24px;
+                box-shadow: 0 0 40px rgba(0,0,0,0.12);
+            }
+        }
+
+        .scroll-content {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-bottom: 30px;
+        }
+
+        .scroll-content::-webkit-scrollbar { width: 2px; }
+        .scroll-content::-webkit-scrollbar-track { background: transparent; }
+        .scroll-content::-webkit-scrollbar-thumb { background: var(--orange-light); border-radius: 2px; }
+
+        /* ==================== HEADER ==================== */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 20px 10px;
+            background: var(--white);
+            flex-shrink: 0;
+            border-bottom: 1px solid rgba(255,140,66,0.08);
+        }
+
+        .back-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: var(--orange-light);
+            color: var(--orange-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 15px;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: var(--orange-main);
+            color: white;
+        }
+
+        .header-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .header-spacer {
+            width: 36px;
+        }
+
+        /* ==================== HERO SECTION ==================== */
+        .hero-section {
+            background: var(--gradient-orange);
+            margin: 16px 20px;
+            border-radius: 20px;
+            padding: 24px 20px;
+            color: white;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: -40px;
+            right: -40px;
+            width: 120px;
+            height: 120px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 50%;
+        }
+
+        .hero-section::after {
+            content: '';
+            position: absolute;
+            bottom: -25px;
+            left: -25px;
+            width: 80px;
+            height: 80px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 50%;
+        }
+
+        .crown-icon {
+            width: 64px;
+            height: 64px;
+            background: rgba(255,255,255,0.18);
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin: 0 auto 14px;
+            position: relative;
+            z-index: 1;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .hero-section h1 {
+            font-size: 20px;
+            font-weight: 800;
+            margin-bottom: 6px;
+            position: relative;
+            z-index: 1;
+            letter-spacing: -0.3px;
+        }
+
+        .hero-section p {
+            font-size: 12px;
+            opacity: 0.9;
+            line-height: 1.6;
+            position: relative;
+            z-index: 1;
+        }
+
+        .price-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255,255,255,0.2);
+            border: 1.5px solid rgba(255,255,255,0.4);
+            padding: 8px 18px;
+            border-radius: 50px;
+            margin-top: 14px;
+            font-size: 18px;
+            font-weight: 800;
+            position: relative;
+            z-index: 1;
+        }
+
+        .price-badge .once {
+            font-size: 11px;
+            font-weight: 500;
+            opacity: 0.85;
+        }
+
+        /* ==================== FEATURES ==================== */
+        .section-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-dark);
+            padding: 0 20px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .section-title i {
+            color: var(--orange-main);
+            font-size: 12px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            padding: 0 20px;
+            margin-bottom: 16px;
+        }
+
+        .feature-card {
+            background: var(--white);
+            border-radius: 14px;
+            padding: 14px 12px;
+            border: 1px solid rgba(255,140,66,0.08);
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .feature-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            color: white;
+        }
+
+        .feature-icon.purple { background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%); }
+        .feature-icon.green { background: linear-gradient(135deg, #10B981 0%, #059669 100%); }
+        .feature-icon.blue { background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%); }
+        .feature-icon.pink { background: linear-gradient(135deg, #EC4899 0%, #DB2777 100%); }
+        .feature-icon.amber { background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); }
+        .feature-icon.red { background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%); }
+
+        .feature-card h4 {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .feature-card p {
+            font-size: 10px;
+            color: var(--text-light);
+            line-height: 1.5;
+        }
+
+        /* ==================== PERKS LIST ==================== */
+        .perks-list {
+            padding: 0 20px;
+            margin-bottom: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .perk-item {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid rgba(255,140,66,0.06);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .perk-check {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .perk-text h4 {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .perk-text p {
+            font-size: 10px;
+            color: var(--text-light);
+        }
+
+        /* ==================== PROMO BANNER ==================== */
+        .promo-banner {
+            margin: 0 20px 16px;
+            background: linear-gradient(135deg, #1E1B4B 0%, #312E81 100%);
+            border-radius: 16px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .promo-banner::after {
+            content: '';
+            position: absolute;
+            right: -20px;
+            top: -20px;
+            width: 80px;
+            height: 80px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 50%;
+        }
+
+        .promo-emoji {
+            font-size: 32px;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .promo-text {
+            position: relative;
+            z-index: 1;
+        }
+
+        .promo-text h4 {
+            font-size: 13px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 2px;
+        }
+
+        .promo-text p {
+            font-size: 10px;
+            color: rgba(255,255,255,0.7);
+            line-height: 1.5;
+        }
+
+        /* ==================== TESTIMONIALS ==================== */
+        .testimonials {
+            padding: 0 20px;
+            margin-bottom: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .testimonial-card {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 14px;
+            border: 1px solid rgba(255,140,66,0.06);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .testimonial-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .testimonial-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            background: var(--gradient-orange);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .testimonial-name {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .testimonial-stars {
+            font-size: 10px;
+            color: #F59E0B;
+        }
+
+        .testimonial-card p {
+            font-size: 11px;
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+
+        /* ==================== PAYMENT SECTION ==================== */
+        .payment-section {
+            padding: 0 20px;
+            margin-bottom: 20px;
+        }
+
+        .payment-card {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 18px;
+            border: 1px solid rgba(255,140,66,0.1);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .payment-card label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-light);
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .payment-card input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1.5px solid rgba(255,140,66,0.15);
+            border-radius: 10px;
+            font-size: 13px;
+            font-family: 'Poppins', sans-serif;
+            color: var(--text-dark);
+            background: var(--silk-bg);
+            outline: none;
+            transition: all 0.3s ease;
+            margin-bottom: 14px;
+        }
+
+        .payment-card input:focus {
+            border-color: var(--orange-main);
+            background: white;
+        }
+
+        .payment-methods {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+
+        .pay-method {
+            flex: 1;
+            padding: 10px 8px;
+            border: 1.5px solid rgba(255,140,66,0.15);
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--text-light);
+            transition: all 0.3s ease;
+            background: var(--silk-bg);
+        }
+
+        .pay-method i { font-size: 18px; }
+
+        .pay-method.selected {
+            border-color: var(--orange-main);
+            background: var(--orange-light);
+            color: var(--orange-main);
+        }
+
+        .pay-method:hover {
+            border-color: var(--orange-main);
+            color: var(--orange-main);
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-top: 1px solid rgba(255,140,66,0.08);
+            margin-bottom: 14px;
+        }
+
+        .total-label {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        .total-amount {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--orange-main);
+        }
+
+        .btn-activate-main {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            background: var(--gradient-orange);
+            color: white;
+            font-size: 14px;
+            font-weight: 700;
+            font-family: 'Poppins', sans-serif;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-activate-main:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-activate-main:active {
+            transform: scale(0.98);
+        }
+
+        .btn-activate-main:disabled {
+            background: #E8E8E8;
+            color: #AAAAAA;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .secure-note {
+            text-align: center;
+            font-size: 10px;
+            color: var(--text-light);
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .secure-note i {
+            color: #10B981;
+            font-size: 10px;
+        }
+
+        /* ==================== SUCCESS MODAL ==================== */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2600;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            padding: 20px;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .success-modal {
+            background: var(--white);
+            border-radius: 24px;
+            padding: 32px 24px;
+            text-align: center;
+            max-width: 340px;
+            width: 100%;
+            transform: scale(0.9) translateY(20px);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .modal-overlay.show .success-modal {
+            transform: scale(1) translateY(0);
+        }
+
+        .success-icon {
+            width: 72px;
+            height: 72px;
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: white;
+            margin: 0 auto 16px;
+            animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0); }
+            to { transform: scale(1); }
+        }
+
+        .success-modal h3 {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .success-modal p {
+            font-size: 12px;
+            color: var(--text-light);
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .btn-go-home {
+            width: 100%;
+            padding: 13px;
+            border: none;
+            border-radius: 12px;
+            background: var(--gradient-orange);
+            color: white;
+            font-size: 13px;
+            font-weight: 700;
+            font-family: 'Poppins', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-go-home:hover { transform: translateY(-1px); }
+
+        /* ==================== TOAST ==================== */
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: var(--white);
+            color: var(--text-dark);
+            padding: 10px 18px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            z-index: 3000;
+            text-align: center;
+            max-width: 90%;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+            border: 1px solid rgba(255,140,66,0.08);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toast.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+            top: 22px;
+        }
+
+        .toast.success { border-left: 3px solid #10B981; }
+        .toast.error { border-left: 3px solid #EF4444; }
+        .toast.info { border-left: 3px solid var(--orange-main); }
+
+        /* ==================== LOADING ==================== */
+        .loading-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: var(--silk-bg);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+            gap: 12px;
+        }
+
+        .spinner {
+            width: 36px;
+            height: 36px;
+            border: 3px solid var(--orange-light);
+            border-top: 3px solid var(--orange-main);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .loader-text {
+            font-size: 11px;
+            color: var(--text-light);
+            font-weight: 600;
+            letter-spacing: 2px;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .fade-in { animation: fadeIn 0.5s ease-out forwards; opacity: 0; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .delay-1 { animation-delay: 0.08s; }
+        .delay-2 { animation-delay: 0.16s; }
+        .delay-3 { animation-delay: 0.24s; }
+        .delay-4 { animation-delay: 0.32s; }
+    </style>
+</head>
+<body>
+
+    <!-- Loading -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <div class="loader-text">Loading</div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="modal-overlay" id="successModal">
+        <div class="success-modal">
+            <div class="success-icon">
+                <i class="fa-solid fa-crown"></i>
+            </div>
+            <h3>You're Activated!</h3>
+            <p>Welcome to CashClique Silver! Your account is now fully unlocked. Enjoy all games, tasks, and exclusive rewards.</p>
+            <button class="btn-go-home" onclick="window.location.href='index.html'">
+                <i class="fa-solid fa-house"></i> Go to Dashboard
+            </button>
+        </div>
+    </div>
+
+    <div class="app-container">
+        <!-- HEADER -->
+        <header class="header fade-in">
+            <a href="index.html" class="back-btn">
+                <i class="fa-solid fa-arrow-left"></i>
+            </a>
+            <span class="header-title">Activate Account</span>
+            <div class="header-spacer"></div>
+        </header>
+
+        <!-- SCROLLABLE CONTENT -->
+        <div class="scroll-content">
+
+            <!-- HERO -->
+            <div class="hero-section fade-in delay-1">
+                <div class="crown-icon">
+                    <i class="fa-solid fa-crown"></i>
+                </div>
+                <h1>Unlock Silver Plan</h1>
+                <p>One-time activation unlocks your full CashClique experience — games, tasks, rewards & more forever.</p>
+                <div class="price-badge">
+                    <i class="fa-solid fa-bolt"></i>
+                    $1.00 <span class="once">one-time only</span>
+                </div>
+            </div>
+
+            <!-- WHAT YOU GET -->
+            <p class="section-title fade-in delay-2">
+                <i class="fa-solid fa-star"></i> What You Get
+            </p>
+
+            <div class="features-grid fade-in delay-2">
+                <div class="feature-card">
+                    <div class="feature-icon purple">
+                        <i class="fa-solid fa-gamepad"></i>
+                    </div>
+                    <h4>Play All Games</h4>
+                    <p>Full access to trivia, spin wheel, and all upcoming game modes.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon green">
+                        <i class="fa-solid fa-infinity"></i>
+                    </div>
+                    <h4>Permanent Access</h4>
+                    <p>Pay once, enjoy forever. No subscriptions, no monthly fees.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon blue">
+                        <i class="fa-solid fa-list-check"></i>
+                    </div>
+                    <h4>Unlimited Tasks</h4>
+                    <p>Complete earning tasks daily with no limits or restrictions.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon pink">
+                        <i class="fa-solid fa-gift"></i>
+                    </div>
+                    <h4>Bigger Rewards</h4>
+                    <p>Silver members earn 2x more on daily claims and bonuses.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon amber">
+                        <i class="fa-solid fa-arrow-up-from-bracket"></i>
+                    </div>
+                    <h4>Fast Withdrawals</h4>
+                    <p>Priority processing for all withdrawal requests.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon red">
+                        <i class="fa-solid fa-user-plus"></i>
+                    </div>
+                    <h4>Referral Bonus</h4>
+                    <p>Earn extra for every friend you refer to CashClique.</p>
+                </div>
+            </div>
+
+            <!-- PERKS -->
+            <p class="section-title fade-in delay-3">
+                <i class="fa-solid fa-check-circle"></i> Everything Included
+            </p>
+
+            <div class="perks-list fade-in delay-3">
+                <div class="perk-item">
+                    <div class="perk-check"><i class="fa-solid fa-check"></i></div>
+                    <div class="perk-text">
+                        <h4>Access to Trivia Game</h4>
+                        <p>Answer questions and win real cash rewards every round</p>
+                    </div>
+                </div>
+                <div class="perk-item">
+                    <div class="perk-check"><i class="fa-solid fa-check"></i></div>
+                    <div class="perk-text">
+                        <h4>Daily Claim Boost (2x)</h4>
+                        <p>Your daily reward doubles to $0.002 instantly</p>
+                    </div>
+                </div>
+                <div class="perk-item">
+                    <div class="perk-check"><i class="fa-solid fa-check"></i></div>
+                    <div class="perk-text">
+                        <h4>Spin & Win Wheel</h4>
+                        <p>Spin the lucky wheel once daily for bonus cash prizes</p>
+                    </div>
+                </div>
+                <div class="perk-item">
+                    <div class="perk-check"><i class="fa-solid fa-check"></i></div>
+                    <div class="perk-text">
+                        <h4>Silver Badge on Profile</h4>
+                        <p>Stand out with an exclusive Silver member badge</p>
+                    </div>
+                </div>
+                <div class="perk-item">
+                    <div class="perk-check"><i class="fa-solid fa-check"></i></div>
+                    <div class="perk-text">
+                        <h4>Priority Customer Support</h4>
+                        <p>Get faster help from our support team anytime</p>
+                    </div>
+                </div>
+                <div class="perk-item">
+                    <div class="perk-check"><i class="fa-solid fa-check"></i></div>
+                    <div class="perk-text">
+                        <h4>Early Access to New Features</h4>
+                        <p>Be the first to try new games and earning methods</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PROMO BANNER -->
+            <div class="promo-banner fade-in delay-3">
+                <div class="promo-emoji">🎯</div>
+                <div class="promo-text">
+                    <h4>Limited Time — Only $1!</h4>
+                    <p>This offer won't last forever. Join thousands of members already earning on CashClique.</p>
+                </div>
+            </div>
+
+            <!-- TESTIMONIALS -->
+            <p class="section-title fade-in delay-3">
+                <i class="fa-solid fa-comments"></i> What Members Say
+            </p>
+
+            <div class="testimonials fade-in delay-4">
+                <div class="testimonial-card">
+                    <div class="testimonial-header">
+                        <div class="testimonial-avatar">A</div>
+                        <div>
+                            <div class="testimonial-name">Amaka O.</div>
+                            <div class="testimonial-stars">★★★★★</div>
+                        </div>
+                    </div>
+                    <p>Best $1 I ever spent! I've been earning daily and the games are so fun. Already withdrew twice!</p>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-header">
+                        <div class="testimonial-avatar">C</div>
+                        <div>
+                            <div class="testimonial-name">Chidi E.</div>
+                            <div class="testimonial-stars">★★★★★</div>
+                        </div>
+                    </div>
+                    <p>Activation was instant and the trivia game is addictive. Worth it 100%. No monthly fees is the best part.</p>
+                </div>
+            </div>
+
+            <!-- PAYMENT -->
+            <p class="section-title fade-in delay-4">
+                <i class="fa-solid fa-credit-card"></i> Complete Payment
+            </p>
+
+            <div class="payment-section fade-in delay-4">
+                <div class="payment-card">
+                    <label>Full Name</label>
+                    <input type="text" id="payName" placeholder="Enter your full name">
+
+                    <label>Email Address</label>
+                    <input type="email" id="payEmail" placeholder="Enter your email">
+
+                    <label>Select Payment Method</label>
+                    <div class="payment-methods">
+                        <div class="pay-method selected" onclick="selectMethod(this, 'paystack')" id="method-paystack">
+                            <i class="fa-solid fa-bolt"></i>
+                            Paystack
+                        </div>
+                        <div class="pay-method" onclick="selectMethod(this, 'card')" id="method-card">
+                            <i class="fa-solid fa-credit-card"></i>
+                            Card
+                        </div>
+                        <div class="pay-method" onclick="selectMethod(this, 'transfer')" id="method-transfer">
+                            <i class="fa-solid fa-building-columns"></i>
+                            Transfer
+                        </div>
+                    </div>
+
+                    <div class="total-row">
+                        <span class="total-label">Activation Fee</span>
+                        <span class="total-amount">$1.00</span>
+                    </div>
+
+                    <button class="btn-activate-main" id="activateBtn" onclick="processPayment()">
+                        <i class="fa-solid fa-crown"></i> Activate Now — $1.00
+                    </button>
+
+                    <p class="secure-note">
+                        <i class="fa-solid fa-lock"></i>
+                        Secured payment. One-time only. No hidden charges.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="toast" class="toast">Message</div>
+
+    <!-- FIREBASE SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAv6QCpopa0Q77AVTyjU5cqJEIKIE9OVTs",
+            authDomain: "taskvault-412a0.firebaseapp.com",
+            databaseURL: "https://taskvault-412a0-default-rtdb.firebaseio.com",
+            projectId: "taskvault-412a0",
+            storageBucket: "taskvault-412a0.firebasestorage.app",
+            messagingSenderId: "420716701831",
+            appId: "1:420716701831:web:c987d91f7f4c8684eb7022",
+            measurementId: "G-93JG3LB08B"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        let currentUser = null;
+        let selectedMethod = 'paystack';
+
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('payEmail').value = user.email || '';
+                const displayName = user.email ? user.email.split('@')[0] : '';
+                document.getElementById('payName').value = displayName;
+                checkIfAlreadyActivated(user.uid);
+            } else {
+                hideLoading();
+            }
+        });
+
+        async function checkIfAlreadyActivated(uid) {
+            try {
+                const doc = await db.collection('users').doc(uid).get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    const plan = data.plan;
+                    const isSilver = plan === 'silver' || plan === 'Silver' || plan === 'SILVER';
+                    if (isSilver) {
+                        showToast('Your account is already activated!', 'success');
+                        setTimeout(() => window.location.href = 'index.html', 2000);
+                        return;
+                    }
+                }
+            } catch (e) {
+                console.error(e);
+            }
+            hideLoading();
+        }
+
+        function selectMethod(el, method) {
+            document.querySelectorAll('.pay-method').forEach(m => m.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedMethod = method;
+        }
+
+        async function processPayment() {
+            const name = document.getElementById('payName').value.trim();
+            const email = document.getElementById('payEmail').value.trim();
+
+            if (!name) { showToast('Please enter your full name', 'error'); return; }
+            if (!email) { showToast('Please enter your email address', 'error'); return; }
+            if (!currentUser) { showToast('Please log in first', 'error'); return; }
+
+            const btn = document.getElementById('activateBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Processing...';
+
+            if (selectedMethod === 'paystack') {
+                initializePaystack(name, email);
+            } else if (selectedMethod === 'card') {
+                showToast('Card payment coming soon. Please use Paystack.', 'info');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-crown"></i> Activate Now — $1.00';
+            } else if (selectedMethod === 'transfer') {
+                showToast('Bank transfer: Send $1 to account shown in support. Coming soon.', 'info');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-crown"></i> Activate Now — $1.00';
+            }
+        }
+
+        function initializePaystack(name, email) {
+            // Paystack integration — replace PUBLIC_KEY with your real Paystack public key
+            const handler = PaystackPop.setup({
+                key: 'pk_test_YOUR_PAYSTACK_PUBLIC_KEY_HERE',
+                email: email,
+                amount: 100, // Amount in kobo/cents (100 = $1.00)
+                currency: 'USD',
+                ref: 'CC_ACT_' + currentUser.uid + '_' + Date.now(),
+                metadata: {
+                    custom_fields: [
+                        { display_name: 'Name', variable_name: 'name', value: name },
+                        { display_name: 'User ID', variable_name: 'uid', value: currentUser.uid }
+                    ]
+                },
+                callback: function(response) {
+                    activateAccount(response.reference);
+                },
+                onClose: function() {
+                    const btn = document.getElementById('activateBtn');
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fa-solid fa-crown"></i> Activate Now — $1.00';
+                    showToast('Payment cancelled', 'info');
+                }
+            });
+            handler.openIframe();
+        }
+
+        async function activateAccount(reference) {
+            try {
+                await db.collection('users').doc(currentUser.uid).update({
+                    plan: 'silver',
+                    activatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    paymentReference: reference,
+                    activationFee: 1.00
+                });
+
+                // Log activation activity
+                await db.collection('users').doc(currentUser.uid)
+                    .collection('activities')
+                    .add({
+                        type: 'deposit',
+                        title: 'Account Activated — Silver Plan',
+                        amount: 0,
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+
+                document.getElementById('successModal').classList.add('show');
+            } catch (error) {
+                console.error('Activation error:', error);
+                showToast('Payment received but activation failed. Contact support.', 'error');
+                const btn = document.getElementById('activateBtn');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-crown"></i> Activate Now — $1.00';
+            }
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.className = 'toast ' + type;
+            let icon = 'fa-circle-info';
+            if (type === 'success') icon = 'fa-circle-check';
+            if (type === 'error') icon = 'fa-circle-xmark';
+            toast.innerHTML = `<i class="fa-solid ${icon}"></i> ${message}`;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3500);
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
+    </script>
+
+    <!-- Paystack SDK — load after your script so it's available -->
+    <script src="https://js.paystack.co/v1/inline.js"></script>
+
+</body>
+</html>
