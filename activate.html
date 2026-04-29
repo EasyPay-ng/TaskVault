@@ -990,20 +990,7 @@
 
             const btn = document.getElementById('activateBtn');
             btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Processing...';
-
-            if (selectedMethod === 'paystack') {
-                initializePaystack(name, email);
-            } else if (selectedMethod === 'card') {
-                showToast('Card payment coming soon. Please use Paystack.', 'info');
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fa-solid fa-crown"></i> Activate Now — $1.00';
-            } else if (selectedMethod === 'transfer') {
-                showToast('Bank transfer: Send $1 to account shown in support. Coming soon.', 'info');
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fa-solid fa-crown"></i> Activate Now — $1.00';
-            }
-        }
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Processing...'
 
         function initializePaystack(name, email) {
             // Paystack integration — replace PUBLIC_KEY with your real Paystack public key
