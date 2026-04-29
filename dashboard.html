@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CashClique Dashboard</title>
+    <title>TaskVault Dashboard</title>
     
     <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" type="image/jpeg">
     <link rel="manifest" href="manifest.json">
@@ -23,6 +23,8 @@
             --shadow-md: 0 4px 12px rgba(255, 140, 66, 0.1);
             --shadow-lg: 0 8px 24px rgba(255, 140, 66, 0.15);
             --gradient-orange: linear-gradient(135deg, #FF8C42 0%, #FF6B35 100%);
+            --success: #10B981;
+            --danger: #EF4444;
         }
 
         * {
@@ -491,6 +493,9 @@
             font-size: 8px;
         }
 
+        .stat-pill.up { color: #86efac; }
+        .stat-pill.down { color: #fca5a5; }
+
         /* ==================== QUICK ACTIONS ==================== */
         .quick-actions {
             padding: 0 20px 12px;
@@ -567,7 +572,8 @@
             color: var(--orange-main);
             font-size: 12px;
         }
-                /* ==================== DAILY CLAIM CARD ==================== */
+
+        /* ==================== DAILY CLAIM CARD ==================== */
         .claim-card {
             background: var(--white);
             margin: 0 20px 14px;
@@ -613,6 +619,19 @@
         .claim-info p {
             font-size: 10px;
             color: var(--text-light);
+        }
+
+        .silver-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+            color: white;
+            font-size: 9px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 20px;
+            margin-left: 6px;
         }
 
         .claim-reward {
@@ -739,6 +758,10 @@
         .activity-icon.referral {
             background: #D1FAE5;
             color: #10B981;
+        }
+        .activity-icon.activation {
+            background: #F3E8FF;
+            color: #8B5CF6;
         }
 
         .activity-details {
@@ -1007,9 +1030,9 @@
                         <span id="balanceDisplay">0.00</span>
                     </div>
                     <div class="balance-footer">
-                        <div class="stat-pill">
+                        <div class="stat-pill" id="dailyChange">
                             <i class="fa-solid fa-arrow-trend-up"></i>
-                            <span>+2.4% today</span>
+                            <span>0.0% today</span>
                         </div>
                         <div class="stat-pill">
                             <i class="fa-solid fa-shield-halved"></i>
@@ -1019,7 +1042,7 @@
                 </div>
             </section>
 
-            <!-- QUICK ACTIONS (ALL REDIRECTABLE) -->
+            <!-- QUICK ACTIONS -->
             <section class="quick-actions fade-in delay-2">
                 <a href="deposit.html" class="action-btn">
                     <div class="action-icon deposit">
@@ -1061,12 +1084,12 @@
                             <i class="fa-solid fa-gift"></i>
                         </div>
                         <div class="claim-info">
-                            <h3>Daily Claim</h3>
+                            <h3 id="claimTitle">Daily Claim</h3>
                             <p>Claim your free reward every 24 hours</p>
                         </div>
                     </div>
                     <div class="claim-reward">
-                        <span class="amount">$0.001</span>
+                        <span class="amount" id="claimAmount">$0.001</span>
                         <span class="label">reward</span>
                     </div>
                     <button id="claimBtn" class="btn btn-primary" onclick="claimDaily()">
@@ -1099,7 +1122,7 @@
             </a>
             <a href="deposit.html" class="nav-item">
                 <i class="fa-solid fa-wallet"></i>
-                <span>deposit</span>
+                <span>Deposit</span>
             </a>
             <a href="withdraw.html" class="nav-item">
                 <i class="fa-solid fa-arrow-up-from-bracket"></i>
@@ -1138,19 +1161,17 @@
 
         let currentUser = null;
         let userData = null;
+        let isSilver = false;
+        let dailyClaimAmount = 0.001;
 
-        // ==================== PUSH NOTIFICATIONS SETUP ====================
-
+        // ==================== PUSH NOTIFICATIONS ====================
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('firebase-messaging-sw.js')
                 .then((registration) => {
-                    console.log('Service Worker registered:', registration.scope);
                     messaging.useServiceWorker(registration);
                     initNotifications();
                 })
-                .catch((err) => {
-                    console.error('Service Worker registration failed:', err);
-                });
+                .catch((err) => console.error('SW registration failed:', err));
         }
 
         function initNotifications() {
@@ -1168,10 +1189,9 @@
             }
 
             messaging.onMessage((payload) => {
-                console.log('Foreground message:', payload);
                 showToast(payload.notification?.title || 'New notification!', 'info');
                 if (Notification.permission === 'granted') {
-                    new Notification(payload.notification?.title || 'CashClique', {
+                    new Notification(payload.notification?.title || 'TaskVault', {
                         body: payload.notification?.body || '',
                         icon: 'https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg',
                         badge: 'https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg'
@@ -1193,7 +1213,6 @@
                     showToast('Notifications blocked', 'error');
                 }
             } catch (error) {
-                console.error('Permission error:', error);
                 showToast('Error enabling notifications', 'error');
             }
         }
@@ -1203,14 +1222,12 @@
                 const token = await messaging.getToken({
                     vapidKey: 'BDMl6lwl1CPgT8cFGEDSo0sv8o1e5tZQ5ljOHNKGv5_vMzz287qEXzrea8htR4_iJOHqG7bo-G8TZkCu-fYlgZs'
                 });
-                
                 if (token && currentUser) {
                     await db.collection('users').doc(currentUser.uid).update({
                         fcmToken: token,
                         notificationsEnabled: true,
                         tokenUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
-                    console.log('FCM Token saved:', token);
                 }
             } catch (error) {
                 console.error('Error getting FCM token:', error);
@@ -1240,7 +1257,6 @@
             const btn = document.getElementById('notifBtn');
             const icon = document.getElementById('notifIcon');
             const badge = document.getElementById('notifBadge');
-            
             if (enabled) {
                 btn.classList.add('enabled');
                 icon.classList.remove('fa-regular');
@@ -1259,39 +1275,40 @@
             localStorage.setItem('notifBannerDismissed', 'true');
         }
 
-        // ==================== ACTIVATION MODAL LOGIC ====================
-
+        // ==================== ACTIVATION MODAL ====================
         function checkActivationStatus() {
             if (!userData) return;
-            
             const plan = userData.plan;
-            const isSilver = plan === 'silver' || plan === 'Silver' || plan === 'SILVER';
+            isSilver = plan === 'silver' || plan === 'Silver' || plan === 'SILVER';
             
-            // Show modal only if user has NO plan OR is NOT on Silver plan
+            // Update claim amount based on plan
+            dailyClaimAmount = isSilver ? 0.002 : 0.001;
+            document.getElementById('claimAmount').textContent = `$${dailyClaimAmount.toFixed(3)}`;
+            
+            // Show silver badge if applicable
+            if (isSilver) {
+                const claimTitle = document.getElementById('claimTitle');
+                claimTitle.innerHTML = `Daily Claim <span class="silver-badge"><i class="fa-solid fa-crown"></i> 2x</span>`;
+            }
+            
             if (!plan || !isSilver) {
                 showActivateModal();
             }
         }
 
         function showActivateModal() {
-            const modal = document.getElementById('activateModal');
-            modal.classList.add('show');
+            document.getElementById('activateModal').classList.add('show');
         }
 
         function closeActivateModal() {
-            const modal = document.getElementById('activateModal');
-            modal.classList.remove('show');
+            document.getElementById('activateModal').classList.remove('show');
         }
 
-        // Close modal when clicking outside
         document.getElementById('activateModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeActivateModal();
-            }
+            if (e.target === this) closeActivateModal();
         });
 
         // ==================== AUTH & DATA ====================
-
         auth.onAuthStateChanged((user) => {
             if (user) {
                 currentUser = user;
@@ -1300,13 +1317,9 @@
                 document.getElementById('userAvatar').textContent = displayName.charAt(0).toUpperCase();
                 fetchUserData(user.uid);
                 fetchActivityFeed(user.uid);
-                
-                if (Notification.permission === 'granted') {
-                    getFCMToken();
-                }
+                if (Notification.permission === 'granted') getFCMToken();
             } else {
                 auth.signInAnonymously().catch((error) => {
-                    console.error("Auth Error:", error);
                     showToast("Authentication Failed", "error");
                     hideLoading();
                 });
@@ -1314,13 +1327,13 @@
         });
 
         async function fetchUserData(uid) {
-            const userRef = db.collection('users').doc(uid);
             try {
-                const doc = await userRef.get();
+                const doc = await db.collection('users').doc(uid).get();
                 if (doc.exists) {
                     userData = doc.data();
                     updateUI();
                     checkActivationStatus();
+                    calculateDailyChange(uid);
                 } else {
                     const newProfile = {
                         balance: 0.00,
@@ -1328,19 +1341,109 @@
                         lastClaimDate: null,
                         createdAt: firebase.firestore.FieldValue.serverTimestamp()
                     };
-                    await userRef.set(newProfile);
+                    await db.collection('users').doc(uid).set(newProfile);
                     userData = newProfile;
                     updateUI();
                     checkActivationStatus();
                 }
             } catch (error) {
-                console.error("Error fetching data:", error);
                 document.getElementById('balanceDisplay').innerText = "0.00";
                 hideLoading();
             }
             hideLoading();
         }
 
+        // ==================== REAL DAILY CHANGE ====================
+        async function calculateDailyChange(uid) {
+            try {
+                const now = new Date();
+                const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                const startOfYesterday = new Date(startOfDay);
+                startOfYesterday.setDate(startOfYesterday.getDate() - 1);
+
+                // Get yesterday's balance snapshot (from activity or calculate)
+                const yesterdaySnapshot = await db.collection('users').doc(uid)
+                    .collection('activities')
+                    .where('timestamp', '<', firebase.firestore.Timestamp.fromDate(startOfDay))
+                    .where('timestamp', '>=', firebase.firestore.Timestamp.fromDate(startOfYesterday))
+                    .orderBy('timestamp', 'desc')
+                    .limit(1)
+                    .get();
+
+                let yesterdayBalance = 0;
+                if (!yesterdaySnapshot.empty) {
+                    // Approximate: get balance before today's activities
+                    const allActivities = await db.collection('users').doc(uid)
+                        .collection('activities')
+                        .orderBy('timestamp', 'desc')
+                        .get();
+                    
+                    let runningBalance = userData.balance || 0;
+                    allActivities.forEach(doc => {
+                        const activity = doc.data();
+                        const activityDate = activity.timestamp?.toDate ? activity.timestamp.toDate() : new Date();
+                        if (activityDate < startOfDay) {
+                            yesterdayBalance = runningBalance;
+                            return;
+                        }
+                        runningBalance -= (activity.amount || 0);
+                    });
+                    if (yesterdayBalance === 0) yesterdayBalance = runningBalance;
+                } else {
+                    // No yesterday data, use balance from 24h ago approximation
+                    yesterdayBalance = (userData.balance || 0) - getTodayEarnings(uid);
+                }
+
+                const currentBalance = userData.balance || 0;
+                let changePercent = 0;
+                
+                if (yesterdayBalance > 0) {
+                    changePercent = ((currentBalance - yesterdayBalance) / yesterdayBalance) * 100;
+                } else if (currentBalance > 0) {
+                    changePercent = 100; // New earnings from zero
+                }
+
+                updateDailyChangeUI(changePercent);
+            } catch (error) {
+                console.error("Error calculating daily change:", error);
+                updateDailyChangeUI(0);
+            }
+        }
+
+        async function getTodayEarnings(uid) {
+            const now = new Date();
+            const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            
+            try {
+                const snapshot = await db.collection('users').doc(uid)
+                    .collection('activities')
+                    .where('timestamp', '>=', firebase.firestore.Timestamp.fromDate(startOfDay))
+                    .get();
+                
+                let earnings = 0;
+                snapshot.forEach(doc => {
+                    const amount = doc.data().amount || 0;
+                    if (amount > 0) earnings += amount;
+                });
+                return earnings;
+            } catch (error) {
+                return 0;
+            }
+        }
+
+        function updateDailyChangeUI(percent) {
+            const pill = document.getElementById('dailyChange');
+            const isPositive = percent >= 0;
+            const absPercent = Math.abs(percent).toFixed(1);
+            
+            pill.className = `stat-pill ${isPositive ? 'up' : 'down'}`;
+            pill.innerHTML = `
+                <i class="fa-solid fa-arrow-trend-${isPositive ? 'up' : 'down'}"></i>
+                <span>${isPositive ? '+' : ''}${absPercent}% today</span>
+            `;
+        }
+
+        // ==================== ACTIVITY FEED (LIMIT 10) ====================
         async function fetchActivityFeed(uid) {
             const activityList = document.getElementById('activityList');
             try {
@@ -1392,6 +1495,7 @@
                 withdraw: { icon: 'fa-arrow-up', class: 'withdraw' },
                 referral: { icon: 'fa-user-plus', class: 'referral' },
                 bonus: { icon: 'fa-star', class: 'claim' },
+                activation: { icon: 'fa-crown', class: 'activation' },
                 default: { icon: 'fa-circle-check', class: 'claim' }
             };
             return icons[type] || icons.default;
@@ -1438,8 +1542,7 @@
                 console.error("Error logging activity:", error);
             }
         }
-
-        function updateUI() {
+                    function updateUI() {
             animateValue('balanceDisplay', 0, userData.balance, 800);
             checkClaimStatus();
         }
@@ -1505,16 +1608,23 @@
 
             try {
                 const userRef = db.collection('users').doc(currentUser.uid);
-                const newBalance = (parseFloat(userData.balance) || 0) + 0.001;
+                const claimReward = isSilver ? 0.002 : 0.001;
+                const newBalance = (parseFloat(userData.balance) || 0) + claimReward;
+                
                 await userRef.update({
                     balance: newBalance,
                     lastClaimDate: firebase.firestore.FieldValue.serverTimestamp()
                 });
+                
                 userData.balance = newBalance;
                 userData.lastClaimDate = new Date();
-                await logActivity('claim', 'Daily Claim Reward', 0.001);
+                
+                const claimTitle = isSilver ? 'Daily Claim — Silver (2x)' : 'Daily Claim Reward';
+                await logActivity('claim', claimTitle, claimReward);
+                
                 updateUI();
-                showToast("Successfully claimed $0.001!", "success");
+                calculateDailyChange(currentUser.uid);
+                showToast(`Successfully claimed $${claimReward.toFixed(3)}!`, "success");
             } catch (error) {
                 console.error("Claim error:", error);
                 showToast("Error claiming. Try again.", "error");
