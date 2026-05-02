@@ -617,7 +617,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-storage-compat.js"></script>
         <script>
         // ==================== TASKVAULT FIREBASE CONFIG ====================
         const firebaseConfig = {
@@ -634,10 +633,10 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
-        const storage = firebase.storage();
 
         let currentUser = null;
         let selectedFile = null;
+        let base64Image = null;
         let userData = null;
 
         // ==================== AUTH ====================
@@ -706,7 +705,7 @@
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
-        // ==================== FILE UPLOAD ====================
+        // ==================== FILE UPLOAD (BASE64) ====================
         function handleFileSelect(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -725,13 +724,15 @@
 
             const reader = new FileReader();
             reader.onload = function(e) {
+                base64Image = e.target.result;
+
                 const preview = document.getElementById('uploadPreview');
                 const area = document.getElementById('uploadArea');
                 const icon = document.getElementById('uploadIcon');
                 const text = document.getElementById('uploadText');
                 const hint = document.getElementById('uploadHint');
 
-                preview.src = e.target.result;
+                preview.src = base64Image;
                 preview.classList.add('show');
                 area.classList.add('has-file');
                 icon.style.display = 'none';
@@ -752,7 +753,7 @@
             document.getElementById('submitBtn').disabled = !isValid;
         }
 
-        // ==================== SUBMIT KYC ====================
+        // ==================== SUBMIT KYC (BASE64 TO FIRESTORE) ====================
         async function submitKYC() {
             const fullName = document.getElementById('fullName').value.trim();
 
@@ -761,7 +762,7 @@
                 return;
             }
 
-            if (!selectedFile) {
+            if (!base64Image) {
                 showToast("Please upload your selfie");
                 return;
             }
@@ -769,32 +770,28 @@
             showLoader("Uploading...");
 
             try {
-                // Upload image to Storage
-                const storageRef = storage.ref(`kyc/${currentUser.uid}/${Date.now()}_${selectedFile.name}`);
-                const uploadTask = await storageRef.put(selectedFile);
-                const photoURL = await uploadTask.ref.getDownloadURL();
-
-                // Save KYC data to Firestore
+                // Save KYC data to Firestore (users collection)
                 await db.collection('users').doc(currentUser.uid).update({
                     kycName: fullName,
-                    kycPhotoURL: photoURL,
+                    kycPhotoBase64: base64Image,
                     kycStatus: 'pending',
                     kycSubmittedAt: firebase.firestore.FieldValue.serverTimestamp(),
                     kycReviewedAt: null,
                     kycRejectionReason: null
                 });
 
-                // Create KYC record
-                await db.collection('kyc_submissions').add({
+                // Create verification record in new "verification" collection
+                await db.collection('verification').add({
                     userId: currentUser.uid,
-                    email: currentUser.email,
+                    email: currentUser.email || null,
                     fullName: fullName,
-                    photoURL: photoURL,
+                    photoBase64: base64Image,
                     status: 'pending',
                     submittedAt: firebase.firestore.FieldValue.serverTimestamp(),
                     reviewedAt: null,
                     reviewedBy: null,
-                    rejectionReason: null
+                    rejectionReason: null,
+                    notes: null
                 });
 
                 hideLoader();
