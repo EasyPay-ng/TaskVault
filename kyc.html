@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>KYC Verification | TaskVault</title>
+
+    <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" type="image/jpeg">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        :root {
+            --orange-main: #FF8C42;
+            --orange-dark: #E67A35;
+            --orange-light: #FFF0E6;
+            --silk-bg: #FDFBF7;
+            --white: #FFFFFF;
+            --text-dark: #333333;
+            --text-light: #888888;
+            --shadow-sm: 0 2px 6px rgba(255, 140, 66, 0.06);
+            --shadow-md: 0 4px 12px rgba(255, 140, 66, 0.1);
+            --shadow-lg: 0 8px 24px rgba(255, 140, 66, 0.15);
+            --gradient-orange: linear-gradient(135deg, #FF8C42 0%, #FF6B35 100%);
+            --danger: #EF4444;
+            --danger-light: #FEF2F2;
+            --success: #10B981;
+            --success-light: #ECFDF5;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            background-color: #e9ecef;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .app-container {
+            width: 100%;
+            height: 100dvh;
+            max-width: 430px;
+            background-color: var(--silk-bg);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (min-width: 768px) {
+            .app-container {
+                height: 92dvh;
+                max-height: 850px;
+                border-radius: 24px;
+                box-shadow: 0 0 40px rgba(0,0,0,0.12);
+            }
+        }
+
+        .scroll-content {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 0 20px;
+            padding-bottom: calc(20px + env(safe-area-inset-bottom));
+        }
+
+        .scroll-content::-webkit-scrollbar {
+            width: 2px;
+        }
+        .scroll-content::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .scroll-content::-webkit-scrollbar-thumb {
+            background: var(--orange-light);
+            border-radius: 2px;
+        }
+
+        /* ==================== TOP NAV ==================== */
+        .top-nav {
+            display: flex;
+            align-items: center;
+            padding: 14px 20px 10px;
+            background: var(--white);
+            flex-shrink: 0;
+        }
+
+        .nav-back-btn {
+            background: var(--orange-light);
+            border: none;
+            border-radius: 12px;
+            padding: 10px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--orange-main);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-back-btn:hover {
+            background: var(--orange-main);
+            color: white;
+            transform: translateX(-2px);
+        }
+
+        /* ==================== HEADER ==================== */
+        .header-content {
+            text-align: center;
+            padding: 10px 20px 20px;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            border-radius: 16px;
+            object-fit: cover;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .header-content h2 {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 6px;
+        }
+
+        .header-content p.sub {
+            font-size: 12px;
+            color: var(--text-light);
+            font-weight: 400;
+        }
+
+        /* ==================== STATUS BADGE ==================== */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 99px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .status-verified {
+            background: var(--success-light);
+            color: var(--success);
+        }
+
+        .status-rejected {
+            background: var(--danger-light);
+            color: var(--danger);
+        }
+
+        /* ==================== INFO CARD ==================== */
+        .info-card {
+            background: var(--white);
+            border: 1px solid rgba(255, 140, 66, 0.08);
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .info-card h3 {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-card h3 i {
+            color: var(--orange-main);
+        }
+
+        .info-card p {
+            font-size: 12px;
+            color: var(--text-light);
+            line-height: 1.7;
+        }
+
+        .info-card ul {
+            list-style: none;
+            padding: 0;
+            margin-top: 10px;
+        }
+
+        .info-card ul li {
+            font-size: 12px;
+            color: var(--text-light);
+            padding: 6px 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            line-height: 1.5;
+        }
+
+        .info-card ul li i {
+            color: var(--orange-main);
+            font-size: 10px;
+            margin-top: 4px;
+        }
+
+        /* ==================== INPUT STYLES ==================== */
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-dark);
+        }
+
+        .text-input {
+            width: 100%;
+            padding: 14px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            border: 2px solid #e2e8f0;
+            border-radius: 14px;
+            outline: none;
+            transition: all 0.3s ease;
+            color: var(--text-dark);
+            background: var(--white);
+        }
+
+        .text-input:focus {
+            border-color: var(--orange-main);
+            box-shadow: 0 0 0 4px rgba(255, 140, 66, 0.1);
+        }
+
+        .text-input::placeholder {
+            color: #cbd5e1;
+            font-weight: 400;
+        }
+
+        /* ==================== UPLOAD AREA ==================== */
+        .upload-area {
+            width: 100%;
+            border: 2px dashed #e2e8f0;
+            border-radius: 16px;
+            padding: 30px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: var(--white);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-area:hover {
+            border-color: var(--orange-main);
+            background: var(--orange-light);
+        }
+
+        .upload-area.has-file {
+            border-color: var(--success);
+            background: var(--success-light);
+        }
+
+        .upload-area i {
+            font-size: 36px;
+            color: #cbd5e1;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .upload-area:hover i {
+            color: var(--orange-main);
+        }
+
+        .upload-area.has-file i {
+            color: var(--success);
+        }
+
+        .upload-text {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 4px;
+        }
+
+        .upload-hint {
+            font-size: 11px;
+            color: var(--text-light);
+        }
+
+        .upload-preview {
+            width: 100%;
+            max-height: 200px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin-top: 12px;
+            display: none;
+        }
+
+        .upload-preview.show {
+            display: block;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        /* ==================== REQUIREMENTS BOX ==================== */
+        .requirements-box {
+            background: var(--orange-light);
+            border-left: 3px solid var(--orange-main);
+            padding: 14px;
+            border-radius: 0 12px 12px 0;
+            margin-bottom: 16px;
+            font-size: 11px;
+            color: var(--orange-dark);
+            line-height: 1.7;
+        }
+
+        .requirements-box strong {
+            font-weight: 700;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        /* ==================== BUTTONS ==================== */
+        .btn-primary {
+            width: 100%;
+            background: var(--gradient-orange);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 14px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s ease;
+            margin-top: 16px;
+            margin-bottom: 20px;
+        }
+
+        .btn-primary:hover {
+            background: var(--orange-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary:disabled {
+            background: #e2e8f0;
+            color: #94a3b8;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* ==================== LOADER OVERLAY ==================== */
+        .loader-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(253, 251, 247, 0.95);
+            z-index: 9999;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .loader-overlay.active {
+            display: flex;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--orange-light);
+            border-top: 3px solid var(--orange-main);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 12px;
+        }
+
+        .loader-text {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-dark);
+            letter-spacing: 1px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ==================== SUCCESS MODAL ==================== */
+        .success-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 10000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+            padding: 20px;
+        }
+
+        .success-modal.active {
+            display: flex;
+        }
+
+        .success-box {
+            background: var(--white);
+            padding: 32px 24px;
+            border-radius: 20px;
+            text-align: center;
+            width: 100%;
+            max-width: 320px;
+            transform: scale(0.9);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .success-modal.active .success-box {
+            transform: scale(1);
+        }
+
+        .success-icon {
+            width: 64px;
+            height: 64px;
+            background: var(--success-light);
+            color: var(--success);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin: 0 auto 16px;
+        }
+
+        .success-box h3 {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .success-box p {
+            font-size: 13px;
+            color: var(--text-light);
+            margin-bottom: 20px;
+        }
+
+        /* ==================== TOAST ==================== */
+        .toast {
+            position: fixed;
+            bottom: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--text-dark);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 99px;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        }
+
+        .toast.show {
+            bottom: 30px;
+        }
+
+        /* ==================== ANIMATIONS ==================== */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        .delay-1 { animation-delay: 0.1s; opacity: 0; }
+        .delay-2 { animation-delay: 0.2s; opacity: 0; }
+    </style>
+</head>
+<body>
+
+    <!-- LOADER -->
+    <div class="loader-overlay" id="mainLoader">
+        <div class="spinner"></div>
+        <p class="loader-text" id="loaderText">Processing...</p>
+    </div>
+
+    <!-- SUCCESS MODAL -->
+    <div class="success-modal" id="successModal">
+        <div class="success-box">
+            <div class="success-icon"><i class="fa-solid fa-check"></i></div>
+            <h3>Submitted!</h3>
+            <p>Your KYC verification is under review. You'll be notified once approved.</p>
+            <button class="btn-primary" onclick="window.location.href='dashboard.html'">Dashboard</button>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast" id="toastBox">
+        <i class="fa-solid fa-circle-info"></i>
+        <span id="toastMsg">Message</span>
+    </div>
+
+    <div class="app-container">
+        <!-- TOP NAV -->
+        <div class="top-nav">
+            <button class="nav-back-btn" onclick="window.location.href='profile.html'">
+                <i class="fa-solid fa-arrow-left"></i> Back
+            </button>
+        </div>
+
+        <!-- SCROLLABLE CONTENT -->
+        <div class="scroll-content">
+            <!-- HEADER -->
+            <div class="header-content fade-in">
+                <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1774094269/logo2_ago4ay.jpg" alt="TaskVault" class="logo">
+                <h2>KYC Verification</h2>
+                <p class="sub">Verify your identity to unlock full features.</p>
+                <div class="status-badge status-pending" id="kycStatus">
+                    <i class="fa-solid fa-clock"></i> Pending Verification
+                </div>
+            </div>
+
+            <!-- REQUIREMENTS -->
+            <div class="info-card fade-in delay-1">
+                <h3><i class="fa-solid fa-circle-info"></i> Photo Requirements</h3>
+                <p>Take a selfie holding a paper with the following information clearly written:</p>
+                <ul>
+                    <li><i class="fa-solid fa-check"></i> <strong>"TaskVault"</strong> — written at the top</li>
+                    <li><i class="fa-solid fa-check"></i> <strong>Today's date</strong> — the date you take the photo</li>
+                    <li><i class="fa-solid fa-check"></i> <strong>Your username</strong> — your TaskVault username</li>
+                    <li><i class="fa-solid fa-check"></i> Your face must be clearly visible</li>
+                    <li><i class="fa-solid fa-check"></i> The paper must be fully readable</li>
+                    <li><i class="fa-solid fa-check"></i> Good lighting, no blur or filters</li>
+                </ul>
+            </div>
+
+            <!-- EXAMPLE -->
+            <div class="requirements-box fade-in delay-1">
+                <strong>Example:</strong>
+                A selfie of you holding a paper that says:<br>
+                "TaskVault"<br>
+                "May 2, 2026"<br>
+                "@your_username"
+            </div>
+
+            <!-- FORM -->
+            <div class="fade-in delay-2">
+                <div class="input-group">
+                    <label class="input-label">Full Name (as on ID)</label>
+                    <input type="text" class="text-input" id="fullName" placeholder="Enter your full name">
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Selfie with Verification Paper</label>
+                    <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+                        <i class="fa-solid fa-camera" id="uploadIcon"></i>
+                        <div class="upload-text" id="uploadText">Tap to upload photo</div>
+                        <div class="upload-hint" id="uploadHint">JPG or PNG, max 5MB</div>
+                        <img class="upload-preview" id="uploadPreview" alt="Preview">
+                    </div>
+                    <input type="file" id="fileInput" accept="image/*" onchange="handleFileSelect(event)">
+                </div>
+
+                <button class="btn-primary" id="submitBtn" onclick="submitKYC()" disabled>
+                    Submit Verification <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FIREBASE SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-storage-compat.js"></script>
+        <script>
+        // ==================== TASKVAULT FIREBASE CONFIG ====================
+        const firebaseConfig = {
+            apiKey: "AIzaSyAv6QCpopa0Q77AVTyjU5cqJEIKIE9OVTs",
+            authDomain: "taskvault-412a0.firebaseapp.com",
+            databaseURL: "https://taskvault-412a0-default-rtdb.firebaseio.com",
+            projectId: "taskvault-412a0",
+            storageBucket: "taskvault-412a0.firebasestorage.app",
+            messagingSenderId: "420716701831",
+            appId: "1:420716701831:web:c987d91f7f4c8684eb7022",
+            measurementId: "G-93JG3LB08B"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+
+        let currentUser = null;
+        let selectedFile = null;
+        let userData = null;
+
+        // ==================== AUTH ====================
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                currentUser = user;
+                checkKYCStatus(user.uid);
+            } else {
+                auth.signInAnonymously().catch((error) => {
+                    console.error("Auth Error:", error);
+                    showToast("Authentication Failed");
+                });
+            }
+        });
+
+        async function checkKYCStatus(uid) {
+            try {
+                const doc = await db.collection('users').doc(uid).get();
+                if (doc.exists) {
+                    userData = doc.data();
+                    const kycStatus = userData.kycStatus || 'pending';
+                    updateStatusBadge(kycStatus);
+                    
+                    if (kycStatus === 'verified') {
+                        document.getElementById('fullName').value = userData.kycName || '';
+                        document.getElementById('fullName').disabled = true;
+                        document.getElementById('uploadArea').style.pointerEvents = 'none';
+                        document.getElementById('uploadArea').style.opacity = '0.6';
+                        document.getElementById('submitBtn').style.display = 'none';
+                    }
+                }
+            } catch (error) {
+                console.error("Error checking KYC:", error);
+            }
+        }
+
+        function updateStatusBadge(status) {
+            const badge = document.getElementById('kycStatus');
+            badge.className = 'status-badge';
+            if (status === 'verified') {
+                badge.classList.add('status-verified');
+                badge.innerHTML = '<i class="fa-solid fa-check-circle"></i> Verified';
+            } else if (status === 'rejected') {
+                badge.classList.add('status-rejected');
+                badge.innerHTML = '<i class="fa-solid fa-circle-xmark"></i> Rejected';
+            } else {
+                badge.classList.add('status-pending');
+                badge.innerHTML = '<i class="fa-solid fa-clock"></i> Pending Verification';
+            }
+        }
+
+        // ==================== UI HELPERS ====================
+        function showLoader(text) {
+            document.getElementById('loaderText').textContent = text;
+            document.getElementById('mainLoader').classList.add('active');
+        }
+
+        function hideLoader() {
+            document.getElementById('mainLoader').classList.remove('active');
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toastBox');
+            document.getElementById('toastMsg').textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // ==================== FILE UPLOAD ====================
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (!file.type.startsWith('image/')) {
+                showToast("Please select an image file");
+                return;
+            }
+
+            if (file.size > 5 * 1024 * 1024) {
+                showToast("File too large. Max 5MB");
+                return;
+            }
+
+            selectedFile = file;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById('uploadPreview');
+                const area = document.getElementById('uploadArea');
+                const icon = document.getElementById('uploadIcon');
+                const text = document.getElementById('uploadText');
+                const hint = document.getElementById('uploadHint');
+
+                preview.src = e.target.result;
+                preview.classList.add('show');
+                area.classList.add('has-file');
+                icon.style.display = 'none';
+                text.textContent = 'Photo selected';
+                hint.textContent = file.name;
+            };
+            reader.readAsDataURL(file);
+
+            validateForm();
+        }
+
+        // ==================== FORM VALIDATION ====================
+        document.getElementById('fullName').addEventListener('input', validateForm);
+
+        function validateForm() {
+            const fullName = document.getElementById('fullName').value.trim();
+            const isValid = fullName.length >= 3 && selectedFile !== null;
+            document.getElementById('submitBtn').disabled = !isValid;
+        }
+
+        // ==================== SUBMIT KYC ====================
+        async function submitKYC() {
+            const fullName = document.getElementById('fullName').value.trim();
+
+            if (!fullName || fullName.length < 3) {
+                showToast("Please enter your full name");
+                return;
+            }
+
+            if (!selectedFile) {
+                showToast("Please upload your selfie");
+                return;
+            }
+
+            showLoader("Uploading...");
+
+            try {
+                // Upload image to Storage
+                const storageRef = storage.ref(`kyc/${currentUser.uid}/${Date.now()}_${selectedFile.name}`);
+                const uploadTask = await storageRef.put(selectedFile);
+                const photoURL = await uploadTask.ref.getDownloadURL();
+
+                // Save KYC data to Firestore
+                await db.collection('users').doc(currentUser.uid).update({
+                    kycName: fullName,
+                    kycPhotoURL: photoURL,
+                    kycStatus: 'pending',
+                    kycSubmittedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    kycReviewedAt: null,
+                    kycRejectionReason: null
+                });
+
+                // Create KYC record
+                await db.collection('kyc_submissions').add({
+                    userId: currentUser.uid,
+                    email: currentUser.email,
+                    fullName: fullName,
+                    photoURL: photoURL,
+                    status: 'pending',
+                    submittedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    reviewedAt: null,
+                    reviewedBy: null,
+                    rejectionReason: null
+                });
+
+                hideLoader();
+                document.getElementById('successModal').classList.add('active');
+            } catch (error) {
+                console.error("KYC submission error:", error);
+                hideLoader();
+                showToast("Upload failed. Try again.");
+            }
+        }
+    </script>
+</body>
+</html>
