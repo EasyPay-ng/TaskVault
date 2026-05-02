@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Admin | KYC Verification</title>
+
+    <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" type="image/jpeg">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        :root {
+            --orange-main: #FF8C42;
+            --orange-dark: #E67A35;
+            --orange-light: #FFF0E6;
+            --silk-bg: #FDFBF7;
+            --white: #FFFFFF;
+            --text-dark: #333333;
+            --text-light: #888888;
+            --shadow-sm: 0 2px 6px rgba(255, 140, 66, 0.06);
+            --shadow-md: 0 4px 12px rgba(255, 140, 66, 0.1);
+            --shadow-lg: 0 8px 24px rgba(255, 140, 66, 0.15);
+            --gradient-orange: linear-gradient(135deg, #FF8C42 0%, #FF6B35 100%);
+            --danger: #EF4444;
+            --danger-light: #FEF2F2;
+            --success: #10B981;
+            --success-light: #ECFDF5;
+            --warning: #F59E0B;
+            --warning-light: #FFFBEB;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            background-color: #e9ecef;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .app-container {
+            width: 100%;
+            height: 100dvh;
+            max-width: 430px;
+            background-color: var(--silk-bg);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (min-width: 768px) {
+            .app-container {
+                height: 92dvh;
+                max-height: 850px;
+                border-radius: 24px;
+                box-shadow: 0 0 40px rgba(0,0,0,0.12);
+            }
+        }
+
+        .scroll-content {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 0 20px;
+            padding-bottom: calc(20px + env(safe-area-inset-bottom));
+        }
+
+        .scroll-content::-webkit-scrollbar {
+            width: 2px;
+        }
+        .scroll-content::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .scroll-content::-webkit-scrollbar-thumb {
+            background: var(--orange-light);
+            border-radius: 2px;
+        }
+
+        /* ==================== TOP NAV ==================== */
+        .top-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 20px 10px;
+            background: var(--white);
+            flex-shrink: 0;
+        }
+
+        .nav-back-btn {
+            background: var(--orange-light);
+            border: none;
+            border-radius: 12px;
+            padding: 10px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--orange-main);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-back-btn:hover {
+            background: var(--orange-main);
+            color: white;
+        }
+
+        .admin-badge {
+            background: var(--gradient-orange);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 99px;
+            font-size: 11px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* ==================== HEADER ==================== */
+        .header-content {
+            text-align: center;
+            padding: 10px 20px 20px;
+        }
+
+        .header-content h2 {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 6px;
+        }
+
+        .header-content p.sub {
+            font-size: 12px;
+            color: var(--text-light);
+            font-weight: 400;
+        }
+
+        /* ==================== STATS BAR ==================== */
+        .stats-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .stat-card {
+            flex: 1;
+            background: var(--white);
+            border-radius: 14px;
+            padding: 14px;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(255, 140, 66, 0.06);
+        }
+
+        .stat-card .stat-num {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--text-dark);
+        }
+
+        .stat-card .stat-label {
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--text-light);
+            margin-top: 2px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-card.pending .stat-num { color: var(--warning); }
+        .stat-card.approved .stat-num { color: var(--success); }
+        .stat-card.rejected .stat-num { color: var(--danger); }
+
+        /* ==================== FILTER TABS ==================== */
+        .filter-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+
+        .filter-tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .filter-tab {
+            flex-shrink: 0;
+            padding: 8px 16px;
+            border-radius: 99px;
+            border: none;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: var(--white);
+            color: var(--text-light);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .filter-tab.active {
+            background: var(--gradient-orange);
+            color: white;
+        }
+
+        /* ==================== REQUEST CARD ==================== */
+        .request-card {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(255, 140, 66, 0.06);
+            transition: all 0.3s ease;
+        }
+
+        .request-card:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        .request-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .request-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--orange-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: var(--orange-main);
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .request-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .request-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-dark);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .request-email {
+            font-size: 11px;
+            color: var(--text-light);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .request-status {
+            padding: 4px 10px;
+            border-radius: 99px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            flex-shrink: 0;
+        }
+
+        .status-badge-pending {
+            background: var(--warning-light);
+            color: var(--warning);
+        }
+
+        .status-badge-approved {
+            background: var(--success-light);
+            color: var(--success);
+        }
+
+        .status-badge-rejected {
+            background: var(--danger-light);
+            color: var(--danger);
+        }
+
+        .request-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .request-image:hover {
+            opacity: 0.9;
+        }
+
+        .request-date {
+            font-size: 11px;
+            color: var(--text-light);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .request-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-approve {
+            flex: 1;
+            background: var(--success);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-approve:hover {
+            background: #059669;
+            transform: translateY(-1px);
+        }
+
+        .btn-reject {
+            flex: 1;
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-reject:hover {
+            background: #DC2626;
+            transform: translateY(-1px);
+        }
+
+        .btn-disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        /* ==================== EMPTY STATE ==================== */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            color: #e2e8f0;
+            margin-bottom: 16px;
+        }
+
+        .empty-state h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 6px;
+        }
+
+        .empty-state p {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        /* ==================== ACCESS DENIED ==================== */
+        .access-denied {
+            position: fixed;
+            inset: 0;
+            background: var(--silk-bg);
+            z-index: 10000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .access-denied.active {
+            display: flex;
+        }
+
+        .access-denied i {
+            font-size: 64px;
+            color: var(--danger);
+            margin-bottom: 20px;
+        }
+
+        .access-denied h2 {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .access-denied p {
+            font-size: 13px;
+            color: var(--text-light);
+            margin-bottom: 24px;
+        }
+
+        /* ==================== IMAGE MODAL ==================== */
+        .image-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.9);
+            z-index: 10001;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .image-modal.active {
+            display: flex;
+        }
+
+        .image-modal img {
+            max-width: 100%;
+            max-height: 80vh;
+            border-radius: 12px;
+            object-fit: contain;
+        }
+
+        .image-modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ==================== REJECT MODAL ==================== */
+        .reject-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 10002;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            backdrop-filter: blur(4px);
+        }
+
+        .reject-modal.active {
+            display: flex;
+        }
+
+        .reject-box {
+            background: var(--white);
+            padding: 24px;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 340px;
+        }
+
+        .reject-box h3 {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 4px;
+        }
+
+        .reject-box p {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-bottom: 16px;
+        }
+
+        .reject-textarea {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 13px;
+            font-family: 'Poppins', sans-serif;
+            resize: none;
+            outline: none;
+            transition: all 0.3s ease;
+            margin-bottom: 16px;
+        }
+
+        .reject-textarea:focus {
+            border-color: var(--danger);
+            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
+        }
+
+        .reject-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .reject-actions button {
+            flex: 1;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-cancel {
+            background: #f1f5f9;
+            color: var(--text-dark);
+        }
+
+        .btn-confirm-reject {
+            background: var(--danger);
+            color: white;
+        }
+
+        /* ==================== LOADER ==================== */
+        .loader-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(253, 251, 247, 0.95);
+            z-index: 9999;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .loader-overlay.active {
+            display: flex;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--orange-light);
+            border-top: 3px solid var(--orange-main);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 12px;
+        }
+
+        .loader-text {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-dark);
+            letter-spacing: 1px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ==================== TOAST ==================== */
+        .toast {
+            position: fixed;
+            bottom: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--text-dark);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 99px;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            z-index: 10003;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        }
+
+        .toast.show {
+            bottom: 30px;
+        }
+
+        /* ==================== ANIMATIONS ==================== */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        .delay-1 { animation-delay: 0.1s; opacity: 0; }
+        .delay-2 { animation-delay: 0.2s; opacity: 0; }
+    </style>
+</head>
+<body>
+
+    <!-- ACCESS DENIED SCREEN -->
+    <div class="access-denied" id="accessDenied">
+        <i class="fa-solid fa-shield-halved"></i>
+        <h2>Access Denied</h2>
+        <p>You do not have permission to view this page. This area is restricted to administrators only.</p>
+        <button class="nav-back-btn" onclick="window.location.href='dashboard.html'">
+            <i class="fa-solid fa-arrow-left"></i> Go Back
+        </button>
+    </div>
+
+    <!-- LOADER -->
+    <div class="loader-overlay" id="mainLoader">
+        <div class="spinner"></div>
+        <p class="loader-text" id="loaderText">Loading...</p>
+    </div>
+
+    <!-- IMAGE MODAL -->
+    <div class="image-modal" id="imageModal" onclick="closeImageModal()">
+        <button class="image-modal-close" onclick="event.stopPropagation(); closeImageModal()">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+        <img id="modalImage" src="" alt="KYC Photo">
+    </div>
+
+    <!-- REJECT MODAL -->
+    <div class="reject-modal" id="rejectModal">
+        <div class="reject-box">
+            <h3>Reject KYC</h3>
+            <p>Please provide a reason for rejecting this verification.</p>
+            <textarea class="reject-textarea" id="rejectReason" rows="3" placeholder="Enter rejection reason..."></textarea>
+            <div class="reject-actions">
+                <button class="btn-cancel" onclick="closeRejectModal()">Cancel</button>
+                <button class="btn-confirm-reject" onclick="confirmReject()">Reject</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast" id="toastBox">
+        <i class="fa-solid fa-circle-info"></i>
+        <span id="toastMsg">Message</span>
+    </div>
+
+    <div class="app-container" id="appContainer">
+        <!-- TOP NAV -->
+        <div class="top-nav">
+            <button class="nav-back-btn" onclick="window.location.href='dashboard.html'">
+                <i class="fa-solid fa-arrow-left"></i> Back
+            </button>
+            <div class="admin-badge">
+                <i class="fa-solid fa-lock"></i> Admin
+            </div>
+        </div>
+
+        <!-- SCROLLABLE CONTENT -->
+        <div class="scroll-content">
+            <!-- HEADER -->
+            <div class="header-content fade-in">
+                <h2>KYC Requests</h2>
+                <p class="sub">Review and manage verification submissions</p>
+            </div>
+
+            <!-- STATS -->
+            <div class="stats-bar fade-in delay-1">
+                <div class="stat-card pending">
+                    <div class="stat-num" id="statPending">0</div>
+                    <div class="stat-label">Pending</div>
+                </div>
+                <div class="stat-card approved">
+                    <div class="stat-num" id="statApproved">0</div>
+                    <div class="stat-label">Approved</div>
+                </div>
+                <div class="stat-card rejected">
+                    <div class="stat-num" id="statRejected">0</div>
+                    <div class="stat-label">Rejected</div>
+                </div>
+            </div>
+
+            <!-- FILTERS -->
+            <div class="filter-tabs fade-in delay-1">
+                <button class="filter-tab active" onclick="filterRequests('all')">All</button>
+                <button class="filter-tab" onclick="filterRequests('pending')">Pending</button>
+                <button class="filter-tab" onclick="filterRequests('approved')">Approved</button>
+                <button class="filter-tab" onclick="filterRequests('rejected')">Rejected</button>
+            </div>
+
+            <!-- REQUESTS LIST -->
+            <div id="requestsList"></div>
+        </div>
+    </div>
+
+    <!-- FIREBASE SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
+    <script>
+        // ==================== TASKVAULT FIREBASE CONFIG ====================
+        const firebaseConfig = {
+            apiKey: "AIzaSyAv6QCpopa0Q77AVTyjU5cqJEIKIE9OVTs",
+            authDomain: "taskvault-412a0.firebaseapp.com",
+            databaseURL: "https://taskvault-412a0-default-rtdb.firebaseio.com",
+            projectId: "taskvault-412a0",
+            storageBucket: "taskvault-412a0.firebasestorage.app",
+            messagingSenderId: "420716701831",
+            appId: "1:420716701831:web:c987d91f7f4c8684eb7022",
+            measurementId: "G-93JG3LB08B"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        const ADMIN_EMAIL = "beniwealth70@gmail.com";
+        let currentUser = null;
+        let isAdmin = false;
+        let allRequests = [];
+        let currentFilter = 'all';
+        let rejectDocId = null;
+
+        // ==================== AUTH & ACCESS CONTROL ====================
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                currentUser = user;
+                checkAdminAccess();
+            } else {
+                auth.signInAnonymously().catch((error) => {
+                    console.error("Auth Error:", error);
+                    showToast("Authentication Failed");
+                    showAccessDenied();
+                });
+            }
+        });
+
+        function checkAdminAccess() {
+            if (!currentUser || currentUser.email !== ADMIN_EMAIL) {
+                showAccessDenied();
+                return;
+            }
+            isAdmin = true;
+            loadRequests();
+        }
+
+        function showAccessDenied() {
+            document.getElementById('accessDenied').classList.add('active');
+            document.getElementById('appContainer').style.display = 'none';
+        }
+
+        // ==================== UI HELPERS ====================
+        function showLoader(text) {
+            document.getElementById('loaderText').textContent = text;
+            document.getElementById('mainLoader').classList.add('active');
+        }
+
+        function hideLoader() {
+            document.getElementById('mainLoader').classList.remove('active');
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toastBox');
+            document.getElementById('toastMsg').textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // ==================== LOAD REQUESTS ====================
+        async function loadRequests() {
+            showLoader("Loading requests...");
+            try {
+                const snapshot = await db.collection('verification')
+                    .orderBy('submittedAt', 'desc')
+                    .get();
+
+                allRequests = [];
+                snapshot.forEach(doc => {
+                    allRequests.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+
+                updateStats();
+                renderRequests();
+                hideLoader();
+            } catch (error) {
+                console.error("Error loading requests:", error);
+                hideLoader();
+                showToast("Failed to load requests");
+            }
+        }
+
+        function updateStats() {
+            const pending = allRequests.filter(r => r.status === 'pending').length;
+            const approved = allRequests.filter(r => r.status === 'approved').length;
+            const rejected = allRequests.filter(r => r.status === 'rejected').length;
+
+            document.getElementById('statPending').textContent = pending;
+            document.getElementById('statApproved').textContent = approved;
+            document.getElementById('statRejected').textContent = rejected;
+        }
+
+        // ==================== FILTER ====================
+        function filterRequests(status) {
+            currentFilter = status;
+
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            renderRequests();
+        }
+
+        function renderRequests() {
+            const container = document.getElementById('requestsList');
+            let filtered = allRequests;
+
+            if (currentFilter !== 'all') {
+                filtered = allRequests.filter(r => r.status === currentFilter);
+            }
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state fade-in">
+                        <i class="fa-solid fa-inbox"></i>
+                        <h3>No requests found</h3>
+                        <p>There are no KYC submissions in this category.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map((req, index) => `
+                <div class="request-card fade-in" style="animation-delay: ${index * 0.05}s">
+                    <div class="request-header">
+                        <div class="request-avatar">
+                            ${req.fullName ? req.fullName.charAt(0).toUpperCase() : 'U'}
+                        </div>
+                        <div class="request-info">
+                            <div class="request-name">${escapeHtml(req.fullName || 'Unknown')}</div>
+                            <div class="request-email">${escapeHtml(req.email || 'No email')}</div>
+                        </div>
+                        <span class="request-status status-badge-${req.status || 'pending'}">${req.status || 'pending'}</span>
+                    </div>
+                    <img class="request-image" src="${req.photoBase64 || ''}" alt="KYC Photo" onclick="openImageModal('${req.photoBase64 || ''}')">
+                    <div class="request-date">
+                        <i class="fa-regular fa-clock"></i>
+                        ${formatDate(req.submittedAt)}
+                    </div>
+                    ${getActionButtons(req)}
+                </div>
+            `).join('');
+        }
+
+        function getActionButtons(req) {
+            if (req.status === 'approved') {
+                return `
+                    <div class="request-actions">
+                        <button class="btn-approve btn-disabled">
+                            <i class="fa-solid fa-check"></i> Approved
+                        </button>
+                        <button class="btn-reject" onclick="openRejectModal('${req.id}')">
+                            <i class="fa-solid fa-xmark"></i> Reject
+                        </button>
+                    </div>
+                `;
+            }
+            if (req.status === 'rejected') {
+                return `
+                    <div class="request-actions">
+                        <button class="btn-approve" onclick="approveKYC('${req.id}')">
+                            <i class="fa-solid fa-check"></i> Approve
+                        </button>
+                        <button class="btn-reject btn-disabled">
+                            <i class="fa-solid fa-xmark"></i> Rejected
+                        </button>
+                    </div>
+                    ${req.rejectionReason ? `<div style="margin-top:10px;padding:10px;background:var(--danger-light);border-radius:8px;font-size:11px;color:var(--danger);"><strong>Reason:</strong> ${escapeHtml(req.rejectionReason)}</div>` : ''}
+                `;
+            }
+            return `
+                <div class="request-actions">
+                    <button class="btn-approve" onclick="approveKYC('${req.id}')">
+                        <i class="fa-solid fa-check"></i> Approve
+                    </button>
+                    <button class="btn-reject" onclick="openRejectModal('${req.id}')">
+                        <i class="fa-solid fa-xmark"></i> Reject
+                    </button>
+                </div>
+            `;
+        }
+
+        // ==================== ACTIONS ====================
+        async function approveKYC(docId) {
+            if (!isAdmin) return;
+
+            showLoader("Approving...");
+            try {
+                const req = allRequests.find(r => r.id === docId);
+                if (!req) throw new Error("Request not found");
+
+                // Update verification collection
+                await db.collection('verification').doc(docId).update({
+                    status: 'approved',
+                    reviewedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    reviewedBy: currentUser.uid,
+                    rejectionReason: null
+                });
+
+                // Update user document
+                await db.collection('users').doc(req.userId).update({
+                    kycStatus: 'verified',
+                    kycReviewedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    kycRejectionReason: null
+                });
+
+                showToast("KYC approved successfully");
+                await loadRequests();
+            } catch (error) {
+                console.error("Approve error:", error);
+                hideLoader();
+                showToast("Failed to approve");
+            }
+        }
+
+        function openRejectModal(docId) {
+            rejectDocId = docId;
+            document.getElementById('rejectReason').value = '';
+            document.getElementById('rejectModal').classList.add('active');
+        }
+
+        function closeRejectModal() {
+            document.getElementById('rejectModal').classList.remove('active');
+            rejectDocId = null;
+        }
+
+        async function confirmReject() {
+            if (!isAdmin || !rejectDocId) return;
+
+            const reason = document.getElementById('rejectReason').value.trim();
+            if (!reason) {
+                showToast("Please enter a rejection reason");
+                return;
+            }
+
+            showLoader("Rejecting...");
+            try {
+                const req = allRequests.find(r => r.id === rejectDocId);
+                if (!req) throw new Error("Request not found");
+
+                // Update verification collection
+                await db.collection('verification').doc(rejectDocId).update({
+                    status: 'rejected',
+                    reviewedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    reviewedBy: currentUser.uid,
+                    rejectionReason: reason
+                });
+
+                // Update user document
+                await db.collection('users').doc(req.userId).update({
+                    kycStatus: 'rejected',
+                    kycReviewedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    kycRejectionReason: reason
+                });
+
+                closeRejectModal();
+                showToast("KYC rejected");
+                await loadRequests();
+            } catch (error) {
+                console.error("Reject error:", error);
+                hideLoader();
+                showToast("Failed to reject");
+            }
+        }
+
+        // ==================== IMAGE MODAL ====================
+        function openImageModal(src) {
+            if (!src) return;
+            document.getElementById('modalImage').src = src;
+            document.getElementById('imageModal').classList.add('active');
+        }
+
+        function closeImageModal() {
+            document.getElementById('imageModal').classList.remove('active');
+        }
+
+        // ==================== UTILS ====================
+        function formatDate(timestamp) {
+            if (!timestamp) return 'Unknown date';
+            const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+            return date.toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>
