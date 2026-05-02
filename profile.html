@@ -22,6 +22,8 @@
             --success-light: #D1FAE5;
             --danger: #EF4444;
             --danger-light: #FEE2E2;
+            --warning: #F59E0B;
+            --warning-light: #FFFBEB;
             --shadow-sm: 0 2px 6px rgba(255, 140, 66, 0.06);
             --shadow-md: 0 4px 12px rgba(255, 140, 66, 0.1);
             --shadow-lg: 0 8px 24px rgba(255, 140, 66, 0.15);
@@ -131,7 +133,7 @@
             width: 90px;
             height: 90px;
             border-radius: 50%;
-            background: var(--gradient-orange);
+            background: linear-gradient(135deg, #FF8C42 0%, #FF6B35 100%);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -295,6 +297,17 @@
             animation: glowRed 2s ease-in-out infinite;
         }
 
+        .status-badge.pending {
+            background: var(--warning-light);
+            color: var(--warning);
+            animation: glowYellow 2s ease-in-out infinite;
+        }
+
+        .status-badge.rejected {
+            background: var(--danger-light);
+            color: var(--danger);
+        }
+
         @keyframes glowGreen {
             0%, 100% { box-shadow: 0 0 4px rgba(16, 185, 129, 0.3); }
             50% { box-shadow: 0 0 12px rgba(16, 185, 129, 0.6); }
@@ -303,6 +316,11 @@
         @keyframes glowRed {
             0%, 100% { box-shadow: 0 0 4px rgba(239, 68, 68, 0.3); }
             50% { box-shadow: 0 0 12px rgba(239, 68, 68, 0.6); }
+        }
+
+        @keyframes glowYellow {
+            0%, 100% { box-shadow: 0 0 4px rgba(245, 158, 11, 0.3); }
+            50% { box-shadow: 0 0 12px rgba(245, 158, 11, 0.6); }
         }
 
         /* Info List */
@@ -436,6 +454,18 @@
             animation: shake 0.5s ease-in-out;
         }
 
+        .modal-icon.success {
+            background: var(--success-light);
+            color: var(--success);
+            animation: none;
+        }
+
+        .modal-icon.rejected {
+            background: var(--danger-light);
+            color: var(--danger);
+            animation: shake 0.5s ease-in-out;
+        }
+
         @keyframes shake {
             0%, 100% { transform: rotate(0); }
             25% { transform: rotate(-10deg); }
@@ -468,7 +498,7 @@
         }
 
         .modal-btn.primary {
-            background: var(--gradient-orange);
+            background: linear-gradient(135deg, #FF8C42 0%, #FF6B35 100%);
             color: white;
             margin-bottom: 10px;
             box-shadow: var(--shadow-md);
@@ -486,6 +516,17 @@
 
         .modal-btn.secondary:hover {
             background: #f0f0f0;
+        }
+
+        .rejection-reason {
+            background: var(--danger-light);
+            color: var(--danger);
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 12px;
+            margin-bottom: 16px;
+            text-align: left;
+            line-height: 1.5;
         }
 
         /* Modern Bottom Nav */
@@ -597,12 +638,13 @@
     <!-- KYC Modal -->
     <div class="modal-overlay" id="kycModal">
         <div class="modal-content">
-            <div class="modal-icon">
+            <div class="modal-icon" id="kycModalIcon">
                 <i class="fa-solid fa-shield-halved"></i>
             </div>
-            <h3>Verification Required</h3>
-            <p>Please complete your KYC verification to unlock all features and ensure account security.</p>
-            <button class="modal-btn primary" onclick="goToKYC()">
+            <h3 id="kycModalTitle">Verification Required</h3>
+            <p id="kycModalText">Please complete your KYC verification to unlock all features and ensure account security.</p>
+            <div class="rejection-reason" id="kycRejectionReason" style="display:none;"></div>
+            <button class="modal-btn primary" id="kycModalBtn" onclick="goToKYC()">
                 <i class="fa-solid fa-arrow-right"></i> Verify Now
             </button>
             <button class="modal-btn secondary" onclick="closeKYCModal()">Maybe Later</button>
@@ -733,7 +775,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
-        <script>
+    <script>
         const firebaseConfig = {
             apiKey: "AIzaSyAv6QCpopa0Q77AVTyjU5cqJEIKIE9OVTs",
             authDomain: "taskvault-412a0.firebaseapp.com",
@@ -750,7 +792,8 @@
         const db = firebase.firestore();
 
         let currentUser = null;
-        let userData = null;
+        let userUnsubscribe = null;
+        let kycPopupShown = false;
 
         auth.onAuthStateChanged(async (user) => {
             if (user) {
@@ -760,56 +803,73 @@
                 document.getElementById('userEmail').textContent = user.email || 'Anonymous';
                 document.getElementById('userId').textContent = user.uid.substring(0, 12) + '...';
                 
-                // Set avatar initial
                 const avatarEl = document.getElementById('userAvatar');
                 avatarEl.innerHTML = displayName.charAt(0).toUpperCase();
 
-                // Fetch user data from Firestore
-                const doc = await db.collection('users').doc(user.uid).get();
-                if (doc.exists) {
-                    userData = doc.data();
-                    
-                    // Load profile picture if exists
-                    if (userData.profilePicture) {
-                        avatarEl.innerHTML = `<img src="${userData.profilePicture}" alt="Profile">`;
-                    }
-
-                    // Update balance
-                    document.getElementById('userBalance').textContent = '$' + (userData.balance || 0).toFixed(3);
-
-                    // Member since
-                    if (userData.createdAt) {
-                        const date = userData.createdAt.toDate ? userData.createdAt.toDate() : new Date(userData.createdAt);
-                        document.getElementById('userSince').textContent = date.toLocaleDateString('en-US', { 
-                            month: 'short', day: 'numeric', year: 'numeric' 
-                        });
-                    }
-
-                    // Check KYC status and show popup if not verified
-                    const kycVerified = userData.kycVerified === true;
-                    updateKYCStatus(kycVerified);
-
-                    if (!kycVerified) {
-                        setTimeout(() => showKYCModal(), 800);
-                    }
-                } else {
-                    // New user - show KYC popup
-                    updateKYCStatus(false);
-                    setTimeout(() => showKYCModal(), 800);
-                }
-
-                // Email verification status (from Firebase Auth)
                 updateEmailStatus(user.emailVerified);
 
+                // Real-time listener for user document - updates instantly when admin approves/rejects
+                startUserListener(user.uid);
             } else {
                 window.location.href = 'index.html';
             }
         });
 
-        // ==========================================
-        // AVATAR UPLOAD (BASE64)
-        // ==========================================
+        // ==================== REAL-TIME USER LISTENER ====================
+        function startUserListener(uid) {
+            // Unsubscribe from previous listener if exists
+            if (userUnsubscribe) {
+                userUnsubscribe();
+            }
 
+            userUnsubscribe = db.collection('users').doc(uid).onSnapshot(
+                (doc) => {
+                    if (doc.exists) {
+                        const data = doc.data();
+                        
+                        // Update avatar
+                        const avatarEl = document.getElementById('userAvatar');
+                        if (data.profilePicture) {
+                            avatarEl.innerHTML = `<img src="${data.profilePicture}" alt="Profile">`;
+                        }
+
+                        // Update balance
+                        document.getElementById('userBalance').textContent = '$' + (data.balance || 0).toFixed(3);
+
+                        // Member since
+                        if (data.createdAt) {
+                            const date = data.createdAt.toDate ? data.createdAt.toDate() : new Date(data.createdAt);
+                            document.getElementById('userSince').textContent = date.toLocaleDateString('en-US', { 
+                                month: 'short', day: 'numeric', year: 'numeric' 
+                            });
+                        }
+
+                        // Update KYC status in real-time
+                        const kycStatus = data.kycStatus || 'pending';
+                        updateKYCStatus(kycStatus, data.kycRejectionReason);
+
+                        // Show popup only if not verified and not already shown
+                        if (kycStatus !== 'verified' && !kycPopupShown) {
+                            kycPopupShown = true;
+                            setTimeout(() => showKYCModal(kycStatus, data.kycRejectionReason), 800);
+                        }
+                    } else {
+                        // New user - no doc yet
+                        updateKYCStatus('pending', null);
+                        if (!kycPopupShown) {
+                            kycPopupShown = true;
+                            setTimeout(() => showKYCModal('pending', null), 800);
+                        }
+                    }
+                },
+                (error) => {
+                    console.error("User listener error:", error);
+                    showToast('Error loading profile data', 'error');
+                }
+            );
+        }
+
+        // ==================== AVATAR UPLOAD (BASE64) ====================
         function handleAvatarUpload(input) {
             const file = input.files[0];
             if (!file) return;
@@ -822,12 +882,9 @@
             const reader = new FileReader();
             reader.onload = async (e) => {
                 const base64 = e.target.result;
-                
-                // Preview
                 const avatarEl = document.getElementById('userAvatar');
                 avatarEl.innerHTML = `<img src="${base64}" alt="Profile">`;
 
-                // Save to Firestore
                 if (currentUser) {
                     try {
                         await db.collection('users').doc(currentUser.uid).update({
@@ -843,10 +900,7 @@
             reader.readAsDataURL(file);
         }
 
-        // ==========================================
-        // VERIFICATION STATUS UPDATES
-        // ==========================================
-
+        // ==================== EMAIL STATUS ====================
         function updateEmailStatus(isVerified) {
             const badge = document.getElementById('emailBadge');
             const text = document.getElementById('emailStatusText');
@@ -863,21 +917,29 @@
             }
         }
 
-        function updateKYCStatus(isVerified) {
+        // ==================== KYC STATUS (REAL-TIME) ====================
+        function updateKYCStatus(status, rejectionReason) {
             const badge = document.getElementById('kycBadge');
             const text = document.getElementById('kycStatusText');
             
-            if (isVerified) {
+            if (status === 'verified') {
                 badge.className = 'status-badge verified';
                 badge.innerHTML = '<i class="fa-solid fa-check"></i> Verified';
                 text.textContent = 'KYC verification complete';
                 badge.onclick = null;
                 badge.style.cursor = 'default';
+            } else if (status === 'rejected') {
+                badge.className = 'status-badge rejected';
+                badge.innerHTML = '<i class="fa-solid fa-xmark"></i> Rejected';
+                text.textContent = rejectionReason ? 'Rejected: ' + rejectionReason.substring(0, 30) + '...' : 'KYC was rejected';
+                badge.onclick = () => showKYCModal('rejected', rejectionReason);
+                badge.style.cursor = 'pointer';
             } else {
-                badge.className = 'status-badge unverified';
-                badge.innerHTML = '<i class="fa-solid fa-xmark"></i> Unverified';
-                text.textContent = 'Complete KYC to unlock features';
-                badge.onclick = () => goToKYC();
+                // pending
+                badge.className = 'status-badge pending';
+                badge.innerHTML = '<i class="fa-solid fa-clock"></i> Pending';
+                text.textContent = 'KYC under review';
+                badge.onclick = () => showKYCModal('pending', null);
                 badge.style.cursor = 'pointer';
             }
         }
@@ -893,12 +955,48 @@
             }
         }
 
-        // ==========================================
-        // KYC MODAL
-        // ==========================================
+        // ==================== KYC MODAL ====================
+        function showKYCModal(status, rejectionReason) {
+            const modal = document.getElementById('kycModal');
+            const icon = document.getElementById('kycModalIcon');
+            const title = document.getElementById('kycModalTitle');
+            const text = document.getElementById('kycModalText');
+            const btn = document.getElementById('kycModalBtn');
+            const reasonBox = document.getElementById('kycRejectionReason');
 
-        function showKYCModal() {
-            document.getElementById('kycModal').classList.add('show');
+            if (status === 'verified') {
+                icon.className = 'modal-icon success';
+                icon.innerHTML = '<i class="fa-solid fa-check"></i>';
+                title.textContent = 'Verified!';
+                text.textContent = 'Your KYC verification has been approved. All features are now unlocked.';
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> Great!';
+                btn.onclick = closeKYCModal;
+                reasonBox.style.display = 'none';
+            } else if (status === 'rejected') {
+                icon.className = 'modal-icon rejected';
+                icon.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+                title.textContent = 'KYC Rejected';
+                text.textContent = 'Your KYC verification was rejected. Please review the reason and resubmit.';
+                btn.innerHTML = '<i class="fa-solid fa-arrow-right"></i> Resubmit KYC';
+                btn.onclick = goToKYC;
+                if (rejectionReason) {
+                    reasonBox.style.display = 'block';
+                    reasonBox.innerHTML = '<strong>Reason:</strong> ' + escapeHtml(rejectionReason);
+                } else {
+                    reasonBox.style.display = 'none';
+                }
+            } else {
+                // pending
+                icon.className = 'modal-icon';
+                icon.innerHTML = '<i class="fa-solid fa-shield-halved"></i>';
+                title.textContent = 'Verification Required';
+                text.textContent = 'Please complete your KYC verification to unlock all features and ensure account security.';
+                btn.innerHTML = '<i class="fa-solid fa-arrow-right"></i> Verify Now';
+                btn.onclick = goToKYC;
+                reasonBox.style.display = 'none';
+            }
+
+            modal.classList.add('show');
         }
 
         function closeKYCModal() {
@@ -910,16 +1008,13 @@
             window.location.href = 'kyc.html';
         }
 
-        // Close modal on overlay click
         document.getElementById('kycModal').addEventListener('click', (e) => {
             if (e.target.id === 'kycModal') closeKYCModal();
         });
 
-        // ==========================================
-        // LOGOUT
-        // ==========================================
-
+        // ==================== LOGOUT ====================
         function logout() {
+            if (userUnsubscribe) userUnsubscribe();
             auth.signOut().then(() => {
                 showToast('Logged out successfully', 'success');
                 setTimeout(() => {
@@ -931,10 +1026,7 @@
             });
         }
 
-        // ==========================================
-        // TOAST
-        // ==========================================
-
+        // ==================== TOAST ====================
         function showToast(message, type = 'info') {
             const toast = document.getElementById('toast');
             toast.className = 'toast ' + type;
@@ -945,6 +1037,18 @@
             toast.classList.add('show');
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Cleanup listener on page unload
+        window.addEventListener('beforeunload', () => {
+            if (userUnsubscribe) userUnsubscribe();
+        });
 
         // Initialize nav active state
         document.addEventListener('DOMContentLoaded', () => {
