@@ -374,7 +374,7 @@
             color: var(--text-light);
         }
 
-        .text-input, .amount-input {
+        .text-input, .amount-input, .bank-select {
             width: 100%;
             padding: 14px 16px;
             font-size: 14px;
@@ -393,7 +393,22 @@
             font-weight: 800;
         }
 
-        .text-input:focus, .amount-input:focus {
+        .bank-select {
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23888888' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            padding-right: 40px;
+            cursor: pointer;
+        }
+
+        .bank-select option {
+            font-weight: 500;
+            padding: 8px;
+        }
+
+        .bank-select:focus, .text-input:focus, .amount-input:focus {
             border-color: var(--orange-main);
             box-shadow: 0 0 0 4px rgba(255, 140, 66, 0.1);
         }
@@ -865,10 +880,19 @@
                 <div class="input-hint">You'll receive: <span id="nairaReceive">₦0</span></div>
             </div>
 
-            <!-- Bank Details -->
+            <!-- Bank Select -->
             <div class="input-group">
                 <label class="input-label">Bank Name</label>
-                <input type="text" class="text-input" id="bankName" placeholder="e.g. Palmpay, GTBank, Access">
+                <select class="bank-select" id="bankName">
+                    <option value="" disabled selected>Select your bank</option>
+                    <option value="OPay">OPay</option>
+                    <option value="PalmPay">PalmPay</option>
+                    <option value="United Bank of Africa">United Bank of Africa</option>
+                    <option value="Zenith Bank Plc">Zenith Bank Plc</option>
+                    <option value="SmartCash">SmartCash</option>
+                    <option value="Moniepoint">Moniepoint</option>
+                    <option value="Kuda MFB">Kuda MFB</option>
+                </select>
             </div>
 
             <div class="input-group">
@@ -911,7 +935,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
-    <script>
+        <script>
         // ==================== TASKVAULT FIREBASE CONFIG ====================
         const firebaseConfig = {
             apiKey: "AIzaSyAv6QCpopa0Q77AVTyjU5cqJEIKIE9OVTs",
@@ -930,13 +954,13 @@
 
         // ==================== FIXED RATES & SETTINGS ====================
         const FIXED_RATES = {
-            bank: 1000, // ₦1,000 per $1
-            fee: 0.05   // 5% withdrawal fee
+            bank: 1000,
+            fee: 0.05
         };
 
         const WITHDRAWAL_LIMITS = {
-            min: 0.3,    // $0.3 minimum
-            max: 10000   // $10,000 maximum
+            min: 0.3,
+            max: 10000
         };
 
         let currentUser = null;
@@ -1020,7 +1044,6 @@
 
         function closeOverlay(id) {
             document.getElementById(id).classList.remove('active');
-            // Reset form
             document.getElementById('withdrawAmount').value = '';
             document.getElementById('bankName').value = '';
             document.getElementById('accountNumber').value = '';
@@ -1043,7 +1066,6 @@
             document.getElementById('overlayBankWithdraw').classList.add('active');
         }
 
-        // Calculate withdrawal
         function calculateWithdrawal() {
             const usd = parseFloat(document.getElementById('withdrawAmount').value) || 0;
             const fee = usd * FIXED_RATES.fee;
@@ -1052,7 +1074,6 @@
 
             document.getElementById('nairaReceive').textContent = `₦${naira.toLocaleString()}`;
 
-            // Update summary
             if (usd >= WITHDRAWAL_LIMITS.min) {
                 document.getElementById('summaryCard').style.display = 'block';
                 document.getElementById('summaryAmount').textContent = `$${usd.toFixed(2)}`;
@@ -1067,33 +1088,32 @@
 
         function validateForm() {
             const usd = parseFloat(document.getElementById('withdrawAmount').value) || 0;
-            const bankName = document.getElementById('bankName').value.trim();
+            const bankName = document.getElementById('bankName').value;
             const accountNumber = document.getElementById('accountNumber').value.trim();
             const accountName = document.getElementById('accountName').value.trim();
 
             const isValid = usd >= WITHDRAWAL_LIMITS.min && 
                            usd <= WITHDRAWAL_LIMITS.max && 
                            usd <= userBalance &&
-                           bankName.length > 0 &&
+                           bankName !== '' &&
                            accountNumber.length === 10 &&
+                           /^\d{10}$/.test(accountNumber) &&
                            accountName.length > 0;
 
             document.getElementById('withdrawBtn').disabled = !isValid;
         }
 
-        // Event listeners
         document.getElementById('withdrawAmount').addEventListener('input', calculateWithdrawal);
-        document.getElementById('bankName').addEventListener('input', validateForm);
+        document.getElementById('bankName').addEventListener('change', validateForm);
         document.getElementById('accountNumber').addEventListener('input', validateForm);
         document.getElementById('accountName').addEventListener('input', validateForm);
 
         async function submitWithdrawal() {
             const usd = parseFloat(document.getElementById('withdrawAmount').value);
-            const bankName = document.getElementById('bankName').value.trim();
+            const bankName = document.getElementById('bankName').value;
             const accountNumber = document.getElementById('accountNumber').value.trim();
             const accountName = document.getElementById('accountName').value.trim();
 
-            // Final validations
             if (usd > userBalance) {
                 showToast("Insufficient balance");
                 return;
@@ -1116,13 +1136,11 @@
                     document.getElementById('loaderText').textContent = "Submitting...";
                     document.getElementById('mainLoader').classList.add('active');
 
-                    // Deduct from balance
                     const userRef = db.collection('users').doc(currentUser.uid);
                     await userRef.update({
                         balance: firebase.firestore.FieldValue.increment(-usd)
                     });
 
-                    // Create withdrawal request
                     await db.collection('withdrawals').add({
                         userId: currentUser.uid,
                         email: currentUser.email,
@@ -1140,10 +1158,8 @@
                         timestamp: firebase.firestore.FieldValue.serverTimestamp()
                     });
 
-                    // Log activity
                     await logActivity('withdraw', 'Bank Withdrawal Request', -usd);
 
-                    // Update local balance
                     userBalance -= usd;
                     updateBalanceDisplay();
 
@@ -1158,7 +1174,8 @@
                 }
             });
         }
-                // ==================== WITHDRAWAL HISTORY ====================
+
+        // ==================== WITHDRAWAL HISTORY ====================
         async function fetchWithdrawalHistory(uid) {
             const historyContainer = document.getElementById('withdrawalHistory');
             try {
@@ -1186,7 +1203,6 @@
                                        status === 'pending' ? 'var(--orange-main)' : 'var(--danger)';
                     const statusBg = status === 'completed' ? 'var(--success-light)' : 
                                     status === 'pending' ? 'var(--orange-light)' : 'var(--danger-light)';
-                    
                     const time = data.timestamp ? formatTime(data.timestamp) : 'Just now';
                     
                     html += `
@@ -1215,7 +1231,6 @@
                 historyContainer.innerHTML = html;
             } catch (error) {
                 console.error("Error fetching history:", error);
-                // Fallback without orderBy if index missing
                 if (error.code === 'failed-precondition') {
                     try {
                         const fallback = await db.collection('withdrawals')
@@ -1301,7 +1316,6 @@
 
         // ==================== INIT ====================
         document.addEventListener('DOMContentLoaded', () => {
-            // Set active nav item
             const currentPage = window.location.pathname.split('/').pop();
             document.querySelectorAll('.nav-item').forEach(item => {
                 const href = item.getAttribute('href');
