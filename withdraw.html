@@ -897,7 +897,7 @@
 
             <div class="input-group">
                 <label class="input-label">Account Number</label>
-                <input type="text" class="text-input" id="accountNumber" placeholder="10-digit account number" maxlength="10">
+                <input type="text" class="text-input" id="accountNumber" placeholder="10-digit account number" maxlength="10" inputmode="numeric" pattern="[0-9]*">
             </div>
 
             <div class="input-group">
@@ -1103,9 +1103,21 @@
             document.getElementById('withdrawBtn').disabled = !isValid;
         }
 
+        // Prevent non-numeric input in account number
+        document.getElementById('accountNumber').addEventListener('keypress', function(e) {
+            const char = String.fromCharCode(e.which);
+            if (!/[0-9]/.test(char)) {
+                e.preventDefault();
+            }
+        });
+
+        document.getElementById('accountNumber').addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9]/g, '');
+            validateForm();
+        });
+
         document.getElementById('withdrawAmount').addEventListener('input', calculateWithdrawal);
         document.getElementById('bankName').addEventListener('change', validateForm);
-        document.getElementById('accountNumber').addEventListener('input', validateForm);
         document.getElementById('accountName').addEventListener('input', validateForm);
 
         async function submitWithdrawal() {
