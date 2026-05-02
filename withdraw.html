@@ -296,7 +296,7 @@
             transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             flex-direction: column;
-            overflow-y: auto;
+            overflow: hidden;
         }
 
         .page-overlay.active {
@@ -339,12 +339,29 @@
             color: var(--text-dark);
         }
 
+        .overlay-scroll {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .overlay-scroll::-webkit-scrollbar {
+            width: 2px;
+        }
+        .overlay-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .overlay-scroll::-webkit-scrollbar-thumb {
+            background: var(--orange-light);
+            border-radius: 2px;
+        }
+
         .overlay-content {
             padding: 20px;
             max-width: 430px;
             margin: 0 auto;
             width: 100%;
-            flex: 1;
+            padding-bottom: calc(40px + env(safe-area-inset-bottom));
         }
 
         /* ==================== INPUT STYLES ==================== */
@@ -507,6 +524,7 @@
             box-shadow: var(--shadow-md);
             transition: all 0.3s ease;
             margin-top: 16px;
+            margin-bottom: 20px;
         }
 
         .btn-primary:hover {
@@ -863,71 +881,73 @@
             <button class="back-btn" onclick="closeOverlay('overlayBankWithdraw')"><i class="fa-solid fa-arrow-left"></i></button>
             <div class="overlay-title">Bank Withdrawal</div>
         </div>
-        <div class="overlay-content">
-            <!-- Rate Info -->
-            <div class="notice-box">
-                <i class="fa-solid fa-circle-info"></i>
-                <strong>Rate:</strong> ₦1,000 per $1 | Min: $0.3 | Fee: 5% | Max: $10,000
-            </div>
-
-            <!-- Amount Input -->
-            <div class="input-group">
-                <label class="input-label">Amount (USD)</label>
-                <div class="input-wrapper">
-                    <span>$</span>
-                    <input type="number" class="amount-input" id="withdrawAmount" placeholder="0.00" min="0.3" step="0.1">
+        <div class="overlay-scroll">
+            <div class="overlay-content">
+                <!-- Rate Info -->
+                <div class="notice-box">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <strong>Rate:</strong> ₦1,000 per $1 | Min: $0.3 | Fee: 5% | Max: $10,000
                 </div>
-                <div class="input-hint">You'll receive: <span id="nairaReceive">₦0</span></div>
-            </div>
 
-            <!-- Bank Select -->
-            <div class="input-group">
-                <label class="input-label">Bank Name</label>
-                <select class="bank-select" id="bankName">
-                    <option value="" disabled selected>Select your bank</option>
-                    <option value="OPay">OPay</option>
-                    <option value="PalmPay">PalmPay</option>
-                    <option value="United Bank of Africa">United Bank of Africa</option>
-                    <option value="Zenith Bank Plc">Zenith Bank Plc</option>
-                    <option value="SmartCash">SmartCash</option>
-                    <option value="Moniepoint">Moniepoint</option>
-                    <option value="Kuda MFB">Kuda MFB</option>
-                </select>
-            </div>
-
-            <div class="input-group">
-                <label class="input-label">Account Number</label>
-                <input type="text" class="text-input" id="accountNumber" placeholder="10-digit account number" maxlength="10" inputmode="numeric" pattern="[0-9]*">
-            </div>
-
-            <div class="input-group">
-                <label class="input-label">Account Name</label>
-                <input type="text" class="text-input" id="accountName" placeholder="Full name on account">
-            </div>
-
-            <!-- Summary -->
-            <div class="summary-card" id="summaryCard" style="display: none;">
-                <div class="summary-row">
-                    <span class="summary-label">Amount</span>
-                    <span class="summary-value" id="summaryAmount">$0.00</span>
+                <!-- Amount Input -->
+                <div class="input-group">
+                    <label class="input-label">Amount (USD)</label>
+                    <div class="input-wrapper">
+                        <span>$</span>
+                        <input type="number" class="amount-input" id="withdrawAmount" placeholder="0.00" min="0.3" step="0.1">
+                    </div>
+                    <div class="input-hint">You'll receive: <span id="nairaReceive">₦0</span></div>
                 </div>
-                <div class="summary-row">
-                    <span class="summary-label">Fee (5%)</span>
-                    <span class="summary-value danger" id="summaryFee">-$0.00</span>
-                </div>
-                <div class="summary-row">
-                    <span class="summary-label">Rate</span>
-                    <span class="summary-value">₦1,000/$1</span>
-                </div>
-                <div class="summary-row total">
-                    <span class="summary-label">You Receive</span>
-                    <span class="summary-value success" id="summaryTotal">₦0</span>
-                </div>
-            </div>
 
-            <button class="btn-primary" id="withdrawBtn" onclick="submitWithdrawal()" disabled>
-                Withdraw <i class="fa-solid fa-paper-plane"></i>
-            </button>
+                <!-- Bank Select -->
+                <div class="input-group">
+                    <label class="input-label">Bank Name</label>
+                    <select class="bank-select" id="bankName">
+                        <option value="" disabled selected>Select your bank</option>
+                        <option value="OPay">OPay</option>
+                        <option value="PalmPay">PalmPay</option>
+                        <option value="United Bank of Africa">United Bank of Africa</option>
+                        <option value="Zenith Bank Plc">Zenith Bank Plc</option>
+                        <option value="SmartCash">SmartCash</option>
+                        <option value="Moniepoint">Moniepoint</option>
+                        <option value="Kuda MFB">Kuda MFB</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Account Number</label>
+                    <input type="text" class="text-input" id="accountNumber" placeholder="10-digit account number" maxlength="10" inputmode="numeric" pattern="[0-9]*">
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Account Name</label>
+                    <input type="text" class="text-input" id="accountName" placeholder="Full name on account">
+                </div>
+
+                <!-- Summary -->
+                <div class="summary-card" id="summaryCard" style="display: none;">
+                    <div class="summary-row">
+                        <span class="summary-label">Amount</span>
+                        <span class="summary-value" id="summaryAmount">$0.00</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">Fee (5%)</span>
+                        <span class="summary-value danger" id="summaryFee">-$0.00</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">Rate</span>
+                        <span class="summary-value">₦1,000/$1</span>
+                    </div>
+                    <div class="summary-row total">
+                        <span class="summary-label">You Receive</span>
+                        <span class="summary-value success" id="summaryTotal">₦0</span>
+                    </div>
+                </div>
+
+                <button class="btn-primary" id="withdrawBtn" onclick="submitWithdrawal()" disabled>
+                    Withdraw <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -935,7 +955,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
-        <script>
+    <script>
         // ==================== TASKVAULT FIREBASE CONFIG ====================
         const firebaseConfig = {
             apiKey: "AIzaSyAv6QCpopa0Q77AVTyjU5cqJEIKIE9OVTs",
