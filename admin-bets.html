@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>TaskVault Admin – Manage Stakes</title>
+  <link rel="icon" type="image/jpeg" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg"/>
+  <link rel="shortcut icon" type="image/jpeg" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <style>
+    :root {
+      --orange: #f97316;
+      --orange-light: #fff7ed;
+      --orange-dark: #ea580c;
+      --white: #fff;
+      --gray: #6b7280;
+      --red: #dc2626;
+      --green: #16a34a;
+      --blue: #2563eb;
+      --purple: #9333ea;
+      --yellow: #eab308;
+      --shadow: rgba(0,0,0,0.08);
+    }
+    * { box-sizing: border-box; margin:0; padding:0; font-family:'Segoe UI',system-ui,sans-serif; }
+    body { background:var(--orange-light); color:#1f2937; min-height:100vh; }
+
+    header {
+      background:var(--orange); color:var(--white);
+      padding:1rem 1.5rem; display:flex; justify-content:space-between; align-items:center;
+      box-shadow:0 2px 8px var(--shadow); position:sticky; top:0; z-index:100;
+    }
+    .logo-wrap { display:flex; align-items:center; gap:.6rem; }
+    .logo-wrap img { width:32px; height:32px; border-radius:6px; object-fit:cover; }
+    .logo-wrap h1 { font-size:1.1rem; font-weight:700; }
+    .admin-badge {
+      background:rgba(255,255,255,0.25); padding:.25rem .6rem;
+      border-radius:4px; font-size:.75rem; font-weight:600; margin-left:.5rem;
+    }
+    .header-btns { display:flex; gap:.5rem; align-items:center; }
+    .header-btn {
+      background:rgba(255,255,255,0.2); color:var(--white); border:none;
+      padding:.4rem .8rem; border-radius:6px; cursor:pointer; font-size:.85rem;
+    }
+    .header-btn:hover { background:rgba(255,255,255,0.3); }
+
+    .container { max-width:1200px; margin:0 auto; padding:1.5rem; }
+
+    .stats-bar {
+      display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
+      gap:1rem; margin-bottom:1.5rem;
+    }
+    .stat-card {
+      background:var(--white); border-radius:12px; padding:1rem;
+      box-shadow:0 2px 8px var(--shadow); display:flex; align-items:center; gap:.75rem;
+    }
+    .stat-icon {
+      width:40px; height:40px; border-radius:10px; display:flex;
+      align-items:center; justify-content:center; font-size:1rem;
+    }
+    .stat-icon.total { background:#dbeafe; color:var(--blue); }
+    .stat-icon.active { background:#dcfce7; color:var(--green); }
+    .stat-icon.won { background:#f3e8ff; color:var(--purple); }
+    .stat-icon.lost { background:#fee2e2; color:var(--red); }
+    .stat-info h4 { font-size:.75rem; color:var(--gray); font-weight:600; }
+    .stat-info p { font-size:1.1rem; font-weight:700; color:#1f2937; }
+
+    .action-bar {
+      display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;
+      flex-wrap:wrap; gap:.75rem;
+    }
+    .search-wrap {
+      display:flex; align-items:center; gap:.5rem;
+      background:var(--white); border:2px solid #e5e7eb; border-radius:10px;
+      padding:.5rem .75rem; transition:border-color .2s; flex:1; max-width:320px;
+    }
+    .search-wrap:focus-within { border-color:var(--orange); }
+    .search-wrap i { color:var(--gray); font-size:.9rem; }
+    .search-wrap input {
+      flex:1; border:none; background:transparent; font-size:.9rem; outline:none;
+    }
+
+    .filter-group { display:flex; gap:.5rem; }
+    .filter-select {
+      padding:.5rem .75rem; border:2px solid #e5e7eb; border-radius:8px;
+      background:var(--white); font-size:.85rem; outline:none; cursor:pointer;
+    }
+    .filter-select:focus { border-color:var(--orange); }
+
+    .table-wrap {
+      background:var(--white); border-radius:12px; box-shadow:0 2px 8px var(--shadow); overflow:hidden;
+    }
+    table { width:100%; border-collapse:collapse; }
+    th, td { padding:.9rem 1rem; text-align:left; font-size:.9rem; }
+    thead { background:#f9fafb; }
+    th { font-weight:600; color:#4b5563; font-size:.8rem; text-transform:uppercase; letter-spacing:.5px; }
+    tbody tr { border-top:1px solid #f3f4f6; transition:background .2s; }
+    tbody tr:hover { background:#f9fafb; }
+
+    .user-cell { display:flex; align-items:center; gap:.6rem; }
+    .user-avatar {
+      width:32px; height:32px; border-radius:8px; background:var(--orange);
+      display:flex; align-items:center; justify-content:center;
+      color:var(--white); font-size:.8rem; font-weight:700;
+    }
+    .user-info .email { font-weight:600; color:#1f2937; font-size:.85rem; }
+    .user-info .uid { font-size:.75rem; color:var(--gray); font-family:monospace; }
+
+    .topic-cell { max-width:200px; }
+    .topic-cell .question { font-weight:600; color:#1f2937; font-size:.85rem; }
+    .topic-cell .option { font-size:.75rem; color:var(--gray); margin-top:.2rem; }
+    .topic-cell .category { font-size:.75rem; color:var(--orange); font-weight:600; }
+
+    .amount-cell { font-weight:700; color:var(--orange-dark); }
+    .payout-cell { font-weight:700; color:var(--green); }
+    .payout-cell.empty { color:var(--gray); font-weight:400; }
+
+    .status-badge {
+      padding:.35rem .7rem; border-radius:20px; font-size:.75rem; font-weight:600;
+      display:inline-flex; align-items:center; gap:.3rem;
+    }
+    .status-active { background:#dcfce7; color:var(--green); }
+    .status-won { background:#dbeafe; color:var(--blue); }
+    .status-lost { background:#fee2e2; color:var(--red); }
+    .status-settled { background:#f3e8ff; color:var(--purple); }
+    .status-cancelled { background:#f3f4f6; color:var(--gray); }
+
+    .actions-cell { display:flex; gap:.3rem; flex-wrap:wrap; }
+    .action-btn {
+      padding:.4rem .6rem; border:none; border-radius:6px; cursor:pointer;
+      font-size:.8rem; color:var(--white); display:flex; align-items:center; gap:.3rem;
+    }
+    .btn-edit { background:var(--blue); }
+    .btn-win { background:var(--green); }
+    .btn-lose { background:var(--red); }
+    .btn-settle { background:var(--purple); }
+    .btn-cancel { background:var(--gray); }
+    .action-btn:disabled { opacity:.5; cursor:not-allowed; }
+
+    /* Modal */
+    .modal-backdrop {
+      position:fixed; inset:0; background:rgba(0,0,0,0.5);
+      display:none; justify-content:center; align-items:center; z-index:1000;
+      padding:1rem; overflow-y:auto;
+    }
+    .modal {
+      background:var(--white); border-radius:16px; padding:1.5rem;
+      max-width:480px; width:100%; max-height:90vh; overflow-y:auto;
+      animation:modalIn .3s ease;
+    }
+    @keyframes modalIn {
+      from { opacity:0; transform:scale(.95); }
+      to { opacity:1; transform:scale(1); }
+    }
+    .modal h3 { font-size:1.2rem; margin-bottom:1.25rem; display:flex; align-items:center; gap:.5rem; }
+    .form-group { margin-bottom:1rem; }
+    .form-group label { display:block; font-size:.85rem; font-weight:600; color:#4b5563; margin-bottom:.4rem; }
+    .form-group input, .form-group select {
+      width:100%; padding:.7rem; border:2px solid #e5e7eb; border-radius:8px;
+      font-size:.9rem; transition:border-color .2s;
+    }
+    .form-group input:focus, .form-group select:focus {
+      outline:none; border-color:var(--orange);
+    }
+    .form-group input:read-only { background:#f9fafb; color:var(--gray); }
+    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+    .hint { font-size:.8rem; color:var(--gray); margin-top:.3rem; }
+
+    .modal-actions { display:flex; gap:.5rem; margin-top:1.5rem; }
+    .modal-actions .btn { flex:1; padding:.8rem; border:none; border-radius:8px; font-weight:600; cursor:pointer; }
+    .btn-cancel { background:#f3f4f6; color:#4b5563; }
+    .btn-save { background:var(--orange); color:var(--white); }
+    .btn-save:disabled { background:#d1d5db; cursor:not-allowed; }
+
+    .skeleton-row { height:52px; background:linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size:200% 100%; animation:shimmer 1.5s infinite; margin-bottom:1px; }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+    .empty-state { text-align:center; padding:3rem; color:var(--gray); }
+    .empty-state i { font-size:2.5rem; margin-bottom:1rem; color:#e5e7eb; }
+
+    .hidden { display:none !important; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo-wrap">
+    <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" alt="TaskVault"/>
+    <h1>TaskVault <span class="admin-badge">ADMIN</span></h1>
+  </div>
+  <div class="header-btns">
+    <button class="header-btn" onclick="location.href='stakes.html'">
+      <i class="fas fa-external-link-alt"></i> View Stake Page
+    </button>
+    <button class="header-btn" onclick="location.href='admin-topics.html'">
+      <i class="fas fa-list"></i> Topics
+    </button>
+    <button class="header-btn" onclick="signOutUser()">
+      <i class="fas fa-sign-out-alt"></i>
+    </button>
+  </div>
+</header>
+
+<div class="container">
+  <!-- Stats -->
+  <div class="stats-bar" id="statsBar">
+    <div class="stat-card">
+      <div class="stat-icon total"><i class="fas fa-coins"></i></div>
+      <div class="stat-info"><h4>Total Stakes</h4><p id="statTotal">0</p></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon active"><i class="fas fa-play"></i></div>
+      <div class="stat-info"><h4>Active</h4><p id="statActive">0</p></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon won"><i class="fas fa-trophy"></i></div>
+      <div class="stat-info"><h4>Won</h4><p id="statWon">0</p></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon lost"><i class="fas fa-times"></i></div>
+      <div class="stat-info"><h4>Lost</h4><p id="statLost">0</p></div>
+    </div>
+  </div>
+
+  <div class="action-bar">
+    <div class="search-wrap">
+      <i class="fas fa-search"></i>
+      <input type="text" id="searchInput" placeholder="Search by user, topic, or stake ID..."/>
+    </div>
+    <div class="filter-group">
+      <select class="filter-select" id="statusFilter">
+        <option value="all">All Status</option>
+        <option value="active">Active</option>
+        <option value="won">Won</option>
+        <option value="lost">Lost</option>
+        <option value="settled">Settled</option>
+        <option value="cancelled">Cancelled</option>
+      </select>
+      <select class="filter-select" id="topicFilter">
+        <option value="all">All Topics</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div id="loadingState">
+    <div class="table-wrap">
+      <div class="skeleton-row"></div>
+      <div class="skeleton-row"></div>
+      <div class="skeleton-row"></div>
+      <div class="skeleton-row"></div>
+    </div>
+  </div>
+
+  <!-- Stakes Table -->
+  <div id="stakesTable" class="table-wrap hidden">
+    <table>
+      <thead>
+        <tr>
+          <th>User</th>
+          <th>Topic & Option</th>
+          <th>Amount</th>
+          <th>Payout</th>
+          <th>Status</th>
+          <th>Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="stakesBody"></tbody>
+    </table>
+  </div>
+
+  <div id="emptyState" class="empty-state hidden">
+    <i class="fas fa-inbox"></i>
+    <p>No stakes found.</p>
+  </div>
+</div>
+
+<!-- Edit/Settle Modal -->
+<div class="modal-backdrop" id="stakeModal">
+  <div class="modal">
+    <h3><i class="fas fa-edit" style="color:var(--orange);"></i> <span id="modalTitle">Manage Stake</span></h3>
+    
+    <div class="form-row">
+      <div class="form-group">
+        <label>Stake ID</label>
+        <input type="text" id="stakeId" readonly/>
+      </div>
+      <div class="form-group">
+        <label>User ID</label>
+        <input type="text" id="userId" readonly/>
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label>Topic</label>
+      <input type="text" id="topicName" readonly/>
+    </div>
+    
+    <div class="form-row">
+      <div class="form-group">
+        <label>Selected Option</label>
+        <input type="text" id="optionLabel" readonly/>
+      </div>
+      <div class="form-group">
+        <label>Staked Amount</label>
+        <input type="text" id="stakeAmount" readonly/>
+      </div>
+    </div>
+    
+    <div class="form-row">
+      <div class="form-group">
+        <label>Status</label>
+        <select id="stakeStatus">
+          <option value="active">Active</option>
+          <option value="won">Won</option>
+          <option value="lost">Lost</option>
+          <option value="settled">Settled</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Payout Amount ($)</label>
+        <input type="number" id="payoutAmount" step="0.001" min="0" placeholder="0.00"/>
+        <div class="hint">Amount to credit user if won/settled</div>
+      </div>
+    </div>
+    
+    <div class="modal-actions">
+      <button class="btn btn-cancel" onclick="closeModal('stakeModal')">Cancel</button>
+      <button class="btn btn-save" id="saveStakeBtn" onclick="saveStake()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+  import {
+    getFirestore, doc, getDoc, collection, query, orderBy,
+    getDocs, updateDoc, serverTimestamp, writeBatch
+  } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAv6QCpopa0Q77AVTyjU5cqJEIKIE9OVTs",
+    authDomain: "taskvault-412a0.firebaseapp.com",
+    projectId: "taskvault-412a0",
+    storageBucket: "taskvault-412a0.firebasestorage.app",
+    messagingSenderId: "420716701831",
+    appId: "1:420716701831:web:c987d91f7f4c8684eb7022"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  const ADMIN_EMAIL = "beniwealth70@gmail.com";
+
+  let currentUser = null;
+  let allStakes = [];
+  let editingStake = null;
+  let topicsMap = new Map();
+
+  const loadingState = document.getElementById('loadingState');
+  const stakesTable = document.getElementById('stakesTable');
+  const stakesBody = document.getElementById('stakesBody');
+  const emptyState = document.getElementById('emptyState');
+  const searchInput = document.getElementById('searchInput');
+  const statusFilter = document.getElementById('statusFilter');
+  const topicFilter = document.getElementById('topicFilter');
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { location.href = 'login.html'; return; }
+    if (user.email?.toLowerCase() !== ADMIN_EMAIL) {
+      alert('Unauthorized access');
+      signOut(auth).then(() => location.href = 'login.html');
+      return;
+    }
+    currentUser = user;
+    await loadTopics();
+    await loadAllStakes();
+  });
+
+  async function loadTopics() {
+    try {
+      const snap = await getDocs(collection(db, 'predictionTopics'));
+      topicsMap.clear();
+      snap.docs.forEach(d => topicsMap.set(d.id, d.data()));
+      
+      // Populate topic filter
+      const topicFilterEl = document.getElementById('topicFilter');
+      topicFilterEl.innerHTML = '<option value="all">All Topics</option>';
+      topicsMap.forEach((topic, id) => {
+        const opt = document.createElement('option');
+        opt.value = id;
+        opt.textContent = topic.question?.substring(0, 40) + '...' || id;
+        topicFilterEl.appendChild(opt);
+      });
+    } catch (err) {
+      console.error('Load topics error:', err);
+    }
+  }
+
+  async function loadAllStakes() {
+    loadingState.classList.remove('hidden');
+    stakesTable.classList.add('hidden');
+    emptyState.classList.add('hidden');
+
+    try {
+      allStakes = [];
+      const usersSnap = await getDocs(collection(db, 'users'));
+      
+      for (const userDoc of usersSnap.docs) {
+        const stakesSnap = await getDocs(
+          query(collection(db, 'users', userDoc.id, 'stakes'), orderBy('createdAt', 'desc'))
+        );
+        
+        stakesSnap.docs.forEach(stakeDoc => {
+          allStakes.push({
+            id: stakeDoc.id,
+            userId: userDoc.id,
+            userEmail: userDoc.data().email || 'Unknown',
+            ...stakeDoc.data()
+          });
+        });
+      }
+
+      loadingState.classList.add('hidden');
+      updateStats();
+      renderStakes();
+      
+      if (allStakes.length === 0) {
+        emptyState.classList.remove('hidden');
+      } else {
+        stakesTable.classList.remove('hidden');
+      }
+    } catch (err) {
+      console.error('Load stakes error:', err);
+      loadingState.classList.add('hidden');
+      emptyState.classList.remove('hidden');
+      emptyState.innerHTML = '<i class="fas fa-exclamation-circle"></i><p>Failed to load stakes.</p>';
+    }
+  }
+
+  function updateStats() {
+    const total = allStakes.length;
+    const active = allStakes.filter(s => s.status === 'active').length;
+    const won = allStakes.filter(s => s.status === 'won').length;
+    const lost = allStakes.filter(s => s.status === 'lost').length;
+    
+    document.getElementById('statTotal').textContent = total;
+    document.getElementById('statActive').textContent = active;
+    document.getElementById('statWon').textContent = won;
+    document.getElementById('statLost').textContent = lost;
+  }
+
+  function renderStakes() {
+    let filtered = [...allStakes];
+    
+    // Search filter
+    const query = searchInput.value.trim().toLowerCase();
+    if (query) {
+      filtered = filtered.filter(s => 
+        (s.userEmail?.toLowerCase() || '').includes(query) ||
+        (s.topicQuestion?.toLowerCase() || '').includes(query) ||
+        s.id.toLowerCase().includes(query) ||
+        s.userId.toLowerCase().includes(query)
+      );
+    }
+    
+    // Status filter
+    if (statusFilter.value !== 'all') {
+      filtered = filtered.filter(s => s.status === statusFilter.value);
+    }
+    
+    // Topic filter
+    if (topicFilter.value !== 'all') {
+      filtered = filtered.filter(s => s.topicId === topicFilter.value);
+    }
+
+    if (filtered.length === 0) {
+      stakesBody.innerHTML = '';
+      emptyState.classList.remove('hidden');
+      stakesTable.classList.add('hidden');
+      return;
+    }
+
+    emptyState.classList.add('hidden');
+    stakesTable.classList.remove('hidden');
+
+    let html = '';
+    filtered.forEach(stake => {
+      const statusClass = `status-${stake.status || 'active'}`;
+      const statusText = (stake.status || 'active').charAt(0).toUpperCase() + (stake.status || 'active').slice(1);
+      
+      const date = stake.createdAt?.toDate ? stake.createdAt.toDate() : new Date(stake.createdAt || Date.now());
+      const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+      
+      const payout = stake.payoutAmount || 0;
+      const hasPayout = payout > 0;
+
+      // Action buttons based on status
+      let actions = `<button class="action-btn btn-edit" onclick="editStake('${stake.id}', '${stake.userId}')" title="Edit"><i class="fas fa-edit"></i></button>`;
+      
+      if (stake.status === 'active') {
+        actions += `<button class="action-btn btn-win" onclick="quickSetStatus('${stake.id}', '${stake.userId}', 'won')" title="Mark Won"><i class="fas fa-trophy"></i></button>`;
+        actions += `<button class="action-btn btn-lose" onclick="quickSetStatus('${stake.id}', '${stake.userId}', 'lost')" title="Mark Lost"><i class="fas fa-times"></i></button>`;
+      }
+      if (stake.status === 'won' && stake.status !== 'settled') {
+        actions += `<button class="action-btn btn-settle" onclick="quickSetStatus('${stake.id}', '${stake.userId}', 'settled')" title="Settle & Credit"><i class="fas fa-coins"></i></button>`;
+      }
+
+      html += `
+        <tr>
+          <td>
+            <div class="user-cell">
+              <div class="user-avatar">${(stake.userEmail?.charAt(0) || 'U').toUpperCase()}</div>
+              <div class="user-info">
+                <div class="email">${escapeHtml(stake.userEmail || 'Unknown')}</div>
+                <div class="uid">${stake.userId.substring(0, 8)}...</div>
+              </div>
+            </div>
+          </td>
+          <td class="topic-cell">
+            <div class="question">${escapeHtml(stake.topicQuestion || 'Unknown Topic')}</div>
+            <div class="option"><i class="fas fa-check-circle"></i> ${escapeHtml(stake.optionLabel || 'Unknown')}</div>
+            <div class="category">${stake.category || 'General'}</div>
+          </td>
+          <td class="amount-cell">$${(stake.amount || 0).toFixed(3)}</td>
+          <td class="payout-cell ${!hasPayout ? 'empty' : ''}">${hasPayout ? '$' + payout.toFixed(3) : '-'}</td>
+          <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+          <td style="font-size:.8rem; color:var(--gray);">${dateStr}</td>
+          <td class="actions-cell">${actions}</td>
+        </tr>
+      `;
+    });
+    
+    stakesBody.innerHTML = html;
+  }
+
+  window.editStake = async function(stakeId, userId) {
+    const stake = allStakes.find(s => s.id === stakeId && s.userId === userId);
+    if (!stake) return;
+    
+    editingStake = stake;
+    
+    document.getElementById('modalTitle').textContent = 'Manage Stake';
+    document.getElementById('stakeId').value = stake.id;
+    document.getElementById('userId').value = stake.userId;
+    document.getElementById('topicName').value = stake.topicQuestion || 'Unknown';
+    document.getElementById('optionLabel').value = stake.optionLabel || 'Unknown';
+    document.getElementById('stakeAmount').value = '$' + (stake.amount || 0).toFixed(3);
+    document.getElementById('stakeStatus').value = stake.status || 'active';
+    document.getElementById('payoutAmount').value = stake.payoutAmount || '';
+    
+    openModal('stakeModal');
+  };
+
+  window.saveStake = async function() {
+    if (!editingStake) return;
+    
+    const newStatus = document.getElementById('stakeStatus').value;
+    const payoutInput = document.getElementById('payoutAmount').value;
+    const payoutAmount = payoutInput ? parseFloat(payoutInput) : 0;
+    
+    const btn = document.getElementById('saveStakeBtn');
+    btn.disabled = true;
+    btn.textContent = 'Saving...';
+    
+    try {
+      const stakeRef = doc(db, 'users', editingStake.userId, 'stakes', editingStake.id);
+      const updateData = {
+        status: newStatus,
+        updatedAt: serverTimestamp()
+      };
+      
+      if (payoutAmount > 0) {
+        updateData.payoutAmount = payoutAmount;
+      }
+      
+      // If settling, credit user
+      if (newStatus === 'settled' && payoutAmount > 0) {
+        const batch = writeBatch(db);
+        
+        // Update stake
+        batch.update(stakeRef, updateData);
+        
+        // Credit user balance
+        const userRef = doc(db, 'users', editingStake.userId);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+          const currentBalance = userSnap.data().balance || 0;
+          batch.update(userRef, { 
+            balance: currentBalance + payoutAmount,
+            updatedAt: serverTimestamp()
+          });
+        }
+        
+        await batch.commit();
+      } else {
+        await updateDoc(stakeRef, updateData);
+      }
+      
+      // Update local data
+      editingStake.status = newStatus;
+      if (payoutAmount > 0) editingStake.payoutAmount = payoutAmount;
+      
+      closeModal('stakeModal');
+      updateStats();
+      renderStakes();
+      
+      const msg = newStatus === 'settled' && payoutAmount > 0 
+        ? `Stake settled. Credited $${payoutAmount.toFixed(3)} to user.` 
+        : 'Stake updated successfully.';
+      alert(msg);
+      
+    } catch (err) {
+      console.error('Save stake error:', err);
+      alert('Failed to update stake: ' + err.message);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Save Changes';
+    }
+  };
+
+  window.quickSetStatus = async function(stakeId, userId, status) {
+    const stake = allStakes.find(s => s.id === stakeId && s.userId === userId);
+    if (!stake) return;
+    
+    let payoutAmount = 0;
+    if (status === 'won' || status === 'settled') {
+      const input = prompt('Enter payout amount to credit user ($):', stake.amount || '0');
+      if (input === null) return;
+      payoutAmount = parseFloat(input) || 0;
+    }
+    
+    if (!confirm(`Change status to "${status}"${payoutAmount > 0 ? ` with payout $${payoutAmount.toFixed(3)}` : ''}?`)) return;
+    
+    try {
+      const stakeRef = doc(db, 'users', userId, 'stakes', stakeId);
+      const updateData = { status, updatedAt: serverTimestamp() };
+      
+      if (payoutAmount > 0) updateData.payoutAmount = payoutAmount;
+      
+      if (status === 'settled' && payoutAmount > 0) {
+        const batch = writeBatch(db);
+        batch.update(stakeRef, updateData);
+        
+        const userRef = doc(db, 'users', userId);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+          const currentBalance = userSnap.data().balance || 0;
+          batch.update(userRef, { 
+            balance: currentBalance + payoutAmount,
+            updatedAt: serverTimestamp()
+          });
+        }
+        
+        await batch.commit();
+        alert(`Settled! Credited $${payoutAmount.toFixed(3)} to user.`);
+      } else {
+        await updateDoc(stakeRef, updateData);
+        alert(`Status updated to ${status}.`);
+      }
+      
+      // Update local
+      stake.status = status;
+      if (payoutAmount > 0) stake.payoutAmount = payoutAmount;
+      
+      updateStats();
+      renderStakes();
+      
+    } catch (err) {
+      console.error('Quick set status error:', err);
+      alert('Failed: ' + err.message);
+    }
+  };
+
+  // Filter listeners
+  searchInput.addEventListener('input', renderStakes);
+  statusFilter.addEventListener('change', renderStakes);
+  topicFilter.addEventListener('change', renderStakes);
+
+  window.closeModal = function(id) {
+    document.getElementById(id).style.display = 'none';
+  };
+
+  function openModal(id) {
+    document.getElementById(id).style.display = 'flex';
+  }
+
+  window.signOutUser = function() {
+    signOut(auth).then(() => location.href = 'login.html');
+  };
+
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  // Close modal on backdrop click
+  document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
+    backdrop.addEventListener('click', (e) => {
+      if (e.target === backdrop) backdrop.style.display = 'none';
+    });
+  });
+</script>
+
+</body>
+                                           </html>
