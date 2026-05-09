@@ -4,10 +4,8 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>TaskVault – Stake</title>
-  <!-- Favicon -->
   <link rel="icon" type="image/jpeg" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg"/>
   <link rel="shortcut icon" type="image/jpeg" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg"/>
-  
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
   <style>
     :root {
@@ -24,7 +22,6 @@
     * { box-sizing: border-box; margin:0; padding:0; font-family:'Segoe UI',system-ui,sans-serif; }
     body { background:var(--orange-light); color:#1f2937; min-height:100vh; }
 
-    /* Header */
     header {
       background:var(--orange); color:var(--white);
       padding:1rem 1.5rem; display:flex; justify-content:space-between; align-items:center;
@@ -44,7 +41,6 @@
       border-radius:20px; font-size:.85rem; font-weight:600;
     }
 
-    /* Provider Notice */
     .provider-notice {
       background:#fef3c7; border-left:4px solid #d97706;
       padding:.75rem 1rem; font-size:.85rem; color:#92400e;
@@ -52,10 +48,8 @@
     }
     .provider-notice i { color:#d97706; }
 
-    /* Container */
     .container { max-width:800px; margin:0 auto; padding:1.5rem; }
 
-    /* Category Filter */
     .filter-bar {
       display:flex; gap:.5rem; margin-bottom:1.5rem; overflow-x:auto; padding-bottom:.5rem;
     }
@@ -68,7 +62,6 @@
       background:var(--orange); color:var(--white);
     }
 
-    /* Topic Cards */
     .topics-grid { display:grid; gap:1rem; }
     .topic-card {
       background:var(--white); border-radius:14px; padding:1.25rem;
@@ -94,7 +87,6 @@
     .topic-question { font-size:1.05rem; font-weight:700; margin-bottom:.5rem; line-height:1.4; }
     .topic-desc { font-size:.85rem; color:var(--gray); margin-bottom:1rem; }
 
-    /* Countdown */
     .countdown-wrap {
       display:flex; align-items:center; gap:.5rem; margin-bottom:1rem;
       padding:.6rem .75rem; background:var(--orange-light); border-radius:8px;
@@ -104,7 +96,6 @@
     .countdown.urgent { color:var(--red); animation:pulse 1s infinite; }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
 
-    /* Options */
     .options-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(120px, 1fr)); gap:.75rem; }
     .option-btn {
       padding:.9rem; border:2px solid #e5e7eb; background:var(--white);
@@ -114,7 +105,6 @@
     .option-btn:hover:not(:disabled) { border-color:var(--orange); color:var(--orange); }
     .option-btn:disabled { opacity:.5; cursor:not-allowed; }
 
-    /* Stake Modal */
     .modal-backdrop {
       position:fixed; inset:0; background:rgba(0,0,0,0.5);
       display:none; justify-content:center; align-items:center; z-index:1000;
@@ -144,7 +134,6 @@
     .btn-confirm { background:var(--orange); color:var(--white); }
     .btn-confirm:disabled { background:#d1d5db; cursor:not-allowed; }
 
-    /* KYC Block */
     .kyc-block {
       background:var(--white); border-radius:14px; padding:2rem; text-align:center;
       box-shadow:0 2px 8px var(--shadow); margin-bottom:1.5rem;
@@ -158,7 +147,6 @@
     .kyc-block p { color:var(--gray); margin-bottom:1.5rem; font-size:.9rem; }
     .kyc-block .btn { display:inline-block; padding:.75rem 1.5rem; background:var(--orange); color:var(--white); text-decoration:none; border-radius:8px; font-weight:600; }
 
-    /* Welcome Overlay */
     .overlay {
       position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:2000;
       display:none; justify-content:center; align-items:center; padding:1rem;
@@ -184,7 +172,6 @@
     .dot { width:8px; height:8px; border-radius:50%; background:#e5e7eb; }
     .dot.active { background:var(--orange); }
 
-    /* Loading */
     .skeleton-card {
       background:var(--white); border-radius:14px; padding:1.25rem;
       box-shadow:0 2px 8px var(--shadow); margin-bottom:1rem;
@@ -194,6 +181,8 @@
 
     .empty-state { text-align:center; padding:3rem 1rem; color:var(--gray); }
     .empty-state i { font-size:2.5rem; margin-bottom:1rem; color:#e5e7eb; }
+
+    .debug-info { background:#fee2e2; color:var(--red); padding:1rem; border-radius:8px; margin-bottom:1rem; font-size:.85rem; }
 
     .hidden { display:none !important; }
   </style>
@@ -216,13 +205,17 @@
   </div>
 </header>
 
-<!-- Provider Notice -->
 <div class="provider-notice" id="providerNotice">
   <i class="fas fa-info-circle"></i>
   <span><strong>Notice:</strong> All stakes are processed in real time to our stake providers. TaskVault has no control over outcomes or results.</span>
 </div>
 
 <div class="container">
+  <!-- Debug Panel (remove after fixing) -->
+  <div id="debugPanel" class="debug-info hidden">
+    <strong>Debug:</strong> <span id="debugText"></span>
+  </div>
+
   <!-- Loading -->
   <div id="loadingState">
     <div class="skeleton-card"><div class="skeleton" style="width:80px;height:14px;"></div><div class="skeleton" style="width:100%;height:20px;"></div><div class="skeleton" style="width:60%;height:16px;"></div></div>
@@ -338,8 +331,9 @@
   const balanceDisplay = document.getElementById('balanceDisplay');
   const stakeAmount = document.getElementById('stakeAmount');
   const confirmStakeBtn = document.getElementById('confirmStakeBtn');
+  const debugPanel = document.getElementById('debugPanel');
+  const debugText = document.getElementById('debugText');
 
-  // Overlay
   const welcomeOverlay = document.getElementById('welcomeOverlay');
   const overlayTitle = document.getElementById('overlayTitle');
   const overlayText = document.getElementById('overlayText');
@@ -359,11 +353,9 @@
     if (!userSnap.exists()) { alert('Profile not found'); return; }
     currentUserData = userSnap.data();
 
-    // Show balance
     const bal = currentUserData.balance || 0;
     balanceDisplay.textContent = `$${bal.toFixed(2)}`;
 
-    // Check KYC
     const kycStatus = currentUserData.kycStatus || 'pending';
     loadingState.classList.add('hidden');
 
@@ -374,7 +366,6 @@
 
     mainContent.classList.remove('hidden');
 
-    // Check overlay visits
     const visits = parseInt(localStorage.getItem('taskvault_stake_visits') || '0');
     if (visits < 2) {
       showWelcomeOverlay();
@@ -414,7 +405,6 @@
     }
   };
 
-  // Filter buttons
   document.querySelectorAll('.filter-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -425,29 +415,68 @@
   });
 
   async function loadTopics() {
-    const now = new Date();
-    const q = query(
-      collection(db, 'predictionTopics'),
-      where('status', 'in', ['open', 'closed', 'resulted']),
-      where('isActive', '==', true),
-      orderBy('postedAt', 'desc')
-    );
-    
+    // FIXED: Simpler query that doesn't require composite index
     try {
+      // Try simple query first - get all active topics ordered by postedAt
+      const q = query(
+        collection(db, 'predictionTopics'),
+        where('isActive', '==', true),
+        orderBy('postedAt', 'desc')
+      );
+      
       const snap = await getDocs(q);
       topics = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      
+      // Filter status client-side
+      topics = topics.filter(t => ['open', 'closed', 'resulted'].includes(t.status));
+      
+      showDebug(`Loaded ${topics.length} topics from Firestore`);
+      
+      if (topics.length === 0) {
+        topicsGrid.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i><p>No topics available right now. Check back later!</p></div>';
+        return;
+      }
+      
       renderTopics();
     } catch (err) {
       console.error('Load topics error:', err);
-      topicsGrid.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Failed to load topics. Try again.</p></div>';
+      showDebug(`Error: ${err.message}`);
+      
+      // Fallback: try without orderBy if index issue
+      try {
+        const fallbackQ = query(
+          collection(db, 'predictionTopics'),
+          where('isActive', '==', true)
+        );
+        const fallbackSnap = await getDocs(fallbackQ);
+        topics = fallbackSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+        topics = topics.filter(t => ['open', 'closed', 'resulted'].includes(t.status));
+        topics.sort((a, b) => {
+          const aTime = a.postedAt?.toDate?.() || new Date(0);
+          const bTime = b.postedAt?.toDate?.() || new Date(0);
+          return bTime - aTime;
+        });
+        
+        showDebug(`Fallback loaded ${topics.length} topics`);
+        renderTopics();
+      } catch (fallbackErr) {
+        showDebug(`Fallback also failed: ${fallbackErr.message}`);
+        topicsGrid.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Failed to load topics. Please try again later.</p></div>';
+      }
     }
+  }
+
+  function showDebug(msg) {
+    debugPanel.classList.remove('hidden');
+    debugText.textContent = msg;
+    console.log('[Debug]', msg);
   }
 
   function renderTopics() {
     let filtered = activeFilter === 'all' ? topics : topics.filter(t => t.category === activeFilter);
     
     if (filtered.length === 0) {
-      topicsGrid.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i><p>No topics available in this category.</p></div>';
+      topicsGrid.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i><p>No topics in this category.</p></div>';
       return;
     }
 
@@ -458,10 +487,10 @@
       const statusClass = topic.status === 'open' ? 'status-open' : topic.status === 'closed' ? 'status-closed' : 'status-resulted';
       const statusText = topic.status === 'open' ? 'Open' : topic.status === 'closed' ? 'Closed' : 'Resulted';
       
-      const deadline = topic.deadline?.toDate ? topic.deadline.toDate() : new Date(topic.deadline);
+      const deadline = topic.deadline?.toDate ? topic.deadline.toDate() : new Date(topic.deadline || Date.now());
       const isOpen = topic.status === 'open' && deadline > new Date();
       const timeLeft = isOpen ? getTimeLeft(deadline) : null;
-      const isUrgent = isOpen && (deadline - new Date()) < 3600000; // less than 1 hour
+      const isUrgent = isOpen && (deadline - new Date()) < 3600000;
 
       html += `
         <div class="topic-card" data-id="${topic.id}">
@@ -478,7 +507,7 @@
             </div>
           ` : ''}
           <div class="options-grid">
-            ${topic.options.map(opt => `
+            ${(topic.options || []).map(opt => `
               <button class="option-btn" 
                 onclick="openStakeModal('${topic.id}', '${opt.id}', '${escapeHtml(opt.label)}')"
                 ${!isOpen ? 'disabled' : ''}>
@@ -505,8 +534,9 @@
   }
 
   function startCountdowns() {
-    const timers = document.querySelectorAll('.countdown');
-    timers.forEach(el => {
+    document.querySelectorAll('.countdown').forEach(el => {
+      if (el.dataset.interval) clearInterval(parseInt(el.dataset.interval));
+      
       const deadline = new Date(el.dataset.deadline);
       const update = () => {
         const diff = deadline - new Date();
@@ -563,22 +593,17 @@
         const userData = userSnap.data();
         const topicData = topicSnap.data();
 
-        // KYC check
         if (userData.kycStatus !== 'verified') throw new Error('KYC not verified');
 
-        // Balance check
         const balance = userData.balance || 0;
         if (balance < amount) throw new Error('Insufficient balance');
 
-        // Topic status check
         if (topicData.status !== 'open') throw new Error('Topic is closed');
         const deadline = topicData.deadline?.toDate ? topicData.deadline.toDate() : new Date(topicData.deadline);
         if (deadline <= new Date()) throw new Error('Deadline passed');
 
-        // Deduct balance
         transaction.update(userRef, { balance: balance - amount });
 
-        // Record stake
         transaction.set(stakeRef, {
           topicId: selectedTopic.id,
           topicQuestion: topicData.question,
@@ -590,8 +615,7 @@
           createdAt: serverTimestamp()
         });
 
-        // Update topic stats (hidden from users)
-        const optIndex = topicData.options.findIndex(o => o.id === selectedOption.id);
+        const optIndex = (topicData.options || []).findIndex(o => o.id === selectedOption.id);
         if (optIndex >= 0) {
           const newOptions = [...topicData.options];
           newOptions[optIndex] = {
@@ -606,7 +630,6 @@
         }
       });
 
-      // Refresh balance display
       const freshSnap = await getDoc(userRef);
       currentUserData = freshSnap.data();
       balanceDisplay.textContent = `$${(currentUserData.balance || 0).toFixed(2)}`;
@@ -649,7 +672,6 @@
     return div.innerHTML;
   }
 
-  // Cleanup intervals on page hide
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
       document.querySelectorAll('.countdown').forEach(el => {
@@ -662,4 +684,4 @@
 </script>
 
 </body>
-                                                                                                            </html>
+</html>
