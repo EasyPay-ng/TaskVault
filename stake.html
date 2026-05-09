@@ -182,8 +182,6 @@
     .empty-state { text-align:center; padding:3rem 1rem; color:var(--gray); }
     .empty-state i { font-size:2.5rem; margin-bottom:1rem; color:#e5e7eb; }
 
-    .debug-info { background:#fee2e2; color:var(--red); padding:1rem; border-radius:8px; margin-bottom:1rem; font-size:.85rem; }
-
     .hidden { display:none !important; }
   </style>
 </head>
@@ -211,11 +209,6 @@
 </div>
 
 <div class="container">
-  <!-- Debug Panel (remove after fixing) -->
-  <div id="debugPanel" class="debug-info hidden">
-    <strong>Debug:</strong> <span id="debugText"></span>
-  </div>
-
   <!-- Loading -->
   <div id="loadingState">
     <div class="skeleton-card"><div class="skeleton" style="width:80px;height:14px;"></div><div class="skeleton" style="width:100%;height:20px;"></div><div class="skeleton" style="width:60%;height:16px;"></div></div>
@@ -331,8 +324,6 @@
   const balanceDisplay = document.getElementById('balanceDisplay');
   const stakeAmount = document.getElementById('stakeAmount');
   const confirmStakeBtn = document.getElementById('confirmStakeBtn');
-  const debugPanel = document.getElementById('debugPanel');
-  const debugText = document.getElementById('debugText');
 
   const welcomeOverlay = document.getElementById('welcomeOverlay');
   const overlayTitle = document.getElementById('overlayTitle');
@@ -415,9 +406,7 @@
   });
 
   async function loadTopics() {
-    // FIXED: Simpler query that doesn't require composite index
     try {
-      // Try simple query first - get all active topics ordered by postedAt
       const q = query(
         collection(db, 'predictionTopics'),
         where('isActive', '==', true),
@@ -426,11 +415,9 @@
       
       const snap = await getDocs(q);
       topics = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      
-      // Filter status client-side
       topics = topics.filter(t => ['open', 'closed', 'resulted'].includes(t.status));
       
-      showDebug(`Loaded ${topics.length} topics from Firestore`);
+      console.log(`[TaskVault] Loaded ${topics.length} topics`);
       
       if (topics.length === 0) {
         topicsGrid.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i><p>No topics available right now. Check back later!</p></div>';
@@ -439,10 +426,8 @@
       
       renderTopics();
     } catch (err) {
-      console.error('Load topics error:', err);
-      showDebug(`Error: ${err.message}`);
+      console.error('[TaskVault] Load topics error:', err);
       
-      // Fallback: try without orderBy if index issue
       try {
         const fallbackQ = query(
           collection(db, 'predictionTopics'),
@@ -457,19 +442,19 @@
           return bTime - aTime;
         });
         
-        showDebug(`Fallback loaded ${topics.length} topics`);
+        console.log(`[TaskVault] Fallback loaded ${topics.length} topics`);
+        
+        if (topics.length === 0) {
+          topicsGrid.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i><p>No topics available right now. Check back later!</p></div>';
+          return;
+        }
+        
         renderTopics();
       } catch (fallbackErr) {
-        showDebug(`Fallback also failed: ${fallbackErr.message}`);
+        console.error('[TaskVault] Fallback also failed:', fallbackErr);
         topicsGrid.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Failed to load topics. Please try again later.</p></div>';
       }
     }
-  }
-
-  function showDebug(msg) {
-    debugPanel.classList.remove('hidden');
-    debugText.textContent = msg;
-    console.log('[Debug]', msg);
   }
 
   function renderTopics() {
@@ -638,7 +623,7 @@
       openModal('successModal');
 
     } catch (err) {
-      console.error('Stake error:', err);
+      console.error('[TaskVault] Stake error:', err);
       document.getElementById('errorText').textContent = err.message || 'Failed to place stake. Please try again.';
       closeModal('stakeModal');
       openModal('errorModal');
