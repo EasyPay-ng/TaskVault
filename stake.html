@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>TaskVault – Stake</title>
+  <!-- Favicon -->
+  <link rel="icon" type="image/jpeg" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg"/>
+  <link rel="shortcut icon" type="image/jpeg" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg"/>
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <style>
+    :root {
+      --orange: #f97316;
+      --orange-light: #fff7ed;
+      --orange-dark: #ea580c;
+      --white: #fff;
+      --gray: #6b7280;
+      --red: #dc2626;
+      --green: #16a34a;
+      --blue: #2563eb;
+      --shadow: rgba(0,0,0,0.08);
+    }
+    * { box-sizing: border-box; margin:0; padding:0; font-family:'Segoe UI',system-ui,sans-serif; }
+    body { background:var(--orange-light); color:#1f2937; min-height:100vh; }
+
+    /* Header */
+    header {
+      background:var(--orange); color:var(--white);
+      padding:1rem 1.5rem; display:flex; justify-content:space-between; align-items:center;
+      box-shadow:0 2px 8px var(--shadow); position:sticky; top:0; z-index:100;
+    }
+    .logo-wrap { display:flex; align-items:center; gap:.6rem; }
+    .logo-wrap img { width:32px; height:32px; border-radius:6px; object-fit:cover; }
+    .logo-wrap h1 { font-size:1.1rem; font-weight:700; }
+    .header-btns { display:flex; gap:.5rem; align-items:center; }
+    .header-btn {
+      background:rgba(255,255,255,0.2); color:var(--white); border:none;
+      padding:.4rem .8rem; border-radius:6px; cursor:pointer; font-size:.85rem;
+    }
+    .header-btn:hover { background:rgba(255,255,255,0.3); }
+    .balance-pill {
+      background:rgba(255,255,255,0.25); padding:.35rem .75rem;
+      border-radius:20px; font-size:.85rem; font-weight:600;
+    }
+
+    /* Provider Notice */
+    .provider-notice {
+      background:#fef3c7; border-left:4px solid #d97706;
+      padding:.75rem 1rem; font-size:.85rem; color:#92400e;
+      display:flex; align-items:center; gap:.5rem;
+    }
+    .provider-notice i { color:#d97706; }
+
+    /* Container */
+    .container { max-width:800px; margin:0 auto; padding:1.5rem; }
+
+    /* Category Filter */
+    .filter-bar {
+      display:flex; gap:.5rem; margin-bottom:1.5rem; overflow-x:auto; padding-bottom:.5rem;
+    }
+    .filter-btn {
+      padding:.5rem 1rem; border:2px solid var(--orange); background:var(--white);
+      color:var(--orange); border-radius:20px; cursor:pointer; font-size:.85rem;
+      font-weight:600; white-space:nowrap; transition:all .2s;
+    }
+    .filter-btn.active, .filter-btn:hover {
+      background:var(--orange); color:var(--white);
+    }
+
+    /* Topic Cards */
+    .topics-grid { display:grid; gap:1rem; }
+    .topic-card {
+      background:var(--white); border-radius:14px; padding:1.25rem;
+      box-shadow:0 2px 8px var(--shadow); transition:transform .2s, box-shadow .2s;
+    }
+    .topic-card:hover { transform:translateY(-2px); box-shadow:0 4px 16px var(--shadow); }
+    .topic-header { display:flex; justify-content:space-between; align-items:start; margin-bottom:.75rem; }
+    .category-tag {
+      display:inline-flex; align-items:center; gap:.3rem;
+      padding:.25rem .6rem; border-radius:6px; font-size:.75rem; font-weight:600;
+    }
+    .cat-sports { background:#fee2e2; color:var(--red); }
+    .cat-crypto { background:#dbeafe; color:var(--blue); }
+    .cat-reallife { background:#dcfce7; color:var(--green); }
+    .cat-entertainment { background:#f3e8ff; color:#9333ea; }
+    .status-badge {
+      padding:.25rem .6rem; border-radius:6px; font-size:.75rem; font-weight:600;
+    }
+    .status-open { background:#dcfce7; color:var(--green); }
+    .status-closed { background:#fee2e2; color:var(--red); }
+    .status-resulted { background:#dbeafe; color:var(--blue); }
+
+    .topic-question { font-size:1.05rem; font-weight:700; margin-bottom:.5rem; line-height:1.4; }
+    .topic-desc { font-size:.85rem; color:var(--gray); margin-bottom:1rem; }
+
+    /* Countdown */
+    .countdown-wrap {
+      display:flex; align-items:center; gap:.5rem; margin-bottom:1rem;
+      padding:.6rem .75rem; background:var(--orange-light); border-radius:8px;
+    }
+    .countdown-wrap i { color:var(--orange); }
+    .countdown { font-family:'Courier New',monospace; font-weight:700; color:var(--orange-dark); }
+    .countdown.urgent { color:var(--red); animation:pulse 1s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+
+    /* Options */
+    .options-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(120px, 1fr)); gap:.75rem; }
+    .option-btn {
+      padding:.9rem; border:2px solid #e5e7eb; background:var(--white);
+      border-radius:10px; cursor:pointer; font-size:.95rem; font-weight:600;
+      transition:all .2s; text-align:center;
+    }
+    .option-btn:hover:not(:disabled) { border-color:var(--orange); color:var(--orange); }
+    .option-btn:disabled { opacity:.5; cursor:not-allowed; }
+
+    /* Stake Modal */
+    .modal-backdrop {
+      position:fixed; inset:0; background:rgba(0,0,0,0.5);
+      display:none; justify-content:center; align-items:center; z-index:1000;
+      padding:1rem;
+    }
+    .modal {
+      background:var(--white); border-radius:16px; padding:1.5rem;
+      max-width:380px; width:100%; animation:modalIn .3s ease;
+    }
+    @keyframes modalIn {
+      from { opacity:0; transform:scale(.9); }
+      to { opacity:1; transform:scale(1); }
+    }
+    .modal h3 { font-size:1.1rem; margin-bottom:1rem; }
+    .modal .topic-ref { font-size:.85rem; color:var(--gray); margin-bottom:1rem; padding:.5rem; background:#f9fafb; border-radius:6px; }
+    .stake-input-wrap {
+      display:flex; align-items:center; border:2px solid #e5e7eb; border-radius:10px; overflow:hidden; margin-bottom:1rem;
+    }
+    .stake-input-wrap span { padding:.75rem; background:#f9fafb; font-weight:600; color:var(--gray); }
+    .stake-input-wrap input {
+      flex:1; border:none; padding:.75rem; font-size:1.1rem; font-weight:700; outline:none;
+    }
+    .stake-hint { font-size:.8rem; color:var(--gray); margin-bottom:1.25rem; }
+    .modal-actions { display:flex; gap:.5rem; }
+    .modal-actions .btn { flex:1; padding:.8rem; border:none; border-radius:8px; font-weight:600; cursor:pointer; }
+    .btn-cancel { background:#f3f4f6; color:#4b5563; }
+    .btn-confirm { background:var(--orange); color:var(--white); }
+    .btn-confirm:disabled { background:#d1d5db; cursor:not-allowed; }
+
+    /* KYC Block */
+    .kyc-block {
+      background:var(--white); border-radius:14px; padding:2rem; text-align:center;
+      box-shadow:0 2px 8px var(--shadow); margin-bottom:1.5rem;
+    }
+    .kyc-block .lock-icon {
+      width:60px; height:60px; background:#fef3c7; color:#d97706;
+      border-radius:50%; display:flex; align-items:center; justify-content:center;
+      margin:0 auto 1rem; font-size:1.5rem;
+    }
+    .kyc-block h2 { font-size:1.2rem; margin-bottom:.5rem; }
+    .kyc-block p { color:var(--gray); margin-bottom:1.5rem; font-size:.9rem; }
+    .kyc-block .btn { display:inline-block; padding:.75rem 1.5rem; background:var(--orange); color:var(--white); text-decoration:none; border-radius:8px; font-weight:600; }
+
+    /* Welcome Overlay */
+    .overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:2000;
+      display:none; justify-content:center; align-items:center; padding:1rem;
+    }
+    .overlay-card {
+      background:var(--white); border-radius:20px; padding:2rem; max-width:420px; width:100%;
+      text-align:center; animation:modalIn .4s ease;
+    }
+    .overlay-logo { width:48px; height:48px; border-radius:8px; object-fit:cover; margin:0 auto 1rem; }
+    .overlay-card h2 { font-size:1.3rem; margin-bottom:.75rem; color:var(--orange-dark); }
+    .overlay-card p { color:var(--gray); line-height:1.6; margin-bottom:1.5rem; font-size:.95rem; }
+    .overlay-card .highlight { color:var(--orange); font-weight:700; }
+    .overlay-card .disclaimer { 
+      background:#fef3c7; padding:.75rem; border-radius:8px; 
+      font-size:.85rem; color:#92400e; margin-bottom:1.5rem; text-align:left;
+    }
+    .overlay-card .disclaimer i { margin-right:.3rem; }
+    .overlay-card .btn {
+      width:100%; padding:1rem; background:var(--orange); color:var(--white);
+      border:none; border-radius:10px; font-size:1rem; font-weight:700; cursor:pointer;
+    }
+    .step-dots { display:flex; justify-content:center; gap:.4rem; margin-bottom:1rem; }
+    .dot { width:8px; height:8px; border-radius:50%; background:#e5e7eb; }
+    .dot.active { background:var(--orange); }
+
+    /* Loading */
+    .skeleton-card {
+      background:var(--white); border-radius:14px; padding:1.25rem;
+      box-shadow:0 2px 8px var(--shadow); margin-bottom:1rem;
+    }
+    .skeleton { background:linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size:200% 100%; animation:shimmer 1.5s infinite; border-radius:6px; height:16px; margin-bottom:.6rem; }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+    .empty-state { text-align:center; padding:3rem 1rem; color:var(--gray); }
+    .empty-state i { font-size:2.5rem; margin-bottom:1rem; color:#e5e7eb; }
+
+    .hidden { display:none !important; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo-wrap">
+    <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" alt="TaskVault"/>
+    <h1>TaskVault Stake</h1>
+  </div>
+  <div class="header-btns">
+    <span class="balance-pill" id="balanceDisplay">$0.00</span>
+    <button class="header-btn" onclick="location.href='stakes-records.html'">
+      <i class="fas fa-list"></i> Records
+    </button>
+    <button class="header-btn" onclick="signOutUser()">
+      <i class="fas fa-sign-out-alt"></i>
+    </button>
+  </div>
+</header>
+
+<!-- Provider Notice -->
+<div class="provider-notice" id="providerNotice">
+  <i class="fas fa-info-circle"></i>
+  <span><strong>Notice:</strong> All stakes are processed in real time to our stake providers. TaskVault has no control over outcomes or results.</span>
+</div>
+
+<div class="container">
+  <!-- Loading -->
+  <div id="loadingState">
+    <div class="skeleton-card"><div class="skeleton" style="width:80px;height:14px;"></div><div class="skeleton" style="width:100%;height:20px;"></div><div class="skeleton" style="width:60%;height:16px;"></div></div>
+    <div class="skeleton-card"><div class="skeleton" style="width:80px;height:14px;"></div><div class="skeleton" style="width:100%;height:20px;"></div><div class="skeleton" style="width:60%;height:16px;"></div></div>
+  </div>
+
+  <!-- KYC Block -->
+  <div id="kycBlock" class="kyc-block hidden">
+    <div class="lock-icon"><i class="fas fa-lock"></i></div>
+    <h2>Verification Required</h2>
+    <p>Complete KYC verification to start staking on topics.</p>
+    <a href="kyc.html" class="btn">Complete KYC</a>
+  </div>
+
+  <!-- Main Content -->
+  <div id="mainContent" class="hidden">
+    <div class="filter-bar" id="filterBar">
+      <button class="filter-btn active" data-cat="all">All</button>
+      <button class="filter-btn" data-cat="sports">Sports</button>
+      <button class="filter-btn" data-cat="crypto">Crypto</button>
+      <button class="filter-btn" data-cat="reallife">Real Life</button>
+      <button class="filter-btn" data-cat="entertainment">Entertainment</button>
+    </div>
+    <div class="topics-grid" id="topicsGrid"></div>
+  </div>
+</div>
+
+<!-- Stake Modal -->
+<div class="modal-backdrop" id="stakeModal">
+  <div class="modal">
+    <h3><i class="fas fa-coins" style="color:var(--orange);"></i> Place Stake</h3>
+    <div class="topic-ref" id="modalTopicRef"></div>
+    <div style="margin-bottom:.5rem; font-weight:600;" id="modalOptionLabel"></div>
+    <div class="stake-input-wrap">
+      <span>$</span>
+      <input type="number" id="stakeAmount" min="0.1" max="1" step="0.1" placeholder="0.10"/>
+    </div>
+    <div class="stake-hint">Min: $0.10 — Max: $1.00</div>
+    <div class="modal-actions">
+      <button class="btn btn-cancel" onclick="closeModal('stakeModal')">Cancel</button>
+      <button class="btn btn-confirm" id="confirmStakeBtn" onclick="submitStake()">Confirm Stake</button>
+    </div>
+  </div>
+</div>
+
+<!-- Success Modal -->
+<div class="modal-backdrop" id="successModal">
+  <div class="modal">
+    <div style="font-size:3rem; color:var(--green); margin-bottom:1rem;"><i class="fas fa-check-circle"></i></div>
+    <h3>Stake Placed!</h3>
+    <p style="color:var(--gray); margin-bottom:1.5rem;">Your stake has been recorded. Check Records to see your active stakes.</p>
+    <button class="btn btn-confirm" onclick="closeModal('successModal'); resetStakeForm();">Done</button>
+  </div>
+</div>
+
+<!-- Error Modal -->
+<div class="modal-backdrop" id="errorModal">
+  <div class="modal">
+    <div style="font-size:3rem; color:var(--red); margin-bottom:1rem;"><i class="fas fa-times-circle"></i></div>
+    <h3>Failed</h3>
+    <p id="errorText" style="color:var(--gray); margin-bottom:1.5rem;">Something went wrong.</p>
+    <button class="btn btn-confirm" onclick="closeModal('errorModal')">Try Again</button>
+  </div>
+</div>
+
+<!-- Welcome Overlay -->
+<div class="overlay" id="welcomeOverlay">
+  <div class="overlay-card">
+    <div class="step-dots" id="stepDots"><span class="dot active"></span><span class="dot"></span></div>
+    <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" class="overlay-logo" alt="TaskVault"/>
+    <h2 id="overlayTitle">Welcome to TaskVault Stake</h2>
+    <p id="overlayText">Get paid for your opinions on <span class="highlight">real life</span>, <span class="highlight">crypto</span>, and <span class="highlight">sports</span> topics. Pick a topic, choose your option, and stake your call.</p>
+    <div class="disclaimer" id="overlayDisclaimer">
+      <i class="fas fa-shield-alt"></i>
+      <strong>Important:</strong> All stakes are processed in real time to our stake providers. TaskVault has no control over outcomes or results.
+    </div>
+    <button class="btn" id="overlayBtn" onclick="nextOverlayStep()">Next</button>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+  import {
+    getFirestore, doc, getDoc, collection, query, where, orderBy,
+    getDocs, addDoc, serverTimestamp, runTransaction
+  } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAv6QCpopa0Q77AVTyjU5cqJEIKIE9OVTs",
+    authDomain: "taskvault-412a0.firebaseapp.com",
+    projectId: "taskvault-412a0",
+    storageBucket: "taskvault-412a0.firebasestorage.app",
+    messagingSenderId: "420716701831",
+    appId: "1:420716701831:web:c987d91f7f4c8684eb7022"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  let currentUser = null;
+  let currentUserData = null;
+  let topics = [];
+  let activeFilter = 'all';
+  let selectedTopic = null;
+  let selectedOption = null;
+
+  const loadingState = document.getElementById('loadingState');
+  const kycBlock = document.getElementById('kycBlock');
+  const mainContent = document.getElementById('mainContent');
+  const topicsGrid = document.getElementById('topicsGrid');
+  const balanceDisplay = document.getElementById('balanceDisplay');
+  const stakeAmount = document.getElementById('stakeAmount');
+  const confirmStakeBtn = document.getElementById('confirmStakeBtn');
+
+  // Overlay
+  const welcomeOverlay = document.getElementById('welcomeOverlay');
+  const overlayTitle = document.getElementById('overlayTitle');
+  const overlayText = document.getElementById('overlayText');
+  const overlayBtn = document.getElementById('overlayBtn');
+  const stepDots = document.getElementById('stepDots');
+  let overlayStep = 0;
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { location.href = 'login.html'; return; }
+    currentUser = user;
+    await init();
+  });
+
+  async function init() {
+    const userRef = doc(db, 'users', currentUser.uid);
+    const userSnap = await getDoc(userRef);
+    if (!userSnap.exists()) { alert('Profile not found'); return; }
+    currentUserData = userSnap.data();
+
+    // Show balance
+    const bal = currentUserData.balance || 0;
+    balanceDisplay.textContent = `$${bal.toFixed(2)}`;
+
+    // Check KYC
+    const kycStatus = currentUserData.kycStatus || 'pending';
+    loadingState.classList.add('hidden');
+
+    if (kycStatus !== 'verified') {
+      kycBlock.classList.remove('hidden');
+      return;
+    }
+
+    mainContent.classList.remove('hidden');
+
+    // Check overlay visits
+    const visits = parseInt(localStorage.getItem('taskvault_stake_visits') || '0');
+    if (visits < 2) {
+      showWelcomeOverlay();
+      localStorage.setItem('taskvault_stake_visits', (visits + 1).toString());
+    }
+
+    loadTopics();
+  }
+
+  function showWelcomeOverlay() {
+    welcomeOverlay.style.display = 'flex';
+    overlayStep = 0;
+    updateOverlayContent();
+  }
+
+  function updateOverlayContent() {
+    const dots = stepDots.querySelectorAll('.dot');
+    dots.forEach((d, i) => d.classList.toggle('active', i === overlayStep));
+    
+    if (overlayStep === 0) {
+      overlayTitle.textContent = 'Welcome to TaskVault Stake';
+      overlayText.innerHTML = 'Get paid for your opinions on <span class="highlight">real life</span>, <span class="highlight">crypto</span>, and <span class="highlight">sports</span> topics. Pick a topic, choose your option, and stake your call.';
+      overlayBtn.textContent = 'Next';
+    } else {
+      overlayTitle.textContent = 'How It Works';
+      overlayText.innerHTML = '1. Browse open topics<br>2. Select your predicted option<br>3. Stake between <span class="highlight">$0.10 - $1.00</span><br>4. Wait for the result<br><br>Admins will credit winners manually after results are declared.';
+      overlayBtn.textContent = "Let's Go!";
+    }
+  }
+
+  window.nextOverlayStep = function() {
+    if (overlayStep === 0) {
+      overlayStep = 1;
+      updateOverlayContent();
+    } else {
+      welcomeOverlay.style.display = 'none';
+    }
+  };
+
+  // Filter buttons
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeFilter = btn.dataset.cat;
+      renderTopics();
+    });
+  });
+
+  async function loadTopics() {
+    const now = new Date();
+    const q = query(
+      collection(db, 'predictionTopics'),
+      where('status', 'in', ['open', 'closed', 'resulted']),
+      where('isActive', '==', true),
+      orderBy('postedAt', 'desc')
+    );
+    
+    try {
+      const snap = await getDocs(q);
+      topics = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderTopics();
+    } catch (err) {
+      console.error('Load topics error:', err);
+      topicsGrid.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Failed to load topics. Try again.</p></div>';
+    }
+  }
+
+  function renderTopics() {
+    let filtered = activeFilter === 'all' ? topics : topics.filter(t => t.category === activeFilter);
+    
+    if (filtered.length === 0) {
+      topicsGrid.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i><p>No topics available in this category.</p></div>';
+      return;
+    }
+
+    let html = '';
+    filtered.forEach(topic => {
+      const catClass = `cat-${topic.category || 'reallife'}`;
+      const catIcon = topic.category === 'sports' ? 'fa-futbol' : topic.category === 'crypto' ? 'fa-bitcoin-sign' : topic.category === 'entertainment' ? 'fa-film' : 'fa-globe';
+      const statusClass = topic.status === 'open' ? 'status-open' : topic.status === 'closed' ? 'status-closed' : 'status-resulted';
+      const statusText = topic.status === 'open' ? 'Open' : topic.status === 'closed' ? 'Closed' : 'Resulted';
+      
+      const deadline = topic.deadline?.toDate ? topic.deadline.toDate() : new Date(topic.deadline);
+      const isOpen = topic.status === 'open' && deadline > new Date();
+      const timeLeft = isOpen ? getTimeLeft(deadline) : null;
+      const isUrgent = isOpen && (deadline - new Date()) < 3600000; // less than 1 hour
+
+      html += `
+        <div class="topic-card" data-id="${topic.id}">
+          <div class="topic-header">
+            <span class="category-tag ${catClass}"><i class="fas ${catIcon}"></i> ${topic.category || 'General'}</span>
+            <span class="status-badge ${statusClass}">${statusText}</span>
+          </div>
+          <div class="topic-question">${escapeHtml(topic.question)}</div>
+          ${topic.description ? `<div class="topic-desc">${escapeHtml(topic.description)}</div>` : ''}
+          ${isOpen ? `
+            <div class="countdown-wrap">
+              <i class="fas fa-clock"></i>
+              <span class="countdown ${isUrgent ? 'urgent' : ''}" data-deadline="${deadline.toISOString()}">${timeLeft}</span>
+            </div>
+          ` : ''}
+          <div class="options-grid">
+            ${topic.options.map(opt => `
+              <button class="option-btn" 
+                onclick="openStakeModal('${topic.id}', '${opt.id}', '${escapeHtml(opt.label)}')"
+                ${!isOpen ? 'disabled' : ''}>
+                ${escapeHtml(opt.label)}
+                ${!isOpen ? '<br><small style="font-size:.7rem;color:var(--gray);">Unavailable</small>' : ''}
+              </button>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    });
+    
+    topicsGrid.innerHTML = html;
+    startCountdowns();
+  }
+
+  function getTimeLeft(deadline) {
+    const diff = deadline - new Date();
+    if (diff <= 0) return '00:00:00';
+    const h = Math.floor(diff / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  }
+
+  function startCountdowns() {
+    const timers = document.querySelectorAll('.countdown');
+    timers.forEach(el => {
+      const deadline = new Date(el.dataset.deadline);
+      const update = () => {
+        const diff = deadline - new Date();
+        if (diff <= 0) {
+          el.textContent = '00:00:00';
+          el.classList.add('urgent');
+          setTimeout(() => loadTopics(), 2000);
+          return;
+        }
+        el.textContent = getTimeLeft(deadline);
+      };
+      update();
+      const interval = setInterval(update, 1000);
+      el.dataset.interval = interval;
+    });
+  }
+
+  window.openStakeModal = function(topicId, optionId, optionLabel) {
+    selectedTopic = topics.find(t => t.id === topicId);
+    selectedOption = { id: optionId, label: optionLabel };
+    
+    document.getElementById('modalTopicRef').textContent = selectedTopic.question;
+    document.getElementById('modalOptionLabel').innerHTML = `Your pick: <strong>${optionLabel}</strong>`;
+    stakeAmount.value = '';
+    confirmStakeBtn.disabled = true;
+    
+    openModal('stakeModal');
+  };
+
+  stakeAmount.addEventListener('input', () => {
+    const val = parseFloat(stakeAmount.value);
+    confirmStakeBtn.disabled = !(val >= 0.1 && val <= 1.0);
+  });
+
+  window.submitStake = async function() {
+    const amount = parseFloat(stakeAmount.value);
+    if (!amount || amount < 0.1 || amount > 1.0) return;
+    if (!selectedTopic || !selectedOption) return;
+
+    confirmStakeBtn.disabled = true;
+    confirmStakeBtn.textContent = 'Processing...';
+
+    try {
+      const userRef = doc(db, 'users', currentUser.uid);
+      const topicRef = doc(db, 'predictionTopics', selectedTopic.id);
+      const stakeRef = doc(collection(db, 'users', currentUser.uid, 'stakes'));
+
+      await runTransaction(db, async (transaction) => {
+        const userSnap = await transaction.get(userRef);
+        const topicSnap = await transaction.get(topicRef);
+
+        if (!userSnap.exists() || !topicSnap.exists()) throw new Error('Data not found');
+
+        const userData = userSnap.data();
+        const topicData = topicSnap.data();
+
+        // KYC check
+        if (userData.kycStatus !== 'verified') throw new Error('KYC not verified');
+
+        // Balance check
+        const balance = userData.balance || 0;
+        if (balance < amount) throw new Error('Insufficient balance');
+
+        // Topic status check
+        if (topicData.status !== 'open') throw new Error('Topic is closed');
+        const deadline = topicData.deadline?.toDate ? topicData.deadline.toDate() : new Date(topicData.deadline);
+        if (deadline <= new Date()) throw new Error('Deadline passed');
+
+        // Deduct balance
+        transaction.update(userRef, { balance: balance - amount });
+
+        // Record stake
+        transaction.set(stakeRef, {
+          topicId: selectedTopic.id,
+          topicQuestion: topicData.question,
+          category: topicData.category || 'general',
+          optionId: selectedOption.id,
+          optionLabel: selectedOption.label,
+          amount: amount,
+          status: 'active',
+          createdAt: serverTimestamp()
+        });
+
+        // Update topic stats (hidden from users)
+        const optIndex = topicData.options.findIndex(o => o.id === selectedOption.id);
+        if (optIndex >= 0) {
+          const newOptions = [...topicData.options];
+          newOptions[optIndex] = {
+            ...newOptions[optIndex],
+            totalStaked: (newOptions[optIndex].totalStaked || 0) + amount,
+            stakerCount: (newOptions[optIndex].stakerCount || 0) + 1
+          };
+          transaction.update(topicRef, {
+            options: newOptions,
+            totalPool: (topicData.totalPool || 0) + amount
+          });
+        }
+      });
+
+      // Refresh balance display
+      const freshSnap = await getDoc(userRef);
+      currentUserData = freshSnap.data();
+      balanceDisplay.textContent = `$${(currentUserData.balance || 0).toFixed(2)}`;
+
+      closeModal('stakeModal');
+      openModal('successModal');
+
+    } catch (err) {
+      console.error('Stake error:', err);
+      document.getElementById('errorText').textContent = err.message || 'Failed to place stake. Please try again.';
+      closeModal('stakeModal');
+      openModal('errorModal');
+    } finally {
+      confirmStakeBtn.disabled = false;
+      confirmStakeBtn.textContent = 'Confirm Stake';
+    }
+  };
+
+  window.resetStakeForm = function() {
+    selectedTopic = null;
+    selectedOption = null;
+    stakeAmount.value = '';
+  };
+
+  window.closeModal = function(id) {
+    document.getElementById(id).style.display = 'none';
+  };
+
+  function openModal(id) {
+    document.getElementById(id).style.display = 'flex';
+  }
+
+  window.signOutUser = function() {
+    signOut(auth).then(() => location.href = 'login.html');
+  };
+
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  // Cleanup intervals on page hide
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      document.querySelectorAll('.countdown').forEach(el => {
+        if (el.dataset.interval) clearInterval(parseInt(el.dataset.interval));
+      });
+    } else {
+      startCountdowns();
+    }
+  });
+</script>
+
+</body>
+                                                                                                            </html>
