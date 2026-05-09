@@ -50,6 +50,21 @@
 
     .container { max-width:800px; margin:0 auto; padding:1.5rem; }
 
+    .search-bar {
+      margin-bottom:1rem;
+    }
+    .search-wrap {
+      display:flex; align-items:center; gap:.5rem;
+      background:var(--white); border:2px solid #e5e7eb; border-radius:10px;
+      padding:.5rem .75rem; transition:border-color .2s;
+    }
+    .search-wrap:focus-within { border-color:var(--orange); }
+    .search-wrap i { color:var(--gray); font-size:.9rem; }
+    .search-wrap input {
+      flex:1; border:none; background:transparent; font-size:.9rem; outline:none;
+    }
+    .search-wrap input::placeholder { color:#9ca3af; }
+
     .filter-bar {
       display:flex; gap:.5rem; margin-bottom:1.5rem; overflow-x:auto; padding-bottom:.5rem;
     }
@@ -66,6 +81,7 @@
     .topic-card {
       background:var(--white); border-radius:14px; padding:1.25rem;
       box-shadow:0 2px 8px var(--shadow); transition:transform .2s, box-shadow .2s;
+      position:relative;
     }
     .topic-card:hover { transform:translateY(-2px); box-shadow:0 4px 16px var(--shadow); }
     .topic-header { display:flex; justify-content:space-between; align-items:start; margin-bottom:.75rem; }
@@ -84,7 +100,18 @@
     .status-closed { background:#fee2e2; color:var(--red); }
     .status-resulted { background:#dbeafe; color:var(--blue); }
 
-    .topic-question { font-size:1.05rem; font-weight:700; margin-bottom:.5rem; line-height:1.4; }
+    .copy-btn {
+      position:absolute; top:1.25rem; right:1.25rem;
+      width:32px; height:32px; border:none; border-radius:8px;
+      background:#f3f4f6; color:var(--gray); cursor:pointer;
+      display:flex; align-items:center; justify-content:center;
+      transition:all .2s; z-index:10;
+    }
+    .copy-btn:hover { background:var(--orange); color:var(--white); }
+    .copy-btn.copied { background:var(--green); color:var(--white); }
+    .copy-btn i { font-size:.85rem; }
+
+    .topic-question { font-size:1.05rem; font-weight:700; margin-bottom:.5rem; line-height:1.4; padding-right:2.5rem; }
     .topic-desc { font-size:.85rem; color:var(--gray); margin-bottom:1rem; }
 
     .countdown-wrap {
@@ -225,6 +252,12 @@
 
   <!-- Main Content -->
   <div id="mainContent" class="hidden">
+    <div class="search-bar">
+      <div class="search-wrap">
+        <i class="fas fa-search"></i>
+        <input type="text" id="searchInput" placeholder="Search by topic ID..."/>
+      </div>
+    </div>
     <div class="filter-bar" id="filterBar">
       <button class="filter-btn active" data-cat="all">All</button>
       <button class="filter-btn" data-cat="sports">Sports</button>
@@ -314,6 +347,7 @@
   let currentUserData = null;
   let topics = [];
   let activeFilter = 'all';
+  let searchQuery = '';
   let selectedTopic = null;
   let selectedOption = null;
 
@@ -324,6 +358,7 @@
   const balanceDisplay = document.getElementById('balanceDisplay');
   const stakeAmount = document.getElementById('stakeAmount');
   const confirmStakeBtn = document.getElementById('confirmStakeBtn');
+  const searchInput = document.getElementById('searchInput');
 
   const welcomeOverlay = document.getElementById('welcomeOverlay');
   const overlayTitle = document.getElementById('overlayTitle');
@@ -405,6 +440,11 @@
     });
   });
 
+  searchInput.addEventListener('input', (e) => {
+    searchQuery = e.target.value.trim().toLowerCase();
+    renderTopics();
+  });
+
   async function loadTopics() {
     try {
       const q = query(
@@ -460,8 +500,13 @@
   function renderTopics() {
     let filtered = activeFilter === 'all' ? topics : topics.filter(t => t.category === activeFilter);
     
+    // Apply search filter by topic ID
+    if (searchQuery) {
+      filtered = filtered.filter(t => t.id.toLowerCase().includes(searchQuery));
+    }
+    
     if (filtered.length === 0) {
-      topicsGrid.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i><p>No topics in this category.</p></div>';
+      topicsGrid.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i><p>No topics found.</p></div>';
       return;
     }
 
@@ -479,6 +524,9 @@
 
       html += `
         <div class="topic-card" data-id="${topic.id}">
+          <button class="copy-btn" onclick="copyTopicLink('${topic.id}', this)" title="Copy link">
+            <i class="fas fa-link"></i>
+          </button>
           <div class="topic-header">
             <span class="category-tag ${catClass}"><i class="fas ${catIcon}"></i> ${topic.category || 'General'}</span>
             <span class="status-badge ${statusClass}">${statusText}</span>
@@ -538,6 +586,43 @@
       el.dataset.interval = interval;
     });
   }
+
+  window.copyTopicLink = async function(topicId, btnElement) {
+    const shareUrl = `${window.location.origin}${window.location.pathname}?topic=${topicId}`;
+    
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      
+      // Visual feedback
+      const icon = btnElement.querySelector('i');
+      icon.className = 'fas fa-check';
+      btnElement.classList.add('copied');
+      
+      setTimeout(() => {
+        icon.className = 'fas fa-link';
+        btnElement.classList.remove('copied');
+      }, 2000);
+    } catch (err) {
+      console.error('Copy failed:', err);
+      // Fallback
+      const textarea = document.createElement('textarea');
+      textarea.value = shareUrl;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+      
+      const icon = btnElement.querySelector('i');
+      icon.className = 'fas fa-check';
+      btnElement.classList.add('copied');
+      setTimeout(() => {
+        icon.className = 'fas fa-link';
+        btnElement.classList.remove('copied');
+      }, 2000);
+    }
+  };
 
   window.openStakeModal = function(topicId, optionId, optionLabel) {
     selectedTopic = topics.find(t => t.id === topicId);
