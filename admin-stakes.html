@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>TaskVault Admin – Manage Topics</title>
+  <!-- Favicon -->
+  <link rel="icon" type="image/jpeg" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg"/>
+  <link rel="shortcut icon" type="image/jpeg" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg"/>
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <style>
+    :root {
+      --orange: #f97316;
+      --orange-light: #fff7ed;
+      --orange-dark: #ea580c;
+      --white: #fff;
+      --gray: #6b7280;
+      --red: #dc2626;
+      --green: #16a34a;
+      --blue: #2563eb;
+      --purple: #9333ea;
+      --shadow: rgba(0,0,0,0.08);
+    }
+    * { box-sizing: border-box; margin:0; padding:0; font-family:'Segoe UI',system-ui,sans-serif; }
+    body { background:var(--orange-light); color:#1f2937; min-height:100vh; }
+
+    /* Header */
+    header {
+      background:var(--orange); color:var(--white);
+      padding:1rem 1.5rem; display:flex; justify-content:space-between; align-items:center;
+      box-shadow:0 2px 8px var(--shadow); position:sticky; top:0; z-index:100;
+    }
+    .logo-wrap { display:flex; align-items:center; gap:.6rem; }
+    .logo-wrap img { width:32px; height:32px; border-radius:6px; object-fit:cover; }
+    .logo-wrap h1 { font-size:1.1rem; font-weight:700; }
+    .admin-badge {
+      background:rgba(255,255,255,0.25); padding:.25rem .6rem;
+      border-radius:4px; font-size:.75rem; font-weight:600; margin-left:.5rem;
+    }
+    .header-btns { display:flex; gap:.5rem; align-items:center; }
+    .header-btn {
+      background:rgba(255,255,255,0.2); color:var(--white); border:none;
+      padding:.4rem .8rem; border-radius:6px; cursor:pointer; font-size:.85rem;
+    }
+    .header-btn:hover { background:rgba(255,255,255,0.3); }
+
+    /* Container */
+    .container { max-width:1000px; margin:0 auto; padding:1.5rem; }
+
+    /* Action Bar */
+    .action-bar {
+      display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;
+    }
+    .action-bar h2 { font-size:1.2rem; }
+    .btn-primary {
+      background:var(--orange); color:var(--white); border:none;
+      padding:.7rem 1.2rem; border-radius:8px; cursor:pointer;
+      font-weight:600; font-size:.9rem; display:flex; align-items:center; gap:.4rem;
+    }
+    .btn-primary:hover { background:var(--orange-dark); }
+
+    /* Topics Table */
+    .table-wrap {
+      background:var(--white); border-radius:12px; box-shadow:0 2px 8px var(--shadow); overflow:hidden;
+    }
+    table { width:100%; border-collapse:collapse; }
+    th, td { padding:.9rem 1rem; text-align:left; font-size:.9rem; }
+    thead { background:#f9fafb; }
+    th { font-weight:600; color:#4b5563; font-size:.8rem; text-transform:uppercase; letter-spacing:.5px; }
+    tbody tr { border-top:1px solid #f3f4f6; transition:background .2s; }
+    tbody tr:hover { background:#f9fafb; }
+    .topic-cell { max-width:280px; }
+    .topic-cell .question { font-weight:600; color:#1f2937; margin-bottom:.2rem; }
+    .topic-cell .category { font-size:.75rem; color:var(--gray); }
+    
+    .status-badge {
+      padding:.35rem .7rem; border-radius:20px; font-size:.75rem; font-weight:600;
+    }
+    .status-pending { background:#fef3c7; color:#92400e; }
+    .status-open { background:#dcfce7; color:var(--green); }
+    .status-closed { background:#fee2e2; color:var(--red); }
+    .status-resulted { background:#dbeafe; color:var(--blue); }
+    .status-settled { background:#f3e8ff; color:var(--purple); }
+    .status-cancelled { background:#f3f4f6; color:var(--gray); }
+
+    .countdown-sm { font-family:'Courier New',monospace; font-size:.85rem; color:var(--orange-dark); font-weight:600; }
+    .countdown-sm.ended { color:var(--red); }
+
+    .actions-cell { display:flex; gap:.3rem; }
+    .action-btn {
+      padding:.4rem .6rem; border:none; border-radius:6px; cursor:pointer;
+      font-size:.8rem; color:var(--white);
+    }
+    .btn-edit { background:var(--blue); }
+    .btn-close { background:var(--orange); }
+    .btn-result { background:var(--green); }
+    .btn-settle { background:var(--purple); }
+    .btn-delete { background:var(--red); }
+    .action-btn:disabled { opacity:.5; cursor:not-allowed; }
+
+    /* Modal */
+    .modal-backdrop {
+      position:fixed; inset:0; background:rgba(0,0,0,0.5);
+      display:none; justify-content:center; align-items:center; z-index:1000;
+      padding:1rem; overflow-y:auto;
+    }
+    .modal {
+      background:var(--white); border-radius:16px; padding:1.5rem;
+      max-width:520px; width:100%; max-height:90vh; overflow-y:auto;
+      animation:modalIn .3s ease;
+    }
+    @keyframes modalIn {
+      from { opacity:0; transform:scale(.95); }
+      to { opacity:1; transform:scale(1); }
+    }
+    .modal h3 { font-size:1.2rem; margin-bottom:1.25rem; display:flex; align-items:center; gap:.5rem; }
+    .form-group { margin-bottom:1rem; }
+    .form-group label { display:block; font-size:.85rem; font-weight:600; color:#4b5563; margin-bottom:.4rem; }
+    .form-group input, .form-group textarea, .form-group select {
+      width:100%; padding:.7rem; border:2px solid #e5e7eb; border-radius:8px;
+      font-size:.9rem; transition:border-color .2s;
+    }
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+      outline:none; border-color:var(--orange);
+    }
+    .form-group textarea { resize:vertical; min-height:80px; }
+    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+    .hint { font-size:.8rem; color:var(--gray); margin-top:.3rem; }
+
+    /* Options Builder */
+    .options-builder { margin-bottom:1rem; }
+    .option-row {
+      display:flex; gap:.5rem; align-items:center; margin-bottom:.5rem;
+    }
+    .option-row input { flex:1; }
+    .btn-icon {
+      width:36px; height:36px; border:none; border-radius:8px;
+      cursor:pointer; display:flex; align-items:center; justify-content:center;
+    }
+    .btn-add { background:var(--green); color:var(--white); }
+    .btn-remove { background:var(--red); color:var(--white); }
+
+    .modal-actions { display:flex; gap:.5rem; margin-top:1.5rem; }
+    .modal-actions .btn { flex:1; padding:.8rem; border:none; border-radius:8px; font-weight:600; cursor:pointer; }
+    .btn-cancel { background:#f3f4f6; color:#4b5563; }
+    .btn-save { background:var(--orange); color:var(--white); }
+    .btn-save:disabled { background:#d1d5db; cursor:not-allowed; }
+
+    /* Result Modal */
+    .result-options { display:grid; gap:.5rem; margin:1rem 0; }
+    .result-option-btn {
+      padding:1rem; border:2px solid #e5e7eb; background:var(--white);
+      border-radius:10px; cursor:pointer; text-align:center; font-weight:600;
+      transition:all .2s;
+    }
+    .result-option-btn:hover { border-color:var(--orange); }
+    .result-option-btn.selected { border-color:var(--green); background:#dcfce7; color:var(--green); }
+
+    /* Loading */
+    .skeleton-row { height:52px; background:linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size:200% 100%; animation:shimmer 1.5s infinite; margin-bottom:1px; }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+    .empty-state { text-align:center; padding:3rem; color:var(--gray); }
+    .empty-state i { font-size:2.5rem; margin-bottom:1rem; color:#e5e7eb; }
+
+    .hidden { display:none !important; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo-wrap">
+    <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" alt="TaskVault"/>
+    <h1>TaskVault <span class="admin-badge">ADMIN</span></h1>
+  </div>
+  <div class="header-btns">
+    <button class="header-btn" onclick="location.href='stakes.html'">
+      <i class="fas fa-external-link-alt"></i> View Stake Page
+    </button>
+    <button class="header-btn" onclick="location.href='admin-settlements.html'">
+      <i class="fas fa-coins"></i> Settlements
+    </button>
+    <button class="header-btn" onclick="signOutUser()">
+      <i class="fas fa-sign-out-alt"></i>
+    </button>
+  </div>
+</header>
+
+<div class="container">
+  <div class="action-bar">
+    <h2><i class="fas fa-list" style="color:var(--orange);"></i> Prediction Topics</h2>
+    <button class="btn-primary" onclick="openCreateModal()">
+      <i class="fas fa-plus"></i> New Topic
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div id="loadingState">
+    <div class="table-wrap">
+      <div class="skeleton-row"></div>
+      <div class="skeleton-row"></div>
+      <div class="skeleton-row"></div>
+      <div class="skeleton-row"></div>
+    </div>
+  </div>
+
+  <!-- Topics Table -->
+  <div id="topicsTable" class="table-wrap hidden">
+    <table>
+      <thead>
+        <tr>
+          <th>Topic</th>
+          <th>Status</th>
+          <th>Deadline</th>
+          <th>Options</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="topicsBody"></tbody>
+    </table>
+  </div>
+
+  <div id="emptyState" class="empty-state hidden">
+    <i class="fas fa-inbox"></i>
+    <p>No topics created yet.</p>
+  </div>
+</div>
+
+<!-- Create/Edit Modal -->
+<div class="modal-backdrop" id="topicModal">
+  <div class="modal">
+    <h3><i class="fas fa-edit" style="color:var(--orange);"></i> <span id="modalTitle">Create Topic</span></h3>
+    
+    <div class="form-group">
+      <label>Question</label>
+      <input type="text" id="topicQuestion" placeholder="e.g., Will Ronaldo post on X today?"/>
+    </div>
+    
+    <div class="form-group">
+      <label>Description (Optional)</label>
+      <textarea id="topicDesc" placeholder="Any additional details..."></textarea>
+    </div>
+    
+    <div class="form-row">
+      <div class="form-group">
+        <label>Category</label>
+        <select id="topicCategory">
+          <option value="sports">Sports</option>
+          <option value="crypto">Crypto</option>
+          <option value="reallife">Real Life</option>
+          <option value="entertainment">Entertainment</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Status</label>
+        <select id="topicStatus">
+          <option value="pending">Pending (Draft)</option>
+          <option value="open">Open (Live)</option>
+        </select>
+      </div>
+    </div>
+    
+    <div class="form-row">
+      <div class="form-group">
+        <label>Deadline</label>
+        <input type="datetime-local" id="topicDeadline"/>
+        <div class="hint">When staking closes</div>
+      </div>
+      <div class="form-group">
+        <label>Expected Result Time</label>
+        <input type="datetime-local" id="topicResultTime"/>
+        <div class="hint">When result is known</div>
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label>Options (Min 2)</label>
+      <div class="options-builder" id="optionsBuilder">
+        <div class="option-row">
+          <input type="text" placeholder="Option 1" class="option-input"/>
+          <button class="btn-icon btn-remove" onclick="removeOption(this)"><i class="fas fa-trash"></i></button>
+        </div>
+        <div class="option-row">
+          <input type="text" placeholder="Option 2" class="option-input"/>
+          <button class="btn-icon btn-remove" onclick="removeOption(this)"><i class="fas fa-trash"></i></button>
+        </div>
+      </div>
+      <button class="btn-icon btn-add" onclick="addOption()" style="width:100%; margin-top:.5rem;">
+        <i class="fas fa-plus"></i> Add Option
+      </button>
+    </div>
+    
+    <div class="modal-actions">
+      <button class="btn btn-cancel" onclick="closeModal('topicModal')">Cancel</button>
+      <button class="btn btn-save" id="saveTopicBtn" onclick="saveTopic()">Create Topic</button>
+    </div>
+  </div>
+</div>
+
+<!-- Set Result Modal -->
+<div class="modal-backdrop" id="resultModal">
+  <div class="modal">
+    <h3><i class="fas fa-trophy" style="color:var(--green);"></i> Declare Result</h3>
+    <p style="color:var(--gray); margin-bottom:1rem;" id="resultTopicName">Select the winning option:</p>
+    <div class="result-options" id="resultOptions"></div>
+    <div class="modal-actions">
+      <button class="btn btn-cancel" onclick="closeModal('resultModal')">Cancel</button>
+      <button class="btn btn-save" id="confirmResultBtn" onclick="confirmResult()" disabled>Confirm Result</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+  import {
+    getFirestore, doc, getDoc, collection, query, orderBy,
+    getDocs, addDoc, updateDoc, serverTimestamp, deleteDoc
+  } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAv6QCpopa0Q77AVTyjU5cqJEIKIE9OVTs",
+    authDomain: "taskvault-412a0.firebaseapp.com",
+    projectId: "taskvault-412a0",
+    storageBucket: "taskvault-412a0.firebasestorage.app",
+    messagingSenderId: "420716701831",
+    appId: "1:420716701831:web:c987d91f7f4c8684eb7022"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  const ADMIN_EMAIL = "beniwealth70@gmail.com";
+
+  let currentUser = null;
+  let topics = [];
+  let editingTopicId = null;
+  let selectedResultOption = null;
+
+  const loadingState = document.getElementById('loadingState');
+  const topicsTable = document.getElementById('topicsTable');
+  const topicsBody = document.getElementById('topicsBody');
+  const emptyState = document.getElementById('emptyState');
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { location.href = 'login.html'; return; }
+    if (user.email?.toLowerCase() !== ADMIN_EMAIL) {
+      alert('Unauthorized access');
+      signOut(auth).then(() => location.href = 'login.html');
+      return;
+    }
+    currentUser = user;
+    await loadTopics();
+  });
+
+  async function loadTopics() {
+    loadingState.classList.remove('hidden');
+    topicsTable.classList.add('hidden');
+    emptyState.classList.add('hidden');
+
+    try {
+      const q = query(
+        collection(db, 'predictionTopics'),
+        orderBy('postedAt', 'desc')
+      );
+      
+      const snap = await getDocs(q);
+      topics = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      
+      loadingState.classList.add('hidden');
+      
+      if (topics.length === 0) {
+        emptyState.classList.remove('hidden');
+        return;
+      }
+      
+      renderTopics();
+      topicsTable.classList.remove('hidden');
+    } catch (err) {
+      console.error('Load topics error:', err);
+      loadingState.classList.add('hidden');
+      emptyState.classList.remove('hidden');
+      emptyState.innerHTML = '<i class="fas fa-exclamation-circle"></i><p>Failed to load topics.</p>';
+    }
+  }
+
+  function renderTopics() {
+    let html = '';
+    topics.forEach(topic => {
+      const statusClass = `status-${topic.status || 'pending'}`;
+      const statusText = topic.status ? topic.status.charAt(0).toUpperCase() + topic.status.slice(1) : 'Pending';
+      
+      const deadline = topic.deadline?.toDate ? topic.deadline.toDate() : new Date(topic.deadline);
+      const now = new Date();
+      const isOpen = topic.status === 'open' && deadline > now;
+      const timeLeft = deadline > now ? getTimeLeft(deadline) : 'Ended';
+      
+      const optionsCount = topic.options?.length || 0;
+      
+      // Action buttons based on status
+      let actions = '';
+      if (topic.status === 'pending') {
+        actions += `<button class="action-btn btn-edit" onclick="editTopic('${topic.id}')"><i class="fas fa-edit"></i></button>`;
+        actions += `<button class="action-btn btn-delete" onclick="deleteTopic('${topic.id}')"><i class="fas fa-trash"></i></button>`;
+      } else if (topic.status === 'open') {
+        if (isOpen) {
+          actions += `<button class="action-btn btn-close" onclick="closeTopic('${topic.id}')"><i class="fas fa-lock"></i> Close</button>`;
+        } else {
+          actions += `<button class="action-btn btn-result" onclick="openResultModal('${topic.id}')"><i class="fas fa-trophy"></i> Result</button>`;
+        }
+      } else if (topic.status === 'closed') {
+        actions += `<button class="action-btn btn-result" onclick="openResultModal('${topic.id}')"><i class="fas fa-trophy"></i> Result</button>`;
+      } else if (topic.status === 'resulted') {
+        actions += `<button class="action-btn btn-settle" onclick="location.href='admin-settlements.html?topic=${topic.id}'"><i class="fas fa-coins"></i> Settle</button>`;
+      }
+
+      html += `
+        <tr>
+          <td class="topic-cell">
+            <div class="question">${escapeHtml(topic.question)}</div>
+            <div class="category"><i class="fas fa-tag"></i> ${topic.category || 'General'} ${topic.description ? '• ' + escapeHtml(topic.description.substring(0, 50)) + '...' : ''}</div>
+          </td>
+          <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+          <td><span class="countdown-sm ${!isOpen ? 'ended' : ''}">${timeLeft}</span></td>
+          <td>${optionsCount} options</td>
+          <td class="actions-cell">${actions}</td>
+        </tr>
+      `;
+    });
+    
+    topicsBody.innerHTML = html;
+  }
+
+  function getTimeLeft(deadline) {
+    const diff = deadline - new Date();
+    if (diff <= 0) return 'Ended';
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor((diff % 86400000) / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    if (d > 0) return `${d}d ${h}h`;
+    return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+  }
+
+  // Create Modal
+  window.openCreateModal = function() {
+    editingTopicId = null;
+    document.getElementById('modalTitle').textContent = 'Create Topic';
+    document.getElementById('topicQuestion').value = '';
+    document.getElementById('topicDesc').value = '';
+    document.getElementById('topicCategory').value = 'sports';
+    document.getElementById('topicStatus').value = 'pending';
+    document.getElementById('topicDeadline').value = '';
+    document.getElementById('topicResultTime').value = '';
+    
+    // Reset options to 2 defaults
+    const builder = document.getElementById('optionsBuilder');
+    builder.innerHTML = `
+      <div class="option-row">
+        <input type="text" placeholder="Yes" class="option-input" value="Yes"/>
+        <button class="btn-icon btn-remove" onclick="removeOption(this)"><i class="fas fa-trash"></i></button>
+      </div>
+      <div class="option-row">
+        <input type="text" placeholder="No" class="option-input" value="No"/>
+        <button class="btn-icon btn-remove" onclick="removeOption(this)"><i class="fas fa-trash"></i></button>
+      </div>
+    `;
+    
+    document.getElementById('saveTopicBtn').textContent = 'Create Topic';
+    openModal('topicModal');
+  };
+
+  window.addOption = function() {
+    const builder = document.getElementById('optionsBuilder');
+    const count = builder.querySelectorAll('.option-row').length;
+    const div = document.createElement('div');
+    div.className = 'option-row';
+    div.innerHTML = `
+      <input type="text" placeholder="Option ${count + 1}" class="option-input"/>
+      <button class="btn-icon btn-remove" onclick="removeOption(this)"><i class="fas fa-trash"></i></button>
+    `;
+    builder.appendChild(div);
+  };
+
+  window.removeOption = function(btn) {
+    const rows = document.querySelectorAll('.option-row');
+    if (rows.length <= 2) {
+      alert('Minimum 2 options required');
+      return;
+    }
+    btn.closest('.option-row').remove();
+  };
+
+  window.saveTopic = async function() {
+    const question = document.getElementById('topicQuestion').value.trim();
+    const description = document.getElementById('topicDesc').value.trim();
+    const category = document.getElementById('topicCategory').value;
+    const status = document.getElementById('topicStatus').value;
+    const deadlineVal = document.getElementById('topicDeadline').value;
+    const resultTimeVal = document.getElementById('topicResultTime').value;
+    
+    const optionInputs = document.querySelectorAll('.option-input');
+    const options = [];
+    optionInputs.forEach((input, idx) => {
+      const val = input.value.trim();
+      if (val) {
+        options.push({
+          id: `opt_${Date.now()}_${idx}`,
+          label: val,
+          totalStaked: 0,
+          stakerCount: 0
+        });
+      }
+    });
+    
+    if (!question) { alert('Question is required'); return; }
+    if (options.length < 2) { alert('Minimum 2 options required'); return; }
+    if (!deadlineVal) { alert('Deadline is required'); return; }
+    
+    const deadline = new Date(deadlineVal);
+    const resultTime = resultTimeVal ? new Date(resultTimeVal) : null;
+    
+    if (deadline <= new Date()) { alert('Deadline must be in the future'); return; }
+    
+    const btn = document.getElementById('saveTopicBtn');
+    btn.disabled = true;
+    btn.textContent = 'Saving...';
+    
+    try {
+      const topicData = {
+        question,
+        description,
+        category,
+        options,
+        totalPool: 0,
+        minStake: 0.10,
+        maxStake: 1.00,
+        status,
+        postedAt: serverTimestamp(),
+        deadline,
+        resultTime,
+        winningOptionId: null,
+        isActive: true,
+        createdBy: currentUser.uid
+      };
+      
+      if (editingTopicId) {
+        await updateDoc(doc(db, 'predictionTopics', editingTopicId), topicData);
+      } else {
+        await addDoc(collection(db, 'predictionTopics'), topicData);
+      }
+      
+      closeModal('topicModal');
+      loadTopics();
+    } catch (err) {
+      console.error('Save topic error:', err);
+      alert('Failed to save topic: ' + err.message);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = editingTopicId ? 'Update Topic' : 'Create Topic';
+    }
+  };
+
+  window.editTopic = function(topicId) {
+    const topic = topics.find(t => t.id === topicId);
+    if (!topic) return;
+    
+    editingTopicId = topicId;
+    document.getElementById('modalTitle').textContent = 'Edit Topic';
+    document.getElementById('topicQuestion').value = topic.question || '';
+    document.getElementById('topicDesc').value = topic.description || '';
+    document.getElementById('topicCategory').value = topic.category || 'sports';
+    document.getElementById('topicStatus').value = topic.status || 'pending';
+    
+    const deadline = topic.deadline?.toDate ? topic.deadline.toDate() : new Date(topic.deadline);
+    document.getElementById('topicDeadline').value = toDateTimeLocal(deadline);
+    
+    if (topic.resultTime) {
+      const rt = topic.resultTime.toDate ? topic.resultTime.toDate() : new Date(topic.resultTime);
+      document.getElementById('topicResultTime').value = toDateTimeLocal(rt);
+    }
+    
+    // Load options
+    const builder = document.getElementById('optionsBuilder');
+    builder.innerHTML = '';
+    topic.options.forEach((opt, idx) => {
+      const div = document.createElement('div');
+      div.className = 'option-row';
+      div.innerHTML = `
+        <input type="text" placeholder="Option ${idx + 1}" class="option-input" value="${escapeHtml(opt.label)}"/>
+        <button class="btn-icon btn-remove" onclick="removeOption(this)"><i class="fas fa-trash"></i></button>
+      `;
+      builder.appendChild(div);
+    });
+    
+    document.getElementById('saveTopicBtn').textContent = 'Update Topic';
+    openModal('topicModal');
+  };
+
+  window.closeTopic = async function(topicId) {
+    if (!confirm('Close this topic? No more stakes will be accepted.')) return;
+    
+    try {
+      await updateDoc(doc(db, 'predictionTopics', topicId), { status: 'closed' });
+      loadTopics();
+    } catch (err) {
+      alert('Failed to close topic: ' + err.message);
+    }
+  };
+
+  window.deleteTopic = async function(topicId) {
+    if (!confirm('Delete this topic permanently?')) return;
+    
+    try {
+      await deleteDoc(doc(db, 'predictionTopics', topicId));
+      loadTopics();
+    } catch (err) {
+      alert('Failed to delete topic: ' + err.message);
+    }
+  };
+
+  // Result Modal
+  window.openResultModal = function(topicId) {
+    const topic = topics.find(t => t.id === topicId);
+    if (!topic) return;
+    
+    selectedResultOption = null;
+    document.getElementById('resultTopicName').textContent = `Select winning option for: "${topic.question}"`;
+    
+    const container = document.getElementById('resultOptions');
+    container.innerHTML = '';
+    
+    topic.options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'result-option-btn';
+      btn.textContent = opt.label;
+      btn.onclick = () => selectResultOption(opt.id, btn);
+      container.appendChild(btn);
+    });
+    
+    document.getElementById('confirmResultBtn').disabled = true;
+    openModal('resultModal');
+    
+    // Store current topic ID for confirmation
+    document.getElementById('confirmResultBtn').dataset.topicId = topicId;
+  };
+
+  function selectResultOption(optionId, btnElement) {
+    selectedResultOption = optionId;
+    document.querySelectorAll('.result-option-btn').forEach(b => b.classList.remove('selected'));
+    btnElement.classList.add('selected');
+    document.getElementById('confirmResultBtn').disabled = false;
+  }
+
+  window.confirmResult = async function() {
+    const topicId = document.getElementById('confirmResultBtn').dataset.topicId;
+    if (!topicId || !selectedResultOption) return;
+    
+    const btn = document.getElementById('confirmResultBtn');
+    btn.disabled = true;
+    btn.textContent = 'Declaring...';
+    
+    try {
+      await updateDoc(doc(db, 'predictionTopics', topicId), {
+        status: 'resulted',
+        winningOptionId: selectedResultOption,
+        resultedAt: serverTimestamp()
+      });
+      
+      closeModal('resultModal');
+      loadTopics();
+    } catch (err) {
+      alert('Failed to declare result: ' + err.message);
+      btn.disabled = false;
+      btn.textContent = 'Confirm Result';
+    }
+  };
+
+  // Helpers
+  function toDateTimeLocal(date) {
+    const pad = (n) => String(n).padStart(2, '0');
+    return `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+  }
+
+  window.closeModal = function(id) {
+    document.getElementById(id).style.display = 'none';
+  };
+
+  function openModal(id) {
+    document.getElementById(id).style.display = 'flex';
+  }
+
+  window.signOutUser = function() {
+    signOut(auth).then(() => location.href = 'login.html');
+  };
+
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  // Close modal on backdrop click
+  document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
+    backdrop.addEventListener('click', (e) => {
+      if (e.target === backdrop) backdrop.style.display = 'none';
+    });
+  });
+</script>
+
+</body>
+          </html>
