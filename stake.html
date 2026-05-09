@@ -220,15 +220,9 @@
     <h1>TaskVault Stake</h1>
   </div>
   <div class="header-btns">
-    <button class="header-btn" onclick="location.href='dashboard.html'">
-      <i class="fas fa-arrow-left"></i> Dashboard
-    </button>
     <span class="balance-pill" id="balanceDisplay">$0.00</span>
     <button class="header-btn" onclick="location.href='stakes-records.html'">
       <i class="fas fa-list"></i> Records
-    </button>
-    <button class="header-btn" onclick="signOutUser()">
-      <i class="fas fa-sign-out-alt"></i>
     </button>
   </div>
 </header>
@@ -736,10 +730,6 @@
   function openModal(id) {
     document.getElementById(id).style.display = 'flex';
   }
-
-  window.signOutUser = function() {
-    signOut(auth).then(() => location.href = 'login.html');
-  };
 
   function escapeHtml(text) {
     const div = document.createElement('div');
