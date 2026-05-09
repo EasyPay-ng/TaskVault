@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>TaskVault – Stake Records</title>
+  <!-- Favicon -->
+  <link rel="icon" type="image/jpeg" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg"/>
+  <link rel="shortcut icon" type="image/jpeg" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg"/>
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <style>
+    :root {
+      --orange: #f97316;
+      --orange-light: #fff7ed;
+      --orange-dark: #ea580c;
+      --white: #fff;
+      --gray: #6b7280;
+      --red: #dc2626;
+      --green: #16a34a;
+      --blue: #2563eb;
+      --yellow: #eab308;
+      --shadow: rgba(0,0,0,0.08);
+    }
+    * { box-sizing: border-box; margin:0; padding:0; font-family:'Segoe UI',system-ui,sans-serif; }
+    body { background:var(--orange-light); color:#1f2937; min-height:100vh; }
+
+    /* Header */
+    header {
+      background:var(--orange); color:var(--white);
+      padding:1rem 1.5rem; display:flex; justify-content:space-between; align-items:center;
+      box-shadow:0 2px 8px var(--shadow); position:sticky; top:0; z-index:100;
+    }
+    .logo-wrap { display:flex; align-items:center; gap:.6rem; cursor:pointer; }
+    .logo-wrap img { width:32px; height:32px; border-radius:6px; object-fit:cover; }
+    .logo-wrap h1 { font-size:1.1rem; font-weight:700; }
+    .header-btns { display:flex; gap:.5rem; align-items:center; }
+    .header-btn {
+      background:rgba(255,255,255,0.2); color:var(--white); border:none;
+      padding:.4rem .8rem; border-radius:6px; cursor:pointer; font-size:.85rem;
+    }
+    .header-btn:hover { background:rgba(255,255,255,0.3); }
+
+    /* Container */
+    .container { max-width:800px; margin:0 auto; padding:1.5rem; }
+
+    /* Stats Bar */
+    .stats-bar {
+      display:grid; grid-template-columns:repeat(4, 1fr); gap:1rem; margin-bottom:1.5rem;
+    }
+    .stat-card {
+      background:var(--white); border-radius:12px; padding:1rem; text-align:center;
+      box-shadow:0 2px 8px var(--shadow);
+    }
+    .stat-card .number { font-size:1.5rem; font-weight:700; color:var(--orange); }
+    .stat-card .label { font-size:.75rem; color:var(--gray); margin-top:.25rem; text-transform:uppercase; }
+
+    /* Filter Tabs */
+    .filter-tabs {
+      display:flex; gap:.5rem; margin-bottom:1.5rem; overflow-x:auto;
+    }
+    .tab-btn {
+      padding:.6rem 1.2rem; border:none; background:var(--white);
+      color:var(--gray); border-radius:8px; cursor:pointer; font-size:.85rem;
+      font-weight:600; transition:all .2s; white-space:nowrap;
+    }
+    .tab-btn.active { background:var(--orange); color:var(--white); }
+    .tab-btn:hover:not(.active) { background:#fed7aa; color:var(--orange-dark); }
+
+    /* Records List */
+    .records-list { display:grid; gap:.75rem; }
+    .record-card {
+      background:var(--white); border-radius:12px; padding:1.25rem;
+      box-shadow:0 2px 8px var(--shadow); transition:transform .2s;
+    }
+    .record-card:hover { transform:translateX(4px); }
+    .record-header {
+      display:flex; justify-content:space-between; align-items:start; margin-bottom:.75rem;
+    }
+    .record-topic { font-size:1rem; font-weight:700; line-height:1.4; flex:1; }
+    .record-meta { display:flex; gap:.5rem; align-items:center; margin-top:.5rem; }
+    .record-meta span { font-size:.8rem; color:var(--gray); }
+    .record-meta .dot { width:4px; height:4px; background:#d1d5db; border-radius:50%; }
+
+    .record-details {
+      display:flex; justify-content:space-between; align-items:center;
+      padding-top:.75rem; border-top:1px solid #f3f4f6;
+    }
+    .record-pick { display:flex; align-items:center; gap:.5rem; }
+    .pick-badge {
+      padding:.35rem .7rem; border-radius:6px; font-size:.85rem; font-weight:600;
+    }
+    .pick-yes { background:#dcfce7; color:var(--green); }
+    .pick-no { background:#fee2e2; color:var(--red); }
+    .pick-other { background:#dbeafe; color:var(--blue); }
+
+    .record-amount { font-size:1.1rem; font-weight:700; color:var(--orange-dark); }
+
+    /* Status Badges */
+    .status-badge {
+      padding:.35rem .7rem; border-radius:20px; font-size:.75rem; font-weight:600;
+    }
+    .status-active { background:#fef3c7; color:#92400e; }
+    .status-won { background:#dcfce7; color:var(--green); }
+    .status-lost { background:#fee2e2; color:var(--red); }
+    .status-pending { background:#dbeafe; color:var(--blue); }
+    .status-refunded { background:#f3f4f6; color:var(--gray); }
+
+    /* Category Tag */
+    .cat-tag {
+      display:inline-flex; align-items:center; gap:.3rem;
+      padding:.2rem .5rem; border-radius:4px; font-size:.7rem; font-weight:600;
+    }
+    .cat-sports { background:#fee2e2; color:var(--red); }
+    .cat-crypto { background:#dbeafe; color:var(--blue); }
+    .cat-reallife { background:#dcfce7; color:var(--green); }
+    .cat-entertainment { background:#f3e8ff; color:#9333ea; }
+
+    /* Empty State */
+    .empty-state { text-align:center; padding:3rem 1rem; color:var(--gray); }
+    .empty-state i { font-size:3rem; margin-bottom:1rem; color:#e5e7eb; }
+    .empty-state h3 { font-size:1.1rem; margin-bottom:.5rem; color:#374151; }
+    .empty-state p { font-size:.9rem; }
+
+    /* Loading */
+    .skeleton-card {
+      background:var(--white); border-radius:12px; padding:1.25rem;
+      box-shadow:0 2px 8px var(--shadow); margin-bottom:.75rem;
+    }
+    .skeleton { background:linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size:200% 100%; animation:shimmer 1.5s infinite; border-radius:6px; height:16px; margin-bottom:.5rem; }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+    .hidden { display:none !important; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo-wrap" onclick="location.href='stake.html'">
+    <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" alt="TaskVault"/>
+    <h1>Stake Records</h1>
+  </div>
+  <div class="header-btns">
+    <button class="header-btn" onclick="location.href='stake.html'">
+      <i class="fas fa-arrow-left"></i> Back to Stake
+    </button>
+    <button class="header-btn" onclick="signOutUser()">
+      <i class="fas fa-sign-out-alt"></i>
+    </button>
+  </div>
+</header>
+
+<div class="container">
+  <!-- Loading -->
+  <div id="loadingState">
+    <div class="skeleton-card"><div class="skeleton" style="width:100%;height:18px;"></div><div class="skeleton" style="width:60%;height:14px;"></div></div>
+    <div class="skeleton-card"><div class="skeleton" style="width:100%;height:18px;"></div><div class="skeleton" style="width:60%;height:14px;"></div></div>
+    <div class="skeleton-card"><div class="skeleton" style="width:100%;height:18px;"></div><div class="skeleton" style="width:60%;height:14px;"></div></div>
+  </div>
+
+  <!-- Stats -->
+  <div id="statsBar" class="stats-bar hidden">
+    <div class="stat-card">
+      <div class="number" id="statTotal">0</div>
+      <div class="label">Total Stakes</div>
+    </div>
+    <div class="stat-card">
+      <div class="number" id="statActive">0</div>
+      <div class="label">Active</div>
+    </div>
+    <div class="stat-card">
+      <div class="number" id="statWon">0</div>
+      <div class="label">Won</div>
+    </div>
+    <div class="stat-card">
+      <div class="number" id="statLost">0</div>
+      <div class="label">Lost</div>
+    </div>
+  </div>
+
+  <!-- Filter Tabs -->
+  <div id="filterTabs" class="filter-tabs hidden">
+    <button class="tab-btn active" data-filter="all">All</button>
+    <button class="tab-btn" data-filter="active">Active</button>
+    <button class="tab-btn" data-filter="won">Won</button>
+    <button class="tab-btn" data-filter="lost">Lost</button>
+    <button class="tab-btn" data-filter="pending">Pending</button>
+    <button class="tab-btn" data-filter="refunded">Refunded</button>
+  </div>
+
+  <!-- Records List -->
+  <div class="records-list" id="recordsList"></div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+  import {
+    getFirestore, doc, getDoc, collection, query, orderBy, getDocs
+  } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAv6QCpopa0Q77AVTyjU5cqJEIKIE9OVTs",
+    authDomain: "taskvault-412a0.firebaseapp.com",
+    projectId: "taskvault-412a0",
+    storageBucket: "taskvault-412a0.firebasestorage.app",
+    messagingSenderId: "420716701831",
+    appId: "1:420716701831:web:c987d91f7f4c8684eb7022"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  let currentUser = null;
+  let allStakes = [];
+  let activeFilter = 'all';
+
+  const loadingState = document.getElementById('loadingState');
+  const statsBar = document.getElementById('statsBar');
+  const filterTabs = document.getElementById('filterTabs');
+  const recordsList = document.getElementById('recordsList');
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { location.href = 'login.html'; return; }
+    currentUser = user;
+    await loadRecords();
+  });
+
+  async function loadRecords() {
+    loadingState.classList.add('hidden');
+    statsBar.classList.remove('hidden');
+    filterTabs.classList.remove('hidden');
+
+    try {
+      const q = query(
+        collection(db, 'users', currentUser.uid, 'stakes'),
+        orderBy('createdAt', 'desc')
+      );
+      
+      const snap = await getDocs(q);
+      allStakes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      
+      updateStats();
+      renderRecords();
+    } catch (err) {
+      console.error('Load records error:', err);
+      recordsList.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><h3>Failed to load</h3><p>Could not fetch your stake records. Try refreshing.</p></div>';
+    }
+  }
+
+  function updateStats() {
+    const total = allStakes.length;
+    const active = allStakes.filter(s => s.status === 'active').length;
+    const won = allStakes.filter(s => s.status === 'won').length;
+    const lost = allStakes.filter(s => s.status === 'lost').length;
+    
+    document.getElementById('statTotal').textContent = total;
+    document.getElementById('statActive').textContent = active;
+    document.getElementById('statWon').textContent = won;
+    document.getElementById('statLost').textContent = lost;
+  }
+
+  function renderRecords() {
+    let filtered = activeFilter === 'all' 
+      ? allStakes 
+      : allStakes.filter(s => s.status === activeFilter);
+    
+    if (filtered.length === 0) {
+      const emptyMessages = {
+        all: 'No stake records yet.',
+        active: 'No active stakes.',
+        won: 'No winning stakes yet.',
+        lost: 'No lost stakes.',
+        pending: 'No pending results.',
+        refunded: 'No refunded stakes.'
+      };
+      recordsList.innerHTML = `
+        <div class="empty-state">
+          <i class="fas fa-inbox"></i>
+          <h3>Nothing here</h3>
+          <p>${emptyMessages[activeFilter] || 'No records found.'}</p>
+        </div>
+      `;
+      return;
+    }
+
+    let html = '';
+    filtered.forEach(stake => {
+      const statusClass = `status-${stake.status || 'active'}`;
+      const statusText = stake.status ? stake.status.charAt(0).toUpperCase() + stake.status.slice(1) : 'Active';
+      const catClass = `cat-${stake.category || 'reallife'}`;
+      const catIcon = stake.category === 'sports' ? 'fa-futbol' : stake.category === 'crypto' ? 'fa-bitcoin-sign' : stake.category === 'entertainment' ? 'fa-film' : 'fa-globe';
+      
+      const date = stake.createdAt?.toDate?.() 
+        ? stake.createdAt.toDate().toLocaleString('en-US', { month:'short', day:'numeric', year:'numeric', hour:'2-digit', minute:'2-digit' })
+        : 'Just now';
+
+      // Pick badge color
+      const pickClass = stake.optionLabel?.toLowerCase() === 'yes' ? 'pick-yes' 
+        : stake.optionLabel?.toLowerCase() === 'no' ? 'pick-no' 
+        : 'pick-other';
+
+      html += `
+        <div class="record-card">
+          <div class="record-header">
+            <div>
+              <div class="record-topic">${escapeHtml(stake.topicQuestion || 'Unknown Topic')}</div>
+              <div class="record-meta">
+                <span class="cat-tag ${catClass}"><i class="fas ${catIcon}"></i> ${stake.category || 'General'}</span>
+                <span class="dot"></span>
+                <span>${date}</span>
+              </div>
+            </div>
+            <span class="status-badge ${statusClass}">${statusText}</span>
+          </div>
+          <div class="record-details">
+            <div class="record-pick">
+              <span style="font-size:.85rem; color:var(--gray);">Your pick:</span>
+              <span class="pick-badge ${pickClass}">${escapeHtml(stake.optionLabel || '—')}</span>
+            </div>
+            <div class="record-amount">$${(stake.amount || 0).toFixed(2)}</div>
+          </div>
+        </div>
+      `;
+    });
+    
+    recordsList.innerHTML = html;
+  }
+
+  // Filter tabs
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeFilter = btn.dataset.filter;
+      renderRecords();
+    });
+  });
+
+  window.signOutUser = function() {
+    signOut(auth).then(() => location.href = 'login.html');
+  };
+
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+</script>
+
+</body>
+</html>
