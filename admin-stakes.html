@@ -87,7 +87,7 @@
     .countdown-sm { font-family:'Courier New',monospace; font-size:.85rem; color:var(--orange-dark); font-weight:600; }
     .countdown-sm.ended { color:var(--red); }
 
-    .actions-cell { display:flex; gap:.3rem; }
+    .actions-cell { display:flex; gap:.3rem; flex-wrap:wrap; }
     .action-btn {
       padding:.4rem .6rem; border:none; border-radius:6px; cursor:pointer;
       font-size:.8rem; color:var(--white);
@@ -257,6 +257,9 @@
         <select id="topicStatus">
           <option value="pending">Pending (Draft)</option>
           <option value="open">Open (Live)</option>
+          <option value="closed">Closed</option>
+          <option value="resulted">Resulted</option>
+          <option value="settled">Settled</option>
         </select>
       </div>
     </div>
@@ -398,21 +401,24 @@
       
       const optionsCount = topic.options?.length || 0;
       
-      // Action buttons based on status
+      // Build actions: Edit & Delete always available, plus status-specific actions
       let actions = '';
-      if (topic.status === 'pending') {
-        actions += `<button class="action-btn btn-edit" onclick="editTopic('${topic.id}')"><i class="fas fa-edit"></i></button>`;
-        actions += `<button class="action-btn btn-delete" onclick="deleteTopic('${topic.id}')"><i class="fas fa-trash"></i></button>`;
-      } else if (topic.status === 'open') {
+      
+      // Always show Edit and Delete
+      actions += `<button class="action-btn btn-edit" onclick="editTopic('${topic.id}')" title="Edit"><i class="fas fa-edit"></i></button>`;
+      actions += `<button class="action-btn btn-delete" onclick="deleteTopic('${topic.id}')" title="Delete"><i class="fas fa-trash"></i></button>`;
+      
+      // Status-specific actions
+      if (topic.status === 'open') {
         if (isOpen) {
-          actions += `<button class="action-btn btn-close" onclick="closeTopic('${topic.id}')"><i class="fas fa-lock"></i> Close</button>`;
+          actions += `<button class="action-btn btn-close" onclick="closeTopic('${topic.id}')" title="Close Topic"><i class="fas fa-lock"></i></button>`;
         } else {
-          actions += `<button class="action-btn btn-result" onclick="openResultModal('${topic.id}')"><i class="fas fa-trophy"></i> Result</button>`;
+          actions += `<button class="action-btn btn-result" onclick="openResultModal('${topic.id}')" title="Declare Result"><i class="fas fa-trophy"></i></button>`;
         }
       } else if (topic.status === 'closed') {
-        actions += `<button class="action-btn btn-result" onclick="openResultModal('${topic.id}')"><i class="fas fa-trophy"></i> Result</button>`;
+        actions += `<button class="action-btn btn-result" onclick="openResultModal('${topic.id}')" title="Declare Result"><i class="fas fa-trophy"></i></button>`;
       } else if (topic.status === 'resulted') {
-        actions += `<button class="action-btn btn-settle" onclick="location.href='admin-settlements.html?topic=${topic.id}'"><i class="fas fa-coins"></i> Settle</button>`;
+        actions += `<button class="action-btn btn-settle" onclick="location.href='admin-settlements.html?topic=${topic.id}'" title="Settle Stakes"><i class="fas fa-coins"></i></button>`;
       }
 
       html += `
@@ -578,6 +584,8 @@
     if (topic.resultTime) {
       const rt = topic.resultTime.toDate ? topic.resultTime.toDate() : new Date(topic.resultTime);
       document.getElementById('topicResultTime').value = toDateTimeLocal(rt);
+    } else {
+      document.getElementById('topicResultTime').value = '';
     }
     
     // Load options
@@ -709,4 +717,4 @@
 </script>
 
 </body>
-          </html>
+</html>
