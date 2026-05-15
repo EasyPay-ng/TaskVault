@@ -151,6 +151,7 @@
 
     .topic-question { font-size:1.1rem; font-weight:800; margin-bottom:.5rem; line-height:1.4; letter-spacing:-0.01em; }
     .topic-desc { font-size:.875rem; color:var(--gray); margin-bottom:1rem; line-height:1.5; }
+    .topic-desc .truncated { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
     
     .topic-meta { 
       display:flex; align-items:center; gap:1rem; 
@@ -176,89 +177,107 @@
       font-size:.8rem; font-weight:600; color:var(--gray);
     }
 
-    /* Full Page Topic Overlay */
+    /* FULL PAGE TOPIC DETAIL - Like a new page */
     .topic-detail-overlay {
-      position:fixed; inset:0; background:rgba(0,0,0,0.6);
+      position:fixed; inset:0; background:var(--orange-light);
       display:none; z-index:1000; overflow-y:auto;
-      backdrop-filter:blur(8px);
-      animation:fadeIn .3s ease;
+      animation:pageFadeIn .4s ease;
     }
     .topic-detail-overlay.active { display:block; }
     
-    @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+    @keyframes pageFadeIn { from { opacity:0; } to { opacity:1; } }
     
-    .topic-detail-container {
-      min-height:100vh; display:flex; justify-content:center;
-      padding:1rem; padding-top:3rem;
+    .topic-detail-page {
+      min-height:100vh; display:flex; flex-direction:column;
+      animation:pageSlideIn .5s cubic-bezier(0.16, 1, 0.3, 1);
     }
     
-    .topic-detail-card {
-      background:var(--white); border-radius:var(--radius-xl);
-      max-width:640px; width:100%;
-      box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);
-      animation:slideUp .4s cubic-bezier(0.16, 1, 0.3, 1);
-      overflow:hidden;
+    @keyframes pageSlideIn {
+      from { opacity:0; transform:translateY(30px); }
+      to { opacity:1; transform:translateY(0); }
     }
     
-    @keyframes slideUp {
-      from { opacity:0; transform:translateY(40px) scale(0.96); }
-      to { opacity:1; transform:translateY(0) scale(1); }
+    .detail-page-header {
+      background:var(--orange); color:var(--white);
+      padding:1rem 1.5rem; display:flex; justify-content:space-between; align-items:center;
+      box-shadow:var(--shadow-lg); position:sticky; top:0; z-index:10;
+    }
+    .detail-page-header .logo-wrap img { box-shadow:0 2px 8px rgba(0,0,0,0.2); }
+    
+    .detail-back-btn {
+      display:flex; align-items:center; gap:.5rem;
+      background:rgba(255,255,255,0.15); color:var(--white); border:none;
+      padding:.5rem 1rem; border-radius:var(--radius-sm); cursor:pointer;
+      font-size:.85rem; font-weight:600; transition:all .2s ease;
+    }
+    .detail-back-btn:hover { background:rgba(255,255,255,0.25); transform:translateX(-2px); }
+    
+    .detail-page-body {
+      flex:1; max-width:800px; width:100%; margin:0 auto; padding:2rem 1.5rem;
     }
     
-    .detail-header {
-      padding:1.5rem; border-bottom:1px solid #f3f4f6;
-      display:flex; justify-content:space-between; align-items:flex-start;
-      gap:1rem;
+    .detail-hero {
+      background:var(--white); border-radius:var(--radius-xl); padding:2rem;
+      box-shadow:var(--shadow-lg); margin-bottom:1.5rem;
+      border:1px solid #f3f4f6;
     }
-    
-    .detail-header-left { flex:1; }
     
     .detail-category-row {
-      display:flex; align-items:center; gap:.75rem; margin-bottom:.75rem;
+      display:flex; align-items:center; gap:.75rem; margin-bottom:1rem;
     }
     
     .detail-title {
-      font-size:1.35rem; font-weight:800; line-height:1.35;
-      letter-spacing:-0.02em; color:#111827;
+      font-size:1.5rem; font-weight:800; line-height:1.3;
+      letter-spacing:-0.02em; color:#111827; margin-bottom:1rem;
     }
     
-    .detail-desc {
-      font-size:.95rem; color:var(--gray); line-height:1.6;
-      margin-top:.75rem;
+    .detail-desc-box {
+      background:#f9fafb; border-radius:var(--radius); padding:1.25rem;
+      border-left:4px solid var(--orange); margin-bottom:1.5rem;
     }
     
-    .detail-close-btn {
-      width:40px; height:40px; border:none; border-radius:50%;
-      background:#f3f4f6; color:#4b5563; cursor:pointer;
-      display:flex; align-items:center; justify-content:center;
-      transition:all .2s ease; flex-shrink:0;
-    }
-    .detail-close-btn:hover { background:#fee2e2; color:var(--red); transform:rotate(90deg); }
-    
-    .detail-body { padding:1.5rem; }
-    
-    .detail-section {
-      margin-bottom:1.5rem;
-    }
-    .detail-section:last-child { margin-bottom:0; }
-    
-    .section-label {
-      font-size:.75rem; font-weight:700; text-transform:uppercase;
-      letter-spacing:0.08em; color:var(--gray-light); margin-bottom:.75rem;
+    .detail-desc-box .section-label {
+      font-size:.7rem; font-weight:700; text-transform:uppercase;
+      letter-spacing:0.1em; color:var(--gray-light); margin-bottom:.5rem;
     }
     
-    .detail-countdown-box {
+    .detail-desc-text {
+      font-size:.95rem; color:#374151; line-height:1.7;
+      white-space:pre-wrap; word-wrap:break-word;
+    }
+    
+    .detail-desc-text a {
+      color:var(--orange); text-decoration:none; font-weight:600;
+      border-bottom:1px solid var(--orange);
+      transition:all .2s ease;
+    }
+    .detail-desc-text a:hover {
+      color:var(--orange-dark); border-bottom-width:2px;
+    }
+    
+    .detail-countdown-section {
       background:linear-gradient(135deg, var(--orange-light) 0%, #ffedd5 100%);
       border:2px solid #fed7aa; border-radius:var(--radius);
-      padding:1rem 1.25rem; display:flex; align-items:center; gap:1rem;
+      padding:1.25rem; display:flex; align-items:center; gap:1rem; margin-bottom:1.5rem;
     }
-    .detail-countdown-box i { font-size:1.25rem; color:var(--orange); }
-    .detail-countdown-box .time-display {
+    .detail-countdown-section i { font-size:1.5rem; color:var(--orange); }
+    .detail-countdown-section .time-display {
       font-family:'SF Mono', 'Courier New', monospace;
-      font-size:1.5rem; font-weight:800; color:var(--orange-dark);
+      font-size:1.75rem; font-weight:800; color:var(--orange-dark);
     }
-    .detail-countdown-box .time-label {
-      font-size:.8rem; color:var(--gray); font-weight:600;
+    .detail-countdown-section .time-label {
+      font-size:.85rem; color:var(--gray); font-weight:600;
+    }
+    
+    .detail-options-section {
+      background:var(--white); border-radius:var(--radius-xl); padding:1.5rem;
+      box-shadow:var(--shadow); margin-bottom:1.5rem;
+      border:1px solid #f3f4f6;
+    }
+    
+    .detail-section-title {
+      font-size:1rem; font-weight:700; color:#1f2937; margin-bottom:1rem;
+      display:flex; align-items:center; gap:.5rem;
     }
     
     .detail-options-grid {
@@ -287,14 +306,20 @@
     .option-stats { font-size:.8rem; color:var(--gray); margin-top:.25rem; }
     
     .option-stake-icon {
-      width:36px; height:36px; border-radius:50%;
+      width:40px; height:40px; border-radius:50%;
       background:var(--orange-light); color:var(--orange);
       display:flex; align-items:center; justify-content:center;
-      transition:all .2s ease;
+      transition:all .2s ease; font-size:1rem;
     }
     .detail-option-btn:hover .option-stake-icon {
       background:var(--orange); color:var(--white);
       transform:scale(1.1);
+    }
+    
+    .detail-stats-section {
+      background:var(--white); border-radius:var(--radius-xl); padding:1.5rem;
+      box-shadow:var(--shadow); margin-bottom:1.5rem;
+      border:1px solid #f3f4f6;
     }
     
     .detail-meta-grid {
@@ -311,10 +336,10 @@
       font-size:.75rem; color:var(--gray); font-weight:600; margin-top:.25rem;
     }
     
-    .detail-footer {
-      padding:1.25rem 1.5rem; background:#f9fafb;
-      border-top:1px solid #f3f4f6;
-      display:flex; justify-content:space-between; align-items:center;
+    .detail-footer-bar {
+      background:var(--white); border-top:1px solid #f3f4f6;
+      padding:1rem 1.5rem; display:flex; justify-content:space-between; align-items:center;
+      position:sticky; bottom:0; box-shadow:0 -4px 12px rgba(0,0,0,0.05);
     }
     
     .detail-share-btn {
@@ -326,7 +351,7 @@
     .detail-share-btn:hover { border-color:var(--orange); color:var(--orange); }
     
     .detail-stake-hint {
-      font-size:.8rem; color:var(--gray-light); font-weight:500;
+      font-size:.85rem; color:var(--gray); font-weight:500;
     }
 
     /* Stake Modal */
@@ -449,7 +474,16 @@
 
     .hidden { display:none !important; }
     
-    /* Scrollbar styling */
+    /* Toast */
+    .toast-notification {
+      position:fixed; bottom:2rem; left:50%; transform:translateX(-50%);
+      background:#1f2937; color:white; padding:.875rem 1.5rem;
+      border-radius:var(--radius); font-size:.9rem; font-weight:600;
+      z-index:5000; animation:slideUp .3s ease; box-shadow:var(--shadow-lg);
+    }
+    @keyframes slideUp { from { opacity:0; transform:translateX(-50%) translateY(20px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }
+    
+    /* Scrollbar */
     ::-webkit-scrollbar { width:6px; }
     ::-webkit-scrollbar-track { background:transparent; }
     ::-webkit-scrollbar-thumb { background:#d1d5db; border-radius:3px; }
@@ -458,7 +492,7 @@
 </head>
 <body>
 
-<<header>
+<header>
   <div class="logo-wrap">
     <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" alt="TaskVault"/>
     <h1>TaskVault Stake</h1>
@@ -518,12 +552,10 @@
   </div>
 </div>
 
-<!-- Full Page Topic Detail Overlay -->
-<div class="topic-detail-overlay" id="topicDetailOverlay" onclick="closeTopicDetail(event)">
-  <div class="topic-detail-container">
-    <div class="topic-detail-card" id="topicDetailCard" onclick="event.stopPropagation()">
-      <!-- Content injected dynamically -->
-    </div>
+<!-- FULL PAGE TOPIC DETAIL - Like a completely new page -->
+<div class="topic-detail-overlay" id="topicDetailOverlay">
+  <div class="topic-detail-page" id="topicDetailPage">
+    <!-- Injected dynamically -->
   </div>
 </div>
 
@@ -585,7 +617,7 @@
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
   import {
     getFirestore, doc, getDoc, collection, query, where, orderBy,
-    getDocs, addDoc, serverTimestamp, runTransaction
+    getDocs, serverTimestamp, runTransaction
   } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -609,6 +641,7 @@
   let selectedTopic = null;
   let selectedOption = null;
   let currentDetailTopic = null;
+  let pendingTopicId = null;
 
   const loadingState = document.getElementById('loadingState');
   const kycBlock = document.getElementById('kycBlock');
@@ -619,7 +652,7 @@
   const confirmStakeBtn = document.getElementById('confirmStakeBtn');
   const searchInput = document.getElementById('searchInput');
   const topicDetailOverlay = document.getElementById('topicDetailOverlay');
-  const topicDetailCard = document.getElementById('topicDetailCard');
+  const topicDetailPage = document.getElementById('topicDetailPage');
 
   const welcomeOverlay = document.getElementById('welcomeOverlay');
   const overlayTitle = document.getElementById('overlayTitle');
@@ -627,6 +660,10 @@
   const overlayBtn = document.getElementById('overlayBtn');
   const stepDots = document.getElementById('stepDots');
   let overlayStep = 0;
+
+  // Check URL params immediately
+  const urlParams = new URLSearchParams(window.location.search);
+  pendingTopicId = urlParams.get('topic');
 
   onAuthStateChanged(auth, async (user) => {
     if (!user) { location.href = 'login.html'; return; }
@@ -654,12 +691,22 @@
     mainContent.classList.remove('hidden');
 
     const visits = parseInt(localStorage.getItem('taskvault_stake_visits') || '0');
-    if (visits < 2) {
+    if (visits < 2 && !pendingTopicId) {
       showWelcomeOverlay();
       localStorage.setItem('taskvault_stake_visits', (visits + 1).toString());
     }
 
-    loadTopics();
+    await loadTopics();
+    
+    // If URL has topic param, open it directly after topics load
+    if (pendingTopicId) {
+      const topic = topics.find(t => t.id === pendingTopicId);
+      if (topic) {
+        openTopicDetail(pendingTopicId);
+        // Clean URL without reloading
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    }
   }
 
   function showWelcomeOverlay() {
@@ -788,6 +835,13 @@
       const totalPool = topic.totalPool || 0;
       const optionCount = (topic.options || []).length;
       const stakerCount = (topic.options || []).reduce((sum, o) => sum + (o.stakerCount || 0), 0);
+      
+      // Truncate description for card preview
+      let descPreview = '';
+      if (topic.description) {
+        const plainDesc = topic.description.replace(/<[^>]*>/g, '');
+        descPreview = plainDesc.length > 120 ? plainDesc.substring(0, 120) + '...' : plainDesc;
+      }
 
       html += `
         <div class="topic-card" data-id="${topic.id}" onclick="openTopicDetail('${topic.id}')">
@@ -801,7 +855,7 @@
             <span class="status-badge ${statusClass}">${statusText}</span>
           </div>
           <div class="topic-question">${escapeHtml(topic.question)}</div>
-          ${topic.description ? `<div class="topic-desc">${escapeHtml(topic.description)}</div>` : ''}
+          ${descPreview ? `<div class="topic-desc"><span class="truncated">${escapeHtml(descPreview)}</span></div>` : ''}
           
           <div class="topic-meta">
             <span><i class="fas fa-coins"></i> $${totalPool.toFixed(2)} pool</span>
@@ -860,10 +914,38 @@
     });
   }
 
-  // Full Page Topic Detail
+  // Convert plain text URLs to clickable links
+  function linkifyText(text) {
+    if (!text) return '';
+    
+    // First escape HTML to prevent XSS
+    let escaped = escapeHtml(text);
+    
+    // URL regex pattern
+    const urlPattern = /(https?:\/\/[^\s<>"{}|\\^`\[\]]+)/g;
+    
+    // Replace URLs with anchor tags
+    escaped = escaped.replace(urlPattern, (url) => {
+      // Clean up trailing punctuation that might be caught
+      let cleanUrl = url;
+      let trailing = '';
+      while (/[.,;:!?)$]/.test(cleanUrl.slice(-1))) {
+        trailing = cleanUrl.slice(-1) + trailing;
+        cleanUrl = cleanUrl.slice(0, -1);
+      }
+      return `<a href="${cleanUrl}" target="_blank" rel="noopener noreferrer">${cleanUrl}</a>${trailing}`;
+    });
+    
+    return escaped;
+  }
+
+  // FULL PAGE TOPIC DETAIL - Completely new page feel
   window.openTopicDetail = function(topicId) {
     const topic = topics.find(t => t.id === topicId);
-    if (!topic) return;
+    if (!topic) {
+      showToast('Topic not found');
+      return;
+    }
     
     currentDetailTopic = topic;
     
@@ -881,6 +963,9 @@
     const totalStakers = (topic.options || []).reduce((sum, o) => sum + (o.stakerCount || 0), 0);
     
     const postedDate = topic.postedAt?.toDate ? topic.postedAt.toDate().toLocaleDateString() : 'Recently';
+    
+    // Process description with linkified URLs
+    const fullDescription = linkifyText(topic.description || 'No additional instructions provided.');
     
     let optionsHtml = '';
     (topic.options || []).forEach(opt => {
@@ -914,46 +999,76 @@
     let countdownHtml = '';
     if (isOpen) {
       countdownHtml = `
-        <div class="detail-section">
-          <div class="section-label">Time Remaining</div>
-          <div class="detail-countdown-box">
-            <i class="fas fa-hourglass-half"></i>
-            <div>
-              <div class="time-display countdown ${isUrgent ? 'urgent' : ''}" id="detailCountdown" data-deadline="${deadline.toISOString()}">${timeLeft}</div>
-              <div class="time-label">Deadline approaching</div>
-            </div>
+        <div class="detail-countdown-section">
+          <i class="fas fa-hourglass-half"></i>
+          <div>
+            <div class="time-display countdown ${isUrgent ? 'urgent' : ''}" id="detailCountdown" data-deadline="${deadline.toISOString()}">${timeLeft}</div>
+            <div class="time-label">Place your stake before time runs out</div>
+          </div>
+        </div>
+      `;
+    } else if (topic.status === 'closed') {
+      countdownHtml = `
+        <div class="detail-countdown-section" style="background:#fee2e2; border-color:#fca5a5;">
+          <i class="fas fa-lock" style="color:var(--red);"></i>
+          <div>
+            <div class="time-display" style="color:var(--red); font-size:1.25rem;">Topic Closed</div>
+            <div class="time-label">Staking is no longer available for this topic</div>
+          </div>
+        </div>
+      `;
+    } else {
+      countdownHtml = `
+        <div class="detail-countdown-section" style="background:#dbeafe; border-color:#93c5fd;">
+          <i class="fas fa-check-circle" style="color:var(--blue);"></i>
+          <div>
+            <div class="time-display" style="color:var(--blue); font-size:1.25rem;">Result Declared</div>
+            <div class="time-label">Check your records to see if you won</div>
           </div>
         </div>
       `;
     }
     
-    topicDetailCard.innerHTML = `
-      <div class="detail-header">
-        <div class="detail-header-left">
+    topicDetailPage.innerHTML = `
+      <div class="detail-page-header">
+        <div class="logo-wrap">
+          <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" alt="TaskVault"/>
+          <h1>TaskVault Stake</h1>
+        </div>
+        <button class="detail-back-btn" onclick="closeTopicDetail()">
+          <i class="fas fa-arrow-left"></i> Back to Topics
+        </button>
+      </div>
+      
+      <div class="detail-page-body">
+        <div class="detail-hero">
           <div class="detail-category-row">
             <span class="category-tag ${catClass}"><i class="fas ${catIcon}"></i> ${topic.category || 'General'}</span>
             <span class="status-badge ${statusClass}">${statusText}</span>
           </div>
           <div class="detail-title">${escapeHtml(topic.question)}</div>
-          ${topic.description ? `<div class="detail-desc">${escapeHtml(topic.description)}</div>` : ''}
+          
+          <div class="detail-desc-box">
+            <div class="section-label">Instructions & Details</div>
+            <div class="detail-desc-text">${fullDescription}</div>
+          </div>
+          
+          ${countdownHtml}
         </div>
-        <button class="detail-close-btn" onclick="closeTopicDetail()">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-      
-      <div class="detail-body">
-        ${countdownHtml}
         
-        <div class="detail-section">
-          <div class="section-label">Choose Your Option</div>
+        <div class="detail-options-section">
+          <div class="detail-section-title">
+            <i class="fas fa-hand-pointer" style="color:var(--orange);"></i> Choose Your Option
+          </div>
           <div class="detail-options-grid">
             ${optionsHtml}
           </div>
         </div>
         
-        <div class="detail-section">
-          <div class="section-label">Topic Stats</div>
+        <div class="detail-stats-section">
+          <div class="detail-section-title">
+            <i class="fas fa-chart-bar" style="color:var(--blue);"></i> Topic Statistics
+          </div>
           <div class="detail-meta-grid">
             <div class="meta-item">
               <div class="meta-value">$${totalPool.toFixed(2)}</div>
@@ -970,11 +1085,13 @@
           </div>
         </div>
         
-        <div class="detail-section">
-          <div class="section-label">Topic Info</div>
+        <div class="detail-stats-section">
+          <div class="detail-section-title">
+            <i class="fas fa-info-circle" style="color:var(--gray);"></i> Topic Information
+          </div>
           <div class="detail-meta-grid">
             <div class="meta-item">
-              <div class="meta-value" style="font-size:.9rem;">${topic.id}</div>
+              <div class="meta-value" style="font-size:.85rem; word-break:break-all;">${topic.id}</div>
               <div class="meta-label">Topic ID</div>
             </div>
             <div class="meta-item">
@@ -989,7 +1106,7 @@
         </div>
       </div>
       
-      <div class="detail-footer">
+      <div class="detail-footer-bar">
         <button class="detail-share-btn" onclick="copyDetailLink()">
           <i class="fas fa-share-alt"></i> Share Topic
         </button>
@@ -999,6 +1116,7 @@
     
     topicDetailOverlay.classList.add('active');
     document.body.style.overflow = 'hidden';
+    window.scrollTo(0, 0);
     
     if (isOpen) {
       startDetailCountdown();
@@ -1026,9 +1144,7 @@
     el.dataset.interval = interval;
   }
 
-  window.closeTopicDetail = function(event) {
-    if (event && event.target !== topicDetailOverlay && event.target !== event.currentTarget) return;
-    
+  window.closeTopicDetail = function() {
     topicDetailOverlay.classList.remove('active');
     document.body.style.overflow = '';
     
@@ -1058,7 +1174,6 @@
           btnElement.classList.remove('copied');
         }, 2000);
       } else {
-        // Toast notification for detail view
         showToast('Link copied to clipboard!');
       }
     } catch (err) {
@@ -1091,12 +1206,6 @@
     
     const toast = document.createElement('div');
     toast.className = 'toast-notification';
-    toast.style.cssText = `
-      position:fixed; bottom:2rem; left:50%; transform:translateX(-50%);
-      background:#1f2937; color:white; padding:.875rem 1.5rem;
-      border-radius:var(--radius); font-size:.9rem; font-weight:600;
-      z-index:5000; animation:slideUp .3s ease; box-shadow:var(--shadow-lg);
-    `;
     toast.innerHTML = `<i class="fas fa-check-circle" style="color:var(--green);margin-right:.5rem;"></i> ${message}`;
     document.body.appendChild(toast);
     
@@ -1227,27 +1336,6 @@
     return div.innerHTML;
   }
 
-  // Handle URL params for direct topic access
-  function handleUrlParams() {
-    const params = new URLSearchParams(window.location.search);
-    const topicId = params.get('topic');
-    if (topicId) {
-      // Wait for topics to load then open detail
-      const checkInterval = setInterval(() => {
-        if (topics.length > 0) {
-          clearInterval(checkInterval);
-          const topic = topics.find(t => t.id === topicId);
-          if (topic) {
-            openTopicDetail(topicId);
-          }
-        }
-      }, 500);
-      
-      // Timeout after 10 seconds
-      setTimeout(() => clearInterval(checkInterval), 10000);
-    }
-  }
-
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
       document.querySelectorAll('.countdown').forEach(el => {
@@ -1271,7 +1359,15 @@
       }
     }
   });
+
+  // Handle browser back button for detail overlay
+  window.addEventListener('popstate', (e) => {
+    if (topicDetailOverlay.classList.contains('active')) {
+      e.preventDefault();
+      closeTopicDetail();
+    }
+  });
 </script>
 
 </body>
-                                                        </html>
+</html>
