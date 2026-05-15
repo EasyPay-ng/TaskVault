@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Referrals – TaskVault</title>
+  <link rel="icon" type="image/jpeg" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg"/>
+  <link rel="shortcut icon" type="image/jpeg" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <style>
+    :root{
+      --orange: #f97316;
+      --orange-dark: #ea580c;
+      --orange-light: #fff7ed;
+      --orange-glow: rgba(249, 115, 22, 0.12);
+      --bg: #fff7ed;
+      --card: #ffffff;
+      --muted: #6b7280;
+      --gray-light: #9ca3af;
+      --green: #16a34a;
+      --red: #dc2626;
+      --blue: #2563eb;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+      --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+      --radius-sm: 8px;
+      --radius: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 20px;
+    }
+    
+    *{box-sizing:border-box;margin:0;padding:0;font-family:'Inter','Segoe UI',system-ui,sans-serif}
+    body{
+      background:linear-gradient(180deg, #fffaf5 0%, var(--bg) 100%);
+      color:#1f2937;
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+      -webkit-font-smoothing:antialiased;
+    }
+    
+    /* Back Button */
+    .top-btn-container{padding:16px 20px}
+    .btn-back{
+      background:var(--card);
+      border:2px solid #fed7aa;
+      color:var(--orange-dark);
+      padding:10px 16px;
+      border-radius:var(--radius);
+      cursor:pointer;
+      font-weight:600;
+      font-size:.9rem;
+      transition:all .2s ease;
+      display:flex;
+      align-items:center;
+      gap:.5rem;
+      box-shadow:var(--shadow-sm);
+    }
+    .btn-back:hover{
+      background:var(--orange);
+      color:#fff;
+      border-color:var(--orange);
+      transform:translateY(-1px);
+      box-shadow:var(--shadow);
+    }
+
+    /* Header */
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:18px 24px;
+      background:linear-gradient(135deg, var(--orange) 0%, var(--orange-dark) 100%);
+      color:#fff;
+      box-shadow:var(--shadow-lg);
+      position:relative;
+      overflow:hidden;
+    }
+    header::before{
+      content:'';
+      position:absolute;
+      top:-50%;
+      right:-10%;
+      width:300px;
+      height:300px;
+      background:rgba(255,255,255,0.06);
+      border-radius:50%;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:.75rem;
+      font-weight:800;
+      font-size:1.2rem;
+      letter-spacing:-0.02em;
+    }
+    .brand img{
+      width:36px;
+      height:36px;
+      border-radius:10px;
+      object-fit:cover;
+      box-shadow:0 2px 8px rgba(0,0,0,0.2);
+    }
+    .ref-box{
+      display:flex;
+      gap:12px;
+      align-items:center;
+    }
+    .ref-label{
+      font-size:.75rem;
+      color:rgba(255,255,255,0.85);
+      text-transform:uppercase;
+      letter-spacing:0.08em;
+      font-weight:600;
+    }
+    .ref-code-wrap{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      margin-top:4px;
+    }
+    .ref-code{
+      background:rgba(255,255,255,0.15);
+      padding:8px 14px;
+      border-radius:var(--radius-sm);
+      font-weight:700;
+      font-size:1rem;
+      backdrop-filter:blur(4px);
+      border:1px solid rgba(255,255,255,0.1);
+    }
+    .btn-copy{
+      background:rgba(255,255,255,0.2);
+      border:none;
+      padding:8px 14px;
+      border-radius:var(--radius-sm);
+      cursor:pointer;
+      font-weight:600;
+      font-size:.85rem;
+      color:#fff;
+      transition:all .2s ease;
+      display:flex;
+      align-items:center;
+      gap:.4rem;
+    }
+    .btn-copy:hover{
+      background:rgba(255,255,255,0.3);
+      transform:translateY(-1px);
+    }
+    .btn-copy.copied{
+      background:var(--green);
+    }
+
+    /* Stats Row */
+    .top-row{
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));
+      gap:16px;
+      padding:20px;
+      max-width:1200px;
+      margin:20px auto;
+      width:95%;
+    }
+    .stat-card{
+      background:var(--card);
+      border-radius:var(--radius-lg);
+      padding:20px;
+      box-shadow:var(--shadow);
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      border:1px solid #fef3c7;
+      transition:all .3s ease;
+      position:relative;
+      overflow:hidden;
+    }
+    .stat-card:hover{
+      transform:translateY(-2px);
+      box-shadow:var(--shadow-lg);
+      border-color:var(--orange);
+    }
+    .stat-card::after{
+      content:'';
+      position:absolute;
+      top:0;
+      left:0;
+      width:4px;
+      height:100%;
+      background:var(--orange);
+      border-radius:var(--radius-lg) 0 0 var(--radius-lg);
+    }
+    .stat-card h3{
+      margin:0;
+      color:var(--muted);
+      font-size:.85rem;
+      font-weight:600;
+      text-transform:uppercase;
+      letter-spacing:0.05em;
+    }
+    .big{
+      font-size:1.8rem;
+      font-weight:800;
+      color:#1f2937;
+      letter-spacing:-0.02em;
+    }
+    .muted{
+      color:var(--gray-light);
+      font-size:.85rem;
+      line-height:1.4;
+    }
+    .btn-withdraw{
+      background:linear-gradient(135deg, var(--orange) 0%, var(--orange-dark) 100%);
+      color:#fff;
+      border:none;
+      padding:10px 18px;
+      border-radius:var(--radius-sm);
+      cursor:pointer;
+      font-weight:700;
+      font-size:.9rem;
+      transition:all .2s ease;
+      box-shadow:0 4px 12px rgba(249,115,22,0.3);
+      margin-top:4px;
+    }
+    .btn-withdraw:hover{
+      transform:translateY(-2px);
+      box-shadow:0 6px 16px rgba(249,115,22,0.4);
+    }
+    .btn-withdraw:disabled{
+      background:#d1d5db;
+      cursor:not-allowed;
+      transform:none;
+      box-shadow:none;
+    }
+
+    /* Search Card */
+    .search-card .controls{
+      display:flex;
+      gap:10px;
+      align-items:center;
+    }
+    .search-wrap{
+      flex:1;
+      position:relative;
+    }
+    .search-wrap i{
+      position:absolute;
+      left:12px;
+      top:50%;
+      transform:translateY(-50%);
+      color:var(--gray-light);
+      font-size:.9rem;
+    }
+    .search-wrap input{
+      width:100%;
+      padding:10px 12px 10px 36px;
+      border-radius:var(--radius-sm);
+      border:2px solid #fed7aa;
+      background:#fff;
+      font-size:.9rem;
+      font-weight:500;
+      outline:none;
+      transition:all .2s ease;
+    }
+    .search-wrap input:focus{
+      border-color:var(--orange);
+      box-shadow:0 0 0 3px var(--orange-glow);
+    }
+    .btn-refresh{
+      background:var(--card);
+      border:2px solid #fed7aa;
+      color:var(--orange-dark);
+      padding:10px 16px;
+      border-radius:var(--radius-sm);
+      cursor:pointer;
+      font-weight:600;
+      font-size:.85rem;
+      transition:all .2s ease;
+      white-space:nowrap;
+    }
+    .btn-refresh:hover{
+      background:var(--orange);
+      color:#fff;
+      border-color:var(--orange);
+    }
+
+    /* Tabs */
+    .tabs{
+      display:flex;
+      gap:8px;
+      justify-content:center;
+      margin:8px auto;
+      max-width:1200px;
+      width:95%;
+      padding:0 20px;
+    }
+    .tab{
+      padding:10px 20px;
+      border-radius:999px;
+      cursor:pointer;
+      background:transparent;
+      border:2px solid transparent;
+      font-weight:600;
+      color:var(--muted);
+      font-size:.9rem;
+      transition:all .25s ease;
+    }
+    .tab:hover{
+      color:var(--orange);
+      background:var(--orange-light);
+    }
+    .tab.active{
+      background:linear-gradient(135deg, var(--orange) 0%, var(--orange-dark) 100%);
+      color:#fff;
+      box-shadow:0 8px 18px rgba(249,115,22,0.2);
+      border-color:transparent;
+    }
+
+    /* Table Container */
+    .container{
+      max-width:1200px;
+      margin:16px auto;
+      display:flex;
+      flex-direction:column;
+      gap:16px;
+      padding:0 20px 40px;
+      width:95%;
+    }
+    .table-card{
+      background:var(--card);
+      border-radius:var(--radius-lg);
+      padding:8px;
+      box-shadow:var(--shadow-lg);
+      overflow:auto;
+      border:1px solid #fef3c7;
+    }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:700px;
+    }
+    thead th{
+      position:sticky;
+      top:0;
+      background:linear-gradient(135deg, var(--orange-dark) 0%, var(--orange) 100%);
+      color:#fff;
+      padding:14px 16px;
+      text-align:left;
+      font-weight:600;
+      font-size:.85rem;
+      text-transform:uppercase;
+      letter-spacing:0.05em;
+    }
+    thead th:first-child{border-radius:var(--radius-sm) 0 0 0}
+    thead th:last-child{border-radius:0 var(--radius-sm) 0 0}
+    tbody td{
+      padding:14px 16px;
+      border-bottom:1px solid #f3f4f6;
+      font-size:.9rem;
+    }
+    tbody tr{
+      transition:background .2s ease;
+    }
+    tbody tr:hover td{
+      background:var(--orange-light);
+    }
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:.35rem;
+      padding:4px 10px;
+      border-radius:999px;
+      font-size:.75rem;
+      font-weight:700;
+    }
+    .badge-activated{
+      background:#dcfce7;
+      color:var(--green);
+    }
+    .badge-pending{
+      background:#fef3c7;
+      color:#d97706;
+    }
+    .no-data{
+      padding:40px;
+      text-align:center;
+      color:var(--muted);
+      font-weight:500;
+    }
+    .no-data i{
+      font-size:2.5rem;
+      margin-bottom:12px;
+      color:#e5e7eb;
+      display:block;
+    }
+
+    /* Toast */
+    .toast{
+      position:fixed;
+      bottom:24px;
+      left:50%;
+      transform:translateX(-50%);
+      background:#1f2937;
+      color:#fff;
+      padding:12px 24px;
+      border-radius:var(--radius);
+      font-size:.9rem;
+      font-weight:600;
+      z-index:5000;
+      animation:toastUp .3s ease;
+      box-shadow:var(--shadow-xl);
+      display:flex;
+      align-items:center;
+      gap:.5rem;
+    }
+    @keyframes toastUp{
+      from{opacity:0;transform:translateX(-50%) translateY(20px)}
+      to{opacity:1;transform:translateX(-50%) translateY(0)}
+    }
+
+    /* Footer */
+    footer{
+      margin-top:auto;
+      padding:20px;
+      text-align:center;
+      color:var(--gray-light);
+      font-size:.85rem;
+      font-weight:500;
+    }
+
+    /* Responsive */
+    @media (max-width:768px){
+      .top-row{grid-template-columns:1fr}
+      table{min-width:600px}
+      .ref-box{flex-direction:column;align-items:flex-end;gap:8px}
+      header{flex-direction:column;gap:12px;align-items:flex-start}
+      .brand{font-size:1rem}
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Back Button -->
+  <div class="top-btn-container">
+    <button id="backBtn" class="btn-back">
+      <i class="fas fa-arrow-left"></i> Back to Dashboard
+    </button>
+  </div>
+
+  <!-- Header -->
+  <header>
+    <div class="brand">
+      <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" alt="TaskVault"/>
+      TaskVault — My Referrals
+    </div>
+    <div class="ref-box" aria-live="polite">
+      <div style="text-align:right">
+        <div class="ref-label">Your referral code</div>
+        <div class="ref-code-wrap">
+          <div id="refCode" class="ref-code">Loading...</div>
+          <button id="copyBtn" class="btn-copy">
+            <i class="fas fa-link"></i> Copy Link
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Stats Row -->
+  <div class="top-row">
+    <div class="stat-card">
+      <h3><i class="fas fa-users" style="margin-right:6px;"></i>Total Referred</h3>
+      <div class="big" id="totalRef">—</div>
+      <div class="muted">Users who signed up with your code</div>
+    </div>
+    <div class="stat-card">
+      <h3><i class="fas fa-bolt" style="margin-right:6px;"></i>Activated</h3>
+      <div class="big" id="activatedCount">—</div>
+      <div class="muted">Users with activated accounts (Silver+)</div>
+    </div>
+    <div class="stat-card">
+      <h3><i class="fas fa-wallet" style="margin-right:6px;"></i>Referral Balance</h3>
+      <div class="big" id="referralBalance" style="color:var(--orange);">$0.00</div>
+      <div class="muted">Total earned from referrals</div>
+      <button id="withdrawBtn" class="btn-withdraw">
+        <i class="fas fa-arrow-down" style="margin-right:6px;"></i>Withdraw to Main Balance
+      </button>
+    </div>
+    <div class="stat-card search-card">
+      <h3><i class="fas fa-search" style="margin-right:6px;"></i>Search & Filter</h3>
+      <div class="controls">
+        <div class="search-wrap">
+          <i class="fas fa-search"></i>
+          <input id="searchInput" placeholder="Search username or email..."/>
+        </div>
+        <button id="refreshBtn" class="btn-refresh">
+          <i class="fas fa-sync-alt"></i> Refresh
+        </button>
+      </div>
+      <div class="muted" style="margin-top:8px">Type to filter the visible table</div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <div class="tab active" data-tab="activated">
+      <i class="fas fa-bolt" style="margin-right:6px;"></i>Activated
+    </div>
+    <div class="tab" data-tab="all">
+      <i class="fas fa-users" style="margin-right:6px;"></i>All Referrals
+    </div>
+  </div>
+
+  <!-- Tables -->
+  <div class="container">
+    <div id="activated" class="tab-pane">
+      <div class="table-card">
+        <table aria-describedby="activated">
+          <thead>
+            <tr>
+              <th>Username</th>
+              <th>Email</th>
+              <th>Status</th>
+              <th>Registered At</th>
+            </tr>
+          </thead>
+          <tbody id="activatedBody">
+            <tr><td colspan="4" class="no-data"><i class="fas fa-spinner fa-spin"></i>Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="all" class="tab-pane" style="display:none">
+      <div class="table-card">
+        <table aria-describedby="all">
+          <thead>
+            <tr>
+              <th>Username</th>
+              <th>Email</th>
+              <th>Status</th>
+              <th>Registered At</th>
+            </tr>
+          </thead>
+          <tbody id="allBody">
+            <tr><td colspan="4" class="no-data"><i class="fas fa-spinner fa-spin"></i>Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <footer>TaskVault © 2026</footer>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+    import { 
+      getFirestore, collection, query, where, getDocs, 
+      doc, getDoc, updateDoc, onSnapshot, increment 
+    } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAv6QCpopa0Q77AVTyjU5cqJEIKIE9OVTs",
+      authDomain: "taskvault-412a0.firebaseapp.com",
+      projectId: "taskvault-412a0",
+      storageBucket: "taskvault-412a0.firebasestorage.app",
+      messagingSenderId: "420716701831",
+      appId: "1:420716701831:web:c987d91f7f4c8684eb7022"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    const activatedBody = document.getElementById('activatedBody');
+    const allBody = document.getElementById('allBody');
+    const refCodeEl = document.getElementById('refCode');
+    const totalRefEl = document.getElementById('totalRef');
+    const activatedCountEl = document.getElementById('activatedCount');
+    const referralBalanceEl = document.getElementById('referralBalance');
+    const searchInput = document.getElementById('searchInput');
+    const copyBtn = document.getElementById('copyBtn');
+    const refreshBtn = document.getElementById('refreshBtn');
+    const withdrawBtn = document.getElementById('withdrawBtn');
+    const backBtn = document.getElementById('backBtn');
+
+    let allRefs = [];
+    let activatedRefs = [];
+    let referralBalance = 0;
+    let currentUser = null;
+    let currentUserRef = null;
+    let unsubscribeSnapshot = null;
+
+    const SILVER_PLANS = ['silver', 'gold', 'premium', 'elite', 'diamond', 'platinum'];
+    const REFERRAL_COMMISSION = 0.5;
+
+    function fmtDate(ts){
+      try{
+        if(!ts) return '-';
+        if(ts instanceof Date) return ts.toLocaleString();
+        if(ts && typeof ts.toDate === 'function') return ts.toDate().toLocaleString();
+        return new Date(ts).toLocaleString();
+      }catch(e){ return '-'; }
+    }
+
+    function renderRows(list, container){
+      if(!list.length){
+        container.innerHTML = '<tr><td colspan="4" class="no-data"><i class="fas fa-inbox"></i>No records found</td></tr>';
+        return;
+      }
+      container.innerHTML = list.map(u=>{
+        const reg = fmtDate(u.registeredAt || u.createdAt || null);
+        const isActivated = SILVER_PLANS.includes((u.plan || '').toLowerCase());
+        const statusBadge = isActivated 
+          ? '<span class="badge badge-activated"><i class="fas fa-check-circle"></i> Activated</span>'
+          : '<span class="badge badge-pending"><i class="fas fa-clock"></i> Pending</span>';
+        
+        return `<tr>
+          <td style="font-weight:700">${escapeHtml(u.username || '-')}</td>
+          <td>${escapeHtml(u.email || '-')}</td>
+          <td>${statusBadge}</td>
+          <td style="color:var(--muted);font-size:.85rem">${escapeHtml(reg)}</td>
+        </tr>`;
+      }).join('');
+    }
+
+    function escapeHtml(str){
+      return String(str).replace(/[&<<>"']/g, m => ({'&':'&amp;','<<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]);
+    }
+
+    function applyFilter(){
+      const q = (searchInput.value || '').toLowerCase().trim();
+      if(!q){
+        renderRows(activatedRefs, activatedBody);
+        renderRows(allRefs, allBody);
+        return;
+      }
+      const f1 = activatedRefs.filter(u => 
+        (u.username || '').toLowerCase().includes(q) || 
+        (u.email || '').toLowerCase().includes(q)
+      );
+      const f2 = allRefs.filter(u => 
+        (u.username || '').toLowerCase().includes(q) || 
+        (u.email || '').toLowerCase().includes(q)
+      );
+      renderRows(f1, activatedBody);
+      renderRows(f2, allBody);
+    }
+
+    searchInput.addEventListener('input', applyFilter);
+
+    // Copy referral link
+    copyBtn.addEventListener('click', async ()=>{
+      const code = refCodeEl.textContent || '';
+      if(code === 'Loading...') return;
+      
+      const encoded = encodeURIComponent(code);
+      const url = `${window.location.origin}/register?ref=${encoded}`;
+      
+      try{
+        await navigator.clipboard.writeText(url);
+        copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied';
+        copyBtn.classList.add('copied');
+        showToast('Referral link copied to clipboard!');
+        
+        setTimeout(()=>{
+          copyBtn.innerHTML = '<i class="fas fa-link"></i> Copy Link';
+          copyBtn.classList.remove('copied');
+        }, 2000);
+      }catch(err){
+        showToast('Failed to copy link', 'error');
+      }
+    });
+
+    refreshBtn.addEventListener('click', ()=>{
+      refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing';
+      loadData(refCodeEl.textContent).then(()=>{
+        refreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh';
+        showToast('Data refreshed');
+      });
+    });
+
+    backBtn.addEventListener('click', ()=> location.href='dashboard.html');
+
+    // Withdraw referral balance to main balance
+    withdrawBtn.addEventListener('click', async ()=>{
+      if(!currentUser) return;
+      if(referralBalance <= 0){
+        showToast('No referral balance to withdraw', 'error');
+        return;
+      }
+      
+      withdrawBtn.disabled = true;
+      withdrawBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+      
+      try{
+        const userRef = doc(db, 'users', currentUser.uid);
+        const userSnap = await getDoc(userRef);
+        const data = userSnap.data() || {};
+        const currentBalance = Number(data.balance || 0);
+        const currentRefBal = Number(data.referralBalance || 0);
+        
+        await updateDoc(userRef, {
+          balance: currentBalance + currentRefBal,
+          referralBalance: 0,
+          lastReferralWithdrawal: new Date()
+        });
+        
+        referralBalance = 0;
+        referralBalanceEl.textContent = '$0.00';
+        showToast(`$${currentRefBal.toFixed(2)} withdrawn to main balance!`);
+      }catch(e){
+        console.error(e);
+        showToast('Withdrawal failed. Please try again.', 'error');
+      }finally{
+        withdrawBtn.disabled = false;
+        withdrawBtn.innerHTML = '<i class="fas fa-arrow-down" style="margin-right:6px;"></i>Withdraw to Main Balance';
+      }
+    });
+
+    // Tab switching
+    document.querySelectorAll('.tab').forEach(t => {
+      t.addEventListener('click', e => {
+        document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+        e.currentTarget.classList.add('active');
+        const tab = e.currentTarget.dataset.tab;
+        document.querySelectorAll('.tab-pane').forEach(p => p.style.display = 'none');
+        const el = document.getElementById(tab);
+        if(el) el.style.display = 'block';
+      });
+    });
+
+    function showToast(message, type = 'success'){
+      const existing = document.querySelector('.toast');
+      if(existing) existing.remove();
+      
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      const icon = type === 'success' ? '<i class="fas fa-check-circle" style="color:var(--green);"></i>' 
+        : '<i class="fas fa-exclamation-circle" style="color:var(--red);"></i>';
+      toast.innerHTML = `${icon} ${message}`;
+      document.body.appendChild(toast);
+      
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(-50%) translateY(20px)';
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    // Real-time listener for referral activations
+    function setupRealtimeListener(myCode){
+      if(unsubscribeSnapshot) unsubscribeSnapshot();
+      
+      const qRef = query(collection(db, 'users'), where('referral', '==', myCode));
+      
+      unsubscribeSnapshot = onSnapshot(qRef, async (snap) => {
+        snap.docChanges().forEach(async (change) => {
+          const d = change.doc.data();
+          const docId = change.doc.id;
+          
+          // Skip if it's the current user
+          if(docId === currentUser.uid) return;
+          if(!d.username) return;
+          
+          const plan = (d.plan || '').toLowerCase();
+          const alreadyCredited = d.referralCredited === true;
+          
+          // If plan is silver+ and not yet credited
+          if(SILVER_PLANS.includes(plan) && !alreadyCredited){
+            try{
+              // Credit the referrer
+              await updateDoc(currentUserRef, {
+                referralBalance: increment(REFERRAL_COMMISSION)
+              });
+              
+              // Mark as credited
+              await updateDoc(change.doc.ref, {
+                referralCredited: true,
+                referralCreditedAt: new Date()
+              });
+              
+              referralBalance += REFERRAL_COMMISSION;
+              referralBalanceEl.textContent = `$${referralBalance.toFixed(2)}`;
+              
+              showToast(`+$${REFERRAL_COMMISSION.toFixed(2)} from ${d.username || 'a referral'}!`);
+              
+              // Refresh table data
+              await loadData(myCode);
+            }catch(err){
+              console.error('Auto-credit failed:', err);
+            }
+          }
+        });
+      });
+    }
+
+    onAuthStateChanged(auth, async user => {
+      if(!user) return location.href = 'login.html';
+      currentUser = user;
+      currentUserRef = doc(db, 'users', user.uid);
+      
+      const userSnap = await getDoc(currentUserRef);
+      const myData = userSnap.exists() ? userSnap.data() : {};
+      const myCode = (myData.username || user.email || user.uid || '').toString();
+      
+      refCodeEl.textContent = myCode;
+      referralBalance = Number(myData.referralBalance || 0);
+      referralBalanceEl.textContent = `$${referralBalance.toFixed(2)}`;
+      
+      // Setup real-time listener for new activations
+      setupRealtimeListener(myCode);
+      
+      await loadData(myCode);
+    });
+
+    async function loadData(myCode){
+      try{
+        activatedBody.innerHTML = '<tr><td colspan="4" class="no-data"><i class="fas fa-spinner fa-spin"></i>Loading…</td></tr>';
+        allBody.innerHTML = '<tr><td colspan="4" class="no-data"><i class="fas fa-spinner fa-spin"></i>Loading…</td></tr>';
+
+        const qRef = query(collection(db, 'users'), where('referral', '==', myCode));
+        const snap = await getDocs(qRef);
+        
+        allRefs = [];
+        activatedRefs = [];
+
+        snap.forEach(docSnap => {
+          const d = docSnap.data() || {};
+          // Skip current user
+          if(docSnap.id === currentUser?.uid) return;
+          
+          const user = {
+            username: (d.username || d.name || '').toString(),
+            email: (d.email || '').toString(),
+            registeredAt: d.createdAt || d.registeredAt || d.created_at || d.registered_at || null,
+            plan: (d.plan || '').toString().toLowerCase(),
+            isActivated: SILVER_PLANS.includes((d.plan || '').toLowerCase())
+          };
+          
+          allRefs.push(user);
+          if(user.isActivated) activatedRefs.push(user);
+        });
+
+        const sortFn = (a, b) => {
+          const ta = a.registeredAt ? (a.registeredAt.toDate ? a.registeredAt.toDate().getTime() : new Date(a.registeredAt).getTime()) : 0;
+          const tb = b.registeredAt ? (b.registeredAt.toDate ? b.registeredAt.toDate().getTime() : new Date(b.registeredAt).getTime()) : 0;
+          return tb - ta;
+        };
+        
+        allRefs.sort(sortFn);
+        activatedRefs.sort(sortFn);
+
+        totalRefEl.textContent = allRefs.length;
+        activatedCountEl.textContent = activatedRefs.length;
+
+        applyFilter();
+      }catch(err){
+        console.error(err);
+        activatedBody.innerHTML = '<tr><td colspan="4" class="no-data"><i class="fas fa-exclamation-circle"></i>Failed to load referrals</td></tr>';
+        allBody.innerHTML = '<tr><td colspan="4" class="no-data"><i class="fas fa-exclamation-circle"></i>Failed to load referrals</td></tr>';
+      }
+    }
+  </script>
+</body>
+  </html>
