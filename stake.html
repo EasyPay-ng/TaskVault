@@ -12,209 +12,453 @@
       --orange: #f97316;
       --orange-light: #fff7ed;
       --orange-dark: #ea580c;
+      --orange-glow: rgba(249, 115, 22, 0.15);
       --white: #fff;
       --gray: #6b7280;
+      --gray-light: #9ca3af;
       --red: #dc2626;
       --green: #16a34a;
       --blue: #2563eb;
-      --shadow: rgba(0,0,0,0.08);
+      --purple: #9333ea;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+      --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+      --radius-sm: 8px;
+      --radius: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 24px;
     }
-    * { box-sizing: border-box; margin:0; padding:0; font-family:'Segoe UI',system-ui,sans-serif; }
-    body { background:var(--orange-light); color:#1f2937; min-height:100vh; }
+    
+    * { box-sizing: border-box; margin:0; padding:0; font-family:'Inter', 'Segoe UI', system-ui, sans-serif; }
+    body { background:var(--orange-light); color:#1f2937; min-height:100vh; -webkit-font-smoothing:antialiased; }
 
+    /* Header */
     header {
       background:var(--orange); color:var(--white);
       padding:1rem 1.5rem; display:flex; justify-content:space-between; align-items:center;
-      box-shadow:0 2px 8px var(--shadow); position:sticky; top:0; z-index:100;
+      box-shadow:var(--shadow-lg); position:sticky; top:0; z-index:100;
+      backdrop-filter:blur(10px);
     }
-    .logo-wrap { display:flex; align-items:center; gap:.6rem; }
-    .logo-wrap img { width:32px; height:32px; border-radius:6px; object-fit:cover; }
-    .logo-wrap h1 { font-size:1.1rem; font-weight:700; }
+    .logo-wrap { display:flex; align-items:center; gap:.75rem; }
+    .logo-wrap img { width:36px; height:36px; border-radius:10px; object-fit:cover; box-shadow:0 2px 8px rgba(0,0,0,0.2); }
+    .logo-wrap h1 { font-size:1.15rem; font-weight:800; letter-spacing:-0.02em; }
     .header-btns { display:flex; gap:.5rem; align-items:center; }
     .header-btn {
-      background:rgba(255,255,255,0.2); color:var(--white); border:none;
-      padding:.4rem .8rem; border-radius:6px; cursor:pointer; font-size:.85rem;
+      background:rgba(255,255,255,0.15); color:var(--white); border:none;
+      padding:.5rem 1rem; border-radius:var(--radius-sm); cursor:pointer; font-size:.85rem;
+      font-weight:600; transition:all .2s ease; backdrop-filter:blur(4px);
     }
-    .header-btn:hover { background:rgba(255,255,255,0.3); }
+    .header-btn:hover { background:rgba(255,255,255,0.25); transform:translateY(-1px); }
     .balance-pill {
-      background:rgba(255,255,255,0.25); padding:.35rem .75rem;
-      border-radius:20px; font-size:.85rem; font-weight:600;
+      background:rgba(255,255,255,0.2); padding:.4rem .9rem;
+      border-radius:20px; font-size:.85rem; font-weight:700;
+      backdrop-filter:blur(4px); border:1px solid rgba(255,255,255,0.1);
     }
 
+    /* Provider Notice */
     .provider-notice {
-      background:#fef3c7; border-left:4px solid #d97706;
-      padding:.75rem 1rem; font-size:.85rem; color:#92400e;
-      display:flex; align-items:center; gap:.5rem;
+      background:linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); 
+      border-left:4px solid #d97706;
+      padding:.875rem 1.25rem; font-size:.85rem; color:#92400e;
+      display:flex; align-items:center; gap:.75rem;
+      font-weight:500;
     }
-    .provider-notice i { color:#d97706; }
+    .provider-notice i { color:#d97706; font-size:1rem; }
 
-    .container { max-width:800px; margin:0 auto; padding:1.5rem; }
+    /* Container */
+    .container { max-width:900px; margin:0 auto; padding:1.5rem; }
 
-    .search-bar {
-      margin-bottom:1rem;
-    }
+    /* Search */
+    .search-bar { margin-bottom:1.25rem; }
     .search-wrap {
-      display:flex; align-items:center; gap:.5rem;
-      background:var(--white); border:2px solid #e5e7eb; border-radius:10px;
-      padding:.5rem .75rem; transition:border-color .2s;
+      display:flex; align-items:center; gap:.75rem;
+      background:var(--white); border:2px solid #e5e7eb; border-radius:var(--radius);
+      padding:.65rem 1rem; transition:all .3s ease;
+      box-shadow:var(--shadow-sm);
     }
-    .search-wrap:focus-within { border-color:var(--orange); }
-    .search-wrap i { color:var(--gray); font-size:.9rem; }
+    .search-wrap:focus-within { 
+      border-color:var(--orange); 
+      box-shadow:0 0 0 3px var(--orange-glow), var(--shadow);
+    }
+    .search-wrap i { color:var(--gray-light); font-size:.9rem; }
     .search-wrap input {
       flex:1; border:none; background:transparent; font-size:.9rem; outline:none;
+      font-weight:500;
     }
-    .search-wrap input::placeholder { color:#9ca3af; }
+    .search-wrap input::placeholder { color:var(--gray-light); }
 
+    /* Filters */
     .filter-bar {
       display:flex; gap:.5rem; margin-bottom:1.5rem; overflow-x:auto; padding-bottom:.5rem;
+      scrollbar-width:none;
     }
+    .filter-bar::-webkit-scrollbar { display:none; }
     .filter-btn {
-      padding:.5rem 1rem; border:2px solid var(--orange); background:var(--white);
+      padding:.5rem 1.1rem; border:2px solid var(--orange); background:var(--white);
       color:var(--orange); border-radius:20px; cursor:pointer; font-size:.85rem;
-      font-weight:600; white-space:nowrap; transition:all .2s;
+      font-weight:600; white-space:nowrap; transition:all .25s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow:var(--shadow-sm);
     }
     .filter-btn.active, .filter-btn:hover {
       background:var(--orange); color:var(--white);
+      transform:translateY(-1px); box-shadow:var(--shadow);
     }
 
+    /* Topic Cards */
     .topics-grid { display:grid; gap:1rem; }
     .topic-card {
-      background:var(--white); border-radius:14px; padding:1.25rem;
-      box-shadow:0 2px 8px var(--shadow); transition:transform .2s, box-shadow .2s;
-      position:relative;
+      background:var(--white); border-radius:var(--radius-lg); padding:1.25rem;
+      box-shadow:var(--shadow); transition:all .3s cubic-bezier(0.4, 0, 0.2, 1);
+      position:relative; cursor:pointer; border:1px solid transparent;
     }
-    .topic-card:hover { transform:translateY(-2px); box-shadow:0 4px 16px var(--shadow); }
-    .topic-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:.75rem; }
+    .topic-card:hover { 
+      transform:translateY(-3px); 
+      box-shadow:var(--shadow-xl); 
+      border-color:var(--orange-glow);
+    }
+    .topic-card:active { transform:translateY(-1px); }
+    .topic-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:.875rem; }
     .header-left { display:flex; align-items:center; gap:.5rem; }
+    
     .category-tag {
-      display:inline-flex; align-items:center; gap:.3rem;
-      padding:.25rem .6rem; border-radius:6px; font-size:.75rem; font-weight:600;
+      display:inline-flex; align-items:center; gap:.35rem;
+      padding:.3rem .7rem; border-radius:8px; font-size:.75rem; font-weight:700;
+      letter-spacing:0.02em;
     }
     .cat-sports { background:#fee2e2; color:var(--red); }
     .cat-crypto { background:#dbeafe; color:var(--blue); }
     .cat-reallife { background:#dcfce7; color:var(--green); }
-    .cat-entertainment { background:#f3e8ff; color:#9333ea; }
+    .cat-entertainment { background:#f3e8ff; color:var(--purple); }
+    
     .status-badge {
-      padding:.25rem .6rem; border-radius:6px; font-size:.75rem; font-weight:600;
+      padding:.3rem .7rem; border-radius:8px; font-size:.75rem; font-weight:700;
+      letter-spacing:0.02em;
     }
     .status-open { background:#dcfce7; color:var(--green); }
     .status-closed { background:#fee2e2; color:var(--red); }
     .status-resulted { background:#dbeafe; color:var(--blue); }
 
     .copy-btn {
-      width:28px; height:28px; border:none; border-radius:6px;
+      width:32px; height:32px; border:none; border-radius:8px;
       background:#f3f4f6; color:var(--gray); cursor:pointer;
       display:flex; align-items:center; justify-content:center;
-      transition:all .2s; flex-shrink:0;
+      transition:all .2s ease; flex-shrink:0;
     }
-    .copy-btn:hover { background:var(--orange); color:var(--white); }
+    .copy-btn:hover { background:var(--orange); color:var(--white); transform:scale(1.05); }
     .copy-btn.copied { background:var(--green); color:var(--white); }
-    .copy-btn i { font-size:.75rem; }
+    .copy-btn i { font-size:.8rem; }
 
-    .topic-question { font-size:1.05rem; font-weight:700; margin-bottom:.5rem; line-height:1.4; }
-    .topic-desc { font-size:.85rem; color:var(--gray); margin-bottom:1rem; }
+    .topic-question { font-size:1.1rem; font-weight:800; margin-bottom:.5rem; line-height:1.4; letter-spacing:-0.01em; }
+    .topic-desc { font-size:.875rem; color:var(--gray); margin-bottom:1rem; line-height:1.5; }
+    
+    .topic-meta { 
+      display:flex; align-items:center; gap:1rem; 
+      font-size:.8rem; color:var(--gray-light); margin-bottom:1rem;
+    }
+    .topic-meta span { display:flex; align-items:center; gap:.35rem; }
 
     .countdown-wrap {
       display:flex; align-items:center; gap:.5rem; margin-bottom:1rem;
-      padding:.6rem .75rem; background:var(--orange-light); border-radius:8px;
+      padding:.6rem .875rem; background:var(--orange-light); border-radius:var(--radius-sm);
+      width:fit-content;
     }
     .countdown-wrap i { color:var(--orange); }
-    .countdown { font-family:'Courier New',monospace; font-weight:700; color:var(--orange-dark); }
-    .countdown.urgent { color:var(--red); animation:pulse 1s infinite; }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+    .countdown { font-family:'SF Mono', 'Courier New', monospace; font-weight:800; color:var(--orange-dark); font-size:.9rem; }
+    .countdown.urgent { color:var(--red); animation:pulse 1.2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
 
-    .options-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(120px, 1fr)); gap:.75rem; }
-    .option-btn {
-      padding:.9rem; border:2px solid #e5e7eb; background:var(--white);
-      border-radius:10px; cursor:pointer; font-size:.95rem; font-weight:600;
-      transition:all .2s; text-align:center;
+    .options-preview {
+      display:flex; gap:.5rem; flex-wrap:wrap;
     }
-    .option-btn:hover:not(:disabled) { border-color:var(--orange); color:var(--orange); }
-    .option-btn:disabled { opacity:.5; cursor:not-allowed; }
+    .option-chip {
+      padding:.4rem .8rem; background:#f3f4f6; border-radius:20px;
+      font-size:.8rem; font-weight:600; color:var(--gray);
+    }
 
+    /* Full Page Topic Overlay */
+    .topic-detail-overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,0.6);
+      display:none; z-index:1000; overflow-y:auto;
+      backdrop-filter:blur(8px);
+      animation:fadeIn .3s ease;
+    }
+    .topic-detail-overlay.active { display:block; }
+    
+    @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+    
+    .topic-detail-container {
+      min-height:100vh; display:flex; justify-content:center;
+      padding:1rem; padding-top:3rem;
+    }
+    
+    .topic-detail-card {
+      background:var(--white); border-radius:var(--radius-xl);
+      max-width:640px; width:100%;
+      box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);
+      animation:slideUp .4s cubic-bezier(0.16, 1, 0.3, 1);
+      overflow:hidden;
+    }
+    
+    @keyframes slideUp {
+      from { opacity:0; transform:translateY(40px) scale(0.96); }
+      to { opacity:1; transform:translateY(0) scale(1); }
+    }
+    
+    .detail-header {
+      padding:1.5rem; border-bottom:1px solid #f3f4f6;
+      display:flex; justify-content:space-between; align-items:flex-start;
+      gap:1rem;
+    }
+    
+    .detail-header-left { flex:1; }
+    
+    .detail-category-row {
+      display:flex; align-items:center; gap:.75rem; margin-bottom:.75rem;
+    }
+    
+    .detail-title {
+      font-size:1.35rem; font-weight:800; line-height:1.35;
+      letter-spacing:-0.02em; color:#111827;
+    }
+    
+    .detail-desc {
+      font-size:.95rem; color:var(--gray); line-height:1.6;
+      margin-top:.75rem;
+    }
+    
+    .detail-close-btn {
+      width:40px; height:40px; border:none; border-radius:50%;
+      background:#f3f4f6; color:#4b5563; cursor:pointer;
+      display:flex; align-items:center; justify-content:center;
+      transition:all .2s ease; flex-shrink:0;
+    }
+    .detail-close-btn:hover { background:#fee2e2; color:var(--red); transform:rotate(90deg); }
+    
+    .detail-body { padding:1.5rem; }
+    
+    .detail-section {
+      margin-bottom:1.5rem;
+    }
+    .detail-section:last-child { margin-bottom:0; }
+    
+    .section-label {
+      font-size:.75rem; font-weight:700; text-transform:uppercase;
+      letter-spacing:0.08em; color:var(--gray-light); margin-bottom:.75rem;
+    }
+    
+    .detail-countdown-box {
+      background:linear-gradient(135deg, var(--orange-light) 0%, #ffedd5 100%);
+      border:2px solid #fed7aa; border-radius:var(--radius);
+      padding:1rem 1.25rem; display:flex; align-items:center; gap:1rem;
+    }
+    .detail-countdown-box i { font-size:1.25rem; color:var(--orange); }
+    .detail-countdown-box .time-display {
+      font-family:'SF Mono', 'Courier New', monospace;
+      font-size:1.5rem; font-weight:800; color:var(--orange-dark);
+    }
+    .detail-countdown-box .time-label {
+      font-size:.8rem; color:var(--gray); font-weight:600;
+    }
+    
+    .detail-options-grid {
+      display:grid; gap:.75rem;
+    }
+    
+    .detail-option-btn {
+      padding:1.25rem; border:2px solid #e5e7eb; background:var(--white);
+      border-radius:var(--radius); cursor:pointer;
+      transition:all .25s cubic-bezier(0.4, 0, 0.2, 1);
+      display:flex; align-items:center; justify-content:space-between;
+      text-align:left;
+    }
+    .detail-option-btn:hover:not(:disabled) {
+      border-color:var(--orange); 
+      background:var(--orange-light);
+      transform:translateX(4px);
+      box-shadow:var(--shadow);
+    }
+    .detail-option-btn:disabled {
+      opacity:.5; cursor:not-allowed; background:#f9fafb;
+    }
+    
+    .option-info { flex:1; }
+    .option-label { font-size:1.05rem; font-weight:700; color:#1f2937; }
+    .option-stats { font-size:.8rem; color:var(--gray); margin-top:.25rem; }
+    
+    .option-stake-icon {
+      width:36px; height:36px; border-radius:50%;
+      background:var(--orange-light); color:var(--orange);
+      display:flex; align-items:center; justify-content:center;
+      transition:all .2s ease;
+    }
+    .detail-option-btn:hover .option-stake-icon {
+      background:var(--orange); color:var(--white);
+      transform:scale(1.1);
+    }
+    
+    .detail-meta-grid {
+      display:grid; grid-template-columns:repeat(3, 1fr); gap:1rem;
+    }
+    .meta-item {
+      background:#f9fafb; border-radius:var(--radius-sm);
+      padding:1rem; text-align:center;
+    }
+    .meta-value {
+      font-size:1.1rem; font-weight:800; color:#1f2937;
+    }
+    .meta-label {
+      font-size:.75rem; color:var(--gray); font-weight:600; margin-top:.25rem;
+    }
+    
+    .detail-footer {
+      padding:1.25rem 1.5rem; background:#f9fafb;
+      border-top:1px solid #f3f4f6;
+      display:flex; justify-content:space-between; align-items:center;
+    }
+    
+    .detail-share-btn {
+      padding:.6rem 1.2rem; border:2px solid #e5e7eb; background:var(--white);
+      border-radius:var(--radius-sm); cursor:pointer; font-size:.85rem;
+      font-weight:600; color:var(--gray); transition:all .2s ease;
+      display:flex; align-items:center; gap:.5rem;
+    }
+    .detail-share-btn:hover { border-color:var(--orange); color:var(--orange); }
+    
+    .detail-stake-hint {
+      font-size:.8rem; color:var(--gray-light); font-weight:500;
+    }
+
+    /* Stake Modal */
     .modal-backdrop {
       position:fixed; inset:0; background:rgba(0,0,0,0.5);
-      display:none; justify-content:center; align-items:center; z-index:1000;
-      padding:1rem;
+      display:none; justify-content:center; align-items:center; z-index:2000;
+      padding:1rem; backdrop-filter:blur(4px);
     }
     .modal {
-      background:var(--white); border-radius:16px; padding:1.5rem;
-      max-width:380px; width:100%; animation:modalIn .3s ease;
+      background:var(--white); border-radius:var(--radius-xl); padding:1.75rem;
+      max-width:400px; width:100%; 
+      animation:modalIn .35s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);
     }
     @keyframes modalIn {
-      from { opacity:0; transform:scale(.9); }
-      to { opacity:1; transform:scale(1); }
+      from { opacity:0; transform:scale(.92) translateY(10px); }
+      to { opacity:1; transform:scale(1) translateY(0); }
     }
-    .modal h3 { font-size:1.1rem; margin-bottom:1rem; }
-    .modal .topic-ref { font-size:.85rem; color:var(--gray); margin-bottom:1rem; padding:.5rem; background:#f9fafb; border-radius:6px; }
+    .modal h3 { font-size:1.15rem; margin-bottom:1.25rem; display:flex; align-items:center; gap:.5rem; }
+    .modal .topic-ref { 
+      font-size:.85rem; color:var(--gray); margin-bottom:1.25rem; 
+      padding:.75rem; background:#f9fafb; border-radius:var(--radius-sm);
+      border-left:3px solid var(--orange);
+    }
     .stake-input-wrap {
-      display:flex; align-items:center; border:2px solid #e5e7eb; border-radius:10px; overflow:hidden; margin-bottom:1rem;
+      display:flex; align-items:center; border:2px solid #e5e7eb; 
+      border-radius:var(--radius); overflow:hidden; margin-bottom:.5rem;
+      transition:all .2s ease;
     }
-    .stake-input-wrap span { padding:.75rem; background:#f9fafb; font-weight:600; color:var(--gray); }
+    .stake-input-wrap:focus-within { border-color:var(--orange); box-shadow:0 0 0 3px var(--orange-glow); }
+    .stake-input-wrap span { padding:.875rem; background:#f9fafb; font-weight:700; color:var(--gray); font-size:1.1rem; }
     .stake-input-wrap input {
-      flex:1; border:none; padding:.75rem; font-size:1.1rem; font-weight:700; outline:none;
+      flex:1; border:none; padding:.875rem; font-size:1.25rem; font-weight:700; outline:none;
     }
-    .stake-hint { font-size:.8rem; color:var(--gray); margin-bottom:1.25rem; }
-    .modal-actions { display:flex; gap:.5rem; }
-    .modal-actions .btn { flex:1; padding:.8rem; border:none; border-radius:8px; font-weight:600; cursor:pointer; }
+    .stake-hint { font-size:.8rem; color:var(--gray); margin-bottom:1.5rem; }
+    .modal-actions { display:flex; gap:.75rem; }
+    .modal-actions .btn { flex:1; padding:.875rem; border:none; border-radius:var(--radius-sm); font-weight:700; cursor:pointer; font-size:.9rem; transition:all .2s ease; }
     .btn-cancel { background:#f3f4f6; color:#4b5563; }
-    .btn-confirm { background:var(--orange); color:var(--white); }
-    .btn-confirm:disabled { background:#d1d5db; cursor:not-allowed; }
+    .btn-cancel:hover { background:#e5e7eb; }
+    .btn-confirm { background:var(--orange); color:var(--white); box-shadow:0 4px 6px -1px rgba(249,115,22,0.3); }
+    .btn-confirm:hover { background:var(--orange-dark); transform:translateY(-1px); }
+    .btn-confirm:disabled { background:#d1d5db; cursor:not-allowed; transform:none; box-shadow:none; }
 
+    /* Success/Error Modals */
+    .modal-icon { font-size:3.5rem; margin-bottom:1rem; }
+    .modal-title { font-size:1.2rem; font-weight:800; margin-bottom:.5rem; }
+    .modal-text { color:var(--gray); margin-bottom:1.5rem; line-height:1.5; }
+
+    /* KYC Block */
     .kyc-block {
-      background:var(--white); border-radius:14px; padding:2rem; text-align:center;
-      box-shadow:0 2px 8px var(--shadow); margin-bottom:1.5rem;
+      background:var(--white); border-radius:var(--radius-xl); padding:2.5rem; text-align:center;
+      box-shadow:var(--shadow-lg); margin-bottom:1.5rem;
+      border:1px solid #f3f4f6;
     }
     .kyc-block .lock-icon {
-      width:60px; height:60px; background:#fef3c7; color:#d97706;
-      border-radius:50%; display:flex; align-items:center; justify-content:center;
-      margin:0 auto 1rem; font-size:1.5rem;
+      width:72px; height:72px; background:linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      color:#d97706; border-radius:50%; display:flex; align-items:center; justify-content:center;
+      margin:0 auto 1.25rem; font-size:1.75rem;
+      box-shadow:0 4px 12px rgba(217,119,6,0.2);
     }
-    .kyc-block h2 { font-size:1.2rem; margin-bottom:.5rem; }
+    .kyc-block h2 { font-size:1.3rem; margin-bottom:.5rem; font-weight:800; }
     .kyc-block p { color:var(--gray); margin-bottom:1.5rem; font-size:.9rem; }
-    .kyc-block .btn { display:inline-block; padding:.75rem 1.5rem; background:var(--orange); color:var(--white); text-decoration:none; border-radius:8px; font-weight:600; }
+    .kyc-block .btn { 
+      display:inline-block; padding:.875rem 2rem; background:var(--orange); 
+      color:var(--white); text-decoration:none; border-radius:var(--radius); 
+      font-weight:700; box-shadow:0 4px 12px rgba(249,115,22,0.3);
+      transition:all .2s ease;
+    }
+    .kyc-block .btn:hover { background:var(--orange-dark); transform:translateY(-2px); }
 
+    /* Welcome Overlay */
     .overlay {
-      position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:2000;
+      position:fixed; inset:0; background:rgba(0,0,0,0.65); z-index:3000;
       display:none; justify-content:center; align-items:center; padding:1rem;
+      backdrop-filter:blur(8px);
     }
     .overlay-card {
-      background:var(--white); border-radius:20px; padding:2rem; max-width:420px; width:100%;
-      text-align:center; animation:modalIn .4s ease;
+      background:var(--white); border-radius:var(--radius-xl); padding:2.5rem; 
+      max-width:460px; width:100%;
+      text-align:center; animation:modalIn .4s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);
     }
-    .overlay-logo { width:48px; height:48px; border-radius:8px; object-fit:cover; margin:0 auto 1rem; }
-    .overlay-card h2 { font-size:1.3rem; margin-bottom:.75rem; color:var(--orange-dark); }
-    .overlay-card p { color:var(--gray); line-height:1.6; margin-bottom:1.5rem; font-size:.95rem; }
-    .overlay-card .highlight { color:var(--orange); font-weight:700; }
+    .overlay-logo { width:56px; height:56px; border-radius:12px; object-fit:cover; margin:0 auto 1.25rem; box-shadow:0 4px 12px rgba(0,0,0,0.15); }
+    .overlay-card h2 { font-size:1.4rem; margin-bottom:.875rem; color:var(--orange-dark); font-weight:800; }
+    .overlay-card p { color:var(--gray); line-height:1.7; margin-bottom:1.5rem; font-size:.95rem; }
+    .overlay-card .highlight { color:var(--orange); font-weight:800; }
     .overlay-card .disclaimer { 
-      background:#fef3c7; padding:.75rem; border-radius:8px; 
+      background:#fef3c7; padding:1rem; border-radius:var(--radius-sm); 
       font-size:.85rem; color:#92400e; margin-bottom:1.5rem; text-align:left;
+      border-left:3px solid #d97706;
     }
-    .overlay-card .disclaimer i { margin-right:.3rem; }
+    .overlay-card .disclaimer i { margin-right:.4rem; }
     .overlay-card .btn {
       width:100%; padding:1rem; background:var(--orange); color:var(--white);
-      border:none; border-radius:10px; font-size:1rem; font-weight:700; cursor:pointer;
+      border:none; border-radius:var(--radius); font-size:1rem; font-weight:700; 
+      cursor:pointer; box-shadow:0 4px 12px rgba(249,115,22,0.3);
+      transition:all .2s ease;
     }
-    .step-dots { display:flex; justify-content:center; gap:.4rem; margin-bottom:1rem; }
-    .dot { width:8px; height:8px; border-radius:50%; background:#e5e7eb; }
-    .dot.active { background:var(--orange); }
+    .overlay-card .btn:hover { background:var(--orange-dark); transform:translateY(-2px); }
+    .step-dots { display:flex; justify-content:center; gap:.4rem; margin-bottom:1.25rem; }
+    .dot { width:8px; height:8px; border-radius:50%; background:#e5e7eb; transition:all .3s ease; }
+    .dot.active { background:var(--orange); width:24px; border-radius:4px; }
 
+    /* Skeleton */
     .skeleton-card {
-      background:var(--white); border-radius:14px; padding:1.25rem;
-      box-shadow:0 2px 8px var(--shadow); margin-bottom:1rem;
+      background:var(--white); border-radius:var(--radius-lg); padding:1.25rem;
+      box-shadow:var(--shadow); margin-bottom:1rem;
     }
-    .skeleton { background:linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size:200% 100%; animation:shimmer 1.5s infinite; border-radius:6px; height:16px; margin-bottom:.6rem; }
+    .skeleton { 
+      background:linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%); 
+      background-size:200% 100%; animation:shimmer 1.5s infinite; 
+      border-radius:6px; 
+    }
     @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
 
+    /* Empty State */
     .empty-state { text-align:center; padding:3rem 1rem; color:var(--gray); }
-    .empty-state i { font-size:2.5rem; margin-bottom:1rem; color:#e5e7eb; }
+    .empty-state i { font-size:3rem; margin-bottom:1rem; color:#e5e7eb; }
+    .empty-state p { font-weight:500; }
 
     .hidden { display:none !important; }
+    
+    /* Scrollbar styling */
+    ::-webkit-scrollbar { width:6px; }
+    ::-webkit-scrollbar-track { background:transparent; }
+    ::-webkit-scrollbar-thumb { background:#d1d5db; border-radius:3px; }
+    ::-webkit-scrollbar-thumb:hover { background:#9ca3af; }
   </style>
 </head>
 <body>
 
-<header>
+<<header>
   <div class="logo-wrap">
     <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" alt="TaskVault"/>
     <h1>TaskVault Stake</h1>
@@ -235,15 +479,23 @@
 <div class="container">
   <!-- Loading -->
   <div id="loadingState">
-    <div class="skeleton-card"><div class="skeleton" style="width:80px;height:14px;"></div><div class="skeleton" style="width:100%;height:20px;"></div><div class="skeleton" style="width:60%;height:16px;"></div></div>
-    <div class="skeleton-card"><div class="skeleton" style="width:80px;height:14px;"></div><div class="skeleton" style="width:100%;height:20px;"></div><div class="skeleton" style="width:60%;height:16px;"></div></div>
+    <div class="skeleton-card">
+      <div class="skeleton" style="width:80px;height:14px;margin-bottom:1rem;"></div>
+      <div class="skeleton" style="width:100%;height:22px;margin-bottom:.75rem;"></div>
+      <div class="skeleton" style="width:60%;height:16px;"></div>
+    </div>
+    <div class="skeleton-card">
+      <div class="skeleton" style="width:80px;height:14px;margin-bottom:1rem;"></div>
+      <div class="skeleton" style="width:100%;height:22px;margin-bottom:.75rem;"></div>
+      <div class="skeleton" style="width:60%;height:16px;"></div>
+    </div>
   </div>
 
   <!-- KYC Block -->
   <div id="kycBlock" class="kyc-block hidden">
     <div class="lock-icon"><i class="fas fa-lock"></i></div>
     <h2>Verification Required</h2>
-    <p>Complete KYC verification to start staking on topics.</p>
+    <p>Complete KYC verification to start staking on topics and unlock all features.</p>
     <a href="kyc.html" class="btn">Complete KYC</a>
   </div>
 
@@ -252,7 +504,7 @@
     <div class="search-bar">
       <div class="search-wrap">
         <i class="fas fa-search"></i>
-        <input type="text" id="searchInput" placeholder="Search by topic ID..."/>
+        <input type="text" id="searchInput" placeholder="Search by topic ID or keywords..."/>
       </div>
     </div>
     <div class="filter-bar" id="filterBar">
@@ -266,12 +518,21 @@
   </div>
 </div>
 
+<!-- Full Page Topic Detail Overlay -->
+<div class="topic-detail-overlay" id="topicDetailOverlay" onclick="closeTopicDetail(event)">
+  <div class="topic-detail-container">
+    <div class="topic-detail-card" id="topicDetailCard" onclick="event.stopPropagation()">
+      <!-- Content injected dynamically -->
+    </div>
+  </div>
+</div>
+
 <!-- Stake Modal -->
 <div class="modal-backdrop" id="stakeModal">
   <div class="modal">
     <h3><i class="fas fa-coins" style="color:var(--orange);"></i> Place Stake</h3>
     <div class="topic-ref" id="modalTopicRef"></div>
-    <div style="margin-bottom:.5rem; font-weight:600;" id="modalOptionLabel"></div>
+    <div style="margin-bottom:.5rem; font-weight:700; color:#374151;" id="modalOptionLabel"></div>
     <div class="stake-input-wrap">
       <span>$</span>
       <input type="number" id="stakeAmount" min="0.1" max="1" step="0.1" placeholder="0.10"/>
@@ -286,20 +547,20 @@
 
 <!-- Success Modal -->
 <div class="modal-backdrop" id="successModal">
-  <div class="modal">
-    <div style="font-size:3rem; color:var(--green); margin-bottom:1rem;"><i class="fas fa-check-circle"></i></div>
-    <h3>Stake Placed!</h3>
-    <p style="color:var(--gray); margin-bottom:1.5rem;">Your stake has been recorded. Check Records to see your active stakes.</p>
+  <div class="modal" style="text-align:center;">
+    <div class="modal-icon" style="color:var(--green);"><i class="fas fa-check-circle"></i></div>
+    <div class="modal-title">Stake Placed!</div>
+    <div class="modal-text">Your stake has been recorded. Check Records to see your active stakes.</div>
     <button class="btn btn-confirm" onclick="closeModal('successModal'); resetStakeForm();">Done</button>
   </div>
 </div>
 
 <!-- Error Modal -->
 <div class="modal-backdrop" id="errorModal">
-  <div class="modal">
-    <div style="font-size:3rem; color:var(--red); margin-bottom:1rem;"><i class="fas fa-times-circle"></i></div>
-    <h3>Failed</h3>
-    <p id="errorText" style="color:var(--gray); margin-bottom:1.5rem;">Something went wrong.</p>
+  <div class="modal" style="text-align:center;">
+    <div class="modal-icon" style="color:var(--red);"><i class="fas fa-times-circle"></i></div>
+    <div class="modal-title">Failed</div>
+    <p id="errorText" class="modal-text">Something went wrong.</p>
     <button class="btn btn-confirm" onclick="closeModal('errorModal')">Try Again</button>
   </div>
 </div>
@@ -321,7 +582,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
   import {
     getFirestore, doc, getDoc, collection, query, where, orderBy,
     getDocs, addDoc, serverTimestamp, runTransaction
@@ -347,6 +608,7 @@
   let searchQuery = '';
   let selectedTopic = null;
   let selectedOption = null;
+  let currentDetailTopic = null;
 
   const loadingState = document.getElementById('loadingState');
   const kycBlock = document.getElementById('kycBlock');
@@ -356,6 +618,8 @@
   const stakeAmount = document.getElementById('stakeAmount');
   const confirmStakeBtn = document.getElementById('confirmStakeBtn');
   const searchInput = document.getElementById('searchInput');
+  const topicDetailOverlay = document.getElementById('topicDetailOverlay');
+  const topicDetailCard = document.getElementById('topicDetailCard');
 
   const welcomeOverlay = document.getElementById('welcomeOverlay');
   const overlayTitle = document.getElementById('overlayTitle');
@@ -497,9 +761,11 @@
   function renderTopics() {
     let filtered = activeFilter === 'all' ? topics : topics.filter(t => t.category === activeFilter);
     
-    // Apply search filter by topic ID
     if (searchQuery) {
-      filtered = filtered.filter(t => t.id.toLowerCase().includes(searchQuery));
+      filtered = filtered.filter(t => 
+        t.id.toLowerCase().includes(searchQuery) || 
+        (t.question && t.question.toLowerCase().includes(searchQuery))
+      );
     }
     
     if (filtered.length === 0) {
@@ -518,12 +784,16 @@
       const isOpen = topic.status === 'open' && deadline > new Date();
       const timeLeft = isOpen ? getTimeLeft(deadline) : null;
       const isUrgent = isOpen && (deadline - new Date()) < 3600000;
+      
+      const totalPool = topic.totalPool || 0;
+      const optionCount = (topic.options || []).length;
+      const stakerCount = (topic.options || []).reduce((sum, o) => sum + (o.stakerCount || 0), 0);
 
       html += `
-        <div class="topic-card" data-id="${topic.id}">
+        <div class="topic-card" data-id="${topic.id}" onclick="openTopicDetail('${topic.id}')">
           <div class="topic-header">
             <div class="header-left">
-              <button class="copy-btn" onclick="copyTopicLink('${topic.id}', this)" title="Copy link">
+              <button class="copy-btn" onclick="event.stopPropagation(); copyTopicLink('${topic.id}', this)" title="Copy link">
                 <i class="fas fa-link"></i>
               </button>
               <span class="category-tag ${catClass}"><i class="fas ${catIcon}"></i> ${topic.category || 'General'}</span>
@@ -532,21 +802,25 @@
           </div>
           <div class="topic-question">${escapeHtml(topic.question)}</div>
           ${topic.description ? `<div class="topic-desc">${escapeHtml(topic.description)}</div>` : ''}
+          
+          <div class="topic-meta">
+            <span><i class="fas fa-coins"></i> $${totalPool.toFixed(2)} pool</span>
+            <span><i class="fas fa-list"></i> ${optionCount} options</span>
+            <span><i class="fas fa-users"></i> ${stakerCount} stakers</span>
+          </div>
+          
           ${isOpen ? `
             <div class="countdown-wrap">
               <i class="fas fa-clock"></i>
               <span class="countdown ${isUrgent ? 'urgent' : ''}" data-deadline="${deadline.toISOString()}">${timeLeft}</span>
             </div>
           ` : ''}
-          <div class="options-grid">
-            ${(topic.options || []).map(opt => `
-              <button class="option-btn" 
-                onclick="openStakeModal('${topic.id}', '${opt.id}', '${escapeHtml(opt.label)}')"
-                ${!isOpen ? 'disabled' : ''}>
-                ${escapeHtml(opt.label)}
-                ${!isOpen ? '<br><small style="font-size:.7rem;color:var(--gray);">Unavailable</small>' : ''}
-              </button>
+          
+          <div class="options-preview">
+            ${(topic.options || []).slice(0, 3).map(opt => `
+              <span class="option-chip">${escapeHtml(opt.label)}</span>
             `).join('')}
+            ${(topic.options || []).length > 3 ? `<span class="option-chip">+${(topic.options || []).length - 3} more</span>` : ''}
           </div>
         </div>
       `;
@@ -586,24 +860,208 @@
     });
   }
 
+  // Full Page Topic Detail
+  window.openTopicDetail = function(topicId) {
+    const topic = topics.find(t => t.id === topicId);
+    if (!topic) return;
+    
+    currentDetailTopic = topic;
+    
+    const catClass = `cat-${topic.category || 'reallife'}`;
+    const catIcon = topic.category === 'sports' ? 'fa-futbol' : topic.category === 'crypto' ? 'fa-bitcoin-sign' : topic.category === 'entertainment' ? 'fa-film' : 'fa-globe';
+    const statusClass = topic.status === 'open' ? 'status-open' : topic.status === 'closed' ? 'status-closed' : 'status-resulted';
+    const statusText = topic.status === 'open' ? 'Open' : topic.status === 'closed' ? 'Closed' : 'Resulted';
+    
+    const deadline = topic.deadline?.toDate ? topic.deadline.toDate() : new Date(topic.deadline || Date.now());
+    const isOpen = topic.status === 'open' && deadline > new Date();
+    const timeLeft = isOpen ? getTimeLeft(deadline) : null;
+    const isUrgent = isOpen && (deadline - new Date()) < 3600000;
+    
+    const totalPool = topic.totalPool || 0;
+    const totalStakers = (topic.options || []).reduce((sum, o) => sum + (o.stakerCount || 0), 0);
+    
+    const postedDate = topic.postedAt?.toDate ? topic.postedAt.toDate().toLocaleDateString() : 'Recently';
+    
+    let optionsHtml = '';
+    (topic.options || []).forEach(opt => {
+      const optTotal = opt.totalStaked || 0;
+      const optStakers = opt.stakerCount || 0;
+      const percentage = totalPool > 0 ? ((optTotal / totalPool) * 100).toFixed(1) : 0;
+      
+      optionsHtml += `
+        <button class="detail-option-btn" 
+          onclick="openStakeModal('${topic.id}', '${opt.id}', '${escapeHtml(opt.label)}')"
+          ${!isOpen ? 'disabled' : ''}>
+          <div class="option-info">
+            <div class="option-label">${escapeHtml(opt.label)}</div>
+            <div class="option-stats">
+              $${optTotal.toFixed(2)} staked · ${optStakers} stakers · ${percentage}% of pool
+            </div>
+          </div>
+          ${isOpen ? `
+            <div class="option-stake-icon">
+              <i class="fas fa-arrow-right"></i>
+            </div>
+          ` : `
+            <div class="option-stake-icon" style="background:#fee2e2;color:var(--red);">
+              <i class="fas fa-lock"></i>
+            </div>
+          `}
+        </button>
+      `;
+    });
+    
+    let countdownHtml = '';
+    if (isOpen) {
+      countdownHtml = `
+        <div class="detail-section">
+          <div class="section-label">Time Remaining</div>
+          <div class="detail-countdown-box">
+            <i class="fas fa-hourglass-half"></i>
+            <div>
+              <div class="time-display countdown ${isUrgent ? 'urgent' : ''}" id="detailCountdown" data-deadline="${deadline.toISOString()}">${timeLeft}</div>
+              <div class="time-label">Deadline approaching</div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+    
+    topicDetailCard.innerHTML = `
+      <div class="detail-header">
+        <div class="detail-header-left">
+          <div class="detail-category-row">
+            <span class="category-tag ${catClass}"><i class="fas ${catIcon}"></i> ${topic.category || 'General'}</span>
+            <span class="status-badge ${statusClass}">${statusText}</span>
+          </div>
+          <div class="detail-title">${escapeHtml(topic.question)}</div>
+          ${topic.description ? `<div class="detail-desc">${escapeHtml(topic.description)}</div>` : ''}
+        </div>
+        <button class="detail-close-btn" onclick="closeTopicDetail()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="detail-body">
+        ${countdownHtml}
+        
+        <div class="detail-section">
+          <div class="section-label">Choose Your Option</div>
+          <div class="detail-options-grid">
+            ${optionsHtml}
+          </div>
+        </div>
+        
+        <div class="detail-section">
+          <div class="section-label">Topic Stats</div>
+          <div class="detail-meta-grid">
+            <div class="meta-item">
+              <div class="meta-value">$${totalPool.toFixed(2)}</div>
+              <div class="meta-label">Total Pool</div>
+            </div>
+            <div class="meta-item">
+              <div class="meta-value">${totalStakers}</div>
+              <div class="meta-label">Total Stakers</div>
+            </div>
+            <div class="meta-item">
+              <div class="meta-value">${(topic.options || []).length}</div>
+              <div class="meta-label">Options</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="detail-section">
+          <div class="section-label">Topic Info</div>
+          <div class="detail-meta-grid">
+            <div class="meta-item">
+              <div class="meta-value" style="font-size:.9rem;">${topic.id}</div>
+              <div class="meta-label">Topic ID</div>
+            </div>
+            <div class="meta-item">
+              <div class="meta-value" style="font-size:.9rem;">${postedDate}</div>
+              <div class="meta-label">Posted</div>
+            </div>
+            <div class="meta-item">
+              <div class="meta-value" style="font-size:.9rem;">$0.10 - $1.00</div>
+              <div class="meta-label">Stake Range</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="detail-footer">
+        <button class="detail-share-btn" onclick="copyDetailLink()">
+          <i class="fas fa-share-alt"></i> Share Topic
+        </button>
+        <span class="detail-stake-hint">Min $0.10 · Max $1.00 per stake</span>
+      </div>
+    `;
+    
+    topicDetailOverlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+    
+    if (isOpen) {
+      startDetailCountdown();
+    }
+  };
+
+  function startDetailCountdown() {
+    const el = document.getElementById('detailCountdown');
+    if (!el) return;
+    
+    if (el.dataset.interval) clearInterval(parseInt(el.dataset.interval));
+    
+    const deadline = new Date(el.dataset.deadline);
+    const update = () => {
+      const diff = deadline - new Date();
+      if (diff <= 0) {
+        el.textContent = '00:00:00';
+        el.classList.add('urgent');
+        return;
+      }
+      el.textContent = getTimeLeft(deadline);
+    };
+    update();
+    const interval = setInterval(update, 1000);
+    el.dataset.interval = interval;
+  }
+
+  window.closeTopicDetail = function(event) {
+    if (event && event.target !== topicDetailOverlay && event.target !== event.currentTarget) return;
+    
+    topicDetailOverlay.classList.remove('active');
+    document.body.style.overflow = '';
+    
+    const el = document.getElementById('detailCountdown');
+    if (el && el.dataset.interval) clearInterval(parseInt(el.dataset.interval));
+    
+    currentDetailTopic = null;
+  };
+
+  window.copyDetailLink = async function() {
+    if (!currentDetailTopic) return;
+    await copyTopicLink(currentDetailTopic.id);
+  };
+
   window.copyTopicLink = async function(topicId, btnElement) {
     const shareUrl = `${window.location.origin}${window.location.pathname}?topic=${topicId}`;
     
     try {
       await navigator.clipboard.writeText(shareUrl);
       
-      // Visual feedback
-      const icon = btnElement.querySelector('i');
-      icon.className = 'fas fa-check';
-      btnElement.classList.add('copied');
-      
-      setTimeout(() => {
-        icon.className = 'fas fa-link';
-        btnElement.classList.remove('copied');
-      }, 2000);
+      if (btnElement) {
+        const icon = btnElement.querySelector('i');
+        icon.className = 'fas fa-check';
+        btnElement.classList.add('copied');
+        setTimeout(() => {
+          icon.className = 'fas fa-link';
+          btnElement.classList.remove('copied');
+        }, 2000);
+      } else {
+        // Toast notification for detail view
+        showToast('Link copied to clipboard!');
+      }
     } catch (err) {
-      console.error('Copy failed:', err);
-      // Fallback
       const textarea = document.createElement('textarea');
       textarea.value = shareUrl;
       textarea.style.position = 'fixed';
@@ -613,22 +1071,47 @@
       document.execCommand('copy');
       document.body.removeChild(textarea);
       
-      const icon = btnElement.querySelector('i');
-      icon.className = 'fas fa-check';
-      btnElement.classList.add('copied');
-      setTimeout(() => {
-        icon.className = 'fas fa-link';
-        btnElement.classList.remove('copied');
-      }, 2000);
+      if (btnElement) {
+        const icon = btnElement.querySelector('i');
+        icon.className = 'fas fa-check';
+        btnElement.classList.add('copied');
+        setTimeout(() => {
+          icon.className = 'fas fa-link';
+          btnElement.classList.remove('copied');
+        }, 2000);
+      } else {
+        showToast('Link copied to clipboard!');
+      }
     }
   };
+
+  function showToast(message) {
+    const existing = document.querySelector('.toast-notification');
+    if (existing) existing.remove();
+    
+    const toast = document.createElement('div');
+    toast.className = 'toast-notification';
+    toast.style.cssText = `
+      position:fixed; bottom:2rem; left:50%; transform:translateX(-50%);
+      background:#1f2937; color:white; padding:.875rem 1.5rem;
+      border-radius:var(--radius); font-size:.9rem; font-weight:600;
+      z-index:5000; animation:slideUp .3s ease; box-shadow:var(--shadow-lg);
+    `;
+    toast.innerHTML = `<i class="fas fa-check-circle" style="color:var(--green);margin-right:.5rem;"></i> ${message}`;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+      toast.style.animation = 'fadeIn .3s ease reverse';
+      setTimeout(() => toast.remove(), 300);
+    }, 2500);
+  }
 
   window.openStakeModal = function(topicId, optionId, optionLabel) {
     selectedTopic = topics.find(t => t.id === topicId);
     selectedOption = { id: optionId, label: optionLabel };
     
     document.getElementById('modalTopicRef').textContent = selectedTopic.question;
-    document.getElementById('modalOptionLabel').innerHTML = `Your pick: <strong>${optionLabel}</strong>`;
+    document.getElementById('modalOptionLabel').innerHTML = `Your pick: <strong style="color:var(--orange);">${optionLabel}</strong>`;
     stakeAmount.value = '';
     confirmStakeBtn.disabled = true;
     
@@ -705,6 +1188,13 @@
 
       closeModal('stakeModal');
       openModal('successModal');
+      
+      // Refresh topic detail if open
+      if (currentDetailTopic && currentDetailTopic.id === selectedTopic.id) {
+        setTimeout(() => {
+          loadTopics().then(() => openTopicDetail(selectedTopic.id));
+        }, 500);
+      }
 
     } catch (err) {
       console.error('[TaskVault] Stake error:', err);
@@ -737,6 +1227,27 @@
     return div.innerHTML;
   }
 
+  // Handle URL params for direct topic access
+  function handleUrlParams() {
+    const params = new URLSearchParams(window.location.search);
+    const topicId = params.get('topic');
+    if (topicId) {
+      // Wait for topics to load then open detail
+      const checkInterval = setInterval(() => {
+        if (topics.length > 0) {
+          clearInterval(checkInterval);
+          const topic = topics.find(t => t.id === topicId);
+          if (topic) {
+            openTopicDetail(topicId);
+          }
+        }
+      }, 500);
+      
+      // Timeout after 10 seconds
+      setTimeout(() => clearInterval(checkInterval), 10000);
+    }
+  }
+
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
       document.querySelectorAll('.countdown').forEach(el => {
@@ -744,9 +1255,23 @@
       });
     } else {
       startCountdowns();
+      if (topicDetailOverlay.classList.contains('active')) {
+        startDetailCountdown();
+      }
+    }
+  });
+
+  // Keyboard shortcuts
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      if (document.getElementById('stakeModal').style.display === 'flex') {
+        closeModal('stakeModal');
+      } else if (topicDetailOverlay.classList.contains('active')) {
+        closeTopicDetail();
+      }
     }
   });
 </script>
 
 </body>
-</html>
+                                                        </html>
