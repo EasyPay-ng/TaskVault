@@ -210,7 +210,7 @@
   <div id="transferUI" class="hidden">
     <div class="balance-card">
       <h3>Available Balance</h3>
-      <div class="amount" id="balanceDisplay">₦0.00</div>
+      <div class="amount" id="balanceDisplay">$0.00</div>
     </div>
     
     <div style="text-align:center;">
@@ -236,9 +236,9 @@
       </div>
       
       <div class="form-group">
-        <label for="amountInput">Amount (₦)</label>
-        <input type="number" id="amountInput" placeholder="0.00" min="100" step="0.01"/>
-        <div class="input-hint">Minimum transfer: ₦100</div>
+        <label for="amountInput">Amount ($)</label>
+        <input type="number" id="amountInput" placeholder="0.00" min="1" step="0.01"/>
+        <div class="input-hint">Minimum transfer: $1.00</div>
       </div>
       
       <div class="form-group">
@@ -265,7 +265,7 @@
   <div class="modal">
     <div class="modal-icon lock"><i class="fas fa-shield-alt"></i></div>
     <h3>Confirm Transfer</h3>
-    <p id="confirmText">Send ₦0.00 to user?</p>
+    <p id="confirmText">Send $0.00 to user?</p>
     <div style="display:flex;gap:.5rem;">
       <button class="btn" style="background:#e5e7eb;color:#4b5563;" onclick="closeModal('confirmModal')">Cancel</button>
       <button class="btn btn-primary" id="confirmSendBtn">Confirm Send</button>
@@ -298,7 +298,7 @@
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
   import {
     getFirestore, doc, getDoc, collection, query, where, getDocs,
-    orderBy, limit, addDoc, serverTimestamp, runTransaction, writeBatch
+    orderBy, limit, addDoc, serverTimestamp, runTransaction
   } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -378,7 +378,7 @@
     
     // Display balance
     const balance = currentUserData.balance || 0;
-    balanceDisplay.textContent = `₦${balance.toLocaleString('en-NG', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+    balanceDisplay.textContent = `$${balance.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
     
     // Load transaction history
     loadTransactionHistory();
@@ -457,7 +457,7 @@
 
   function updateSendButton() {
     const amount = parseFloat(amountInput.value) || 0;
-    const minAmount = 100;
+    const minAmount = 1;
     const hasRecipient = selectedRecipient !== null;
     const hasEnough = amount >= minAmount && amount <= (currentUserData?.balance || 0);
     
@@ -471,7 +471,7 @@
     const amount = parseFloat(amountInput.value) || 0;
     const note = noteInput.value.trim();
     
-    confirmText.innerHTML = `Send <strong>₦${amount.toLocaleString('en-NG', {minimumFractionDigits: 2})}</strong> to <strong>${selectedRecipient.username}</strong>?<br><small style="color:var(--gray);">${note ? 'Note: ' + note : ''}</small>`;
+    confirmText.innerHTML = `Send <strong>$${amount.toLocaleString('en-US', {minimumFractionDigits: 2})}</strong> to <strong>${selectedRecipient.username}</strong>?<br><small style="color:var(--gray);">${note ? 'Note: ' + note : ''}</small>`;
     
     openModal('confirmModal');
   });
@@ -491,7 +491,7 @@
     try {
       await executeTransfer(currentUser.uid, selectedRecipient.id, amount, note);
       
-      successText.innerHTML = `You sent <strong>₦${amount.toLocaleString('en-NG', {minimumFractionDigits: 2})}</strong> to <strong>${selectedRecipient.username}</strong> successfully!`;
+      successText.innerHTML = `You sent <strong>$${amount.toLocaleString('en-US', {minimumFractionDigits: 2})}</strong> to <strong>${selectedRecipient.username}</strong> successfully!`;
       openModal('successModal');
       
       // Refresh balance
@@ -499,7 +499,7 @@
       const freshSnap = await getDoc(userRef);
       currentUserData = freshSnap.data();
       const newBalance = currentUserData.balance || 0;
-      balanceDisplay.textContent = `₦${newBalance.toLocaleString('en-NG', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+      balanceDisplay.textContent = `$${newBalance.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
       
       loadTransactionHistory();
       
@@ -547,33 +547,19 @@
         balance: (recipientData.balance || 0) + amount
       });
       
-      // Create transaction records
-      const senderTxRef = doc(collection(db, 'users', senderId, 'transactionHistory'));
-      const recipientTxRef = doc(collection(db, 'users', recipientId, 'transactionHistory'));
-      
+      // Create single record in p2pTransfers collection
+      const p2pRef = doc(collection(db, 'p2pTransfers'));
       const timestamp = serverTimestamp();
-      const txId = senderTxRef.id; // Use same ID for both sides
       
-      transaction.set(senderTxRef, {
-        type: 'P2P Sent',
-        amount: -amount,
-        counterpartyId: recipientId,
-        counterpartyName: recipientData.username || 'Unknown',
-        counterpartyEmail: recipientData.email || '',
-        note: note || '',
-        txId: txId,
-        timestamp: timestamp,
-        status: 'completed'
-      });
-      
-      transaction.set(recipientTxRef, {
-        type: 'P2P Received',
+      transaction.set(p2pRef, {
+        senderId: senderId,
+        senderName: senderData.username || 'Unknown',
+        senderEmail: senderData.email || '',
+        recipientId: recipientId,
+        recipientName: recipientData.username || 'Unknown',
+        recipientEmail: recipientData.email || '',
         amount: amount,
-        counterpartyId: senderId,
-        counterpartyName: senderData.username || 'Unknown',
-        counterpartyEmail: senderData.email || '',
         note: note || '',
-        txId: txId,
         timestamp: timestamp,
         status: 'completed'
       });
@@ -581,26 +567,51 @@
   }
 
   async function loadTransactionHistory() {
-    const q = query(
-      collection(db, 'users', currentUser.uid, 'transactionHistory'),
-      where('type', 'in', ['P2P Sent', 'P2P Received']),
+    // Query p2pTransfers where current user is either sender or recipient
+    const sentQuery = query(
+      collection(db, 'p2pTransfers'),
+      where('senderId', '==', currentUser.uid),
+      orderBy('timestamp', 'desc'),
+      limit(10)
+    );
+    
+    const receivedQuery = query(
+      collection(db, 'p2pTransfers'),
+      where('recipientId', '==', currentUser.uid),
       orderBy('timestamp', 'desc'),
       limit(10)
     );
     
     try {
-      const snap = await getDocs(q);
+      const [sentSnap, receivedSnap] = await Promise.all([
+        getDocs(sentQuery).catch(() => ({ docs: [] })),
+        getDocs(receivedQuery).catch(() => ({ docs: [] }))
+      ]);
       
-      if (snap.empty) {
+      // Combine and sort
+      let allTx = [];
+      sentSnap.docs.forEach(d => allTx.push({ id: d.id, ...d.data(), direction: 'sent' }));
+      receivedSnap.docs.forEach(d => allTx.push({ id: d.id, ...d.data(), direction: 'received' }));
+      
+      allTx.sort((a, b) => {
+        const aTime = a.timestamp?.toDate?.() || new Date(0);
+        const bTime = b.timestamp?.toDate?.() || new Date(0);
+        return bTime - aTime;
+      });
+      
+      // Take top 10
+      allTx = allTx.slice(0, 10);
+      
+      if (allTx.length === 0) {
         txHistory.innerHTML = '<p style="text-align:center;color:var(--gray);padding:1rem;">No transfers yet</p>';
         return;
       }
       
       let html = '';
-      snap.forEach(doc => {
-        const t = doc.data();
-        const isSent = t.type === 'P2P Sent';
-        const time = t.timestamp?.toDate?.() ? t.timestamp.toDate().toLocaleString('en-NG') : 'Just now';
+      allTx.forEach(t => {
+        const isSent = t.direction === 'sent';
+        const counterparty = isSent ? t.recipientName : t.senderName;
+        const time = t.timestamp?.toDate?.() ? t.timestamp.toDate().toLocaleString('en-US') : 'Just now';
         
         html += `
           <div class="tx-item">
@@ -609,12 +620,12 @@
                 <i class="fas ${isSent ? 'fa-arrow-up' : 'fa-arrow-down'}"></i>
               </div>
               <div class="tx-details">
-                <div class="type">${isSent ? 'Sent to' : 'Received from'} ${t.counterpartyName || 'Unknown'}</div>
+                <div class="type">${isSent ? 'Sent to' : 'Received from'} ${counterparty || 'Unknown'}</div>
                 <div class="meta">${time}${t.note ? ' • ' + t.note : ''}</div>
               </div>
             </div>
             <div class="tx-amount ${isSent ? 'sent' : 'received'}">
-              ${isSent ? '-' : '+'}₦${Math.abs(t.amount || 0).toLocaleString('en-NG', {minimumFractionDigits: 2})}
+              ${isSent ? '-' : '+'}$${(t.amount || 0).toLocaleString('en-US', {minimumFractionDigits: 2})}
             </div>
           </div>
         `;
@@ -653,4 +664,4 @@
 </script>
 
 </body>
-          </html>
+</html>
