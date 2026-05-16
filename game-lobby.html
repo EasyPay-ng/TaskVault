@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>TaskVault – Vault Rush</title>
+  <link rel="icon" type="image/jpeg" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg"/>
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --orange: #f97316;
+      --orange-light: #fff7ed;
+      --orange-dark: #ea580c;
+      --orange-soft: #ffedd5;
+      --white: #ffffff;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-400: #9ca3af;
+      --gray-500: #6b7280;
+      --gray-600: #4b5563;
+      --gray-700: #374151;
+      --gray-800: #1f2937;
+      --gray-900: #111827;
+      --red: #ef4444;
+      --red-light: #fee2e2;
+      --green: #10b981;
+      --green-light: #d1fae5;
+      --gold: #f59e0b;
+      --gold-light: #fef3c7;
+      --silver: #94a3b8;
+      --bronze: #b45309;
+      --purple: #8b5cf6;
+      --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.05);
+      --shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
+      --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
+      --radius-sm: 6px;
+      --radius: 10px;
+      --radius-lg: 16px;
+      --radius-xl: 24px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, sans-serif; }
+    body { background: linear-gradient(180deg, var(--gray-900) 0%, #0f172a 100%); color: var(--white); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+    /* Header */
+    header {
+      background: linear-gradient(135deg, var(--orange) 0%, var(--orange-dark) 100%);
+      padding: 1rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: var(--shadow-lg);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo-wrap { display: flex; align-items: center; gap: .75rem; }
+    .logo-wrap img { width: 36px; height: 36px; border-radius: 8px; object-fit: cover; }
+    .logo-wrap h1 { font-size: 1.15rem; font-weight: 800; letter-spacing: -0.02em; }
+    .back-btn {
+      background: rgba(255,255,255,0.15);
+      color: var(--white);
+      border: 1px solid rgba(255,255,255,0.2);
+      padding: .5rem 1rem;
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-size: .85rem;
+      font-weight: 600;
+      transition: all .2s ease;
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+    }
+    .back-btn:hover { background: rgba(255,255,255,0.25); }
+
+    /* Container */
+    .container { max-width: 600px; margin: 0 auto; padding: 1.5rem; }
+
+    /* Hero Section */
+    .hero {
+      text-align: center;
+      padding: 2rem 0;
+    }
+    .hero-icon {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, var(--orange) 0%, var(--orange-dark) 100%);
+      border-radius: var(--radius-xl);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1rem;
+      font-size: 2.5rem;
+      box-shadow: 0 8px 32px rgba(249,115,22,0.3);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    .hero h2 { font-size: 1.75rem; font-weight: 800; margin-bottom: .5rem; }
+    .hero p { color: var(--gray-400); font-size: .9rem; }
+
+    /* Round Status Card */
+    .round-card {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      border: 1px solid var(--gray-700);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .round-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--orange), var(--gold), var(--orange));
+      animation: shimmer-bar 2s infinite;
+    }
+    @keyframes shimmer-bar {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    .round-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+    }
+    .round-number {
+      font-size: .8rem;
+      font-weight: 700;
+      color: var(--orange);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .round-status {
+      padding: .35rem .75rem;
+      border-radius: 20px;
+      font-size: .75rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: .35rem;
+    }
+    .status-active { background: var(--green-light); color: var(--green); }
+    .status-ending { background: var(--gold-light); color: var(--gold); }
+    .status-completed { background: var(--gray-700); color: var(--gray-400); }
+
+    .countdown {
+      text-align: center;
+      margin-bottom: 1.25rem;
+    }
+    .countdown-label {
+      font-size: .75rem;
+      color: var(--gray-500);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: .5rem;
+    }
+    .countdown-time {
+      font-size: 2.5rem;
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, var(--orange), var(--gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .countdown-sub {
+      font-size: .8rem;
+      color: var(--gray-500);
+      margin-top: .25rem;
+    }
+
+    .entries-bar {
+      margin-bottom: 1.25rem;
+    }
+    .entries-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: .8rem;
+      font-weight: 600;
+      color: var(--gray-400);
+      margin-bottom: .5rem;
+    }
+    .entries-progress {
+      height: 8px;
+      background: var(--gray-800);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .entries-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--orange), var(--gold));
+      border-radius: 4px;
+      transition: width .5s ease;
+    }
+
+    .prize-pool {
+      text-align: center;
+      padding: 1rem;
+      background: rgba(249,115,22,0.1);
+      border: 1px solid rgba(249,115,22,0.2);
+      border-radius: var(--radius);
+      margin-bottom: 1.25rem;
+    }
+    .prize-pool-label {
+      font-size: .75rem;
+      color: var(--gray-500);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .prize-pool-amount {
+      font-size: 2rem;
+      font-weight: 900;
+      color: var(--gold);
+      margin-top: .25rem;
+    }
+
+    /* Play Button */
+    .play-section {
+      text-align: center;
+    }
+    .play-btn {
+      width: 100%;
+      padding: 1rem;
+      background: linear-gradient(135deg, var(--orange) 0%, var(--orange-dark) 100%);
+      color: var(--white);
+      border: none;
+      border-radius: var(--radius-lg);
+      font-size: 1.1rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all .2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .5rem;
+      box-shadow: 0 4px 16px rgba(249,115,22,0.3);
+    }
+    .play-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(249,115,22,0.4); }
+    .play-btn:disabled {
+      background: var(--gray-700);
+      color: var(--gray-500);
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+    .play-btn .fee {
+      font-size: .85rem;
+      font-weight: 500;
+      opacity: .9;
+    }
+
+    .entries-used {
+      margin-top: .75rem;
+      font-size: .85rem;
+      color: var(--gray-500);
+    }
+    .entries-used span { color: var(--orange); font-weight: 700; }
+
+    /* Prizes */
+    .prizes-section {
+      margin: 1.5rem 0;
+    }
+    .section-title {
+      font-size: .9rem;
+      font-weight: 700;
+      color: var(--gray-400);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+    .prizes-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: .75rem;
+    }
+    .prize-card {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      border: 1px solid var(--gray-700);
+      border-radius: var(--radius);
+      padding: 1rem;
+      text-align: center;
+      transition: all .2s ease;
+    }
+    .prize-card:hover { transform: translateY(-2px); border-color: var(--orange); }
+    .prize-rank {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto .5rem;
+      font-size: 1.25rem;
+    }
+    .rank-1 { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #78350f; }
+    .rank-2 { background: linear-gradient(135deg, #e2e8f0, #94a3b8); color: #334155; }
+    .rank-3 { background: linear-gradient(135deg, #fdba74, #ea580c); color: #7c2d12; }
+    .prize-amount {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--white);
+    }
+    .prize-label {
+      font-size: .75rem;
+      color: var(--gray-500);
+      margin-top: .25rem;
+    }
+
+    /* Leaderboard */
+    .leaderboard {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      border: 1px solid var(--gray-700);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+    .leaderboard-header {
+      padding: 1rem 1.25rem;
+      background: rgba(249,115,22,0.1);
+      border-bottom: 1px solid var(--gray-700);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .leaderboard-header h3 {
+      font-size: .9rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+    .leaderboard-count {
+      font-size: .75rem;
+      color: var(--gray-500);
+      font-weight: 600;
+    }
+
+    .leaderboard-list {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .leaderboard-list::-webkit-scrollbar { width: 4px; }
+    .leaderboard-list::-webkit-scrollbar-thumb { background: var(--gray-700); border-radius: 2px; }
+
+    .lb-item {
+      display: flex;
+      align-items: center;
+      gap: .875rem;
+      padding: .875rem 1.25rem;
+      border-bottom: 1px solid var(--gray-800);
+      transition: background .15s ease;
+    }
+    .lb-item:hover { background: rgba(255,255,255,0.03); }
+    .lb-item:last-child { border-bottom: none; }
+
+    .lb-rank {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .85rem;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+    .lb-rank.gold { background: var(--gold-light); color: var(--gold); }
+    .lb-rank.silver { background: #e2e8f0; color: var(--silver); }
+    .lb-rank.bronze { background: #fed7aa; color: var(--bronze); }
+    .lb-rank.normal { background: var(--gray-800); color: var(--gray-500); }
+
+    .lb-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--orange), var(--orange-dark));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .85rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .lb-info { flex: 1; min-width: 0; }
+    .lb-name {
+      font-weight: 600;
+      font-size: .9rem;
+      color: var(--white);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .lb-meta {
+      font-size: .75rem;
+      color: var(--gray-500);
+      margin-top: .15rem;
+    }
+
+    .lb-score {
+      text-align: right;
+    }
+    .lb-score-value {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--white);
+      font-variant-numeric: tabular-nums;
+    }
+    .lb-score-label {
+      font-size: .7rem;
+      color: var(--gray-500);
+    }
+
+    .lb-item.you { background: rgba(249,115,22,0.08); border-left: 3px solid var(--orange); }
+    .lb-item.you .lb-name { color: var(--orange); }
+
+    /* Your Stats */
+    .your-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: .75rem;
+      margin-top: 1.5rem;
+    }
+    .stat-box {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      border: 1px solid var(--gray-700);
+      border-radius: var(--radius);
+      padding: 1rem;
+      text-align: center;
+    }
+    .stat-box-value {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--white);
+    }
+    .stat-box-label {
+      font-size: .75rem;
+      color: var(--gray-500);
+      margin-top: .25rem;
+    }
+
+    /* History Link */
+    .history-link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .5rem;
+      margin-top: 1.5rem;
+      padding: 1rem;
+      background: var(--gray-800);
+      border-radius: var(--radius);
+      color: var(--gray-400);
+      text-decoration: none;
+      font-size: .9rem;
+      font-weight: 600;
+      transition: all .2s ease;
+    }
+    .history-link:hover { background: var(--gray-700); color: var(--white); }
+
+    /* Loading */
+    .skeleton {
+      background: linear-gradient(90deg, var(--gray-800) 25%, var(--gray-700) 50%, var(--gray-800) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: var(--radius-sm);
+    }
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--gray-900);
+      color: var(--white);
+      padding: 1rem 1.5rem;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-xl);
+      z-index: 4000;
+      opacity: 0;
+      transition: all .3s ease;
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      font-weight: 600;
+      font-size: .9rem;
+      border: 1px solid var(--gray-700);
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    .toast.success { background: var(--green); border-color: var(--green); }
+    .toast.error { background: var(--red); border-color: var(--red); }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+<header>
+  <button class="back-btn" onclick="location.href='dashboard.html'">
+    <i class="ri-arrow-left-line"></i> Back
+  </button>
+  <div class="logo-wrap">
+    <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" alt="TaskVault"/>
+    <h1>Vault Rush</h1>
+  </div>
+  <div style="width:80px;"></div>
+</header>
+
+<div class="container">
+  <!-- Loading -->
+  <div id="loadingState">
+    <div class="hero">
+      <div class="skeleton" style="width:80px;height:80px;margin:0 auto 1rem;border-radius:24px;"></div>
+      <div class="skeleton" style="width:200px;height:28px;margin:0 auto .5rem;"></div>
+      <div class="skeleton" style="width:150px;height:16px;margin:0 auto;"></div>
+    </div>
+    <div class="round-card">
+      <div class="skeleton" style="width:100%;height:120px;"></div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div id="mainContent" class="hidden">
+    <div class="hero">
+      <div class="hero-icon">
+        <i class="ri-flashlight-fill"></i>
+      </div>
+      <h2>Vault Rush</h2>
+      <p>60 seconds. Max points. Win cash.</p>
+    </div>
+
+    <!-- Round Status -->
+    <div class="round-card">
+      <div class="round-header">
+        <span class="round-number" id="roundNumber">Round #—</span>
+        <span class="round-status status-active" id="roundStatus">
+          <i class="ri-checkbox-circle-fill"></i> Live
+        </span>
+      </div>
+
+      <div class="countdown">
+        <div class="countdown-label" id="countdownLabel">Time Remaining</div>
+        <div class="countdown-time" id="countdownTime">--:--:--</div>
+        <div class="countdown-sub" id="countdownSub">or until 20 entries reached</div>
+      </div>
+
+      <div class="entries-bar">
+        <div class="entries-header">
+          <span>Entries</span>
+          <span id="entriesText">0 / 20</span>
+        </div>
+        <div class="entries-progress">
+          <div class="entries-fill" id="entriesFill" style="width:0%"></div>
+        </div>
+      </div>
+
+      <div class="prize-pool">
+        <div class="prize-pool-label">Prize Pool</div>
+        <div class="prize-pool-amount" id="prizePool">$0.00</div>
+      </div>
+
+      <div class="play-section">
+        <button class="play-btn" id="playBtn" onclick="enterGame()">
+          <i class="ri-gamepad-fill"></i>
+          <span>PLAY NOW</span>
+          <span class="fee">$0.05</span>
+        </button>
+        <div class="entries-used">
+          Your entries: <span id="yourEntries">0</span> / 20 used
+          <br>
+          Best score: <span id="yourBestScore">—</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Prizes -->
+    <div class="prizes-section">
+      <div class="section-title">
+        <i class="ri-trophy-fill" style="color:var(--gold);"></i> Prize Distribution
+      </div>
+      <div class="prizes-grid">
+        <div class="prize-card">
+          <div class="prize-rank rank-1">🥇</div>
+          <div class="prize-amount">$0.40</div>
+          <div class="prize-label">1st Place</div>
+        </div>
+        <div class="prize-card">
+          <div class="prize-rank rank-2">🥈</div>
+          <div class="prize-amount">$0.30</div>
+          <div class="prize-label">2nd Place</div>
+        </div>
+        <div class="prize-card">
+          <div class="prize-rank rank-3">🥉</div>
+          <div class="prize-amount">$0.15</div>
+          <div class="prize-label">3rd Place</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Leaderboard -->
+    <div class="leaderboard">
+      <div class="leaderboard-header">
+        <h3><i class="ri-bar-chart-grouped-fill" style="color:var(--orange);"></i> Live Leaderboard</h3>
+        <span class="leaderboard-count" id="playerCount">0 players</span>
+      </div>
+      <div class="leaderboard-list" id="leaderboardList">
+        <div style="text-align:center;padding:2rem;color:var(--gray-500);">
+          <i class="ri-emotion-sad-line" style="font-size:2rem;margin-bottom:.5rem;display:block;"></i>
+          No entries yet. Be the first!
+        </div>
+      </div>
+    </div>
+
+    <!-- Your Stats -->
+    <div class="your-stats">
+      <div class="stat-box">
+        <div class="stat-box-value" id="statRoundsPlayed">0</div>
+        <div class="stat-box-label">Rounds Played</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-box-value" id="statTotalWon">$0.00</div>
+        <div class="stat-box-label">Total Won</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-box-value" id="statBestRank">—</div>
+        <div class="stat-box-label">Best Rank</div>
+      </div>
+    </div>
+
+    <a href="game-history.html" class="history-link">
+      <i class="ri-history-line"></i> View Game History
+    </a>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+  import {
+    getFirestore, doc, getDoc, collection, query, where, getDocs,
+    orderBy, limit, addDoc, updateDoc, serverTimestamp, runTransaction,
+    onSnapshot
+  } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAv6QCpopa0Q77AVTyjU5cqJEIKIE9OVTs",
+    authDomain: "taskvault-412a0.firebaseapp.com",
+    projectId: "taskvault-412a0",
+    storageBucket: "taskvault-412a0.firebasestorage.app",
+    messagingSenderId: "420716701831",
+    appId: "1:420716701831:web:c987d91f7f4c8684eb7022"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  let currentUser = null;
+  let currentUserData = null;
+  let currentRound = null;
+  let userEntries = [];
+  let unsubscribeLeaderboard = null;
+
+  // DOM refs
+  const loadingState = document.getElementById('loadingState');
+  const mainContent = document.getElementById('mainContent');
+  const roundNumber = document.getElementById('roundNumber');
+  const roundStatus = document.getElementById('roundStatus');
+  const countdownTime = document.getElementById('countdownTime');
+  const countdownLabel = document.getElementById('countdownLabel');
+  const countdownSub = document.getElementById('countdownSub');
+  const entriesText = document.getElementById('entriesText');
+  const entriesFill = document.getElementById('entriesFill');
+  const prizePool = document.getElementById('prizePool');
+  const playBtn = document.getElementById('playBtn');
+  const yourEntries = document.getElementById('yourEntries');
+  const yourBestScore = document.getElementById('yourBestScore');
+  const playerCount = document.getElementById('playerCount');
+  const leaderboardList = document.getElementById('leaderboardList');
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { location.href = 'login.html'; return; }
+    currentUser = user;
+    await initialize();
+  });
+
+  async function initialize() {
+    try {
+      // Load user data
+      const userRef = doc(db, 'users', currentUser.uid);
+      const userSnap = await getDoc(userRef);
+      if (!userSnap.exists()) {
+        showToast('User profile not found', 'error');
+        return;
+      }
+      currentUserData = userSnap.data();
+
+      // Get or create active round
+      await getOrCreateRound();
+
+      // Load user's entries for this round
+      await loadUserEntries();
+
+      // Update stats
+      await loadUserStats();
+
+      // Show content
+      loadingState.classList.add('hidden');
+      mainContent.classList.remove('hidden');
+
+      // Start countdown
+      startCountdown();
+
+      // Subscribe to leaderboard updates
+      subscribeLeaderboard();
+
+    } catch (err) {
+      console.error('Initialize error:', err);
+      showToast('Failed to load: ' + err.message, 'error');
+    }
+  }
+
+  async function getOrCreateRound() {
+    // Try to find active round
+    const roundsQuery = query(
+      collection(db, 'gameRounds'),
+      where('status', '==', 'active'),
+      orderBy('createdAt', 'desc'),
+      limit(1)
+    );
+
+    const roundsSnap = await getDocs(roundsQuery);
+
+    if (!roundsSnap.empty) {
+      currentRound = { id: roundsSnap.docs[0].id, ...roundsSnap.docs[0].data() };
+      
+      // Check if round should end (20 entries or 24h passed)
+      const now = new Date();
+      const createdAt = currentRound.createdAt?.toDate?.() || new Date();
+      const hoursPassed = (now - createdAt) / (1000 * 60 * 60);
+      const entryCount = currentRound.entryCount || 0;
+
+      if (entryCount >= 20 || hoursPassed >= 24) {
+        await endRound(currentRound.id);
+        // Create new round
+        await createNewRound();
+      }
+    } else {
+      // No active round, create one
+      await createNewRound();
+    }
+
+    updateRoundUI();
+  }
+
+  async function createNewRound() {
+    const roundRef = doc(collection(db, 'gameRounds'));
+    const roundData = {
+      roundNumber: await getNextRoundNumber(),
+      status: 'active',
+      entryCount: 0,
+      prizePool: 0,
+      createdAt: serverTimestamp(),
+      endsAt: null,
+      winners: null
+    };
+
+    await setDoc(roundRef, roundData);
+    currentRound = { id: roundRef.id, ...roundData };
+  }
+
+  async function getNextRoundNumber() {
+    const snap = await getDocs(query(collection(db, 'gameRounds'), orderBy('roundNumber', 'desc'), limit(1)));
+    if (snap.empty) return 1;
+    return (snap.docs[0].data().roundNumber || 0) + 1;
+  }
+
+  async function endRound(roundId) {
+    // Get final leaderboard
+    const entriesQuery = query(
+      collection(db, 'gameRounds', roundId, 'entries'),
+      orderBy('score', 'desc'),
+      limit(3)
+    );
+    const entriesSnap = await getDocs(entriesQuery);
+
+    const winners = [];
+    entriesSnap.forEach((doc, index) => {
+      const data = doc.data();
+      winners.push({
+        rank: index + 1,
+        userId: data.userId,
+        username: data.username,
+        score: data.score,
+        prize: index === 0 ? 0.40 : index === 1 ? 0.30 : 0.15
+      });
+    });
+
+    // Credit prizes
+    for (const winner of winners) {
+      const userRef = doc(db, 'users', winner.userId);
+      await updateDoc(userRef, {
+        balance: increment(winner.prize),
+        totalGameWon: increment(winner.prize)
+      });
+
+      // Add to game history
+      await addDoc(collection(db, 'gameHistory'), {
+        userId: winner.userId,
+        roundId: roundId,
+        type: 'prize',
+        amount: winner.prize,
+        rank: winner.rank,
+        score: winner.score,
+        timestamp: serverTimestamp()
+      });
+    }
+
+    // Mark round complete
+    await updateDoc(doc(db, 'gameRounds', roundId), {
+      status: 'completed',
+      endsAt: serverTimestamp(),
+      winners: winners,
+      prizePool: currentRound?.prizePool || 0
+    });
+  }
+
+  function updateRoundUI() {
+    if (!currentRound) return;
+
+    roundNumber.textContent = `Round #${currentRound.roundNumber || '—'}`;
+    
+    const entryCount = currentRound.entryCount || 0;
+    const progress = (entryCount / 20) * 100;
+    
+    entriesText.textContent = `${entryCount} / 20`;
+    entriesFill.style.width = `${progress}%`;
+    
+    const pool = entryCount * 0.05;
+    prizePool.textContent = `$${pool.toFixed(2)}`;
+
+    // Update status based on entries
+    if (entryCount >= 15) {
+      roundStatus.className = 'round-status status-ending';
+      roundStatus.innerHTML = '<i class="ri-time-fill"></i> Ending Soon';
+      countdownLabel.textContent = 'Ending When Full';
+      countdownSub.textContent = `${20 - entryCount} spots left!`;
+    } else {
+      roundStatus.className = 'round-status status-active';
+      roundStatus.innerHTML = '<i class="ri-checkbox-circle-fill"></i> Live';
+      countdownLabel.textContent = 'Time Remaining';
+      countdownSub.textContent = 'or until 20 entries reached';
+    }
+
+    // Update play button
+    const userEntryCount = userEntries.length;
+    const hasBalance = (currentUserData?.balance || 0) >= 0.05;
+    
+    if (userEntryCount >= 20) {
+      playBtn.disabled = true;
+      playBtn.innerHTML = '<i class="ri-lock-fill"></i> <span>MAX ENTRIES REACHED</span>';
+    } else if (!hasBalance) {
+      playBtn.disabled = true;
+      playBtn.innerHTML = '<i class="ri-error-warning-fill"></i> <span>INSUFFICIENT BALANCE</span>';
+    } else {
+      playBtn.disabled = false;
+      playBtn.innerHTML = `<i class="ri-gamepad-fill"></i> <span>PLAY NOW</span> <span class="fee">$0.05</span>`;
+    }
+
+    yourEntries.textContent = userEntryCount;
+    const bestScore = userEntries.length > 0 ? Math.max(...userEntries.map(e => e.score || 0)) : null;
+    yourBestScore.textContent = bestScore !== null ? bestScore.toLocaleString() : '—';
+  }
+
+  function startCountdown() {
+    const updateTimer = () => {
+      if (!currentRound) return;
+
+      const now = new Date();
+      const createdAt = currentRound.createdAt?.toDate?.() || new Date();
+      const elapsed = now - createdAt;
+      const remaining = Math.max(0, (24 * 60 * 60 * 1000) - elapsed);
+
+      const hours = Math.floor(remaining / (1000 * 60 * 60));
+      const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
+
+      countdownTime.textContent = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+      // Auto-check if round should end
+      if (remaining <= 0 && currentRound.status === 'active') {
+        getOrCreateRound();
+      }
+    };
+
+    updateTimer();
+    setInterval(updateTimer, 1000);
+  }
+
+  async function loadUserEntries() {
+    if (!currentRound) return;
+    
+    const entriesQuery = query(
+      collection(db, 'gameRounds', currentRound.id, 'entries'),
+      where('userId', '==', currentUser.uid),
+      orderBy('timestamp', 'asc')
+    );
+    
+    const snap = await getDocs(entriesQuery);
+    userEntries = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  }
+
+  function subscribeLeaderboard() {
+    if (!currentRound) return;
+    if (unsubscribeLeaderboard) unsubscribeLeaderboard();
+
+    const entriesQuery = query(
+      collection(db, 'gameRounds', currentRound.id, 'entries'),
+      orderBy('score', 'desc'),
+      limit(50)
+    );
+
+    unsubscribeLeaderboard = onSnapshot(entriesQuery, (snap) => {
+      const entries = [];
+      snap.forEach(d => entries.push({ id: d.id, ...d.data() }));
+      
+      renderLeaderboard(entries);
+      playerCount.textContent = `${entries.length} player${entries.length !== 1 ? 's' : ''}`;
+    });
+  }
+
+  function renderLeaderboard(entries) {
+    if (entries.length === 0) {
+      leaderboardList.innerHTML = `
+        <div style="text-align:center;padding:2rem;color:var(--gray-500);">
+          <i class="ri-emotion-sad-line" style="font-size:2rem;margin-bottom:.5rem;display:block;"></i>
+          No entries yet. Be the first!
+        </div>
+      `;
+      return;
+    }
+
+    let html = '';
+    entries.forEach((entry, index) => {
+      const rank = index + 1;
+      const isYou = entry.userId === currentUser.uid;
+      const rankClass = rank === 1 ? 'gold' : rank === 2 ? 'silver' : rank === 3 ? 'bronze' : 'normal';
+      const name = entry.username || 'Unknown';
+      const initial = name.charAt(0).toUpperCase();
+
+      html += `
+        <div class="lb-item ${isYou ? 'you' : ''}">
+          <div class="lb-rank ${rankClass}">${rank}</div>
+          <div class="lb-avatar">${initial}</div>
+          <div class="lb-info">
+            <div class="lb-name">${escapeHtml(name)} ${isYou ? '(You)' : ''}</div>
+            <div class="lb-meta">${entry.attemptNumber || 1} attempt${entry.attemptNumber !== 1 ? 's' : ''}</div>
+          </div>
+          <div class="lb-score">
+            <div class="lb-score-value">${(entry.score || 0).toLocaleString()}</div>
+            <div class="lb-score-label">pts</div>
+          </div>
+        </div>
+      `;
+    });
+
+    leaderboardList.innerHTML = html;
+  }
+
+  async function loadUserStats() {
+    // Total rounds played
+    const roundsQuery = query(
+      collection(db, 'gameHistory'),
+      where('userId', '==', currentUser.uid),
+      where('type', '==', 'entry')
+    );
+    const roundsSnap = await getDocs(roundsQuery);
+    document.getElementById('statRoundsPlayed').textContent = roundsSnap.size;
+
+    // Total won
+    const wonQuery = query(
+      collection(db, 'gameHistory'),
+      where('userId', '==', currentUser.uid),
+      where('type', '==', 'prize')
+    );
+    const wonSnap = await getDocs(wonQuery);
+    let totalWon = 0;
+    let bestRank = null;
+    wonSnap.forEach(d => {
+      const data = d.data();
+      totalWon += data.amount || 0;
+      if (!bestRank || data.rank < bestRank) bestRank = data.rank;
+    });
+    
+    document.getElementById('statTotalWon').textContent = `$${totalWon.toFixed(2)}`;
+    document.getElementById('statBestRank').textContent = bestRank ? `#${bestRank}` : '—';
+  }
+
+  window.enterGame = async function() {
+    if (!currentRound || !currentUserData) return;
+    
+    const userEntryCount = userEntries.length;
+    if (userEntryCount >= 20) {
+      showToast('Maximum 20 entries per round', 'error');
+      return;
+    }
+    
+    if ((currentUserData.balance || 0) < 0.05) {
+      showToast('Insufficient balance. Need $0.05', 'error');
+      return;
+    }
+
+    playBtn.disabled = true;
+    playBtn.innerHTML = '<i class="ri-loader-4-line ri-spin"></i> Processing...';
+
+    try {
+      // Deduct entry fee
+      const userRef = doc(db, 'users', currentUser.uid);
+      await updateDoc(userRef, {
+        balance: increment(-0.05)
+      });
+
+      // Add entry record
+      const entryRef = doc(collection(db, 'gameRounds', currentRound.id, 'entries'));
+      const entryData = {
+        userId: currentUser.uid,
+        username: currentUserData.username || currentUserData.displayName || 'Unknown',
+        score: 0,
+        attemptNumber: userEntryCount + 1,
+        timestamp: serverTimestamp()
+      };
+      await setDoc(entryRef, entryData);
+
+      // Add to game history
+      await addDoc(collection(db, 'gameHistory'), {
+        userId: currentUser.uid,
+        roundId: currentRound.id,
+        entryId: entryRef.id,
+        type: 'entry',
+        amount: -0.05,
+        timestamp: serverTimestamp()
+      });
+
+      // Update round entry count
+      await updateDoc(doc(db, 'gameRounds', currentRound.id), {
+        entryCount: increment(1),
+        prizePool: increment(0.05)
+      });
+
+      // Update local balance
+      currentUserData.balance = (currentUserData.balance || 0) - 0.05;
+
+      // Store entry ID for game page
+      sessionStorage.setItem('currentEntryId', entryRef.id);
+      sessionStorage.setItem('currentRoundId', currentRound.id);
+      sessionStorage.setItem('currentAttempt', userEntryCount + 1);
+
+      // Redirect to game
+      location.href = 'game.html';
+
+    } catch (err) {
+      console.error('Entry error:', err);
+      showToast('Failed to enter: ' + err.message, 'error');
+      playBtn.disabled = false;
+      updateRoundUI();
+    }
+  };
+
+  function showToast(message, type = 'success') {
+    const toast = document.getElementById('toast');
+    toast.innerHTML = `<i class="ri-${type === 'success' ? 'checkbox-circle' : 'error-warning'}-line"></i> ${message}`;
+    toast.className = `toast ${type} show`;
+    setTimeout(() => toast.classList.remove('show'), 3000);
+  }
+
+  function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  // Import increment and setDoc
+  import { increment, setDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+</script>
+
+</body>
+  </html>
