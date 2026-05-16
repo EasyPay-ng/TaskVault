@@ -212,21 +212,26 @@
       align-items: center;
       gap: .35rem;
     }
+    .action-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none !important;
+    }
     .action-btn.primary {
       background: linear-gradient(135deg, var(--orange), var(--orange-dark));
       color: var(--white);
     }
-    .action-btn.primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(249,115,22,0.3); }
+    .action-btn.primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(249,115,22,0.3); }
     .action-btn.secondary {
       background: var(--gray-100);
       color: var(--gray-700);
     }
-    .action-btn.secondary:hover { background: var(--gray-200); }
+    .action-btn.secondary:hover:not(:disabled) { background: var(--gray-200); }
     .action-btn.danger {
       background: var(--red-light);
       color: var(--red);
     }
-    .action-btn.danger:hover { background: var(--red); color: var(--white); }
+    .action-btn.danger:hover:not(:disabled) { background: var(--red); color: var(--white); }
 
     /* Live Round */
     .live-round {
@@ -434,6 +439,8 @@
       font-size: .9rem;
       outline: none;
       transition: all .2s ease;
+      background: var(--white);
+      color: var(--gray-800);
     }
     .setting-item input:focus, .setting-item select:focus {
       border-color: var(--orange);
@@ -512,15 +519,16 @@
       border: none;
       transition: all .2s ease;
     }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
     .btn-secondary { background: var(--gray-100); color: var(--gray-700); }
-    .btn-secondary:hover { background: var(--gray-200); }
+    .btn-secondary:hover:not(:disabled) { background: var(--gray-200); }
     .btn-primary {
       background: linear-gradient(135deg, var(--orange) 0%, var(--orange-dark) 100%);
       color: var(--white);
     }
-    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(249,115,22,0.3); }
+    .btn-primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(249,115,22,0.3); }
     .btn-danger { background: var(--red-light); color: var(--red); }
-    .btn-danger:hover { background: var(--red); color: var(--white); }
+    .btn-danger:hover:not(:disabled) { background: var(--red); color: var(--white); }
 
     /* Toast */
     .toast {
@@ -554,6 +562,10 @@
       color: var(--gray-500);
     }
     .empty-state i { font-size: 2.5rem; margin-bottom: 1rem; color: var(--gray-300); }
+
+    /* Loading spinner */
+    .ri-spin { animation: spin 1s linear infinite; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
@@ -721,7 +733,7 @@
     <div class="section-header">
       <h2><i class="ri-settings-3-line"></i> Game Settings</h2>
       <div class="section-actions">
-        <button class="action-btn primary" onclick="saveSettings()">
+        <button class="action-btn primary" id="saveSettingsBtn" onclick="saveSettings()">
           <i class="ri-save-line"></i> Save Changes
         </button>
       </div>
@@ -788,7 +800,7 @@
     </div>
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closeModal('forceEndModal')">Cancel</button>
-      <button class="btn btn-danger" onclick="confirmForceEnd()">Force End Round</button>
+      <button class="btn btn-danger" id="confirmForceEndBtn" onclick="confirmForceEnd()">Force End Round</button>
     </div>
   </div>
 </div>
@@ -799,8 +811,8 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
   import {
-    getFirestore, doc, getDoc, collection, query, where, getDocs,
-    orderBy, limit, updateDoc, serverTimestamp, onSnapshot, increment
+    getFirestore, doc, getDoc, setDoc, collection, query, where, getDocs,
+    serverTimestamp, onSnapshot, increment, addDoc
   } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -837,35 +849,107 @@
     await Promise.all([
       loadStats(),
       loadLiveRound(),
-      loadRecentRounds()
+      loadRecentRounds(),
+      loadSettings()
     ]);
   }
 
-  // Stats
+  // ========== SETTINGS ==========
+  async function loadSettings() {
+    try {
+      const settingsDoc = await getDoc(doc(db, 'gameSettings', 'default'));
+      if (settingsDoc.exists()) {
+        const data = settingsDoc.data();
+        document.getElementById('settingEntryFee').value = data.entryFee || 0.05;
+        document.getElementById('settingMaxEntries').value = data.maxEntries || 20;
+        document.getElementById('settingDuration').value = data.duration || 24;
+        document.getElementById('settingPrize1').value = data.prize1 || 0.40;
+        document.getElementById('settingPrize2').value = data.prize2 || 0.30;
+        document.getElementById('settingPrize3').value = data.prize3 || 0.15;
+        document.getElementById('settingGameStatus').value = data.gameStatus || 'active';
+      }
+    } catch (err) {
+      console.error('Load settings error:', err);
+      showToast('Failed to load settings: ' + err.message, 'error');
+    }
+  }
+
+  window.saveSettings = async function() {
+    const btn = document.getElementById('saveSettingsBtn');
+    const originalHTML = btn.innerHTML;
+    
+    // Validate inputs
+    const entryFee = parseFloat(document.getElementById('settingEntryFee').value);
+    const maxEntries = parseInt(document.getElementById('settingMaxEntries').value);
+    const duration = parseInt(document.getElementById('settingDuration').value);
+    const prize1 = parseFloat(document.getElementById('settingPrize1').value);
+    const prize2 = parseFloat(document.getElementById('settingPrize2').value);
+    const prize3 = parseFloat(document.getElementById('settingPrize3').value);
+    
+    if (isNaN(entryFee) || entryFee <= 0) { showToast('Entry fee must be greater than 0', 'error'); return; }
+    if (isNaN(maxEntries) || maxEntries < 2) { showToast('Max entries must be at least 2', 'error'); return; }
+    if (isNaN(duration) || duration < 1) { showToast('Duration must be at least 1 hour', 'error'); return; }
+    if (isNaN(prize1) || prize1 < 0) { showToast('Prize 1 cannot be negative', 'error'); return; }
+    if (isNaN(prize2) || prize2 < 0) { showToast('Prize 2 cannot be negative', 'error'); return; }
+    if (isNaN(prize3) || prize3 < 0) { showToast('Prize 3 cannot be negative', 'error'); return; }
+    
+    // Show loading
+    btn.disabled = true;
+    btn.innerHTML = '<i class="ri-loader-4-line ri-spin"></i> Saving...';
+    
+    try {
+      const settings = {
+        entryFee: entryFee,
+        maxEntries: maxEntries,
+        duration: duration,
+        prize1: prize1,
+        prize2: prize2,
+        prize3: prize3,
+        gameStatus: document.getElementById('settingGameStatus').value,
+        updatedAt: serverTimestamp(),
+        updatedBy: currentUser.email
+      };
+      
+      // setDoc with merge: true creates doc if missing, updates if exists
+      await setDoc(doc(db, 'gameSettings', 'default'), settings, { merge: true });
+      
+      showToast('Settings saved successfully!', 'success');
+      
+    } catch (err) {
+      console.error('Save settings error:', err);
+      let msg = err.message;
+      if (err.code === 'permission-denied') {
+        msg = 'Permission denied. Check Firestore rules allow writes to gameSettings.';
+      } else if (err.code === 'unauthenticated') {
+        msg = 'You are not authenticated. Please sign in again.';
+      }
+      showToast('Failed to save: ' + msg, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = originalHTML;
+    }
+  };
+
+  // ========== STATS ==========
   async function loadStats() {
     try {
-      // Total revenue (entry fees)
       const entryQuery = query(collection(db, 'gameHistory'), where('type', '==', 'entry'));
       const entrySnap = await getDocs(entryQuery);
       let revenue = 0;
       entrySnap.forEach(d => revenue += Math.abs(d.data().amount || 0));
 
-      // Total prizes paid
       const prizeQuery = query(collection(db, 'gameHistory'), where('type', '==', 'prize'));
       const prizeSnap = await getDocs(prizeQuery);
       let prizes = 0;
       prizeSnap.forEach(d => prizes += d.data().amount || 0);
 
-      // Unique players
-      const usersQuery = query(collection(db, 'users'));
-      const usersSnap = await getDocs(usersQuery);
+      const usersSnap = await getDocs(collection(db, 'users'));
       let players = 0;
       usersSnap.forEach(d => {
         const data = d.data();
         if (data.totalGameWon !== undefined || data.gameEntries !== undefined) players++;
       });
 
-      // Completed rounds
       const roundsQuery = query(collection(db, 'gameRounds'), where('status', '==', 'completed'));
       const roundsSnap = await getDocs(roundsQuery);
 
@@ -879,11 +963,10 @@
     }
   }
 
-  // Live Round
+  // ========== LIVE ROUND ==========
   async function loadLiveRound() {
     if (unsubscribeLive) unsubscribeLive();
 
-    // Get active round (no composite index needed)
     const activeQuery = query(collection(db, 'gameRounds'), where('status', '==', 'active'));
     const snap = await getDocs(activeQuery);
 
@@ -908,7 +991,6 @@
     currentRound = activeRounds[0];
     updateLiveRoundUI();
 
-    // Subscribe to entries
     const entriesQuery = query(collection(db, 'gameRounds', currentRound.id, 'entries'));
     unsubscribeLive = onSnapshot(entriesQuery, (entriesSnap) => {
       let entries = [];
@@ -919,7 +1001,6 @@
       updateLiveStats(entries.length);
     });
 
-    // Start countdown
     startLiveCountdown();
   }
 
@@ -1007,7 +1088,7 @@
     liveCountdownInterval = setInterval(updateTimer, 1000);
   }
 
-  // Recent Rounds
+  // ========== RECENT ROUNDS ==========
   async function loadRecentRounds() {
     const tbody = document.getElementById('roundsTableBody');
     tbody.innerHTML = `
@@ -1020,14 +1101,12 @@
     `;
 
     try {
-      // Get all rounds, sort client-side
       const allRoundsSnap = await getDocs(collection(db, 'gameRounds'));
       let rounds = [];
       allRoundsSnap.forEach(d => rounds.push({ id: d.id, ...d.data() }));
       
-      // Sort by round number desc
       rounds.sort((a, b) => (b.roundNumber || 0) - (a.roundNumber || 0));
-      rounds = rounds.slice(0, 20); // Last 20
+      rounds = rounds.slice(0, 20);
 
       if (rounds.length === 0) {
         tbody.innerHTML = `
@@ -1092,7 +1171,7 @@
     }
   }
 
-  // Force End Round
+  // ========== FORCE END ROUND ==========
   window.forceEndRound = function() {
     if (!currentRound) {
       showToast('No active round to end', 'error');
@@ -1109,20 +1188,34 @@
   window.confirmForceEnd = async function() {
     if (!currentRound) return;
     
+    const btn = document.getElementById('confirmForceEndBtn');
+    btn.disabled = true;
+    btn.textContent = 'Ending...';
+    
     closeModal('forceEndModal');
     
     try {
-      // Get all entries for this round
       const entriesSnap = await getDocs(collection(db, 'gameRounds', currentRound.id, 'entries'));
       let entries = [];
       entriesSnap.forEach(d => entries.push({ id: d.id, ...d.data() }));
       entries.sort((a, b) => (b.score || 0) - (a.score || 0));
       
+      // Deduplicate: keep best score per user
+      const bestByUser = new Map();
+      entries.forEach(entry => {
+        const existing = bestByUser.get(entry.userId);
+        if (!existing || (entry.score || 0) > (existing.score || 0)) {
+          bestByUser.set(entry.userId, entry);
+        }
+      });
+      const uniqueEntries = Array.from(bestByUser.values());
+      uniqueEntries.sort((a, b) => (b.score || 0) - (a.score || 0));
+      
       const winners = [];
       const prizes = [0.40, 0.30, 0.15];
       
-      for (let i = 0; i < Math.min(3, entries.length); i++) {
-        const entry = entries[i];
+      for (let i = 0; i < Math.min(3, uniqueEntries.length); i++) {
+        const entry = uniqueEntries[i];
         const prize = prizes[i] || 0;
         winners.push({
           rank: i + 1,
@@ -1132,13 +1225,11 @@
           prize: prize
         });
         
-        // Credit prize
         await updateDoc(doc(db, 'users', entry.userId), {
           balance: increment(prize),
           totalGameWon: increment(prize)
         });
         
-        // Add to history
         await addDoc(collection(db, 'gameHistory'), {
           userId: entry.userId,
           roundId: currentRound.id,
@@ -1150,18 +1241,16 @@
         });
       }
       
-      // Mark round complete
-      await updateDoc(doc(db, 'gameRounds', currentRound.id), {
+      await setDoc(doc(db, 'gameRounds', currentRound.id), {
         status: 'completed',
         endsAt: serverTimestamp(),
         winners: winners,
         forcedEnd: true,
         endedBy: currentUser.email
-      });
+      }, { merge: true });
       
       showToast('Round ended and prizes distributed', 'success');
       
-      // Refresh
       setTimeout(() => {
         loadStats();
         loadLiveRound();
@@ -1171,33 +1260,13 @@
     } catch (err) {
       console.error('Force end error:', err);
       showToast('Failed to end round: ' + err.message, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Force End Round';
     }
   };
 
-  // Settings
-  window.saveSettings = async function() {
-    const settings = {
-      entryFee: parseFloat(document.getElementById('settingEntryFee').value) || 0.05,
-      maxEntries: parseInt(document.getElementById('settingMaxEntries').value) || 20,
-      duration: parseInt(document.getElementById('settingDuration').value) || 24,
-      prize1: parseFloat(document.getElementById('settingPrize1').value) || 0.40,
-      prize2: parseFloat(document.getElementById('settingPrize2').value) || 0.30,
-      prize3: parseFloat(document.getElementById('settingPrize3').value) || 0.15,
-      gameStatus: document.getElementById('settingGameStatus').value,
-      updatedAt: serverTimestamp(),
-      updatedBy: currentUser.email
-    };
-    
-    try {
-      await updateDoc(doc(db, 'gameSettings', 'default'), settings);
-      showToast('Settings saved successfully', 'success');
-    } catch (err) {
-      console.error('Save settings error:', err);
-      showToast('Failed to save settings', 'error');
-    }
-  };
-
-  // Utilities
+  // ========== UTILITIES ==========
   window.refreshLiveRound = function() {
     loadLiveRound();
     showToast('Live round refreshed', 'success');
@@ -1225,7 +1294,6 @@
     return div.innerHTML;
   }
 
-  // Close modal on backdrop click
   document.getElementById('forceEndModal').addEventListener('click', (e) => {
     if (e.target === document.getElementById('forceEndModal')) {
       closeModal('forceEndModal');
