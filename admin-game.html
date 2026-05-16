@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>TaskVault Admin – Game Management</title>
+  <link rel="icon" type="image/jpeg" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg"/>
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --orange: #f97316;
+      --orange-light: #fff7ed;
+      --orange-dark: #ea580c;
+      --orange-soft: #ffedd5;
+      --white: #ffffff;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-400: #9ca3af;
+      --gray-500: #6b7280;
+      --gray-600: #4b5563;
+      --gray-700: #374151;
+      --gray-800: #1f2937;
+      --gray-900: #111827;
+      --red: #ef4444;
+      --red-light: #fee2e2;
+      --green: #10b981;
+      --green-light: #d1fae5;
+      --blue: #3b82f6;
+      --blue-light: #dbeafe;
+      --purple: #8b5cf6;
+      --purple-light: #ede9fe;
+      --gold: #f59e0b;
+      --gold-light: #fef3c7;
+      --cyan: #06b6d4;
+      --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.05);
+      --shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
+      --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
+      --radius-sm: 6px;
+      --radius: 10px;
+      --radius-lg: 16px;
+      --radius-xl: 24px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, sans-serif; }
+    body { background: var(--gray-50); color: var(--gray-800); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+    /* Header */
+    header {
+      background: linear-gradient(135deg, var(--orange) 0%, var(--orange-dark) 100%);
+      color: var(--white);
+      padding: 1rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: var(--shadow-lg);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo-wrap { display: flex; align-items: center; gap: .75rem; }
+    .logo-wrap img { width: 36px; height: 36px; border-radius: 8px; object-fit: cover; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+    .logo-wrap h1 { font-size: 1.15rem; font-weight: 700; letter-spacing: -0.02em; }
+    .admin-badge {
+      background: rgba(255,255,255,0.2);
+      backdrop-filter: blur(8px);
+      padding: .3rem .7rem;
+      border-radius: 20px;
+      font-size: .7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-left: .5rem;
+    }
+    .header-btns { display: flex; gap: .5rem; align-items: center; }
+    .header-btn {
+      background: rgba(255,255,255,0.15);
+      color: var(--white);
+      border: 1px solid rgba(255,255,255,0.2);
+      padding: .5rem 1rem;
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-size: .85rem;
+      font-weight: 500;
+      transition: all .2s ease;
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+      text-decoration: none;
+    }
+    .header-btn:hover { background: rgba(255,255,255,0.25); transform: translateY(-1px); }
+
+    .container { max-width: 1400px; margin: 0 auto; padding: 1.5rem; }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .stat-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--gray-100);
+      transition: all .3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+    }
+    .stat-card.revenue::before { background: var(--green); }
+    .stat-card.players::before { background: var(--blue); }
+    .stat-card.rounds::before { background: var(--purple); }
+    .stat-card.prizes::before { background: var(--gold); }
+    
+    .stat-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: .75rem;
+    }
+    .stat-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+    }
+    .stat-card.revenue .stat-icon { background: var(--green-light); color: var(--green); }
+    .stat-card.players .stat-icon { background: var(--blue-light); color: var(--blue); }
+    .stat-card.rounds .stat-icon { background: var(--purple-light); color: var(--purple); }
+    .stat-card.prizes .stat-icon { background: var(--gold-light); color: var(--gold); }
+    
+    .stat-info h3 {
+      font-size: .8rem;
+      color: var(--gray-500);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: .25rem;
+    }
+    .stat-value {
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: var(--gray-900);
+      letter-spacing: -0.02em;
+    }
+    .stat-change {
+      font-size: .75rem;
+      font-weight: 600;
+      margin-top: .25rem;
+    }
+    .stat-up { color: var(--green); }
+    .stat-down { color: var(--red); }
+
+    /* Sections */
+    .section {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--gray-100);
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+    }
+    .section-header {
+      padding: 1rem 1.25rem;
+      background: var(--gray-50);
+      border-bottom: 1px solid var(--gray-200);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .section-header h2 {
+      font-size: .9rem;
+      font-weight: 700;
+      color: var(--gray-700);
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .section-header h2 i { color: var(--orange); font-size: 1.1rem; }
+    
+    .section-actions { display: flex; gap: .5rem; }
+    .action-btn {
+      padding: .5rem 1rem;
+      border-radius: var(--radius);
+      font-size: .8rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all .2s ease;
+      display: flex;
+      align-items: center;
+      gap: .35rem;
+    }
+    .action-btn.primary {
+      background: linear-gradient(135deg, var(--orange), var(--orange-dark));
+      color: var(--white);
+    }
+    .action-btn.primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(249,115,22,0.3); }
+    .action-btn.secondary {
+      background: var(--gray-100);
+      color: var(--gray-700);
+    }
+    .action-btn.secondary:hover { background: var(--gray-200); }
+    .action-btn.danger {
+      background: var(--red-light);
+      color: var(--red);
+    }
+    .action-btn.danger:hover { background: var(--red); color: var(--white); }
+
+    /* Live Round */
+    .live-round {
+      padding: 1.5rem;
+    }
+    .round-info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .info-box {
+      text-align: center;
+      padding: 1rem;
+      background: var(--gray-50);
+      border-radius: var(--radius);
+      border: 1px solid var(--gray-100);
+    }
+    .info-box-value {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--gray-900);
+    }
+    .info-box-label {
+      font-size: .75rem;
+      color: var(--gray-500);
+      margin-top: .25rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .info-box-value.highlight { color: var(--orange); }
+    .info-box-value.success { color: var(--green); }
+    .info-box-value.gold { color: var(--gold); }
+
+    .entries-timeline {
+      margin-top: 1rem;
+    }
+    .timeline-label {
+      font-size: .8rem;
+      font-weight: 600;
+      color: var(--gray-600);
+      margin-bottom: .5rem;
+      display: flex;
+      justify-content: space-between;
+    }
+    .timeline-bar {
+      height: 12px;
+      background: var(--gray-100);
+      border-radius: 6px;
+      overflow: hidden;
+      position: relative;
+    }
+    .timeline-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--orange), var(--gold));
+      border-radius: 6px;
+      transition: width .5s ease;
+    }
+    .timeline-markers {
+      display: flex;
+      justify-content: space-between;
+      margin-top: .25rem;
+      font-size: .7rem;
+      color: var(--gray-400);
+    }
+
+    /* Leaderboard Preview */
+    .leaderboard-preview {
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    .lb-row {
+      display: flex;
+      align-items: center;
+      gap: .875rem;
+      padding: .75rem 1.25rem;
+      border-bottom: 1px solid var(--gray-100);
+      transition: background .15s ease;
+    }
+    .lb-row:hover { background: var(--gray-50); }
+    .lb-row:last-child { border-bottom: none; }
+    
+    .lb-rank {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .8rem;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+    .lb-rank.gold { background: var(--gold-light); color: var(--gold); }
+    .lb-rank.silver { background: #e2e8f0; color: var(--gray-500); }
+    .lb-rank.bronze { background: #fed7aa; color: #b45309; }
+    .lb-rank.normal { background: var(--gray-100); color: var(--gray-400); }
+    
+    .lb-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--orange), var(--orange-dark));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--white);
+      font-size: .8rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    
+    .lb-info { flex: 1; min-width: 0; }
+    .lb-name {
+      font-weight: 600;
+      font-size: .85rem;
+      color: var(--gray-900);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .lb-meta { font-size: .75rem; color: var(--gray-500); }
+    
+    .lb-score {
+      text-align: right;
+      font-weight: 700;
+      color: var(--gray-900);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Rounds Table */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: separate; border-spacing: 0; }
+    th {
+      background: var(--gray-50);
+      padding: .875rem 1.25rem;
+      text-align: left;
+      font-size: .75rem;
+      font-weight: 700;
+      color: var(--gray-500);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      border-bottom: 1px solid var(--gray-200);
+    }
+    td {
+      padding: 1rem 1.25rem;
+      font-size: .875rem;
+      color: var(--gray-700);
+      border-bottom: 1px solid var(--gray-100);
+    }
+    tbody tr:hover td { background: var(--gray-50); }
+    tbody tr:last-child td { border-bottom: none; }
+    
+    .status-badge {
+      padding: .3rem .6rem;
+      border-radius: 20px;
+      font-size: .75rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: .3rem;
+    }
+    .badge-active { background: var(--green-light); color: var(--green); }
+    .badge-completed { background: var(--gray-100); color: var(--gray-500); }
+    
+    .winner-cell {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+    .winner-avatar {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--orange), var(--orange-dark));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--white);
+      font-size: .7rem;
+      font-weight: 700;
+    }
+
+    /* Settings */
+    .settings-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      padding: 1.5rem;
+    }
+    .setting-item {
+      display: flex;
+      flex-direction: column;
+      gap: .5rem;
+    }
+    .setting-item label {
+      font-size: .85rem;
+      font-weight: 600;
+      color: var(--gray-700);
+    }
+    .setting-item input, .setting-item select {
+      padding: .6rem .875rem;
+      border: 1.5px solid var(--gray-200);
+      border-radius: var(--radius);
+      font-size: .9rem;
+      outline: none;
+      transition: all .2s ease;
+    }
+    .setting-item input:focus, .setting-item select:focus {
+      border-color: var(--orange);
+      box-shadow: 0 0 0 3px var(--orange-soft);
+    }
+    .setting-hint {
+      font-size: .75rem;
+      color: var(--gray-500);
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(4px);
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity .3s ease;
+    }
+    .modal-overlay.show { display: flex; opacity: 1; }
+    
+    .modal {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow-xl);
+      transform: scale(0.95);
+      transition: transform .3s ease;
+    }
+    .modal-overlay.show .modal { transform: scale(1); }
+    
+    .modal-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--gray-200);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .modal-header h3 { font-size: 1.1rem; font-weight: 700; color: var(--gray-900); }
+    .modal-close {
+      background: var(--gray-100);
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--gray-500);
+      transition: all .2s ease;
+    }
+    .modal-close:hover { background: var(--gray-200); color: var(--gray-700); }
+    
+    .modal-body { padding: 1.5rem; }
+    .modal-footer {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--gray-200);
+      display: flex;
+      justify-content: flex-end;
+      gap: .75rem;
+    }
+    .btn {
+      padding: .6rem 1.25rem;
+      border-radius: var(--radius);
+      font-size: .875rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all .2s ease;
+    }
+    .btn-secondary { background: var(--gray-100); color: var(--gray-700); }
+    .btn-secondary:hover { background: var(--gray-200); }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--orange) 0%, var(--orange-dark) 100%);
+      color: var(--white);
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(249,115,22,0.3); }
+    .btn-danger { background: var(--red-light); color: var(--red); }
+    .btn-danger:hover { background: var(--red); color: var(--white); }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: var(--gray-900);
+      color: var(--white);
+      padding: 1rem 1.5rem;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      z-index: 4000;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all .3s ease;
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      font-weight: 500;
+      font-size: .9rem;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.success { background: var(--green); }
+    .toast.error { background: var(--red); }
+
+    .hidden { display: none !important; }
+    
+    .empty-state {
+      text-align: center;
+      padding: 3rem 2rem;
+      color: var(--gray-500);
+    }
+    .empty-state i { font-size: 2.5rem; margin-bottom: 1rem; color: var(--gray-300); }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo-wrap">
+    <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" alt="TaskVault"/>
+    <h1>TaskVault <span class="admin-badge">ADMIN</span></h1>
+  </div>
+  <div class="header-btns">
+    <a href="admin-users.html" class="header-btn">
+      <i class="ri-user-line"></i> Users
+    </a>
+    <a href="admin-withdrawals.html" class="header-btn">
+      <i class="ri-bank-card-line"></i> Withdrawals
+    </a>
+    <button class="header-btn" onclick="signOutUser()">
+      <i class="ri-logout-box-line"></i> Sign Out
+    </button>
+  </div>
+</header>
+
+<div class="container">
+  <!-- Stats Cards -->
+  <div class="stats-grid" id="statsGrid">
+    <div class="stat-card revenue">
+      <div class="stat-header">
+        <div class="stat-icon"><i class="ri-money-dollar-circle-line"></i></div>
+      </div>
+      <div class="stat-info">
+        <h3>Total Revenue</h3>
+        <div class="stat-value" id="statRevenue">$0.00</div>
+        <div class="stat-change stat-up">From entry fees</div>
+      </div>
+    </div>
+    <div class="stat-card players">
+      <div class="stat-header">
+        <div class="stat-icon"><i class="ri-user-star-line"></i></div>
+      </div>
+      <div class="stat-info">
+        <h3>Total Players</h3>
+        <div class="stat-value" id="statPlayers">0</div>
+        <div class="stat-change stat-up">Unique players</div>
+      </div>
+    </div>
+    <div class="stat-card rounds">
+      <div class="stat-header">
+        <div class="stat-icon"><i class="ri-gamepad-line"></i></div>
+      </div>
+      <div class="stat-info">
+        <h3>Rounds Completed</h3>
+        <div class="stat-value" id="statRounds">0</div>
+        <div class="stat-change">All time</div>
+      </div>
+    </div>
+    <div class="stat-card prizes">
+      <div class="stat-header">
+        <div class="stat-icon"><i class="ri-trophy-line"></i></div>
+      </div>
+      <div class="stat-info">
+        <h3>Prizes Paid</h3>
+        <div class="stat-value" id="statPrizes">$0.00</div>
+        <div class="stat-change stat-down">To winners</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Live Round Section -->
+  <div class="section">
+    <div class="section-header">
+      <h2><i class="ri-flashlight-fill"></i> Live Round</h2>
+      <div class="section-actions">
+        <button class="action-btn danger" onclick="forceEndRound()">
+          <i class="ri-stop-circle-line"></i> Force End
+        </button>
+        <button class="action-btn primary" onclick="refreshLiveRound()">
+          <i class="ri-refresh-line"></i> Refresh
+        </button>
+      </div>
+    </div>
+    <div class="live-round" id="liveRoundSection">
+      <div class="round-info-grid">
+        <div class="info-box">
+          <div class="info-box-value highlight" id="liveRoundNum">—</div>
+          <div class="info-box-label">Round Number</div>
+        </div>
+        <div class="info-box">
+          <div class="info-box-value" id="liveEntries">0 / 20</div>
+          <div class="info-box-label">Entries</div>
+        </div>
+        <div class="info-box">
+          <div class="info-box-value success" id="livePool">$0.00</div>
+          <div class="info-box-label">Prize Pool</div>
+        </div>
+        <div class="info-box">
+          <div class="info-box-value gold" id="liveTimeLeft">--:--:--</div>
+          <div class="info-box-label">Time Left</div>
+        </div>
+      </div>
+      
+      <div class="entries-timeline">
+        <div class="timeline-label">
+          <span>Progress to 20 entries</span>
+          <span id="progressPercent">0%</span>
+        </div>
+        <div class="timeline-bar">
+          <div class="timeline-fill" id="progressBar" style="width:0%"></div>
+        </div>
+        <div class="timeline-markers">
+          <span>0</span><span>5</span><span>10</span><span>15</span><span>20</span>
+        </div>
+      </div>
+
+      <div class="section-header" style="margin-top: 1.5rem; border-radius: var(--radius) var(--radius) 0 0;">
+        <h2><i class="ri-bar-chart-grouped-fill"></i> Current Leaderboard</h2>
+        <span class="leaderboard-count" id="livePlayerCount">0 players</span>
+      </div>
+      <div class="leaderboard-preview" id="liveLeaderboard">
+        <div class="empty-state">
+          <i class="ri-emotion-sad-line"></i>
+          <p>No entries in current round yet</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Rounds -->
+  <div class="section">
+    <div class="section-header">
+      <h2><i class="ri-history-line"></i> Recent Rounds</h2>
+      <div class="section-actions">
+        <button class="action-btn secondary" onclick="loadRecentRounds()">
+          <i class="ri-refresh-line"></i> Refresh
+        </button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Round</th>
+            <th>Status</th>
+            <th>Entries</th>
+            <th>Prize Pool</th>
+            <th>Winner (1st)</th>
+            <th>Score</th>
+            <th>Prize</th>
+            <th>Ended</th>
+          </tr>
+        </thead>
+        <tbody id="roundsTableBody">
+          <tr>
+            <td colspan="8" style="text-align:center;color:var(--gray-500);padding:2rem;">
+              <i class="ri-loader-4-line ri-spin" style="font-size:1.5rem;display:block;margin-bottom:.5rem;"></i>
+              Loading rounds...
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Game Settings -->
+  <div class="section">
+    <div class="section-header">
+      <h2><i class="ri-settings-3-line"></i> Game Settings</h2>
+      <div class="section-actions">
+        <button class="action-btn primary" onclick="saveSettings()">
+          <i class="ri-save-line"></i> Save Changes
+        </button>
+      </div>
+    </div>
+    <div class="settings-grid">
+      <div class="setting-item">
+        <label>Entry Fee ($)</label>
+        <input type="number" id="settingEntryFee" value="0.05" step="0.01" min="0.01"/>
+        <span class="setting-hint">Cost per game entry</span>
+      </div>
+      <div class="setting-item">
+        <label>Max Entries Per Round</label>
+        <input type="number" id="settingMaxEntries" value="20" min="5" max="100"/>
+        <span class="setting-hint">Entries needed to auto-end round</span>
+      </div>
+      <div class="setting-item">
+        <label>Round Duration (hours)</label>
+        <input type="number" id="settingDuration" value="24" min="1" max="72"/>
+        <span class="setting-hint">Max time before force reset</span>
+      </div>
+      <div class="setting-item">
+        <label>1st Place Prize ($)</label>
+        <input type="number" id="settingPrize1" value="0.40" step="0.05" min="0"/>
+        <span class="setting-hint">Winner prize amount</span>
+      </div>
+      <div class="setting-item">
+        <label>2nd Place Prize ($)</label>
+        <input type="number" id="settingPrize2" value="0.30" step="0.05" min="0"/>
+        <span class="setting-hint">Runner-up prize</span>
+      </div>
+      <div class="setting-item">
+        <label>3rd Place Prize ($)</label>
+        <input type="number" id="settingPrize3" value="0.15" step="0.05" min="0"/>
+        <span class="setting-hint">Third place prize</span>
+      </div>
+      <div class="setting-item">
+        <label>Game Status</label>
+        <select id="settingGameStatus">
+          <option value="active">Active (Players can enter)</option>
+          <option value="maintenance">Maintenance (Game disabled)</option>
+        </select>
+        <span class="setting-hint">Temporarily disable the game</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Force End Confirmation Modal -->
+<div class="modal-overlay" id="forceEndModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3><i class="ri-alert-line" style="color:var(--red);"></i> Force End Round?</h3>
+      <button class="modal-close" onclick="closeModal('forceEndModal')">
+        <i class="ri-close-line"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p>This will immediately end the current round and distribute prizes to the top 3 players. This action cannot be undone.</p>
+      <p style="margin-top:1rem;color:var(--gray-600);font-size:.9rem;">
+        <strong>Current Round:</strong> <span id="modalRoundNum">—</span><br>
+        <strong>Entries:</strong> <span id="modalEntries">0</span><br>
+        <strong>Prize Pool:</strong> <span id="modalPool">$0.00</span>
+      </p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('forceEndModal')">Cancel</button>
+      <button class="btn btn-danger" onclick="confirmForceEnd()">Force End Round</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+  import {
+    getFirestore, doc, getDoc, collection, query, where, getDocs,
+    orderBy, limit, updateDoc, serverTimestamp, onSnapshot, increment
+  } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAv6QCpopa0Q77AVTyjU5cqJEIKIE9OVTs",
+    authDomain: "taskvault-412a0.firebaseapp.com",
+    projectId: "taskvault-412a0",
+    storageBucket: "taskvault-412a0.firebasestorage.app",
+    messagingSenderId: "420716701831",
+    appId: "1:420716701831:web:c987d91f7f4c8684eb7022"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  const ADMIN_EMAIL = "beniwealth70@gmail.com";
+
+  let currentUser = null;
+  let currentRound = null;
+  let unsubscribeLive = null;
+  let liveCountdownInterval = null;
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { location.href = 'login.html'; return; }
+    if (user.email?.toLowerCase() !== ADMIN_EMAIL) {
+      alert('Unauthorized access');
+      signOut(auth).then(() => location.href = 'login.html');
+      return;
+    }
+    currentUser = user;
+    await initialize();
+  });
+
+  async function initialize() {
+    await Promise.all([
+      loadStats(),
+      loadLiveRound(),
+      loadRecentRounds()
+    ]);
+  }
+
+  // Stats
+  async function loadStats() {
+    try {
+      // Total revenue (entry fees)
+      const entryQuery = query(collection(db, 'gameHistory'), where('type', '==', 'entry'));
+      const entrySnap = await getDocs(entryQuery);
+      let revenue = 0;
+      entrySnap.forEach(d => revenue += Math.abs(d.data().amount || 0));
+
+      // Total prizes paid
+      const prizeQuery = query(collection(db, 'gameHistory'), where('type', '==', 'prize'));
+      const prizeSnap = await getDocs(prizeQuery);
+      let prizes = 0;
+      prizeSnap.forEach(d => prizes += d.data().amount || 0);
+
+      // Unique players
+      const usersQuery = query(collection(db, 'users'));
+      const usersSnap = await getDocs(usersQuery);
+      let players = 0;
+      usersSnap.forEach(d => {
+        const data = d.data();
+        if (data.totalGameWon !== undefined || data.gameEntries !== undefined) players++;
+      });
+
+      // Completed rounds
+      const roundsQuery = query(collection(db, 'gameRounds'), where('status', '==', 'completed'));
+      const roundsSnap = await getDocs(roundsQuery);
+
+      document.getElementById('statRevenue').textContent = `$${revenue.toFixed(2)}`;
+      document.getElementById('statPrizes').textContent = `$${prizes.toFixed(2)}`;
+      document.getElementById('statPlayers').textContent = players;
+      document.getElementById('statRounds').textContent = roundsSnap.size;
+
+    } catch (err) {
+      console.error('Stats error:', err);
+    }
+  }
+
+  // Live Round
+  async function loadLiveRound() {
+    if (unsubscribeLive) unsubscribeLive();
+
+    // Get active round (no composite index needed)
+    const activeQuery = query(collection(db, 'gameRounds'), where('status', '==', 'active'));
+    const snap = await getDocs(activeQuery);
+
+    let activeRounds = [];
+    snap.forEach(d => activeRounds.push({ id: d.id, ...d.data() }));
+    activeRounds.sort((a, b) => {
+      const aTime = a.createdAt?.toDate?.() || new Date(0);
+      const bTime = b.createdAt?.toDate?.() || new Date(0);
+      return bTime - aTime;
+    });
+
+    if (activeRounds.length === 0) {
+      document.getElementById('liveRoundSection').innerHTML = `
+        <div class="empty-state">
+          <i class="ri-gamepad-line"></i>
+          <p>No active round. Players will create one when they enter.</p>
+        </div>
+      `;
+      return;
+    }
+
+    currentRound = activeRounds[0];
+    updateLiveRoundUI();
+
+    // Subscribe to entries
+    const entriesQuery = query(collection(db, 'gameRounds', currentRound.id, 'entries'));
+    unsubscribeLive = onSnapshot(entriesQuery, (entriesSnap) => {
+      let entries = [];
+      entriesSnap.forEach(d => entries.push({ id: d.id, ...d.data() }));
+      entries.sort((a, b) => (b.score || 0) - (a.score || 0));
+      
+      renderLiveLeaderboard(entries);
+      updateLiveStats(entries.length);
+    });
+
+    // Start countdown
+    startLiveCountdown();
+  }
+
+  function updateLiveRoundUI() {
+    if (!currentRound) return;
+    
+    document.getElementById('liveRoundNum').textContent = `#${currentRound.roundNumber || '—'}`;
+    
+    const entryCount = currentRound.entryCount || 0;
+    document.getElementById('liveEntries').textContent = `${entryCount} / 20`;
+    
+    const pool = entryCount * 0.05;
+    document.getElementById('livePool').textContent = `$${pool.toFixed(2)}`;
+    
+    const progress = Math.min((entryCount / 20) * 100, 100);
+    document.getElementById('progressBar').style.width = `${progress}%`;
+    document.getElementById('progressPercent').textContent = `${Math.round(progress)}%`;
+  }
+
+  function updateLiveStats(count) {
+    document.getElementById('livePlayerCount').textContent = `${count} player${count !== 1 ? 's' : ''}`;
+    updateLiveRoundUI();
+  }
+
+  function renderLiveLeaderboard(entries) {
+    const container = document.getElementById('liveLeaderboard');
+    
+    if (entries.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <i class="ri-emotion-sad-line"></i>
+          <p>No entries in current round yet</p>
+        </div>
+      `;
+      return;
+    }
+
+    let html = '';
+    entries.slice(0, 10).forEach((entry, index) => {
+      const rank = index + 1;
+      const rankClass = rank === 1 ? 'gold' : rank === 2 ? 'silver' : rank === 3 ? 'bronze' : 'normal';
+      const name = entry.username || 'Unknown';
+      const initial = name.charAt(0).toUpperCase();
+
+      html += `
+        <div class="lb-row">
+          <div class="lb-rank ${rankClass}">${rank}</div>
+          <div class="lb-avatar">${initial}</div>
+          <div class="lb-info">
+            <div class="lb-name">${escapeHtml(name)}</div>
+            <div class="lb-meta">Attempt #${entry.attemptNumber || 1}</div>
+          </div>
+          <div class="lb-score">${(entry.score || 0).toLocaleString()} pts</div>
+        </div>
+      `;
+    });
+
+    if (entries.length > 10) {
+      html += `<div style="text-align:center;padding:1rem;color:var(--gray-500);font-size:.85rem;">+ ${entries.length - 10} more players</div>`;
+    }
+
+    container.innerHTML = html;
+  }
+
+  function startLiveCountdown() {
+    if (liveCountdownInterval) clearInterval(liveCountdownInterval);
+    
+    const updateTimer = () => {
+      if (!currentRound || !currentRound.createdAt) return;
+      
+      const now = new Date();
+      const createdAt = currentRound.createdAt.toDate ? currentRound.createdAt.toDate() : new Date();
+      const elapsed = now - createdAt;
+      const remaining = Math.max(0, (24 * 60 * 60 * 1000) - elapsed);
+      
+      const hours = Math.floor(remaining / (1000 * 60 * 60));
+      const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
+      
+      document.getElementById('liveTimeLeft').textContent = 
+        `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    };
+    
+    updateTimer();
+    liveCountdownInterval = setInterval(updateTimer, 1000);
+  }
+
+  // Recent Rounds
+  async function loadRecentRounds() {
+    const tbody = document.getElementById('roundsTableBody');
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="8" style="text-align:center;color:var(--gray-500);padding:2rem;">
+          <i class="ri-loader-4-line ri-spin" style="font-size:1.5rem;display:block;margin-bottom:.5rem;"></i>
+          Loading rounds...
+        </td>
+      </tr>
+    `;
+
+    try {
+      // Get all rounds, sort client-side
+      const allRoundsSnap = await getDocs(collection(db, 'gameRounds'));
+      let rounds = [];
+      allRoundsSnap.forEach(d => rounds.push({ id: d.id, ...d.data() }));
+      
+      // Sort by round number desc
+      rounds.sort((a, b) => (b.roundNumber || 0) - (a.roundNumber || 0));
+      rounds = rounds.slice(0, 20); // Last 20
+
+      if (rounds.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="8" class="empty-state">
+              <i class="ri-history-line"></i>
+              <p>No rounds completed yet</p>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      let html = '';
+      for (const round of rounds) {
+        const status = round.status || 'unknown';
+        const entryCount = round.entryCount || 0;
+        const pool = entryCount * 0.05;
+        const winners = round.winners || [];
+        const firstWinner = winners[0];
+        const endedAt = round.endsAt?.toDate?.() || round.createdAt?.toDate?.();
+        const endedStr = endedAt ? endedAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—';
+
+        html += `
+          <tr>
+            <td><strong>#${round.roundNumber || '—'}</strong></td>
+            <td>
+              <span class="status-badge ${status === 'active' ? 'badge-active' : 'badge-completed'}">
+                <i class="ri-${status === 'active' ? 'checkbox-circle' : 'check-double'}-line"></i>
+                ${status}
+              </span>
+            </td>
+            <td>${entryCount}</td>
+            <td>$${pool.toFixed(2)}</td>
+            <td>
+              ${firstWinner ? `
+                <div class="winner-cell">
+                  <div class="winner-avatar">${(firstWinner.username || 'U').charAt(0).toUpperCase()}</div>
+                  <span>${escapeHtml(firstWinner.username || 'Unknown')}</span>
+                </div>
+              ` : '—'}
+            </td>
+            <td>${firstWinner ? firstWinner.score?.toLocaleString() : '—'}</td>
+            <td>${firstWinner ? `$${firstWinner.prize?.toFixed(2)}` : '—'}</td>
+            <td>${endedStr}</td>
+          </tr>
+        `;
+      }
+
+      tbody.innerHTML = html;
+
+    } catch (err) {
+      console.error('Rounds error:', err);
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="8" style="text-align:center;color:var(--red);padding:2rem;">
+            <i class="ri-error-warning-line" style="font-size:1.5rem;display:block;margin-bottom:.5rem;"></i>
+            Failed to load rounds
+          </td>
+        </tr>
+      `;
+    }
+  }
+
+  // Force End Round
+  window.forceEndRound = function() {
+    if (!currentRound) {
+      showToast('No active round to end', 'error');
+      return;
+    }
+    
+    document.getElementById('modalRoundNum').textContent = `#${currentRound.roundNumber || '—'}`;
+    document.getElementById('modalEntries').textContent = currentRound.entryCount || 0;
+    document.getElementById('modalPool').textContent = `$${((currentRound.entryCount || 0) * 0.05).toFixed(2)}`;
+    
+    document.getElementById('forceEndModal').classList.add('show');
+  };
+
+  window.confirmForceEnd = async function() {
+    if (!currentRound) return;
+    
+    closeModal('forceEndModal');
+    
+    try {
+      // Get all entries for this round
+      const entriesSnap = await getDocs(collection(db, 'gameRounds', currentRound.id, 'entries'));
+      let entries = [];
+      entriesSnap.forEach(d => entries.push({ id: d.id, ...d.data() }));
+      entries.sort((a, b) => (b.score || 0) - (a.score || 0));
+      
+      const winners = [];
+      const prizes = [0.40, 0.30, 0.15];
+      
+      for (let i = 0; i < Math.min(3, entries.length); i++) {
+        const entry = entries[i];
+        const prize = prizes[i] || 0;
+        winners.push({
+          rank: i + 1,
+          userId: entry.userId,
+          username: entry.username,
+          score: entry.score || 0,
+          prize: prize
+        });
+        
+        // Credit prize
+        await updateDoc(doc(db, 'users', entry.userId), {
+          balance: increment(prize),
+          totalGameWon: increment(prize)
+        });
+        
+        // Add to history
+        await addDoc(collection(db, 'gameHistory'), {
+          userId: entry.userId,
+          roundId: currentRound.id,
+          type: 'prize',
+          amount: prize,
+          rank: i + 1,
+          score: entry.score || 0,
+          timestamp: serverTimestamp()
+        });
+      }
+      
+      // Mark round complete
+      await updateDoc(doc(db, 'gameRounds', currentRound.id), {
+        status: 'completed',
+        endsAt: serverTimestamp(),
+        winners: winners,
+        forcedEnd: true,
+        endedBy: currentUser.email
+      });
+      
+      showToast('Round ended and prizes distributed', 'success');
+      
+      // Refresh
+      setTimeout(() => {
+        loadStats();
+        loadLiveRound();
+        loadRecentRounds();
+      }, 1000);
+      
+    } catch (err) {
+      console.error('Force end error:', err);
+      showToast('Failed to end round: ' + err.message, 'error');
+    }
+  };
+
+  // Settings
+  window.saveSettings = async function() {
+    const settings = {
+      entryFee: parseFloat(document.getElementById('settingEntryFee').value) || 0.05,
+      maxEntries: parseInt(document.getElementById('settingMaxEntries').value) || 20,
+      duration: parseInt(document.getElementById('settingDuration').value) || 24,
+      prize1: parseFloat(document.getElementById('settingPrize1').value) || 0.40,
+      prize2: parseFloat(document.getElementById('settingPrize2').value) || 0.30,
+      prize3: parseFloat(document.getElementById('settingPrize3').value) || 0.15,
+      gameStatus: document.getElementById('settingGameStatus').value,
+      updatedAt: serverTimestamp(),
+      updatedBy: currentUser.email
+    };
+    
+    try {
+      await updateDoc(doc(db, 'gameSettings', 'default'), settings);
+      showToast('Settings saved successfully', 'success');
+    } catch (err) {
+      console.error('Save settings error:', err);
+      showToast('Failed to save settings', 'error');
+    }
+  };
+
+  // Utilities
+  window.refreshLiveRound = function() {
+    loadLiveRound();
+    showToast('Live round refreshed', 'success');
+  };
+
+  window.closeModal = function(id) {
+    document.getElementById(id).classList.remove('show');
+  };
+
+  window.signOutUser = function() {
+    signOut(auth).then(() => location.href = 'login.html');
+  };
+
+  function showToast(message, type = 'success') {
+    const toast = document.getElementById('toast');
+    toast.innerHTML = `<i class="ri-${type === 'success' ? 'checkbox-circle' : 'error-warning'}-line"></i> ${message}`;
+    toast.className = `toast ${type} show`;
+    setTimeout(() => toast.classList.remove('show'), 3000);
+  }
+
+  function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  // Close modal on backdrop click
+  document.getElementById('forceEndModal').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('forceEndModal')) {
+      closeModal('forceEndModal');
+    }
+  });
+</script>
+
+</body>
+</html>
