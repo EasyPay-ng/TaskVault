@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
+  <title>TaskVault – Vault Rush</title>
+  <link rel="icon" type="image/jpeg" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg"/>
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet"/>
+  <style>
+    :root {
+      --orange: #f97316;
+      --orange-dark: #ea580c;
+      --gold: #f59e0b;
+      --green: #10b981;
+      --red: #ef4444;
+      --purple: #8b5cf6;
+      --blue: #3b82f6;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, sans-serif; }
+    body {
+      background: #0f172a;
+      color: #fff;
+      overflow: hidden;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    #gameCanvas {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    /* HUD Overlay */
+    #hud {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      pointer-events: none;
+      z-index: 10;
+    }
+    .hud-item {
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(8px);
+      padding: .5rem 1rem;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .hud-label {
+      font-size: .65rem;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .hud-value {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #fff;
+      font-variant-numeric: tabular-nums;
+    }
+    .hud-score { color: var(--gold); }
+    .hud-time { color: var(--orange); }
+    .hud-combo { color: var(--green); }
+
+    /* Power-up indicators */
+    #powerups {
+      position: fixed;
+      top: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: .5rem;
+      pointer-events: none;
+      z-index: 10;
+    }
+    .powerup-badge {
+      padding: .35rem .75rem;
+      border-radius: 20px;
+      font-size: .75rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: .35rem;
+      animation: popIn .3s ease;
+    }
+    .powerup-2x { background: rgba(245, 158, 11, 0.2); color: var(--gold); border: 1px solid var(--gold); }
+    .powerup-magnet { background: rgba(139, 92, 246, 0.2); color: var(--purple); border: 1px solid var(--purple); }
+    .powerup-shield { background: rgba(59, 130, 246, 0.2); color: var(--blue); border: 1px solid var(--blue); }
+    .powerup-frenzy { background: rgba(249, 115, 22, 0.2); color: var(--orange); border: 1px solid var(--orange); }
+    .powerup-slowmo { background: rgba(16, 185, 129, 0.2); color: var(--green); border: 1px solid var(--green); }
+
+    @keyframes popIn {
+      from { transform: scale(0); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    /* Start Screen */
+    #startScreen, #gameOverScreen {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.95);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 2rem;
+    }
+    #gameOverScreen { display: none; }
+
+    .screen-title {
+      font-size: 2.5rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--orange), var(--gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: .5rem;
+    }
+    .screen-subtitle {
+      color: #94a3b8;
+      font-size: 1rem;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
+    .controls-info {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+      max-width: 320px;
+    }
+    .control-item {
+      background: rgba(255,255,255,0.05);
+      padding: 1rem;
+      border-radius: 12px;
+      text-align: center;
+    }
+    .control-icon {
+      font-size: 1.5rem;
+      margin-bottom: .5rem;
+    }
+    .control-text {
+      font-size: .8rem;
+      color: #cbd5e1;
+    }
+
+    .btn {
+      padding: 1rem 2.5rem;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all .2s ease;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--orange), var(--orange-dark));
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(249,115,22,0.3);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(249,115,22,0.4); }
+
+    .final-score {
+      font-size: 4rem;
+      font-weight: 900;
+      color: var(--gold);
+      margin: 1rem 0;
+    }
+    .score-breakdown {
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      min-width: 280px;
+    }
+    .breakdown-row {
+      display: flex;
+      justify-content: space-between;
+      padding: .5rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .breakdown-row:last-child { border-bottom: none; }
+    .breakdown-label { color: #94a3b8; font-size: .9rem; }
+    .breakdown-value { font-weight: 700; }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+<canvas id="gameCanvas"></canvas>
+
+<!-- HUD -->
+<div id="hud" class="hidden">
+  <div class="hud-item">
+    <div class="hud-label">Score</div>
+    <div class="hud-value hud-score" id="scoreDisplay">0</div>
+  </div>
+  <div class="hud-item">
+    <div class="hud-label">Time</div>
+    <div class="hud-value hud-time" id="timeDisplay">60</div>
+  </div>
+  <div class="hud-item">
+    <div class="hud-label">Combo</div>
+    <div class="hud-value hud-combo" id="comboDisplay">x1</div>
+  </div>
+</div>
+
+<div id="powerups"></div>
+
+<!-- Start Screen -->
+<div id="startScreen">
+  <div class="screen-title">Vault Rush</div>
+  <div class="screen-subtitle">Entry #<span id="attemptNum">1</span> — Round #<span id="roundNum">—</span></div>
+  
+  <div class="controls-info">
+    <div class="control-item">
+      <div class="control-icon">👆</div>
+      <div class="control-text">Tap left/right<br>or use arrow keys</div>
+    </div>
+    <div class="control-item">
+      <div class="control-icon">⚡</div>
+      <div class="control-text">Collect coins<br>Grab power-ups</div>
+    </div>
+    <div class="control-item">
+      <div class="control-icon">💀</div>
+      <div class="control-text">Dodge red spikes<br>Don't get hit!</div>
+    </div>
+    <div class="control-item">
+      <div class="control-icon">🔥</div>
+      <div class="control-text">Build combos<br>Maximize score</div>
+    </div>
+  </div>
+
+  <button class="btn btn-primary" onclick="startGame()">
+    <i class="ri-play-fill"></i> START GAME
+  </button>
+</div>
+
+<!-- Game Over Screen -->
+<div id="gameOverScreen">
+  <div class="screen-title">Time's Up!</div>
+  <div class="final-score" id="finalScore">0</div>
+  
+  <div class="score-breakdown">
+    <div class="breakdown-row">
+      <span class="breakdown-label">Coins Collected</span>
+      <span class="breakdown-value" id="statCoins">0</span>
+    </div>
+    <div class="breakdown-row">
+      <span class="breakdown-label">Diamonds</span>
+      <span class="breakdown-value" id="statDiamonds">0</span>
+    </div>
+    <div class="breakdown-row">
+      <span class="breakdown-label">Max Combo</span>
+      <span class="breakdown-value" id="statMaxCombo">x1</span>
+    </div>
+    <div class="breakdown-row">
+      <span class="breakdown-label">Power-ups</span>
+      <span class="breakdown-value" id="statPowerups">0</span>
+    </div>
+    <div class="breakdown-row">
+      <span class="breakdown-label">Base Score</span>
+      <span class="breakdown-value" id="statBase">0</span>
+    </div>
+    <div class="breakdown-row">
+      <span class="breakdown-label">Combo Bonus</span>
+      <span class="breakdown-value" id="statComboBonus">0</span>
+    </div>
+    <div class="breakdown-row" style="border-top: 2px solid var(--orange); margin-top: .5rem; padding-top: .75rem;">
+      <span class="breakdown-label" style="color: var(--gold); font-weight: 700;">FINAL SCORE</span>
+      <span class="breakdown-value" style="color: var(--gold); font-size: 1.1rem;" id="statFinal">0</span>
+    </div>
+  </div>
+
+  <button class="btn btn-primary" onclick="submitScore()" id="submitBtn">
+    <i class="ri-save-line"></i> SAVE SCORE
+  </button>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+  import {
+    getFirestore, doc, getDoc, updateDoc, serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAv6QCpopa0Q77AVTyjU5cqJEIKIE9OVTs",
+    authDomain: "taskvault-412a0.firebaseapp.com",
+    projectId: "taskvault-412a0",
+    storageBucket: "taskvault-412a0.firebasestorage.app",
+    messagingSenderId: "420716701831",
+    appId: "1:420716701831:web:c987d91f7f4c8684eb7022"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // Game state
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+  
+  let gameState = 'start'; // start, playing, over
+  let score = 0;
+  let timeLeft = 60;
+  let combo = 0;
+  let maxCombo = 1;
+  let coinsCollected = 0;
+  let diamondsCollected = 0;
+  let powerupsCollected = 0;
+  let comboBonus = 0;
+  
+  // Player
+  let player = { x: 0, y: 0, width: 50, height: 50, speed: 8, shield: false };
+  let targetX = null;
+  
+  // Entities
+  let coins = [];
+  let diamonds = [];
+  let spikes = [];
+  let powerups = [];
+  let particles = [];
+  
+  // Power-up states
+  let activePowerups = {
+    double: 0,    // frames remaining
+    magnet: 0,
+    shield: 0,
+    frenzy: 0,
+    slowmo: 0
+  };
+  
+  // Game loop
+  let animationId = null;
+  let lastTime = 0;
+  let spawnTimer = 0;
+  let gameTime = 0;
+  
+  // Entry data from lobby
+  const entryId = sessionStorage.getItem('currentEntryId');
+  const roundId = sessionStorage.getItem('currentRoundId');
+  const attemptNumber = parseInt(sessionStorage.getItem('currentAttempt')) || 1;
+
+  // Auth check
+  onAuthStateChanged(auth, (user) => {
+    if (!user) { location.href = 'login.html'; return; }
+    if (!entryId || !roundId) { location.href = 'game-lobby.html'; return; }
+    
+    document.getElementById('attemptNum').textContent = attemptNumber;
+    document.getElementById('roundNum').textContent = roundId.slice(-6).toUpperCase();
+    
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+  });
+
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    player.y = canvas.height - 120;
+    if (targetX === null) {
+      player.x = canvas.width / 2 - player.width / 2;
+      targetX = player.x;
+    }
+  }
+
+  // Input handling
+  canvas.addEventListener('touchstart', handleTouch, { passive: false });
+  canvas.addEventListener('touchmove', handleTouch, { passive: false });
+  canvas.addEventListener('mousedown', handleMouse);
+  window.addEventListener('keydown', handleKey);
+
+  function handleTouch(e) {
+    e.preventDefault();
+    const touch = e.touches[0];
+    targetX = touch.clientX - player.width / 2;
+  }
+
+  function handleMouse(e) {
+    targetX = e.clientX - player.width / 2;
+  }
+
+  function handleKey(e) {
+    const speed = activePowerups.slowmo > 0 ? player.speed * 0.5 : player.speed;
+    if (e.key === 'ArrowLeft' || e.key === 'a') targetX = player.x - speed * 3;
+    if (e.key === 'ArrowRight' || e.key === 'd') targetX = player.x + speed * 3;
+  }
+
+  window.startGame = function() {
+    document.getElementById('startScreen').classList.add('hidden');
+    document.getElementById('hud').classList.remove('hidden');
+    
+    gameState = 'playing';
+    score = 0;
+    timeLeft = 60;
+    combo = 0;
+    maxCombo = 1;
+    coinsCollected = 0;
+    diamondsCollected = 0;
+    powerupsCollected = 0;
+    comboBonus = 0;
+    coins = [];
+    diamonds = [];
+    spikes = [];
+    powerups = [];
+    particles = [];
+    activePowerups = { double: 0, magnet: 0, shield: 0, frenzy: 0, slowmo: 0 };
+    gameTime = 0;
+    spawnTimer = 0;
+    
+    updateHUD();
+    lastTime = performance.now();
+    animationId = requestAnimationFrame(gameLoop);
+    
+    // Countdown timer
+    const timerInterval = setInterval(() => {
+      if (gameState !== 'playing') {
+        clearInterval(timerInterval);
+        return;
+      }
+      timeLeft--;
+      updateHUD();
+      if (timeLeft <= 0) {
+        clearInterval(timerInterval);
+        endGame();
+      }
+    }, 1000);
+  };
+
+  function gameLoop(timestamp) {
+    if (gameState !== 'playing') return;
+    
+    const dt = (timestamp - lastTime) / 16.67; // Normalize to ~60fps
+    lastTime = timestamp;
+    gameTime += dt;
+    
+    const timeScale = activePowerups.slowmo > 0 ? 0.5 : 1;
+    const adjustedDt = dt * timeScale;
+    
+    update(adjustedDt);
+    render();
+    
+    animationId = requestAnimationFrame(gameLoop);
+  }
+
+  function update(dt) {
+    // Move player toward target
+    const dx = targetX - player.x;
+    player.x += dx * 0.15 * dt;
+    player.x = Math.max(0, Math.min(canvas.width - player.width, player.x));
+    
+    // Update power-up timers
+    Object.keys(activePowerups).forEach(key => {
+      if (activePowerups[key] > 0) {
+        activePowerups[key] -= dt;
+        if (activePowerups[key] <= 0) {
+          activePowerups[key] = 0;
+          updatePowerupBadges();
+        }
+      }
+    });
+    
+    // Spawn entities
+    spawnTimer += dt;
+    const spawnRate = activePowerups.frenzy > 0 ? 8 : 12;
+    if (spawnTimer >= spawnRate) {
+      spawnTimer = 0;
+      spawnEntity();
+    }
+    
+    // Update entities
+    const fallSpeed = activePowerups.slowmo > 0 ? 2 : (activePowerups.frenzy > 0 ? 6 : 4);
+    
+    [...coins, ...diamonds, ...spikes, ...powerups].forEach(entity => {
+      entity.y += fallSpeed * dt;
+    });
+    
+    // Magnet effect
+    if (activePowerups.magnet > 0) {
+      [...coins, ...diamonds].forEach(entity => {
+        const dist = Math.hypot(entity.x - (player.x + player.width/2), entity.y - (player.y + player.height/2));
+        if (dist < 200) {
+          entity.x += (player.x + player.width/2 - entity.x) * 0.1 * dt;
+          entity.y += (player.y + player.height/2 - entity.y) * 0.1 * dt;
+        }
+      });
+    }
+    
+    // Check collisions
+    checkCollisions();
+    
+    // Update particles
+    particles = particles.filter(p => p.life > 0);
+    particles.forEach(p => {
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.life -= dt;
+      p.alpha = p.life / p.maxLife;
+    });
+    
+    // Remove off-screen entities
+    const offScreen = canvas.height + 50;
+    coins = coins.filter(c => c.y < offScreen);
+    diamonds = diamonds.filter(d => d.y < offScreen);
+    spikes = spikes.filter(s => s.y < offScreen);
+    powerups = powerups.filter(p => p.y < offScreen);
+  }
+
+  function spawnEntity() {
+    const x = Math.random() * (canvas.width - 40) + 20;
+    const rand = Math.random();
+    
+    if (rand < 0.55) {
+      // Coin (55%)
+      coins.push({ x, y: -30, width: 30, height: 30, type: 'coin' });
+    } else if (rand < 0.70) {
+      // Diamond (15%)
+      diamonds.push({ x, y: -30, width: 25, height: 25, type: 'diamond' });
+    } else if (rand < 0.88) {
+      // Spike (18%)
+      spikes.push({ x, y: -30, width: 35, height: 35, type: 'spike' });
+    } else {
+      // Power-up (12%)
+      const types = ['double', 'magnet', 'shield', 'frenzy', 'slowmo'];
+      const type = types[Math.floor(Math.random() * types.length)];
+      powerups.push({ x, y: -30, width: 35, height: 35, type });
+    }
+  }
+
+  function checkCollisions() {
+    const px = player.x + player.width/2;
+    const py = player.y + player.height/2;
+    
+    // Coins
+    coins.forEach((coin, i) => {
+      if (rectCircleColliding(coin, player)) {
+        const basePoints = 10;
+        const multiplier = activePowerups.double > 0 ? 2 : 1;
+        const points = basePoints * multiplier * Math.max(1, Math.floor(combo / 10));
+        
+        score += points;
+        combo++;
+        if (combo > maxCombo) maxCombo = combo;
+        coinsCollected++;
+        
+        createParticles(coin.x + coin.width/2, coin.y + coin.height/2, var(--gold));
+        coins.splice(i, 1);
+        updateHUD();
+      }
+    });
+    
+    // Diamonds
+    diamonds.forEach((diamond, i) => {
+      if (rectCircleColliding(diamond, player)) {
+        const basePoints = 50;
+        const multiplier = activePowerups.double > 0 ? 2 : 1;
+        const points = basePoints * multiplier * Math.max(1, Math.floor(combo / 10));
+        
+        score += points;
+        combo += 3;
+        if (combo > maxCombo) maxCombo = combo;
+        diamondsCollected++;
+        
+        createParticles(diamond.x + diamond.width/2, diamond.y + diamond.height/2, '#0ea5e9');
+        diamonds.splice(i, 1);
+        updateHUD();
+      }
+    });
+    
+    // Spikes
+    spikes.forEach((spike, i) => {
+      if (rectCircleColliding(spike, player)) {
+        if (activePowerups.shield > 0 || player.shield) {
+          // Shield absorbs hit
+          activePowerups.shield = 0;
+          player.shield = false;
+          createParticles(spike.x + spike.width/2, spike.y + spike.height/2, var(--blue));
+          spikes.splice(i, 1);
+          updatePowerupBadges();
+        } else {
+          // Hit! Reset combo and lose points
+          combo = 0;
+          score = Math.max(0, score - 50);
+          createParticles(player.x + player.width/2, player.y + player.height/2, var(--red));
+          spikes.splice(i, 1);
+          
+          // Screen shake effect
+          canvas.style.transform = `translate(${Math.random()*10-5}px, ${Math.random()*10-5}px)`;
+          setTimeout(() => canvas.style.transform = '', 200);
+          updateHUD();
+        }
+      }
+    });
+    
+    // Power-ups
+    powerups.forEach((powerup, i) => {
+      if (rectCircleColliding(powerup, player)) {
+        activatePowerup(powerup.type);
+        powerupsCollected++;
+        createParticles(powerup.x + powerup.width/2, powerup.y + powerup.height/2, '#fff');
+        powerups.splice(i, 1);
+      }
+    });
+  }
+
+  function rectCircleColliding(circle, rect) {
+    const distX = Math.abs(circle.x + circle.width/2 - (rect.x + rect.width/2));
+    const distY = Math.abs(circle.y + circle.height/2 - (rect.y + rect.height/2));
+    
+    if (distX > (rect.width/2 + circle.width/2)) return false;
+    if (distY > (rect.height/2 + circle.height/2)) return false;
+    
+    return true;
+  }
+
+  function activatePowerup(type) {
+    const duration = 300; // frames (~5 seconds at 60fps)
+    
+    switch(type) {
+      case 'double': activePowerups.double = duration; break;
+      case 'magnet': activePowerups.magnet = duration; break;
+      case 'shield': activePowerups.shield = duration; player.shield = true; break;
+      case 'frenzy': activePowerups.frenzy = duration; break;
+      case 'slowmo': activePowerups.slowmo = duration; break;
+    }
+    
+    updatePowerupBadges();
+  }
+
+  function updatePowerupBadges() {
+    const container = document.getElementById('powerups');
+    let html = '';
+    
+    const icons = { double: '2x', magnet: '🧲', shield: '🛡️', frenzy: '🔥', slowmo: '⏱️' };
+    const labels = { double: '2x Coins', magnet: 'Magnet', shield: 'Shield', frenzy: 'Frenzy', slowmo: 'Slow-Mo' };
+    
+    Object.keys(activePowerups).forEach(key => {
+      if (activePowerups[key] > 0) {
+        html += `<div class="powerup-badge powerup-${key}">${icons[key]} ${labels[key]}</div>`;
+      }
+    });
+    
+    container.innerHTML = html;
+  }
+
+  function createParticles(x, y, color) {
+    for (let i = 0; i < 8; i++) {
+      particles.push({
+        x, y,
+        vx: (Math.random() - 0.5) * 8,
+        vy: (Math.random() - 0.5) * 8,
+        life: 30,
+        maxLife: 30,
+        alpha: 1,
+        color,
+        size: Math.random() * 4 + 2
+      });
+    }
+  }
+
+  function render() {
+    // Clear with trail effect
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.3)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Draw grid lines (subtle)
+    ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+    ctx.lineWidth = 1;
+    for (let i = 0; i < canvas.width; i += 60) {
+      ctx.beginPath();
+      ctx.moveTo(i, 0);
+      ctx.lineTo(i, canvas.height);
+      ctx.stroke();
+    }
+    
+    // Draw player
+    ctx.save();
+    ctx.translate(player.x + player.width/2, player.y + player.height/2);
+    
+    // Shield glow
+    if (activePowerups.shield > 0 || player.shield) {
+      ctx.beginPath();
+      ctx.arc(0, 0, 40, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(59, 130, 246, 0.5)';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+    }
+    
+    // Player body (vault icon)
+    ctx.fillStyle = '#f97316';
+    ctx.beginPath();
+    roundRect(ctx, -20, -20, 40, 40, 8);
+    ctx.fill();
+    
+    // Inner detail
+    ctx.fillStyle = '#fff';
+    ctx.beginPath();
+    ctx.arc(0, 0, 12, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.fillStyle = '#f97316';
+    ctx.beginPath();
+    ctx.arc(0, 0, 6, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.restore();
+    
+    // Draw coins
+    coins.forEach(coin => {
+      ctx.save();
+      ctx.translate(coin.x + coin.width/2, coin.y + coin.height/2);
+      ctx.fillStyle = '#fbbf24';
+      ctx.beginPath();
+      ctx.arc(0, 0, 12, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#f59e0b';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 12px Inter';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('$', 0, 0);
+      ctx.restore();
+    });
+    
+    // Draw diamonds
+    diamonds.forEach(d => {
+      ctx.save();
+      ctx.translate(d.x + d.width/2, d.y + d.height/2);
+      ctx.fillStyle = '#0ea5e9';
+      ctx.beginPath();
+      ctx.moveTo(0, -10);
+      ctx.lineTo(10, 0);
+      ctx.lineTo(0, 10);
+      ctx.lineTo(-10, 0);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.restore();
+    });
+    
+    // Draw spikes
+    spikes.forEach(spike => {
+      ctx.save();
+      ctx.translate(spike.x + spike.width/2, spike.y + spike.height/2);
+      ctx.fillStyle = '#ef4444';
+      ctx.beginPath();
+      for (let i = 0; i < 5; i++) {
+        const angle = (i * Math.PI * 2 / 5) - Math.PI/2;
+        const x = Math.cos(angle) * 15;
+        const y = Math.sin(angle) * 15;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    });
+    
+    // Draw power-ups
+    const powerupColors = {
+      double: '#fbbf24',
+      magnet: '#8b5cf6',
+      shield: '#3b82f6',
+      frenzy: '#f97316',
+      slowmo: '#10b981'
+    };
+    
+    powerups.forEach(p => {
+      ctx.save();
+      ctx.translate(p.x + p.width/2, p.y + p.height/2);
+      ctx.fillStyle = powerupColors[p.type] || '#fff';
+      ctx.beginPath();
+      ctx.arc(0, 0, 15, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      
+      // Icon
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 14px Inter';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      const icons = { double: '2x', magnet: 'M', shield: 'S', frenzy: 'F', slowmo: '⏱' };
+      ctx.fillText(icons[p.type] || '?', 0, 0);
+      ctx.restore();
+    });
+    
+    // Draw particles
+    particles.forEach(p => {
+      ctx.save();
+      ctx.globalAlpha = p.alpha;
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    });
+    
+    // Combo text popup
+    if (combo > 0 && combo % 10 === 0) {
+      ctx.save();
+      ctx.fillStyle = `rgba(16, 185, 129, ${Math.min(1, combo/50)})`;
+      ctx.font = `bold ${20 + Math.min(combo, 50)}px Inter`;
+      ctx.textAlign = 'center';
+      ctx.fillText(`${combo}x COMBO!`, canvas.width/2, canvas.height/2);
+      ctx.restore();
+    }
+  }
+
+  function roundRect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
+  }
+
+  function updateHUD() {
+    document.getElementById('scoreDisplay').textContent = score.toLocaleString();
+    document.getElementById('timeDisplay').textContent = timeLeft;
+    document.getElementById('comboDisplay').textContent = `x${Math.max(1, Math.floor(combo/10) + 1)}`;
+  }
+
+  function endGame() {
+    gameState = 'over';
+    cancelAnimationFrame(animationId);
+    
+    // Calculate final breakdown
+    const baseScore = score;
+    const maxComboMultiplier = Math.max(1, maxCombo);
+    comboBonus = Math.floor(baseScore * (maxComboMultiplier / 100));
+    const finalScore = baseScore + comboBonus;
+    
+    document.getElementById('finalScore').textContent = finalScore.toLocaleString();
+    document.getElementById('statCoins').textContent = coinsCollected;
+    document.getElementById('statDiamonds').textContent = diamondsCollected;
+    document.getElementById('statMaxCombo').textContent = `x${maxCombo}`;
+    document.getElementById('statPowerups').textContent = powerupsCollected;
+    document.getElementById('statBase').textContent = baseScore.toLocaleString();
+    document.getElementById('statComboBonus').textContent = `+${comboBonus.toLocaleString()}`;
+    document.getElementById('statFinal').textContent = finalScore.toLocaleString();
+    
+    document.getElementById('hud').classList.add('hidden');
+    document.getElementById('powerups').innerHTML = '';
+    document.getElementById('gameOverScreen').style.display = 'flex';
+  }
+
+  window.submitScore = async function() {
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="ri-loader-4-line ri-spin"></i> Saving...';
+    
+    try {
+      const finalScore = score + comboBonus;
+      
+      // Update entry with score
+      await updateDoc(doc(db, 'gameRounds', roundId, 'entries', entryId), {
+        score: finalScore,
+        coinsCollected: coinsCollected,
+        diamondsCollected: diamondsCollected,
+        maxCombo: maxCombo,
+        powerupsCollected: powerupsCollected,
+        submittedAt: serverTimestamp()
+      });
+      
+      // Check if this is user's best score for this round
+      // (Leaderboard will auto-update via onSnapshot in lobby)
+      
+      btn.innerHTML = '<i class="ri-check-line"></i> Saved!';
+      setTimeout(() => {
+        location.href = 'game-lobby.html';
+      }, 1500);
+      
+    } catch (err) {
+      console.error('Submit error:', err);
+      btn.disabled = false;
+      btn.innerHTML = '<i class="ri-restart-line"></i> Retry Save';
+      alert('Failed to save score: ' + err.message);
+    }
+  };
+</script>
+
+</body>
+  </html>
