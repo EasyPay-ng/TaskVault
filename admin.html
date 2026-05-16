@@ -383,10 +383,12 @@
       border: none;
       transition: all .2s ease;
     }
+    .overlay-action-btn.deposits { background: var(--green-light); color: var(--green); }
+    .overlay-action-btn.withdrawals { background: var(--red-light); color: var(--red); }
     .overlay-action-btn.stakes { background: var(--blue-light); color: var(--blue); }
-    .overlay-action-btn.bets { background: var(--purple-light); color: var(--purple); }
-    .overlay-action-btn.kyc { background: var(--green-light); color: var(--green); }
-    .overlay-action-btn.withdrawals { background: var(--orange-soft); color: var(--orange-dark); }
+    .overlay-action-btn.ads { background: var(--purple-light); color: var(--purple); }
+    .overlay-action-btn.tasks { background: var(--yellow-light); color: var(--yellow); }
+    .overlay-action-btn.edit { background: var(--orange-soft); color: var(--orange-dark); }
     .overlay-action-btn:hover { transform: translateY(-1px); filter: brightness(0.95); }
 
     .user-profile {
@@ -469,12 +471,28 @@
       border-bottom: 1px solid var(--gray-100);
       display: flex;
       align-items: center;
+      justify-content: space-between;
       gap: .5rem;
       font-weight: 700;
       font-size: .9rem;
       color: var(--gray-700);
     }
     .detail-card-header i { color: var(--orange); font-size: 1.1rem; }
+    .edit-section-btn {
+      background: var(--orange-soft);
+      color: var(--orange-dark);
+      border: none;
+      padding: .35rem .75rem;
+      border-radius: var(--radius-sm);
+      font-size: .75rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: .3rem;
+      transition: all .2s ease;
+    }
+    .edit-section-btn:hover { background: var(--orange); color: var(--white); }
     
     .detail-grid {
       display: grid;
@@ -537,10 +555,137 @@
       box-shadow: var(--shadow-md);
     }
     .quick-link i { font-size: 1.25rem; }
+    .quick-link.deposits i { color: var(--green); }
+    .quick-link.withdrawals i { color: var(--red); }
     .quick-link.stakes i { color: var(--blue); }
-    .quick-link.bets i { color: var(--purple); }
-    .quick-link.kyc i { color: var(--green); }
-    .quick-link.withdrawals i { color: var(--orange); }
+    .quick-link.ads i { color: var(--purple); }
+    .quick-link.tasks i { color: var(--yellow); }
+
+    /* Edit Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(4px);
+      z-index: 3000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity .3s ease;
+    }
+    .modal-overlay.show { display: flex; opacity: 1; }
+    
+    .modal {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow-xl);
+      transform: scale(0.95);
+      transition: transform .3s ease;
+    }
+    .modal-overlay.show .modal { transform: scale(1); }
+    
+    .modal-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--gray-200);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .modal-header h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--gray-900);
+    }
+    .modal-close {
+      background: var(--gray-100);
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--gray-500);
+      transition: all .2s ease;
+    }
+    .modal-close:hover { background: var(--gray-200); color: var(--gray-700); }
+    
+    .modal-body {
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: .35rem;
+    }
+    .form-group label {
+      font-size: .8rem;
+      font-weight: 600;
+      color: var(--gray-600);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .form-group input,
+    .form-group select {
+      padding: .6rem .875rem;
+      border: 1.5px solid var(--gray-200);
+      border-radius: var(--radius);
+      font-size: .9rem;
+      outline: none;
+      transition: all .2s ease;
+      background: var(--white);
+      color: var(--gray-800);
+    }
+    .form-group input:focus,
+    .form-group select:focus {
+      border-color: var(--orange);
+      box-shadow: 0 0 0 3px var(--orange-soft);
+    }
+    .form-group input[type="number"] {
+      -moz-appearance: textfield;
+    }
+    .form-group input[type="number"]::-webkit-outer-spin-button,
+    .form-group input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    
+    .modal-footer {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--gray-200);
+      display: flex;
+      justify-content: flex-end;
+      gap: .75rem;
+    }
+    .btn {
+      padding: .6rem 1.25rem;
+      border-radius: var(--radius);
+      font-size: .875rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all .2s ease;
+    }
+    .btn-secondary {
+      background: var(--gray-100);
+      color: var(--gray-700);
+    }
+    .btn-secondary:hover { background: var(--gray-200); }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--orange) 0%, var(--orange-dark) 100%);
+      color: var(--white);
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(249,115,22,0.3); }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; }
 
     /* Loading */
     .skeleton-row { height: 64px; background: linear-gradient(90deg, var(--gray-100) 25%, var(--gray-200) 50%, var(--gray-100) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; margin-bottom: 1px; }
@@ -551,6 +696,29 @@
     .empty-state p { font-size: .9rem; }
 
     .hidden { display: none !important; }
+    
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: var(--gray-900);
+      color: var(--white);
+      padding: 1rem 1.5rem;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      z-index: 4000;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all .3s ease;
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      font-weight: 500;
+      font-size: .9rem;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.success { background: var(--green); }
+    .toast.error { background: var(--red); }
   </style>
 </head>
 <body>
@@ -681,17 +849,23 @@
         <i class="ri-arrow-left-line"></i> Back to Users
       </button>
       <div class="overlay-actions">
+        <button class="overlay-action-btn deposits" onclick="viewUserDeposits()">
+          <i class="ri-arrow-down-circle-line"></i> Deposits
+        </button>
+        <button class="overlay-action-btn withdrawals" onclick="viewUserWithdrawals()">
+          <i class="ri-arrow-up-circle-line"></i> Withdrawals
+        </button>
         <button class="overlay-action-btn stakes" onclick="viewUserStakes()">
           <i class="ri-coins-line"></i> Stakes
         </button>
-        <button class="overlay-action-btn bets" onclick="viewUserBets()">
-          <i classri-bar-chart-grouped-line"></i> Bets
+        <button class="overlay-action-btn ads" onclick="viewUserAds()">
+          <i class="ri-advertisement-line"></i> View Ads
         </button>
-        <button class="overlay-action-btn kyc" onclick="viewUserKyc()">
-          <i class="ri-shield-check-line"></i> KYC
+        <button class="overlay-action-btn tasks" onclick="viewUserTasks()">
+          <i class="ri-task-line"></i> Submissions
         </button>
-        <button class="overlay-action-btn withdrawals" onclick="viewUserWithdrawals()">
-          <i class="ri-bank-card-line"></i> Withdrawals
+        <button class="overlay-action-btn edit" onclick="openEditModal()">
+          <i class="ri-edit-line"></i> Edit
         </button>
       </div>
     </div>
@@ -726,7 +900,12 @@
 
     <div class="detail-sections">
       <div class="detail-card">
-        <div class="detail-card-header"><i class="ri-user-line"></i> Account Information</div>
+        <div class="detail-card-header">
+          <span><i class="ri-user-line"></i> Account Information</span>
+          <button class="edit-section-btn" onclick="openEditModal('account')">
+            <i class="ri-edit-line"></i> Edit
+          </button>
+        </div>
         <div class="detail-grid">
           <div class="detail-item">
             <div class="detail-label">Full Name</div>
@@ -752,7 +931,12 @@
       </div>
 
       <div class="detail-card">
-        <div class="detail-card-header"><i class="ri-wallet-3-line"></i> Financial Details</div>
+        <div class="detail-card-header">
+          <span><i class="ri-wallet-3-line"></i> Financial Details</span>
+          <button class="edit-section-btn" onclick="openEditModal('financial')">
+            <i class="ri-edit-line"></i> Edit
+          </button>
+        </div>
         <div class="detail-grid">
           <div class="detail-item">
             <div class="detail-label">Current Balance</div>
@@ -774,7 +958,12 @@
       </div>
 
       <div class="detail-card">
-        <div class="detail-card-header"><i class="ri-shield-check-line"></i> KYC Information</div>
+        <div class="detail-card-header">
+          <span><i class="ri-shield-check-line"></i> KYC Information</span>
+          <button class="edit-section-btn" onclick="openEditModal('kyc')">
+            <i class="ri-edit-line"></i> Edit
+          </button>
+        </div>
         <div class="detail-grid">
           <div class="detail-item">
             <div class="detail-label">KYC Status</div>
@@ -792,7 +981,12 @@
       </div>
 
       <div class="detail-card">
-        <div class="detail-card-header"><i class="ri-map-pin-line"></i> Location & Device</div>
+        <div class="detail-card-header">
+          <span><i class="ri-map-pin-line"></i> Location & Device</span>
+          <button class="edit-section-btn" onclick="openEditModal('location')">
+            <i class="ri-edit-line"></i> Edit
+          </button>
+        </div>
         <div class="detail-grid">
           <div class="detail-item">
             <div class="detail-label">Country</div>
@@ -815,32 +1009,60 @@
     </div>
 
     <div class="quick-links">
-      <a href="#" class="quick-link stakes" id="linkStakes" onclick="return false;">
-        <i class="ri-coins-line"></i>
-        <span>Check Stakes<br><small>View all stakes placed by user</small></span>
-      </a>
-      <a href="#" class="quick-link bets" id="linkBets" onclick="return false;">
-        <i class="ri-bar-chart-grouped-line"></i>
-        <span>Check Bet Submissions<br><small>View all bet submissions</small></span>
-      </a>
-      <a href="#" class="quick-link kyc" id="linkKyc" onclick="return false;">
-        <i class="ri-shield-check-line"></i>
-        <span>KYC Verification<br><small>Review verification documents</small></span>
+      <a href="#" class="quick-link deposits" id="linkDeposits" onclick="return false;">
+        <i class="ri-arrow-down-circle-line"></i>
+        <span>Deposits<br><small>View user's deposit history</small></span>
       </a>
       <a href="#" class="quick-link withdrawals" id="linkWithdrawals" onclick="return false;">
-        <i class="ri-bank-card-line"></i>
-        <span>Withdrawals<br><small>View withdrawal requests</small></span>
+        <i class="ri-arrow-up-circle-line"></i>
+        <span>Withdrawals<br><small>View user's withdrawal requests</small></span>
+      </a>
+      <a href="#" class="quick-link stakes" id="linkStakes" onclick="return false;">
+        <i class="ri-coins-line"></i>
+        <span>Stakes<br><small>View all stakes placed by user</small></span>
+      </a>
+      <a href="#" class="quick-link ads" id="linkAds" onclick="return false;">
+        <i class="ri-advertisement-line"></i>
+        <span>View Ads<br><small>Check ad viewing history</small></span>
+      </a>
+      <a href="#" class="quick-link tasks" id="linkTasks" onclick="return false;">
+        <i class="ri-task-line"></i>
+        <span>Submissions<br><small>View task submissions</small></span>
       </a>
     </div>
   </div>
 </div>
+
+<!-- Edit User Modal -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3><i class="ri-edit-line" style="color:var(--orange);"></i> Edit User</h3>
+      <button class="modal-close" onclick="closeEditModal()">
+        <i class="ri-close-line"></i>
+      </button>
+    </div>
+    <div class="modal-body" id="editModalBody">
+      <!-- Dynamic form fields -->
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+      <button class="btn btn-primary" id="saveEditBtn" onclick="saveUserEdit()">
+        <i class="ri-save-line"></i> Save Changes
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
   import {
     getFirestore, doc, getDoc, collection, query, orderBy,
-    getDocs, where
+    getDocs, where, updateDoc, serverTimestamp
   } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -860,6 +1082,7 @@
   let currentUser = null;
   let allUsers = [];
   let selectedUser = null;
+  let currentEditSection = 'all';
 
   const loadingState = document.getElementById('loadingState');
   const usersTable = document.getElementById('usersTable');
@@ -1058,10 +1281,11 @@
     document.getElementById('detailDevice').textContent = user.lastDevice || '-';
     
     // Update quick links with user ID
-    document.getElementById('linkStakes').href = `admin-stakes.html?user=${uid}`;
-    document.getElementById('linkBets').href = `admin-bets.html?user=${uid}`;
-    document.getElementById('linkKyc').href = `admin-kyc.html?user=${uid}`;
-    document.getElementById('linkWithdrawals').href = `admin-withdrawals.html?user=${uid}`;
+    document.getElementById('linkDeposits').href = `deposit.html?user=${uid}`;
+    document.getElementById('linkWithdrawals').href = `withdrawals.html?user=${uid}`;
+    document.getElementById('linkStakes').href = `admin-stake.html?user=${uid}`;
+    document.getElementById('linkAds').href = `adverts.html?user=${uid}`;
+    document.getElementById('linkTasks').href = `admin-tasks.html?user=${uid}`;
     
     // Show overlay
     document.getElementById('userOverlay').classList.add('show');
@@ -1074,25 +1298,151 @@
     selectedUser = null;
   };
 
-  window.viewUserStakes = function() {
+  window.viewUserDeposits = function() {
     if (!selectedUser) return;
-    location.href = `admin-stakes.html?user=${selectedUser.uid}`;
-  };
-
-  window.viewUserBets = function() {
-    if (!selectedUser) return;
-    location.href = `admin-bets.html?user=${selectedUser.uid}`;
-  };
-
-  window.viewUserKyc = function() {
-    if (!selectedUser) return;
-    location.href = `admin-kyc.html?user=${selectedUser.uid}`;
+    location.href = `deposit.html?user=${selectedUser.uid}`;
   };
 
   window.viewUserWithdrawals = function() {
     if (!selectedUser) return;
-    location.href = `admin-withdrawals.html?user=${selectedUser.uid}`;
+    location.href = `withdrawals.html?user=${selectedUser.uid}`;
   };
+
+  window.viewUserStakes = function() {
+    if (!selectedUser) return;
+    location.href = `admin-stake.html?user=${selectedUser.uid}`;
+  };
+
+  window.viewUserAds = function() {
+    if (!selectedUser) return;
+    location.href = `adverts.html?user=${selectedUser.uid}`;
+  };
+
+  window.viewUserTasks = function() {
+    if (!selectedUser) return;
+    location.href = `admin-tasks.html?user=${selectedUser.uid}`;
+  };
+
+  // Edit Modal Functions
+  window.openEditModal = function(section = 'all') {
+    if (!selectedUser) return;
+    currentEditSection = section;
+    
+    const modalBody = document.getElementById('editModalBody');
+    let fields = [];
+    
+    if (section === 'all' || section === 'account') {
+      fields.push(
+        { label: 'Full Name', key: 'displayName', type: 'text', value: selectedUser.displayName || '' },
+        { label: 'Username', key: 'username', type: 'text', value: selectedUser.username || '' },
+        { label: 'Email', key: 'email', type: 'email', value: selectedUser.email || '' },
+        { label: 'Account Status', key: 'accountStatus', type: 'select', value: selectedUser.accountStatus || 'active', options: ['active', 'suspended', 'banned'] }
+      );
+    }
+    
+    if (section === 'all' || section === 'financial') {
+      fields.push(
+        { label: 'Balance', key: 'balance', type: 'number', value: (selectedUser.balance || 0).toFixed(2), step: '0.01' },
+        { label: 'Total Deposited', key: 'totalDeposited', type: 'number', value: (selectedUser.totalDeposited || 0).toFixed(2), step: '0.01' },
+        { label: 'Total Withdrawn', key: 'totalWithdrawn', type: 'number', value: (selectedUser.totalWithdrawn || 0).toFixed(2), step: '0.01' }
+      );
+    }
+    
+    if (section === 'all' || section === 'kyc') {
+      fields.push(
+        { label: 'KYC Status', key: 'kycStatus', type: 'select', value: selectedUser.kycStatus || 'none', options: ['none', 'pending', 'verified', 'rejected'] }
+      );
+    }
+    
+    if (section === 'all' || section === 'location') {
+      fields.push(
+        { label: 'Country', key: 'country', type: 'text', value: selectedUser.country || '' },
+        { label: 'IP Address', key: 'lastIp', type: 'text', value: selectedUser.lastIp || '' },
+        { label: 'Device', key: 'lastDevice', type: 'text', value: selectedUser.lastDevice || '' }
+      );
+    }
+    
+    let html = '';
+    fields.forEach(field => {
+      if (field.type === 'select') {
+        html += `
+          <div class="form-group">
+            <label>${field.label}</label>
+            <select id="edit-${field.key}" data-key="${field.key}">
+              ${field.options.map(opt => `<option value="${opt}" ${field.value === opt ? 'selected' : ''}>${opt.charAt(0).toUpperCase() + opt.slice(1)}</option>`).join('')}
+            </select>
+          </div>
+        `;
+      } else {
+        html += `
+          <div class="form-group">
+            <label>${field.label}</label>
+            <input type="${field.type}" id="edit-${field.key}" data-key="${field.key}" value="${field.value}" ${field.step ? `step="${field.step}"` : ''} />
+          </div>
+        `;
+      }
+    });
+    
+    modalBody.innerHTML = html;
+    document.getElementById('editModal').classList.add('show');
+  };
+
+  window.closeEditModal = function() {
+    document.getElementById('editModal').classList.remove('show');
+  };
+
+  window.saveUserEdit = async function() {
+    if (!selectedUser) return;
+    
+    const saveBtn = document.getElementById('saveEditBtn');
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = '<i class="ri-loader-4-line ri-spin"></i> Saving...';
+    
+    try {
+      const inputs = document.querySelectorAll('#editModalBody [data-key]');
+      const updates = {};
+      
+      inputs.forEach(input => {
+        const key = input.dataset.key;
+        let value = input.value;
+        
+        if (input.type === 'number') {
+          value = parseFloat(value) || 0;
+        }
+        
+        updates[key] = value;
+      });
+      
+      updates.updatedAt = serverTimestamp();
+      updates.updatedBy = currentUser.email;
+      
+      await updateDoc(doc(db, 'users', selectedUser.uid), updates);
+      
+      // Update local data
+      Object.assign(selectedUser, updates);
+      const idx = allUsers.findIndex(u => u.uid === selectedUser.uid);
+      if (idx !== -1) Object.assign(allUsers[idx], updates);
+      
+      // Refresh UI
+      renderUsers();
+      openUserDetail(selectedUser.uid);
+      closeEditModal();
+      showToast('User updated successfully', 'success');
+    } catch (err) {
+      console.error('Update error:', err);
+      showToast('Failed to update user: ' + err.message, 'error');
+    } finally {
+      saveBtn.disabled = false;
+      saveBtn.innerHTML = '<i class="ri-save-line"></i> Save Changes';
+    }
+  };
+
+  function showToast(message, type = 'success') {
+    const toast = document.getElementById('toast');
+    toast.innerHTML = `<i class="ri-${type === 'success' ? 'checkbox-circle' : 'error-warning'}-line"></i> ${message}`;
+    toast.className = `toast ${type} show`;
+    setTimeout(() => toast.classList.remove('show'), 3000);
+  }
 
   // Filter listeners
   searchInput.addEventListener('input', renderUsers);
@@ -1112,6 +1462,13 @@
   document.getElementById('userOverlay').addEventListener('click', (e) => {
     if (e.target === document.getElementById('userOverlay')) {
       closeUserOverlay();
+    }
+  });
+
+  // Close modal on backdrop click
+  document.getElementById('editModal').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('editModal')) {
+      closeEditModal();
     }
   });
 </script>
