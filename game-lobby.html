@@ -78,6 +78,108 @@
 
     .container { max-width: 600px; margin: 0 auto; padding: 1.5rem; }
 
+    /* UPGRADE GATE */
+    .upgrade-gate {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .upgrade-card {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      border: 1px solid var(--gray-700);
+      border-radius: var(--radius-lg);
+      padding: 3rem 2.5rem;
+      text-align: center;
+      max-width: 420px;
+      width: 100%;
+      position: relative;
+      overflow: hidden;
+    }
+    .upgrade-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--orange), var(--gold), var(--orange));
+    }
+    .upgrade-icon {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, var(--orange) 0%, var(--orange-dark) 100%);
+      border-radius: var(--radius-xl);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem;
+      font-size: 2.5rem;
+      box-shadow: 0 8px 32px rgba(249,115,22,0.3);
+    }
+    .upgrade-card h2 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      margin-bottom: .75rem;
+    }
+    .upgrade-card p {
+      color: var(--gray-400);
+      font-size: .95rem;
+      line-height: 1.6;
+      margin-bottom: 2rem;
+    }
+    .upgrade-features {
+      text-align: left;
+      margin-bottom: 2rem;
+    }
+    .upgrade-feature {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      padding: .75rem;
+      background: rgba(249,115,22,0.05);
+      border-radius: var(--radius);
+      margin-bottom: .5rem;
+      font-size: .9rem;
+      color: var(--gray-300);
+    }
+    .upgrade-feature i {
+      color: var(--orange);
+      font-size: 1.1rem;
+    }
+    .upgrade-btn {
+      width: 100%;
+      padding: 1rem;
+      background: linear-gradient(135deg, var(--orange) 0%, var(--orange-dark) 100%);
+      color: var(--white);
+      border: none;
+      border-radius: var(--radius-lg);
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all .2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .5rem;
+      box-shadow: 0 4px 16px rgba(249,115,22,0.3);
+      text-decoration: none;
+    }
+    .upgrade-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(249,115,22,0.4);
+    }
+    .upgrade-skip {
+      display: inline-block;
+      margin-top: 1rem;
+      color: var(--gray-500);
+      font-size: .85rem;
+      text-decoration: none;
+      transition: color .2s;
+    }
+    .upgrade-skip:hover { color: var(--gray-400); }
+
     .hero {
       text-align: center;
       padding: 2rem 0;
@@ -464,7 +566,7 @@
 </head>
 <body>
 
-<header>
+<header id="mainHeader">
   <button class="back-btn" onclick="location.href='dashboard.html'">
     <i class="ri-arrow-left-line"></i> Back
   </button>
@@ -475,7 +577,38 @@
   <div style="width:80px;"></div>
 </header>
 
-<div class="container">
+<!-- UPGRADE GATE (shown if not silver) -->
+<div id="upgradeGate" class="upgrade-gate hidden">
+  <div class="upgrade-card">
+    <div class="upgrade-icon"><i class="ri-vip-crown-fill"></i></div>
+    <h2>Silver Plan Required</h2>
+    <p>Vault Rush is exclusive to Silver plan members. Upgrade now to compete for cash prizes and climb the leaderboard.</p>
+    <div class="upgrade-features">
+      <div class="upgrade-feature">
+        <i class="ri-flashlight-fill"></i>
+        <span>60-second high-intensity rounds</span>
+      </div>
+      <div class="upgrade-feature">
+        <i class="ri-trophy-fill"></i>
+        <span>Win real cash prizes every round</span>
+      </div>
+      <div class="upgrade-feature">
+        <i class="ri-bar-chart-grouped-fill"></i>
+        <span>Live leaderboard & rankings</span>
+      </div>
+      <div class="upgrade-feature">
+        <i class="ri-history-line"></i>
+        <span>Full game history & stats</span>
+      </div>
+    </div>
+    <a href="upgrade.html" class="upgrade-btn">
+      <i class="ri-vip-crown-fill"></i> Upgrade to Silver
+    </a>
+    <a href="dashboard.html" class="upgrade-skip">← Back to Dashboard</a>
+  </div>
+</div>
+
+<div id="mainContainer" class="container hidden">
   <div id="loadingState">
     <div class="hero">
       <div class="skeleton" style="width:80px;height:80px;margin:0 auto 1rem;border-radius:24px;"></div>
@@ -625,6 +758,9 @@
   let unsubscribeLeaderboard = null;
   let countdownInterval = null;
 
+  const mainHeader = document.getElementById('mainHeader');
+  const upgradeGate = document.getElementById('upgradeGate');
+  const mainContainer = document.getElementById('mainContainer');
   const loadingState = document.getElementById('loadingState');
   const mainContent = document.getElementById('mainContent');
   const roundNumber = document.getElementById('roundNumber');
@@ -644,19 +780,56 @@
   onAuthStateChanged(auth, async (user) => {
     if (!user) { location.href = 'login.html'; return; }
     currentUser = user;
-    await initialize();
+    await checkPlanAccess();
   });
 
-  async function initialize() {
+  // ========== PLAN CHECK ==========
+  async function checkPlanAccess() {
     try {
       const userRef = doc(db, 'users', currentUser.uid);
       const userSnap = await getDoc(userRef);
+
       if (!userSnap.exists()) {
         showToast('User profile not found', 'error');
         return;
       }
+
       currentUserData = userSnap.data();
 
+      // Check if user has silver plan
+      // Supports: plan: 'silver', subscriptionPlan: 'silver', or isSilver: true
+      const hasSilver = (
+        currentUserData.plan === 'silver' ||
+        currentUserData.subscriptionPlan === 'silver' ||
+        currentUserData.plan === 'gold' ||
+        currentUserData.subscriptionPlan === 'gold' ||
+        currentUserData.plan === 'premium' ||
+        currentUserData.subscriptionPlan === 'premium' ||
+        currentUserData.isSilver === true ||
+        currentUserData.isPremium === true
+      );
+
+      if (!hasSilver) {
+        // Show upgrade gate, hide everything else
+        mainHeader.style.display = 'none';
+        upgradeGate.classList.remove('hidden');
+        mainContainer.classList.add('hidden');
+        return;
+      }
+
+      // Silver user — show game
+      upgradeGate.classList.add('hidden');
+      mainContainer.classList.remove('hidden');
+      await initialize();
+
+    } catch (err) {
+      console.error('Plan check error:', err);
+      showToast('Failed to verify plan: ' + err.message, 'error');
+    }
+  }
+
+  async function initialize() {
+    try {
       await getOrCreateRound();
       await loadUserEntries();
       await loadUserStats();
@@ -675,7 +848,6 @@
 
   // NO COMPOSITE INDEX NEEDED - Simple query by status only, then sort client-side
   async function getOrCreateRound() {
-    // Get ALL active rounds (should only be 0 or 1)
     const roundsQuery = query(
       collection(db, 'gameRounds'),
       where('status', '==', 'active')
@@ -686,7 +858,6 @@
     let activeRounds = [];
     roundsSnap.forEach(d => activeRounds.push({ id: d.id, ...d.data() }));
 
-    // Sort by createdAt client-side (newest first)
     activeRounds.sort((a, b) => {
       const aTime = a.createdAt?.toDate?.() || new Date(0);
       const bTime = b.createdAt?.toDate?.() || new Date(0);
@@ -696,7 +867,6 @@
     if (activeRounds.length > 0) {
       currentRound = activeRounds[0];
 
-      // Check if round should end
       const now = new Date();
       const createdAt = currentRound.createdAt?.toDate?.() || new Date();
       const hoursPassed = (now - createdAt) / (1000 * 60 * 60);
@@ -714,7 +884,6 @@
   }
 
   async function createNewRound() {
-    // Get highest round number
     const allRoundsSnap = await getDocs(collection(db, 'gameRounds'));
     let maxRound = 0;
     allRoundsSnap.forEach(d => {
@@ -738,20 +907,29 @@
   }
 
   async function endRound(roundId) {
-    // Get entries for this round - NO orderBy (avoids composite index)
     const entriesQuery = query(
       collection(db, 'gameRounds', roundId, 'entries')
     );
     const entriesSnap = await getDocs(entriesQuery);
 
-    // Sort by score client-side
     let allEntries = [];
     entriesSnap.forEach(d => allEntries.push({ id: d.id, ...d.data() }));
     allEntries.sort((a, b) => (b.score || 0) - (a.score || 0));
 
+    // DEDUPLICATE: keep only best score per user
+    const bestByUser = new Map();
+    allEntries.forEach(entry => {
+      const existing = bestByUser.get(entry.userId);
+      if (!existing || (entry.score || 0) > (existing.score || 0)) {
+        bestByUser.set(entry.userId, entry);
+      }
+    });
+    const uniqueEntries = Array.from(bestByUser.values());
+    uniqueEntries.sort((a, b) => (b.score || 0) - (a.score || 0));
+
     const winners = [];
-    for (let i = 0; i < Math.min(3, allEntries.length); i++) {
-      const entry = allEntries[i];
+    for (let i = 0; i < Math.min(3, uniqueEntries.length); i++) {
+      const entry = uniqueEntries[i];
       const prize = i === 0 ? 0.40 : i === 1 ? 0.30 : 0.15;
       winners.push({
         rank: i + 1,
@@ -761,14 +939,12 @@
         prize: prize
       });
 
-      // Credit prize
       const userRef = doc(db, 'users', entry.userId);
       await updateDoc(userRef, {
         balance: increment(prize),
         totalGameWon: increment(prize)
       });
 
-      // Add to game history
       await addDoc(collection(db, 'gameHistory'), {
         userId: entry.userId,
         roundId: roundId,
@@ -863,7 +1039,6 @@
   async function loadUserEntries() {
     if (!currentRound) return;
 
-    // NO composite index - just filter by userId
     const entriesQuery = query(
       collection(db, 'gameRounds', currentRound.id, 'entries'),
       where('userId', '==', currentUser.uid)
@@ -873,11 +1048,11 @@
     userEntries = snap.docs.map(d => ({ id: d.id, ...d.data() }));
   }
 
+  // ========== DEDUPLICATED LEADERBOARD ==========
   function subscribeLeaderboard() {
     if (!currentRound) return;
     if (unsubscribeLeaderboard) unsubscribeLeaderboard();
 
-    // NO orderBy - just get all entries for this round
     const entriesQuery = query(
       collection(db, 'gameRounds', currentRound.id, 'entries')
     );
@@ -886,15 +1061,24 @@
       let entries = [];
       snap.forEach(d => entries.push({ id: d.id, ...d.data() }));
 
-      // Sort by score client-side
-      entries.sort((a, b) => (b.score || 0) - (a.score || 0));
+      // DEDUPLICATE: keep only best score per user
+      const bestByUser = new Map();
+      entries.forEach(entry => {
+        const existing = bestByUser.get(entry.userId);
+        if (!existing || (entry.score || 0) > (existing.score || 0)) {
+          bestByUser.set(entry.userId, entry);
+        }
+      });
 
-      renderLeaderboard(entries);
-      playerCount.textContent = `${entries.length} player${entries.length !== 1 ? 's' : ''}`;
+      // Convert to array and sort by score descending
+      const uniqueEntries = Array.from(bestByUser.values());
+      uniqueEntries.sort((a, b) => (b.score || 0) - (a.score || 0));
 
-      // Update entry count in real-time
+      renderLeaderboard(uniqueEntries);
+      playerCount.textContent = `${uniqueEntries.length} player${uniqueEntries.length !== 1 ? 's' : ''}`;
+
       if (currentRound) {
-        currentRound.entryCount = entries.length;
+        currentRound.entryCount = entries.length; // Total entries (not unique)
         updateRoundUI();
       }
     });
@@ -925,7 +1109,7 @@
           <div class="lb-avatar">${initial}</div>
           <div class="lb-info">
             <div class="lb-name">${escapeHtml(name)} ${isYou ? '(You)' : ''}</div>
-            <div class="lb-meta">${entry.attemptNumber || 1} attempt${entry.attemptNumber !== 1 ? 's' : ''}</div>
+            <div class="lb-meta">Best score</div>
           </div>
           <div class="lb-score">
             <div class="lb-score-value">${(entry.score || 0).toLocaleString()}</div>
@@ -1042,4 +1226,4 @@
 </script>
 
 </body>
-</html>
+  </html>
