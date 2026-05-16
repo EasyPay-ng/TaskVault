@@ -1,1108 +1,780 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vault Rush — Game History</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <script type="module">
-        // ========== FIREBASE SETUP ==========
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, collection, query, where, orderBy, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyAv6QCpopa0Q77AVTyjU5cqJEIKIE9OVTs",
-            authDomain: "taskvault-412a0.firebaseapp.com",
-            databaseURL: "https://taskvault-412a0-default-rtdb.firebaseio.com",
-            projectId: "taskvault-412a0",
-            storageBucket: "taskvault-412a0.firebasestorage.app",
-            messagingSenderId: "420716701831",
-            appId: "1:420716701831:web:c987d91f7f4c8684eb7022",
-            measurementId: "G-93JG3LB08B"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        // ========== GLOBAL STATE ==========
-        window.allGames = [];
-        window.filteredGames = [];
-        window.currentPage = 1;
-        window.perPage = 10;
-        window.currentUser = null;
-
-        // ========== AUTH STATE ==========
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                window.currentUser = user;
-                await loadUserData(user.uid);
-                await fetchGames(user.uid);
-            } else {
-                // Redirect to login if not authenticated
-                window.location.href = '/login.html';
-            }
-        });
-
-        // ========== LOAD USER DATA ==========
-        async function loadUserData(uid) {
-            try {
-                const userDoc = await getDoc(doc(db, 'users', uid));
-                if (userDoc.exists()) {
-                    const data = userDoc.data();
-                    document.querySelector('.user-name').textContent = data.displayName || data.email || 'User';
-                    document.querySelector('.user-avatar').textContent = (data.displayName || data.email || 'U').charAt(0).toUpperCase();
-                    document.querySelector('.user-balance').textContent = '$' + (data.balance || 0).toFixed(2);
-                }
-            } catch (err) {
-                console.error('Error loading user:', err);
-            }
-        }
-
-        // ========== FETCH GAMES FROM FIRESTORE ==========
-        async function fetchGames(uid) {
-            showLoading(true);
-            try {
-                const q = query(
-                    collection(db, 'games'),
-                    where('userId', '==', uid),
-                    orderBy('date', 'desc')
-                );
-                
-                const snapshot = await getDocs(q);
-                
-                window.allGames = snapshot.docs.map(doc => {
-                    const data = doc.data();
-                    return {
-                        id: doc.id,
-                        ...data,
-                        date: data.date?.toDate ? data.date.toDate() : new Date(data.date),
-                        betAmount: data.betAmount || 0,
-                        multiplier: data.multiplier || 0,
-                        difficulty: data.difficulty || 'Easy',
-                        result: data.result || 'loss',
-                        payout: data.payout || 0,
-                        duration: data.duration || 0
-                    };
-                });
-
-                window.filteredGames = [...window.allGames];
-                updateStats();
-                renderTable();
-            } catch (err) {
-                console.error('Error fetching games:', err);
-                showError('Failed to load game history. Please try again.');
-            } finally {
-                showLoading(false);
-            }
-        }
-
-        // ========== STATS ==========
-        window.updateStats = function() {
-            const total = window.allGames.length;
-            const wins = window.allGames.filter(g => g.result === 'win').length;
-            const winRate = total > 0 ? Math.round((wins / total) * 100) : 0;
-            const wagered = window.allGames.reduce((sum, g) => sum + g.betAmount, 0);
-            const profit = window.allGames.reduce((sum, g) => sum + g.payout, 0);
-
-            document.getElementById('stat-total').textContent = total.toLocaleString();
-            document.getElementById('stat-winrate').textContent = winRate + '%';
-            document.getElementById('stat-wagered').textContent = '$' + wagered.toFixed(2);
-            
-            const profitEl = document.getElementById('stat-profit');
-            profitEl.textContent = (profit >= 0 ? '+' : '') + '$' + Math.abs(profit).toFixed(2);
-            profitEl.style.color = profit >= 0 ? 'var(--green)' : 'var(--red)';
-        };
-
-        // ========== FORMATTERS ==========
-        window.formatDate = function(date) {
-            const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-            return `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
-        };
-
-        window.formatTime = function(date) {
-            return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-        };
-
-        window.getMultiplierClass = function(m) {
-            if (m === 1) return 'x1';
-            if (m === 2) return 'x2';
-            if (m === 3) return 'x3';
-            if (m === 5) return 'x5';
-            if (m === 10) return 'x10';
-            return 'x1';
-        };
-
-        window.getDifficultyClass = function(d) {
-            return `diff-${d.toLowerCase()}`;
-        };
-
-        // ========== RENDER TABLE ==========
-        window.renderTable = function() {
-            const start = (window.currentPage - 1) * window.perPage;
-            const end = start + window.perPage;
-            const pageGames = window.filteredGames.slice(start, end);
-            const tbody = document.getElementById('tableBody');
-
-            if (pageGames.length === 0) {
-                tbody.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">📭</div>
-                        <h3>No games found</h3>
-                        <p>Try adjusting your filters or play your first game!</p>
-                    </div>
-                `;
-                document.getElementById('paginationInfo').textContent = 'Showing 0 of 0 games';
-                document.getElementById('paginationControls').innerHTML = '';
-                return;
-            }
-
-            tbody.innerHTML = pageGames.map(game => `
-                <div class="table-row" onclick="viewGame('${game.id}')">
-                    <div class="cell cell-date">
-                        <span class="date">${window.formatDate(game.date)}</span>
-                        <span class="time">${window.formatTime(game.date)} · ${game.duration}s</span>
-                    </div>
-                    <div class="cell cell-amount hide-mobile">$${game.betAmount.toFixed(2)}</div>
-                    <div class="cell cell-multiplier ${window.getMultiplierClass(game.multiplier)}">
-                        ${game.multiplier > 0 ? game.multiplier + 'x' : '—'}
-                    </div>
-                    <div class="cell hide-mobile">
-                        <span class="cell-difficulty ${window.getDifficultyClass(game.difficulty)}">
-                            <span class="diff-dot"></span>
-                            ${game.difficulty}
-                        </span>
-                    </div>
-                    <div class="cell hide-mobile">
-                        <span class="badge badge-${game.result}">${game.result}</span>
-                    </div>
-                    <div class="cell">
-                        <span class="badge-payout ${game.payout >= 0 ? 'positive' : 'negative'}">
-                            ${game.payout >= 0 ? '+' : ''}$${Math.abs(game.payout).toFixed(2)}
-                        </span>
-                    </div>
-                    <div class="cell hide-mobile" style="font-family: monospace; font-size: 12px; color: var(--text-muted);">${game.id}</div>
-                    <div class="cell-actions">
-                        <button class="btn-icon" title="View Details" onclick="event.stopPropagation(); viewGame('${game.id}')">
-                            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                        </button>
-                    </div>
-                </div>
-            `).join('');
-
-            document.getElementById('paginationInfo').textContent = 
-                `Showing ${start + 1}-${Math.min(end, window.filteredGames.length)} of ${window.filteredGames.length} games`;
-
-            const totalPages = Math.ceil(window.filteredGames.length / window.perPage);
-            let controls = '';
-            
-            controls += `<button class="page-btn" onclick="changePage(${window.currentPage - 1})" ${window.currentPage === 1 ? 'disabled' : ''}>‹</button>`;
-            
-            for (let i = 1; i <= totalPages; i++) {
-                if (i === 1 || i === totalPages || (i >= window.currentPage - 1 && i <= window.currentPage + 1)) {
-                    controls += `<button class="page-btn ${i === window.currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
-                } else if (i === window.currentPage - 2 || i === window.currentPage + 2) {
-                    controls += `<span style="color: var(--text-muted); padding: 0 4px;">...</span>`;
-                }
-            }
-            
-            controls += `<button class="page-btn" onclick="changePage(${window.currentPage + 1})" ${window.currentPage === totalPages ? 'disabled' : ''}>›</button>`;
-            
-            document.getElementById('paginationControls').innerHTML = controls;
-        };
-
-        // ========== FILTERS ==========
-        window.applyFilters = function() {
-            const search = document.getElementById('searchInput').value.toLowerCase();
-            const result = document.getElementById('filterResult').value;
-            const difficulty = document.getElementById('filterDifficulty').value;
-            const fromDate = document.getElementById('filterFrom').valueAsDate;
-            const toDate = document.getElementById('filterTo').valueAsDate;
-
-            window.filteredGames = window.allGames.filter(game => {
-                if (search && !game.id.toLowerCase().includes(search)) return false;
-                if (result !== 'all' && game.result !== result) return false;
-                if (difficulty !== 'all' && game.difficulty !== difficulty) return false;
-                if (fromDate && game.date < fromDate) return false;
-                if (toDate) {
-                    const endOfDay = new Date(toDate);
-                    endOfDay.setHours(23, 59, 59);
-                    if (game.date > endOfDay) return false;
-                }
-                return true;
-            });
-
-            window.currentPage = 1;
-            window.renderTable();
-        };
-
-        window.changePage = function(page) {
-            const totalPages = Math.ceil(window.filteredGames.length / window.perPage);
-            if (page < 1 || page > totalPages) return;
-            window.currentPage = page;
-            window.renderTable();
-        };
-
-        window.viewGame = function(gameId) {
-            const game = window.allGames.find(g => g.id === gameId);
-            if (!game) return;
-            alert(`Game Details:\n\nID: ${game.id}\nDate: ${window.formatDate(game.date)} ${window.formatTime(game.date)}\nBet: $${game.betAmount.toFixed(2)}\nMultiplier: ${game.multiplier > 0 ? game.multiplier + 'x' : 'N/A'}\nDifficulty: ${game.difficulty}\nResult: ${game.result.toUpperCase()}\nPayout: $${game.payout.toFixed(2)}\nDuration: ${game.duration}s\n\n(Connect this to your game replay modal)`);
-        };
-
-        // ========== LOADING & ERROR STATES ==========
-        window.showLoading = function(show) {
-            const tbody = document.getElementById('tableBody');
-            if (show) {
-                tbody.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon" style="animation: pulse 1.5s infinite;">⏳</div>
-                        <h3>Loading your games...</h3>
-                        <p>Fetching data from Firestore</p>
-                    </div>
-                `;
-            }
-        };
-
-        window.showError = function(msg) {
-            const tbody = document.getElementById('tableBody');
-            tbody.innerHTML = `
-                <div class="empty-state">
-                    <div class="empty-state-icon">⚠️</div>
-                    <h3>Something went wrong</h3>
-                    <p>${msg}</p>
-                </div>
-            `;
-        };
-
-        // ========== EXPORT CSV ==========
-        window.exportCSV = function() {
-            const games = window.filteredGames.length > 0 ? window.filteredGames : window.allGames;
-            const headers = ['Game ID', 'Date', 'Time', 'Bet Amount', 'Multiplier', 'Difficulty', 'Result', 'Payout', 'Duration (s)'];
-            const rows = games.map(g => [
-                g.id,
-                window.formatDate(g.date),
-                window.formatTime(g.date),
-                g.betAmount.toFixed(2),
-                g.multiplier,
-                g.difficulty,
-                g.result,
-                g.payout.toFixed(2),
-                g.duration
-            ]);
-
-            const csv = [headers, ...rows].map(row => row.join(',')).join('\n');
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `vault-rush-history-${new Date().toISOString().split('T')[0]}.csv`;
-            a.click();
-            URL.revokeObjectURL(url);
-        };
-
-        // ========== EVENT LISTENERS (attached after DOM ready) ==========
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('searchInput').addEventListener('input', window.applyFilters);
-            document.getElementById('filterResult').addEventListener('change', window.applyFilters);
-            document.getElementById('filterDifficulty').addEventListener('change', window.applyFilters);
-            document.getElementById('filterFrom').addEventListener('change', window.applyFilters);
-            document.getElementById('filterTo').addEventListener('change', window.applyFilters);
-        });
-    </script>
-    <style>
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        :root {
-            --orange-primary: #F97316;
-            --orange-light: #FB923C;
-            --orange-dark: #EA580C;
-            --orange-glow: rgba(249, 115, 22, 0.3);
-            --bg-dark: #0F0F0F;
-            --bg-card: #1A1A1A;
-            --bg-card-hover: #222222;
-            --bg-input: #262626;
-            --border: #333333;
-            --border-light: #404040;
-            --text-primary: #FFFFFF;
-            --text-secondary: #A3A3A3;
-            --text-muted: #737373;
-            --green: #22C55E;
-            --green-glow: rgba(34, 197, 94, 0.2);
-            --red: #EF4444;
-            --red-glow: rgba(239, 68, 68, 0.2);
-            --yellow: #EAB308;
-            --purple: #A855F7;
-            --radius: 12px;
-            --radius-sm: 8px;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--bg-dark);
-            color: var(--text-primary);
-            min-height: 100vh;
-            line-height: 1.5;
-        }
-
-        /* ========== SIDEBAR ========== */
-        .sidebar {
-            position: fixed;
-            left: 0;
-            top: 0;
-            width: 260px;
-            height: 100vh;
-            background: var(--bg-card);
-            border-right: 1px solid var(--border);
-            padding: 24px 0;
-            z-index: 100;
-            overflow-y: auto;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 0 24px 32px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .logo-icon {
-            width: 40px;
-            height: 40px;
-            background: var(--orange-primary);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-        }
-
-        .logo-text {
-            font-size: 20px;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-        }
-
-        .logo-text span {
-            color: var(--orange-primary);
-        }
-
-        .nav-section {
-            padding: 20px 16px;
-        }
-
-        .nav-label {
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-            color: var(--text-muted);
-            padding: 0 8px 12px;
-        }
-
-        .nav-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 12px;
-            border-radius: var(--radius-sm);
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.2s;
-            cursor: pointer;
-            margin-bottom: 2px;
-        }
-
-        .nav-item:hover {
-            background: var(--bg-input);
-            color: var(--text-primary);
-        }
-
-        .nav-item.active {
-            background: var(--orange-primary);
-            color: #fff;
-        }
-
-        .nav-item svg {
-            width: 20px;
-            height: 20px;
-            flex-shrink: 0;
-        }
-
-        .user-card {
-            position: absolute;
-            bottom: 24px;
-            left: 16px;
-            right: 16px;
-            background: var(--bg-input);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            padding: 14px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .user-avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: var(--orange-primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 14px;
-        }
-
-        .user-info {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .user-name {
-            font-size: 13px;
-            font-weight: 600;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .user-balance {
-            font-size: 12px;
-            color: var(--orange-light);
-            font-weight: 600;
-        }
-
-        /* ========== MAIN CONTENT ========== */
-        .main {
-            margin-left: 260px;
-            min-height: 100vh;
-            padding: 32px 40px;
-        }
-
-        .page-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 32px;
-        }
-
-        .page-title {
-            font-size: 28px;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-        }
-
-        .page-subtitle {
-            color: var(--text-secondary);
-            font-size: 14px;
-            margin-top: 4px;
-        }
-
-        .header-actions {
-            display: flex;
-            gap: 12px;
-        }
-
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 18px;
-            border-radius: var(--radius-sm);
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            border: none;
-            transition: all 0.2s;
-            text-decoration: none;
-        }
-
-        .btn-primary {
-            background: var(--orange-primary);
-            color: #fff;
-        }
-
-        .btn-primary:hover {
-            background: var(--orange-dark);
-            transform: translateY(-1px);
-        }
-
-        .btn-ghost {
-            background: var(--bg-card);
-            color: var(--text-secondary);
-            border: 1px solid var(--border);
-        }
-
-        .btn-ghost:hover {
-            background: var(--bg-input);
-            color: var(--text-primary);
-        }
-
-        /* ========== STATS ROW ========== */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
-            margin-bottom: 32px;
-        }
-
-        .stat-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 20px;
-            transition: all 0.2s;
-        }
-
-        .stat-card:hover {
-            border-color: var(--border-light);
-            transform: translateY(-2px);
-        }
-
-        .stat-label {
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--text-muted);
-            margin-bottom: 8px;
-        }
-
-        .stat-value {
-            font-size: 28px;
-            font-weight: 800;
-            letter-spacing: -1px;
-        }
-
-        .stat-change {
-            font-size: 12px;
-            font-weight: 600;
-            margin-top: 4px;
-        }
-
-        .stat-change.positive {
-            color: var(--green);
-        }
-
-        .stat-change.negative {
-            color: var(--red);
-        }
-
-        /* ========== FILTERS ========== */
-        .filters-bar {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-
-        .filter-group {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            padding: 6px 6px 6px 14px;
-        }
-
-        .filter-group label {
-            font-size: 12px;
-            color: var(--text-muted);
-            font-weight: 500;
-        }
-
-        .filter-group select,
-        .filter-group input {
-            background: transparent;
-            border: none;
-            color: var(--text-primary);
-            font-size: 13px;
-            font-weight: 500;
-            outline: none;
-            cursor: pointer;
-            padding: 4px 8px;
-        }
-
-        .filter-group input {
-            cursor: text;
-        }
-
-        .filter-group select option {
-            background: var(--bg-card);
-        }
-
-        .search-box {
-            position: relative;
-            flex: 1;
-            max-width: 300px;
-        }
-
-        .search-box input {
-            width: 100%;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            padding: 10px 14px 10px 38px;
-            color: var(--text-primary);
-            font-size: 13px;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-
-        .search-box input:focus {
-            border-color: var(--orange-primary);
-        }
-
-        .search-box svg {
-            position: absolute;
-            left: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-muted);
-            width: 16px;
-            height: 16px;
-        }
-
-        /* ========== TABLE ========== */
-        .table-container {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            overflow: hidden;
-        }
-
-        .table-header {
-            display: grid;
-            grid-template-columns: 140px 100px 80px 100px 100px 90px 120px 50px;
-            padding: 14px 20px;
-            background: var(--bg-input);
-            border-bottom: 1px solid var(--border);
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-            color: var(--text-muted);
-        }
-
-        .table-row {
-            display: grid;
-            grid-template-columns: 140px 100px 80px 100px 100px 90px 120px 50px;
-            padding: 16px 20px;
-            border-bottom: 1px solid var(--border);
-            align-items: center;
-            transition: background 0.15s;
-            cursor: pointer;
-        }
-
-        .table-row:last-child {
-            border-bottom: none;
-        }
-
-        .table-row:hover {
-            background: var(--bg-card-hover);
-        }
-
-        .cell {
-            font-size: 13px;
-            font-weight: 500;
-        }
-
-        .cell-date {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-
-        .cell-date .date {
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .cell-date .time {
-            font-size: 12px;
-            color: var(--text-muted);
-        }
-
-        .cell-amount {
-            font-weight: 700;
-            font-size: 14px;
-        }
-
-        .cell-multiplier {
-            font-weight: 800;
-            font-size: 15px;
-        }
-
-        .cell-multiplier.x1 { color: var(--text-secondary); }
-        .cell-multiplier.x2 { color: var(--yellow); }
-        .cell-multiplier.x3 { color: var(--orange-light); }
-        .cell-multiplier.x5 { color: var(--orange-primary); }
-        .cell-multiplier.x10 { color: var(--purple); }
-
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-        }
-
-        .badge-win {
-            background: var(--green-glow);
-            color: var(--green);
-            border: 1px solid rgba(34, 197, 94, 0.3);
-        }
-
-        .badge-loss {
-            background: var(--red-glow);
-            color: var(--red);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-        }
-
-        .badge-payout {
-            font-weight: 700;
-            font-size: 14px;
-        }
-
-        .badge-payout.positive {
-            color: var(--green);
-        }
-
-        .badge-payout.negative {
-            color: var(--red);
-        }
-
-        .cell-difficulty {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-secondary);
-        }
-
-        .diff-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-        }
-
-        .diff-easy .diff-dot { background: var(--green); }
-        .diff-medium .diff-dot { background: var(--yellow); }
-        .diff-hard .diff-dot { background: var(--orange-primary); }
-        .diff-insane .diff-dot { background: var(--red); }
-
-        .cell-actions {
-            display: flex;
-            justify-content: center;
-        }
-
-        .btn-icon {
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
-            border: none;
-            background: transparent;
-            color: var(--text-muted);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-        }
-
-        .btn-icon:hover {
-            background: var(--bg-input);
-            color: var(--text-primary);
-        }
-
-        /* ========== PAGINATION ========== */
-        .pagination {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 16px 20px;
-            border-top: 1px solid var(--border);
-        }
-
-        .pagination-info {
-            font-size: 13px;
-            color: var(--text-muted);
-        }
-
-        .pagination-controls {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .page-btn {
-            min-width: 32px;
-            height: 32px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            background: var(--bg-input);
-            color: var(--text-secondary);
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-        }
-
-        .page-btn:hover:not(:disabled) {
-            background: var(--border-light);
-            color: var(--text-primary);
-        }
-
-        .page-btn.active {
-            background: var(--orange-primary);
-            border-color: var(--orange-primary);
-            color: #fff;
-        }
-
-        .page-btn:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-        }
-
-        /* ========== EMPTY STATE ========== */
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-        }
-
-        .empty-state-icon {
-            width: 64px;
-            height: 64px;
-            background: var(--bg-input);
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 20px;
-            font-size: 28px;
-        }
-
-        .empty-state h3 {
-            font-size: 18px;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-
-        .empty-state p {
-            color: var(--text-muted);
-            font-size: 14px;
-        }
-
-        /* ========== RESPONSIVE ========== */
-        @media (max-width: 1200px) {
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-100%);
-            }
-            .main {
-                margin-left: 0;
-                padding: 20px;
-            }
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-            .table-header,
-            .table-row {
-                grid-template-columns: 1fr 80px 80px 60px;
-            }
-            .table-header .hide-mobile,
-            .table-row .hide-mobile {
-                display: none;
-            }
-        }
-    </style>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>TaskVault – Game History</title>
+  <link rel="icon" type="image/jpeg" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg"/>
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --orange: #f97316;
+      --orange-light: #fff7ed;
+      --orange-dark: #ea580c;
+      --orange-soft: #ffedd5;
+      --white: #ffffff;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-400: #9ca3af;
+      --gray-500: #6b7280;
+      --gray-600: #4b5563;
+      --gray-700: #374151;
+      --gray-800: #1f2937;
+      --gray-900: #111827;
+      --red: #ef4444;
+      --red-light: #fee2e2;
+      --green: #10b981;
+      --green-light: #d1fae5;
+      --gold: #f59e0b;
+      --gold-light: #fef3c7;
+      --silver: #94a3b8;
+      --bronze: #b45309;
+      --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.05);
+      --shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
+      --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
+      --radius-sm: 6px;
+      --radius: 10px;
+      --radius-lg: 16px;
+      --radius-xl: 24px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, sans-serif; }
+    body { background: linear-gradient(180deg, var(--gray-900) 0%, #0f172a 100%); color: var(--white); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+    header {
+      background: linear-gradient(135deg, var(--orange) 0%, var(--orange-dark) 100%);
+      padding: 1rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: var(--shadow-lg);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo-wrap { display: flex; align-items: center; gap: .75rem; }
+    .logo-wrap img { width: 36px; height: 36px; border-radius: 8px; object-fit: cover; }
+    .logo-wrap h1 { font-size: 1.15rem; font-weight: 800; letter-spacing: -0.02em; }
+    .back-btn {
+      background: rgba(255,255,255,0.15);
+      color: var(--white);
+      border: 1px solid rgba(255,255,255,0.2);
+      padding: .5rem 1rem;
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-size: .85rem;
+      font-weight: 600;
+      transition: all .2s ease;
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+      text-decoration: none;
+    }
+    .back-btn:hover { background: rgba(255,255,255,0.25); }
+
+    .container { max-width: 900px; margin: 0 auto; padding: 1.5rem; }
+
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .page-title h2 { font-size: 1.75rem; font-weight: 800; margin-bottom: .25rem; }
+    .page-title p { color: var(--gray-400); font-size: .9rem; }
+    .header-actions { display: flex; gap: .75rem; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      padding: .625rem 1.25rem;
+      border-radius: var(--radius);
+      font-size: .85rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all .2s ease;
+      text-decoration: none;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--orange) 0%, var(--orange-dark) 100%);
+      color: var(--white);
+      box-shadow: 0 4px 16px rgba(249,115,22,0.3);
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(249,115,22,0.4); }
+    .btn-ghost {
+      background: var(--gray-800);
+      color: var(--gray-400);
+      border: 1px solid var(--gray-700);
+    }
+    .btn-ghost:hover { background: var(--gray-700); color: var(--white); }
+
+    /* STATS */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      border: 1px solid var(--gray-700);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem;
+      transition: all .2s ease;
+    }
+    .stat-card:hover { border-color: var(--gray-600); transform: translateY(-2px); }
+    .stat-label {
+      font-size: .7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--gray-500);
+      margin-bottom: .5rem;
+    }
+    .stat-value {
+      font-size: 1.75rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    .stat-change {
+      font-size: .75rem;
+      font-weight: 600;
+      margin-top: .25rem;
+    }
+    .stat-change.positive { color: var(--green); }
+    .stat-change.negative { color: var(--red); }
+
+    /* FILTERS */
+    .filters-bar {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      margin-bottom: 1.25rem;
+      flex-wrap: wrap;
+    }
+    .search-box {
+      position: relative;
+      flex: 1;
+      min-width: 200px;
+      max-width: 300px;
+    }
+    .search-box input {
+      width: 100%;
+      background: var(--gray-800);
+      border: 1px solid var(--gray-700);
+      border-radius: var(--radius);
+      padding: .625rem .875rem .625rem 2.25rem;
+      color: var(--white);
+      font-size: .85rem;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .search-box input:focus { border-color: var(--orange); }
+    .search-box i {
+      position: absolute;
+      left: .75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--gray-500);
+      font-size: 1rem;
+    }
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      background: var(--gray-800);
+      border: 1px solid var(--gray-700);
+      border-radius: var(--radius);
+      padding: .375rem .5rem .375rem .875rem;
+    }
+    .filter-group label {
+      font-size: .75rem;
+      color: var(--gray-500);
+      font-weight: 500;
+    }
+    .filter-group select,
+    .filter-group input {
+      background: transparent;
+      border: none;
+      color: var(--white);
+      font-size: .85rem;
+      font-weight: 500;
+      outline: none;
+      cursor: pointer;
+      padding: .25rem .5rem;
+    }
+    .filter-group input { cursor: text; }
+    .filter-group select option { background: var(--gray-800); }
+
+    /* TABLE */
+    .table-container {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      border: 1px solid var(--gray-700);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+    .table-header {
+      display: grid;
+      grid-template-columns: 140px 100px 80px 100px 100px 90px 120px 50px;
+      padding: .875rem 1.25rem;
+      background: rgba(249,115,22,0.08);
+      border-bottom: 1px solid var(--gray-700);
+      font-size: .7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--gray-500);
+    }
+    .table-row {
+      display: grid;
+      grid-template-columns: 140px 100px 80px 100px 100px 90px 120px 50px;
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--gray-800);
+      align-items: center;
+      transition: background .15s ease;
+      cursor: pointer;
+    }
+    .table-row:last-child { border-bottom: none; }
+    .table-row:hover { background: rgba(255,255,255,0.03); }
+
+    .cell { font-size: .85rem; font-weight: 500; }
+    .cell-date { display: flex; flex-direction: column; gap: .125rem; }
+    .cell-date .date { font-weight: 600; color: var(--white); }
+    .cell-date .time { font-size: .75rem; color: var(--gray-500); }
+
+    .cell-amount { font-weight: 700; font-size: .9rem; }
+    .cell-multiplier { font-weight: 800; font-size: 1rem; }
+    .cell-multiplier.x1 { color: var(--gray-400); }
+    .cell-multiplier.x2 { color: var(--gold); }
+    .cell-multiplier.x3 { color: var(--orange-light); }
+    .cell-multiplier.x5 { color: var(--orange); }
+    .cell-multiplier.x10 { color: #a855f7; }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .25rem;
+      padding: .25rem .625rem;
+      border-radius: 20px;
+      font-size: .65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .badge-win { background: rgba(16,185,129,0.15); color: var(--green); border: 1px solid rgba(16,185,129,0.3); }
+    .badge-loss { background: rgba(239,68,68,0.15); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+
+    .badge-payout { font-weight: 700; font-size: .9rem; }
+    .badge-payout.positive { color: var(--green); }
+    .badge-payout.negative { color: var(--red); }
+
+    .cell-difficulty {
+      display: inline-flex;
+      align-items: center;
+      gap: .375rem;
+      font-size: .75rem;
+      font-weight: 600;
+      color: var(--gray-400);
+    }
+    .diff-dot { width: 6px; height: 6px; border-radius: 50%; }
+    .diff-easy .diff-dot { background: var(--green); }
+    .diff-medium .diff-dot { background: var(--gold); }
+    .diff-hard .diff-dot { background: var(--orange); }
+    .diff-insane .diff-dot { background: var(--red); }
+
+    .cell-actions { display: flex; justify-content: center; }
+    .btn-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      border: none;
+      background: transparent;
+      color: var(--gray-500);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all .2s;
+      font-size: 1rem;
+    }
+    .btn-icon:hover { background: var(--gray-800); color: var(--white); }
+
+    /* PAGINATION */
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: .875rem 1.25rem;
+      border-top: 1px solid var(--gray-800);
+    }
+    .pagination-info { font-size: .8rem; color: var(--gray-500); }
+    .pagination-controls { display: flex; align-items: center; gap: .25rem; }
+    .page-btn {
+      min-width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      border: 1px solid var(--gray-700);
+      background: var(--gray-800);
+      color: var(--gray-400);
+      font-size: .8rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all .2s;
+    }
+    .page-btn:hover:not(:disabled) { background: var(--gray-700); color: var(--white); }
+    .page-btn.active { background: var(--orange); border-color: var(--orange); color: var(--white); }
+    .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* EMPTY STATE */
+    .empty-state { text-align: center; padding: 3rem 1.5rem; }
+    .empty-state-icon {
+      width: 56px;
+      height: 56px;
+      background: var(--gray-800);
+      border-radius: var(--radius-lg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1rem;
+      font-size: 1.5rem;
+    }
+    .empty-state h3 { font-size: 1rem; font-weight: 700; margin-bottom: .5rem; }
+    .empty-state p { color: var(--gray-500); font-size: .85rem; }
+
+    /* SKELETON */
+    .skeleton {
+      background: linear-gradient(90deg, var(--gray-800) 25%, var(--gray-700) 50%, var(--gray-800) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: var(--radius-sm);
+    }
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* TOAST */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--gray-900);
+      color: var(--white);
+      padding: .875rem 1.25rem;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-xl);
+      z-index: 4000;
+      opacity: 0;
+      transition: all .3s ease;
+      display: flex;
+      align-items: center;
+      gap: .625rem;
+      font-weight: 600;
+      font-size: .85rem;
+      border: 1px solid var(--gray-700);
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    .toast.success { background: var(--green); border-color: var(--green); }
+    .toast.error { background: var(--red); border-color: var(--red); }
+
+    .hidden { display: none !important; }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .table-header, .table-row {
+        grid-template-columns: 1fr 80px 80px 50px;
+      }
+      .table-header .hide-mobile, .table-row .hide-mobile { display: none; }
+      .page-header { flex-direction: column; align-items: flex-start; }
+    }
+    @media (max-width: 480px) {
+      .stats-grid { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body>
 
-    <!-- ========== SIDEBAR ========== -->
-    <aside class="sidebar">
-        <div class="logo">
-            <div class="logo-icon">🏦</div>
-            <div class="logo-text">Task<span>Vault</span></div>
-        </div>
+<header>
+  <a href="dashboard.html" class="back-btn">
+    <i class="ri-arrow-left-line"></i> Back
+  </a>
+  <div class="logo-wrap">
+    <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" alt="TaskVault"/>
+    <h1>Game History</h1>
+  </div>
+  <div style="width:80px;"></div>
+</header>
 
-        <div class="nav-section">
-            <div class="nav-label">Main</div>
-            <a href="/dashboard.html" class="nav-item">
-                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-                Dashboard
-            </a>
-            <a href="/play.html" class="nav-item">
-                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                Play Vault Rush
-            </a>
-            <a href="/history.html" class="nav-item active">
-                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                Game History
-            </a>
-            <a href="/leaderboard.html" class="nav-item">
-                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-                Leaderboard
-            </a>
-        </div>
+<div class="container">
+  <!-- Loading State -->
+  <div id="loadingState">
+    <div class="stats-grid">
+      <div class="stat-card"><div class="skeleton" style="width:60%;height:16px;margin-bottom:.5rem;"></div><div class="skeleton" style="width:40%;height:28px;"></div></div>
+      <div class="stat-card"><div class="skeleton" style="width:60%;height:16px;margin-bottom:.5rem;"></div><div class="skeleton" style="width:40%;height:28px;"></div></div>
+      <div class="stat-card"><div class="skeleton" style="width:60%;height:16px;margin-bottom:.5rem;"></div><div class="skeleton" style="width:40%;height:28px;"></div></div>
+      <div class="stat-card"><div class="skeleton" style="width:60%;height:16px;margin-bottom:.5rem;"></div><div class="skeleton" style="width:40%;height:28px;"></div></div>
+    </div>
+    <div class="table-container">
+      <div class="skeleton" style="width:100%;height:48px;border-radius:0;"></div>
+      <div class="skeleton" style="width:100%;height:56px;margin-top:1px;"></div>
+      <div class="skeleton" style="width:100%;height:56px;margin-top:1px;"></div>
+      <div class="skeleton" style="width:100%;height:56px;margin-top:1px;"></div>
+    </div>
+  </div>
 
-        <div class="nav-section">
-            <div class="nav-label">Account</div>
-            <a href="/profile.html" class="nav-item">
-                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                Profile
-            </a>
-            <a href="/wallet.html" class="nav-item">
-                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-                Wallet
-            </a>
-            <a href="/settings.html" class="nav-item">
-                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                Settings
-            </a>
-        </div>
+  <!-- Main Content -->
+  <div id="mainContent" class="hidden">
+    <div class="page-header">
+      <div class="page-title">
+        <h2>Game History</h2>
+        <p>Track your Vault Rush performance over time</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-ghost" onclick="exportCSV()">
+          <i class="ri-download-line"></i> Export CSV
+        </button>
+        <a href="vault-rush.html" class="btn btn-primary">
+          <i class="ri-gamepad-fill"></i> Play Now
+        </a>
+      </div>
+    </div>
 
-        <div class="user-card">
-            <div class="user-avatar">U</div>
-            <div class="user-info">
-                <div class="user-name">Loading...</div>
-                <div class="user-balance">$0.00</div>
-            </div>
-        </div>
-    </aside>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Games</div>
+        <div class="stat-value" id="stat-total">0</div>
+        <div class="stat-change positive" id="stat-total-change">+0 this week</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Win Rate</div>
+        <div class="stat-value" id="stat-winrate">0%</div>
+        <div class="stat-change positive" id="stat-winrate-change">+0% vs last week</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total Wagered</div>
+        <div class="stat-value" id="stat-wagered">$0.00</div>
+        <div class="stat-change negative" id="stat-wagered-change">-0% vs last week</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Net Profit</div>
+        <div class="stat-value" id="stat-profit">$0.00</div>
+        <div class="stat-change positive" id="stat-profit-change">+0% all time</div>
+      </div>
+    </div>
 
-    <!-- ========== MAIN CONTENT ========== -->
-    <main class="main">
-        <!-- Header -->
-        <div class="page-header">
-            <div>
-                <h1 class="page-title">Game History</h1>
-                <p class="page-subtitle">Track your Vault Rush performance over time</p>
-            </div>
-            <div class="header-actions">
-                <button class="btn btn-ghost" onclick="exportCSV()">
-                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                    Export CSV
-                </button>
-                <a href="/play.html" class="btn btn-primary">
-                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                    Play Now
-                </a>
-            </div>
-        </div>
+    <div class="filters-bar">
+      <div class="search-box">
+        <i class="ri-search-line"></i>
+        <input type="text" id="searchInput" placeholder="Search by game ID...">
+      </div>
+      <div class="filter-group">
+        <label>Result:</label>
+        <select id="filterResult">
+          <option value="all">All</option>
+          <option value="win">Win</option>
+          <option value="loss">Loss</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>From:</label>
+        <input type="date" id="filterFrom">
+      </div>
+      <div class="filter-group">
+        <label>To:</label>
+        <input type="date" id="filterTo">
+      </div>
+    </div>
 
-        <!-- Stats -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-label">Total Games</div>
-                <div class="stat-value" id="stat-total">0</div>
-                <div class="stat-change positive">+12 this week</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Win Rate</div>
-                <div class="stat-value" id="stat-winrate">0%</div>
-                <div class="stat-change positive">+3.2% vs last week</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Total Wagered</div>
-                <div class="stat-value" id="stat-wagered">$0.00</div>
-                <div class="stat-change negative">-5% vs last week</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Net Profit</div>
-                <div class="stat-value" id="stat-profit">$0.00</div>
-                <div class="stat-change positive">+18% all time</div>
-            </div>
-        </div>
+    <div class="table-container">
+      <div class="table-header">
+        <div>Date & Time</div>
+        <div class="hide-mobile">Bet Amount</div>
+        <div>Score</div>
+        <div class="hide-mobile">Result</div>
+        <div class="hide-mobile">Payout</div>
+        <div>Net</div>
+        <div class="hide-mobile">Game ID</div>
+        <div></div>
+      </div>
+      <div id="tableBody"></div>
+      <div class="pagination">
+        <div class="pagination-info" id="paginationInfo">Showing 0 of 0 games</div>
+        <div class="pagination-controls" id="paginationControls"></div>
+      </div>
+    </div>
+  </div>
+</div>
 
-        <!-- Filters -->
-        <div class="filters-bar">
-            <div class="search-box">
-                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                <input type="text" id="searchInput" placeholder="Search by game ID...">
-            </div>
-            <div class="filter-group">
-                <label>Result:</label>
-                <select id="filterResult">
-                    <option value="all">All</option>
-                    <option value="win">Win</option>
-                    <option value="loss">Loss</option>
-                </select>
-            </div>
-            <div class="filter-group">
-                <label>Difficulty:</label>
-                <select id="filterDifficulty">
-                    <option value="all">All</option>
-                    <option value="Easy">Easy</option>
-                    <option value="Medium">Medium</option>
-                    <option value="Hard">Hard</option>
-                    <option value="Insane">Insane</option>
-                </select>
-            </div>
-            <div class="filter-group">
-                <label>From:</label>
-                <input type="date" id="filterFrom">
-            </div>
-            <div class="filter-group">
-                <label>To:</label>
-                <input type="date" id="filterTo">
-            </div>
-        </div>
+<div class="toast" id="toast"></div>
 
-        <!-- Table -->
-        <div class="table-container">
-            <div class="table-header">
-                <div>Date & Time</div>
-                <div class="hide-mobile">Bet Amount</div>
-                <div>Multiplier</div>
-                <div class="hide-mobile">Difficulty</div>
-                <div class="hide-mobile">Result</div>
-                <div>Payout</div>
-                <div class="hide-mobile">Game ID</div>
-                <div></div>
-            </div>
-            <div id="tableBody">
-                <div class="empty-state">
-                    <div class="empty-state-icon">⏳</div>
-                    <h3>Loading your games...</h3>
-                    <p>Fetching data from Firestore</p>
-                </div>
-            </div>
-            <div class="pagination">
-                <div class="pagination-info" id="paginationInfo">Showing 0 of 0 games</div>
-                <div class="pagination-controls" id="paginationControls"></div>
-            </div>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+  import {
+    getFirestore, doc, getDoc, collection, query, where, orderBy, getDocs
+  } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAv6QCpopa0Q77AVTyjU5cqJEIKIE9OVTs",
+    authDomain: "taskvault-412a0.firebaseapp.com",
+    projectId: "taskvault-412a0",
+    storageBucket: "taskvault-412a0.firebasestorage.app",
+    messagingSenderId: "420716701831",
+    appId: "1:420716701831:web:c987d91f7f4c8684eb7022"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  let currentUser = null;
+  let allGames = [];
+  let filteredGames = [];
+  let currentPage = 1;
+  const perPage = 10;
+
+  const loadingState = document.getElementById('loadingState');
+  const mainContent = document.getElementById('mainContent');
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { location.href = 'login.html'; return; }
+    currentUser = user;
+    await loadGames();
+  });
+
+  async function loadGames() {
+    try {
+      // Fetch from gameHistory collection
+      const q = query(
+        collection(db, 'gameHistory'),
+        where('userId', '==', currentUser.uid),
+        orderBy('timestamp', 'desc')
+      );
+
+      const snapshot = await getDocs(q);
+
+      allGames = snapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+          date: data.timestamp?.toDate ? data.timestamp.toDate() : new Date(data.timestamp),
+          betAmount: Math.abs(data.amount || 0),
+          result: data.type === 'prize' ? 'win' : (data.amount > 0 ? 'win' : 'loss'),
+          payout: data.type === 'prize' ? (data.amount || 0) : 0,
+          score: data.score || 0,
+          roundId: data.roundId || ''
+        };
+      });
+
+      filteredGames = [...allGames];
+      updateStats();
+      renderTable();
+
+      loadingState.classList.add('hidden');
+      mainContent.classList.remove('hidden');
+
+    } catch (err) {
+      console.error('Load games error:', err);
+      showToast('Failed to load history: ' + err.message, 'error');
+    }
+  }
+
+  function updateStats() {
+    const total = allGames.length;
+    const wins = allGames.filter(g => g.result === 'win').length;
+    const winRate = total > 0 ? Math.round((wins / total) * 100) : 0;
+    const wagered = allGames.filter(g => g.type === 'entry').reduce((sum, g) => sum + g.betAmount, 0);
+    const profit = allGames.reduce((sum, g) => sum + (g.payout || 0) - (g.type === 'entry' ? g.betAmount : 0), 0);
+
+    document.getElementById('stat-total').textContent = total.toLocaleString();
+    document.getElementById('stat-winrate').textContent = winRate + '%';
+    document.getElementById('stat-wagered').textContent = '$' + wagered.toFixed(2);
+    
+    const profitEl = document.getElementById('stat-profit');
+    profitEl.textContent = (profit >= 0 ? '+' : '') + '$' + Math.abs(profit).toFixed(2);
+    profitEl.style.color = profit >= 0 ? 'var(--green)' : 'var(--red)';
+
+    // Update change indicators (mock for now - you'd calculate from date ranges)
+    document.getElementById('stat-total-change').textContent = `+${total} total`;
+    document.getElementById('stat-winrate-change').textContent = `${winRate}% lifetime`;
+    document.getElementById('stat-wagered-change').textContent = 'All time';
+    document.getElementById('stat-profit-change').textContent = profit >= 0 ? 'In profit' : 'In loss';
+    document.getElementById('stat-profit-change').className = 'stat-change ' + (profit >= 0 ? 'positive' : 'negative');
+  }
+
+  function formatDate(date) {
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
+  }
+
+  function formatTime(date) {
+    return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function renderTable() {
+    const start = (currentPage - 1) * perPage;
+    const end = start + perPage;
+    const pageGames = filteredGames.slice(start, end);
+    const tbody = document.getElementById('tableBody');
+
+    if (pageGames.length === 0) {
+      tbody.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">📭</div>
+          <h3>No games found</h3>
+          <p>Try adjusting your filters or play your first game!</p>
         </div>
-    </main>
+      `;
+      document.getElementById('paginationInfo').textContent = 'Showing 0 of 0 games';
+      document.getElementById('paginationControls').innerHTML = '';
+      return;
+    }
+
+    tbody.innerHTML = pageGames.map(game => {
+      const net = (game.payout || 0) - (game.type === 'entry' ? game.betAmount : 0);
+      return `
+        <div class="table-row" onclick="viewGame('${game.id}')">
+          <div class="cell cell-date">
+            <span class="date">${formatDate(game.date)}</span>
+            <span class="time">${formatTime(game.date)}</span>
+          </div>
+          <div class="cell cell-amount hide-mobile">$${game.betAmount.toFixed(2)}</div>
+          <div class="cell cell-multiplier">${game.score.toLocaleString()}</div>
+          <div class="cell hide-mobile">
+            <span class="badge badge-${game.result}">${game.result}</span>
+          </div>
+          <div class="cell hide-mobile">
+            <span class="badge-payout ${game.payout > 0 ? 'positive' : 'negative'}">
+              ${game.payout > 0 ? '+' : ''}$${Math.abs(game.payout).toFixed(2)}
+            </span>
+          </div>
+          <div class="cell">
+            <span class="badge-payout ${net >= 0 ? 'positive' : 'negative'}">
+              ${net >= 0 ? '+' : ''}$${Math.abs(net).toFixed(2)}
+            </span>
+          </div>
+          <div class="cell hide-mobile" style="font-family: monospace; font-size: .75rem; color: var(--gray-500);">${game.id.slice(0, 12)}...</div>
+          <div class="cell-actions">
+            <button class="btn-icon" title="View Details" onclick="event.stopPropagation(); viewGame('${game.id}')">
+              <i class="ri-eye-line"></i>
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    document.getElementById('paginationInfo').textContent = 
+      `Showing ${start + 1}-${Math.min(end, filteredGames.length)} of ${filteredGames.length} games`;
+
+    const totalPages = Math.ceil(filteredGames.length / perPage);
+    let controls = '';
+    
+    controls += `<button class="page-btn" onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>‹</button>`;
+    
+    for (let i = 1; i <= totalPages; i++) {
+      if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+        controls += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
+      } else if (i === currentPage - 2 || i === currentPage + 2) {
+        controls += `<span style="color: var(--gray-600); padding: 0 .25rem;">...</span>`;
+      }
+    }
+    
+    controls += `<button class="page-btn" onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>›</button>`;
+    
+    document.getElementById('paginationControls').innerHTML = controls;
+  }
+
+  function applyFilters() {
+    const search = document.getElementById('searchInput').value.toLowerCase();
+    const result = document.getElementById('filterResult').value;
+    const fromDate = document.getElementById('filterFrom').valueAsDate;
+    const toDate = document.getElementById('filterTo').valueAsDate;
+
+    filteredGames = allGames.filter(game => {
+      if (search && !game.id.toLowerCase().includes(search) && !game.roundId.toLowerCase().includes(search)) return false;
+      if (result !== 'all' && game.result !== result) return false;
+      if (fromDate && game.date < fromDate) return false;
+      if (toDate) {
+        const endOfDay = new Date(toDate);
+        endOfDay.setHours(23, 59, 59);
+        if (game.date > endOfDay) return false;
+      }
+      return true;
+    });
+
+    currentPage = 1;
+    renderTable();
+  }
+
+  window.changePage = function(page) {
+    const totalPages = Math.ceil(filteredGames.length / perPage);
+    if (page < 1 || page > totalPages) return;
+    currentPage = page;
+    renderTable();
+  };
+
+  window.viewGame = function(gameId) {
+    const game = allGames.find(g => g.id === gameId);
+    if (!game) return;
+    alert(`Game Details:\n\nID: ${game.id}\nDate: ${formatDate(game.date)} ${formatTime(game.date)}\nBet: $${game.betAmount.toFixed(2)}\nScore: ${game.score.toLocaleString()}\nResult: ${game.result.toUpperCase()}\nPayout: $${game.payout.toFixed(2)}\nRound: ${game.roundId}\n\n(Connect this to your game replay modal)`);
+  };
+
+  window.exportCSV = function() {
+    const games = filteredGames.length > 0 ? filteredGames : allGames;
+    const headers = ['Game ID', 'Date', 'Time', 'Bet Amount', 'Score', 'Result', 'Payout', 'Net'];
+    const rows = games.map(g => {
+      const net = (g.payout || 0) - (g.type === 'entry' ? g.betAmount : 0);
+      return [
+        g.id,
+        formatDate(g.date),
+        formatTime(g.date),
+        g.betAmount.toFixed(2),
+        g.score,
+        g.result,
+        g.payout.toFixed(2),
+        net.toFixed(2)
+      ];
+    });
+
+    const csv = [headers, ...rows].map(row => row.join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `vault-rush-history-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('CSV exported successfully', 'success');
+  };
+
+  function showToast(message, type = 'success') {
+    const toast = document.getElementById('toast');
+    toast.innerHTML = `<i class="ri-${type === 'success' ? 'checkbox-circle' : 'error-warning'}-line"></i> ${message}`;
+    toast.className = `toast ${type} show`;
+    setTimeout(() => toast.classList.remove('show'), 3000);
+  }
+
+  // Event listeners
+  document.getElementById('searchInput').addEventListener('input', applyFilters);
+  document.getElementById('filterResult').addEventListener('change', applyFilters);
+  document.getElementById('filterFrom').addEventListener('change', applyFilters);
+  document.getElementById('filterTo').addEventListener('change', applyFilters);
+</script>
 
 </body>
-  </html>
+</html>
