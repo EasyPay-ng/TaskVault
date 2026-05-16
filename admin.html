@@ -172,6 +172,49 @@
       letter-spacing: -0.02em;
     }
 
+    /* Quick Actions Bar */
+    .quick-actions-bar {
+      display: flex;
+      gap: .75rem;
+      margin-bottom: 1.25rem;
+      flex-wrap: wrap;
+    }
+    .quick-action {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      padding: .6rem 1rem;
+      background: var(--white);
+      border: 1.5px solid var(--gray-200);
+      border-radius: var(--radius);
+      text-decoration: none;
+      color: var(--gray-700);
+      font-weight: 600;
+      font-size: .85rem;
+      transition: all .2s ease;
+      cursor: pointer;
+    }
+    .quick-action:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+    }
+    .quick-action i { font-size: 1.1rem; }
+    .quick-action.deposits { border-color: var(--green-light); }
+    .quick-action.deposits:hover { background: var(--green-light); color: var(--green); border-color: var(--green); }
+    .quick-action.deposits i { color: var(--green); }
+    .quick-action.withdrawals { border-color: var(--red-light); }
+    .quick-action.withdrawals:hover { background: var(--red-light); color: var(--red); border-color: var(--red); }
+    .quick-action.withdrawals i { color: var(--red); }
+    .quick-action.stakes { border-color: var(--blue-light); }
+    .quick-action.stakes:hover { background: var(--blue-light); color: var(--blue); border-color: var(--blue); }
+    .quick-action.stakes i { color: var(--blue); }
+    .quick-action.ads { border-color: var(--purple-light); }
+    .quick-action.ads:hover { background: var(--purple-light); color: var(--purple); border-color: var(--purple); }
+    .quick-action.ads i { color: var(--purple); }
+    .quick-action.tasks { border-color: var(--yellow-light); }
+    .quick-action.tasks:hover { background: var(--yellow-light); color: var(--yellow); border-color: var(--yellow); }
+    .quick-action.tasks i { color: var(--yellow); }
+
     /* Action Bar */
     .action-bar {
       display: flex;
@@ -383,11 +426,6 @@
       border: none;
       transition: all .2s ease;
     }
-    .overlay-action-btn.deposits { background: var(--green-light); color: var(--green); }
-    .overlay-action-btn.withdrawals { background: var(--red-light); color: var(--red); }
-    .overlay-action-btn.stakes { background: var(--blue-light); color: var(--blue); }
-    .overlay-action-btn.ads { background: var(--purple-light); color: var(--purple); }
-    .overlay-action-btn.tasks { background: var(--yellow-light); color: var(--yellow); }
     .overlay-action-btn.edit { background: var(--orange-soft); color: var(--orange-dark); }
     .overlay-action-btn:hover { transform: translateY(-1px); filter: brightness(0.95); }
 
@@ -526,40 +564,6 @@
     }
     .detail-value.positive { color: var(--green); font-weight: 700; }
     .detail-value.negative { color: var(--red); font-weight: 700; }
-
-    .quick-links {
-      padding: 0 1.5rem 1.5rem;
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: .75rem;
-    }
-    .quick-link {
-      display: flex;
-      align-items: center;
-      gap: .75rem;
-      padding: 1rem 1.25rem;
-      background: var(--white);
-      border: 1.5px solid var(--gray-200);
-      border-radius: var(--radius);
-      text-decoration: none;
-      color: var(--gray-700);
-      font-weight: 600;
-      font-size: .9rem;
-      transition: all .2s ease;
-    }
-    .quick-link:hover {
-      border-color: var(--orange);
-      background: var(--orange-soft);
-      color: var(--orange-dark);
-      transform: translateY(-1px);
-      box-shadow: var(--shadow-md);
-    }
-    .quick-link i { font-size: 1.25rem; }
-    .quick-link.deposits i { color: var(--green); }
-    .quick-link.withdrawals i { color: var(--red); }
-    .quick-link.stakes i { color: var(--blue); }
-    .quick-link.ads i { color: var(--purple); }
-    .quick-link.tasks i { color: var(--yellow); }
 
     /* Edit Modal */
     .modal-overlay {
@@ -729,17 +733,8 @@
     <h1>TaskVault <span class="admin-badge">ADMIN</span></h1>
   </div>
   <div class="header-btns">
-    <button class="header-btn" onclick="location.href='admin-topics.html'">
-      <i class="ri-list-check"></i> Topics
-    </button>
-    <button class="header-btn" onclick="location.href='admin-stakes.html'">
-      <i class="ri-coins-line"></i> Stakes
-    </button>
-    <button class="header-btn" onclick="location.href='admin-withdrawals.html'">
-      <i class="ri-bank-card-line"></i> Withdrawals
-    </button>
     <button class="header-btn" onclick="signOutUser()">
-      <i class="ri-logout-box-line"></i>
+      <i class="ri-logout-box-line"></i> Sign Out
     </button>
   </div>
 </header>
@@ -787,6 +782,25 @@
         <div class="stat-value" id="statVerified">0</div>
       </div>
     </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="quick-actions-bar">
+    <a href="deposit.html" class="quick-action deposits">
+      <i class="ri-arrow-down-circle-line"></i> Deposits
+    </a>
+    <a href="withdrawals.html" class="quick-action withdrawals">
+      <i class="ri-arrow-up-circle-line"></i> Withdrawals
+    </a>
+    <a href="admin-stake.html" class="quick-action stakes">
+      <i class="ri-coins-line"></i> Stakes
+    </a>
+    <a href="adverts.html" class="quick-action ads">
+      <i class="ri-advertisement-line"></i> View Ads
+    </a>
+    <a href="admin-tasks.html" class="quick-action tasks">
+      <i class="ri-task-line"></i> Submissions
+    </a>
   </div>
 
   <!-- Action Bar -->
@@ -849,23 +863,8 @@
         <i class="ri-arrow-left-line"></i> Back to Users
       </button>
       <div class="overlay-actions">
-        <button class="overlay-action-btn deposits" onclick="viewUserDeposits()">
-          <i class="ri-arrow-down-circle-line"></i> Deposits
-        </button>
-        <button class="overlay-action-btn withdrawals" onclick="viewUserWithdrawals()">
-          <i class="ri-arrow-up-circle-line"></i> Withdrawals
-        </button>
-        <button class="overlay-action-btn stakes" onclick="viewUserStakes()">
-          <i class="ri-coins-line"></i> Stakes
-        </button>
-        <button class="overlay-action-btn ads" onclick="viewUserAds()">
-          <i class="ri-advertisement-line"></i> View Ads
-        </button>
-        <button class="overlay-action-btn tasks" onclick="viewUserTasks()">
-          <i class="ri-task-line"></i> Submissions
-        </button>
         <button class="overlay-action-btn edit" onclick="openEditModal()">
-          <i class="ri-edit-line"></i> Edit
+          <i class="ri-edit-line"></i> Edit User
         </button>
       </div>
     </div>
@@ -1006,29 +1005,6 @@
           </div>
         </div>
       </div>
-    </div>
-
-    <div class="quick-links">
-      <a href="#" class="quick-link deposits" id="linkDeposits" onclick="return false;">
-        <i class="ri-arrow-down-circle-line"></i>
-        <span>Deposits<br><small>View user's deposit history</small></span>
-      </a>
-      <a href="#" class="quick-link withdrawals" id="linkWithdrawals" onclick="return false;">
-        <i class="ri-arrow-up-circle-line"></i>
-        <span>Withdrawals<br><small>View user's withdrawal requests</small></span>
-      </a>
-      <a href="#" class="quick-link stakes" id="linkStakes" onclick="return false;">
-        <i class="ri-coins-line"></i>
-        <span>Stakes<br><small>View all stakes placed by user</small></span>
-      </a>
-      <a href="#" class="quick-link ads" id="linkAds" onclick="return false;">
-        <i class="ri-advertisement-line"></i>
-        <span>View Ads<br><small>Check ad viewing history</small></span>
-      </a>
-      <a href="#" class="quick-link tasks" id="linkTasks" onclick="return false;">
-        <i class="ri-task-line"></i>
-        <span>Submissions<br><small>View task submissions</small></span>
-      </a>
     </div>
   </div>
 </div>
@@ -1280,13 +1256,6 @@
     document.getElementById('detailLastLogin').textContent = user.lastLogin?.toDate?.().toLocaleString('en-US') || '-';
     document.getElementById('detailDevice').textContent = user.lastDevice || '-';
     
-    // Update quick links with user ID
-    document.getElementById('linkDeposits').href = `deposit.html?user=${uid}`;
-    document.getElementById('linkWithdrawals').href = `withdrawals.html?user=${uid}`;
-    document.getElementById('linkStakes').href = `admin-stake.html?user=${uid}`;
-    document.getElementById('linkAds').href = `adverts.html?user=${uid}`;
-    document.getElementById('linkTasks').href = `admin-tasks.html?user=${uid}`;
-    
     // Show overlay
     document.getElementById('userOverlay').classList.add('show');
     document.body.style.overflow = 'hidden';
@@ -1296,31 +1265,6 @@
     document.getElementById('userOverlay').classList.remove('show');
     document.body.style.overflow = '';
     selectedUser = null;
-  };
-
-  window.viewUserDeposits = function() {
-    if (!selectedUser) return;
-    location.href = `deposit.html?user=${selectedUser.uid}`;
-  };
-
-  window.viewUserWithdrawals = function() {
-    if (!selectedUser) return;
-    location.href = `withdrawals.html?user=${selectedUser.uid}`;
-  };
-
-  window.viewUserStakes = function() {
-    if (!selectedUser) return;
-    location.href = `admin-stake.html?user=${selectedUser.uid}`;
-  };
-
-  window.viewUserAds = function() {
-    if (!selectedUser) return;
-    location.href = `adverts.html?user=${selectedUser.uid}`;
-  };
-
-  window.viewUserTasks = function() {
-    if (!selectedUser) return;
-    location.href = `admin-tasks.html?user=${selectedUser.uid}`;
   };
 
   // Edit Modal Functions
@@ -1474,4 +1418,4 @@
 </script>
 
 </body>
-  </html>
+        </html>
