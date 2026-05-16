@@ -114,7 +114,6 @@
     .powerup-2x { color: var(--gold); border: 1px solid var(--gold); }
     .powerup-magnet { color: var(--purple); border: 1px solid var(--purple); }
     .powerup-shield { color: var(--blue); border: 1px solid var(--blue); }
-    .powerup-frenzy { color: var(--orange); border: 1px solid var(--orange); }
     .powerup-speed { color: var(--cyan); border: 1px solid var(--cyan); }
 
     @keyframes popIn {
@@ -291,7 +290,7 @@
   <div class="controls-info">
     <div class="control-item">
       <div class="control-icon">👆</div>
-      <div class="control-text">Tap left/right<br>or use arrow keys</div>
+      <div class="control-text">Drag anywhere<br>to move vault</div>
     </div>
     <div class="control-item">
       <div class="control-icon">⚡</div>
@@ -299,7 +298,7 @@
     </div>
     <div class="control-item">
       <div class="control-icon">💀</div>
-      <div class="control-text">Dodge red spikes<br>Don't get hit!</div>
+      <div class="control-text">Dodge red spikes<br>-200 pts on hit!</div>
     </div>
     <div class="control-item">
       <div class="control-icon">🔥</div>
@@ -386,9 +385,18 @@
   let powerupsCollected = 0;
   let comboBonus = 0;
   
-  // Player - confined to bottom half
-  let player = { x: 0, y: 0, width: 48, height: 48, speed: 6, shield: false, invincible: false };
+  // Player - BIGGER, moves in ALL directions
+  let player = { 
+    x: 0, 
+    y: 0, 
+    width: 64, 
+    height: 64, 
+    speed: 7, 
+    shield: false, 
+    invincible: false 
+  };
   let targetX = null;
+  let targetY = null;
   
   let coins = [];
   let diamonds = [];
@@ -396,7 +404,7 @@
   let powerups = [];
   let particles = [];
   
-  let activePowerups = { double: 0, magnet: 0, shield: 0, frenzy: 0, speed: 0 };
+  let activePowerups = { double: 0, magnet: 0, shield: 0, speed: 0 };
   
   let animationId = null;
   let lastTime = 0;
@@ -409,7 +417,6 @@
   const attemptNumber = parseInt(sessionStorage.getItem('currentAttempt')) || 1;
 
   let soundEnabled = false;
-  let playAreaTop = 0; // Top boundary of player movement (bottom half)
 
   onAuthStateChanged(auth, (user) => {
     if (!user) { location.href = 'login.html'; return; }
@@ -429,13 +436,12 @@
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
     
-    // Player confined to bottom half of screen
-    playAreaTop = canvas.height * 0.5;
-    player.y = canvas.height - 100;
+    player.y = canvas.height - 120;
     
     if (targetX === null) {
       player.x = canvas.width / 2 - player.width / 2;
       targetX = player.x;
+      targetY = player.y;
     }
   }
 
@@ -447,6 +453,7 @@
     if (soundEnabled) bgVideo.play().catch(() => {});
   };
 
+  // Touch/click - move to that position (both X and Y)
   canvas.addEventListener('touchstart', handleTouch, { passive: false });
   canvas.addEventListener('touchmove', handleTouch, { passive: false });
   canvas.addEventListener('mousedown', handleMouse);
@@ -456,16 +463,20 @@
     e.preventDefault();
     const touch = e.touches[0];
     targetX = touch.clientX - player.width / 2;
+    targetY = touch.clientY - player.height / 2;
   }
 
   function handleMouse(e) {
     targetX = e.clientX - player.width / 2;
+    targetY = e.clientY - player.height / 2;
   }
 
   function handleKey(e) {
     const moveSpeed = activePowerups.speed > 0 ? player.speed * 1.8 : player.speed;
     if (e.key === 'ArrowLeft' || e.key === 'a') targetX = player.x - moveSpeed * 4;
     if (e.key === 'ArrowRight' || e.key === 'd') targetX = player.x + moveSpeed * 4;
+    if (e.key === 'ArrowUp' || e.key === 'w') targetY = player.y - moveSpeed * 4;
+    if (e.key === 'ArrowDown' || e.key === 's') targetY = player.y + moveSpeed * 4;
   }
 
   window.startGame = function() {
@@ -491,9 +502,15 @@
     spikes = [];
     powerups = [];
     particles = [];
-    activePowerups = { double: 0, magnet: 0, shield: 0, frenzy: 0, speed: 0 };
+    activePowerups = { double: 0, magnet: 0, shield: 0, speed: 0 };
     gameTime = 0;
     spawnTimer = 0;
+    
+    // Reset player position
+    player.x = canvas.width / 2 - player.width / 2;
+    player.y = canvas.height - 120;
+    targetX = player.x;
+    targetY = player.y;
     
     updateHUD();
     lastTime = performance.now();
@@ -521,7 +538,6 @@
     lastTime = timestamp;
     gameTime += dt;
     
-    // Speed boost makes everything faster (including player)
     const timeScale = activePowerups.speed > 0 ? 1.6 : 1;
     const adjustedDt = dt * timeScale;
     
@@ -532,13 +548,18 @@
   }
 
   function update(dt) {
-    // Move player with smooth follow
+    // Move player smoothly in BOTH directions
     const moveSpeed = activePowerups.speed > 0 ? player.speed * 1.8 : player.speed;
+    
     const dx = targetX - player.x;
     player.x += dx * 0.12 * dt;
     
-    // Clamp to screen width
+    const dy = targetY - player.y;
+    player.y += dy * 0.12 * dt;
+    
+    // Clamp to screen bounds
     player.x = Math.max(0, Math.min(canvas.width - player.width, player.x));
+    player.y = Math.max(0, Math.min(canvas.height - player.height, player.y));
     
     // Update power-up timers
     Object.keys(activePowerups).forEach(key => {
@@ -553,26 +574,36 @@
       }
     });
     
-    // Spawn entities - slower rate, more spread out
+    // Spawn entities
     spawnTimer += dt;
-    const baseSpawnRate = activePowerups.frenzy > 0 ? 18 : 28; // Much slower spawning
+    const baseSpawnRate = activePowerups.frenzy > 0 ? 20 : 32;
     if (spawnTimer >= baseSpawnRate) {
       spawnTimer = 0;
       spawnEntity();
     }
     
-    // Fall speed - slower on average
-    const baseFallSpeed = activePowerups.speed > 0 ? 5 : (activePowerups.frenzy > 0 ? 3.5 : 2.2);
-    
-    [...coins, ...diamonds, ...spikes, ...powerups].forEach(entity => {
+    // Coins and diamonds fall at normal speed
+    const baseFallSpeed = activePowerups.speed > 0 ? 4.5 : 2.8;
+    [...coins, ...diamonds, ...powerups].forEach(entity => {
       entity.y += baseFallSpeed * dt;
+    });
+    
+    // SPIKES move LEFT-TO-RIGHT at SLOWER speed (not falling)
+    spikes.forEach(spike => {
+      spike.x += spike.vx * dt;
+      // Bounce off walls
+      if (spike.x <= 0 || spike.x + spike.width >= canvas.width) {
+        spike.vx *= -1;
+      }
+      // Slow vertical drift
+      spike.y += 0.3 * dt;
     });
     
     // Magnet effect
     if (activePowerups.magnet > 0) {
       [...coins, ...diamonds].forEach(entity => {
         const dist = Math.hypot(entity.x - (player.x + player.width/2), entity.y - (player.y + player.height/2));
-        if (dist < 180) {
+        if (dist < 200) {
           entity.x += (player.x + player.width/2 - entity.x) * 0.06 * dt;
           entity.y += (player.y + player.height/2 - entity.y) * 0.06 * dt;
         }
@@ -589,36 +620,45 @@
       p.alpha = Math.max(0, p.life / p.maxLife);
     });
     
-    const offScreen = canvas.height + 50;
+    const offScreen = canvas.height + 100;
     coins = coins.filter(c => c.y < offScreen);
     diamonds = diamonds.filter(d => d.y < offScreen);
-    spikes = spikes.filter(s => s.y < offScreen);
+    spikes = spikes.filter(s => s.y < offScreen && s.x > -100 && s.x < canvas.width + 100);
     powerups = powerups.filter(p => p.y < offScreen);
   }
 
   function spawnEntity() {
-    // Spread out across full width with padding
-    const padding = 40;
+    const padding = 60;
     const x = Math.random() * (canvas.width - padding * 2) + padding;
     const rand = Math.random();
     
-    // 70% coins, 15% diamonds, 12% spikes, 3% power-ups (much rarer)
-    if (rand < 0.70) {
-      coins.push({ x, y: -30, width: 26, height: 26, type: 'coin' });
-    } else if (rand < 0.85) {
-      diamonds.push({ x, y: -30, width: 22, height: 22, type: 'diamond' });
-    } else if (rand < 0.97) {
-      spikes.push({ x, y: -30, width: 30, height: 30, type: 'spike' });
+    // 65% coins, 15% diamonds, 15% spikes, 5% power-ups
+    if (rand < 0.65) {
+      // BIGGER coins
+      coins.push({ x, y: -40, width: 36, height: 36, type: 'coin' });
+    } else if (rand < 0.80) {
+      // BIGGER diamonds
+      diamonds.push({ x, y: -40, width: 32, height: 32, type: 'diamond' });
+    } else if (rand < 0.95) {
+      // MUCH BIGGER spikes that move left-to-right slowly
+      const direction = Math.random() > 0.5 ? 1 : -1;
+      const startX = direction === 1 ? -60 : canvas.width + 60;
+      spikes.push({ 
+        x: startX, 
+        y: Math.random() * (canvas.height * 0.6) + 50, 
+        width: 56, 
+        height: 56, 
+        type: 'spike',
+        vx: direction * (0.8 + Math.random() * 0.6) // Slow horizontal movement
+      });
     } else {
-      // Only 3 power-up types now, much rarer
       const types = ['double', 'magnet', 'speed'];
       const type = types[Math.floor(Math.random() * types.length)];
-      powerups.push({ x, y: -30, width: 30, height: 30, type });
+      powerups.push({ x, y: -40, width: 40, height: 40, type });
     }
   }
 
   function checkCollisions() {
-    // Speed boost = invincible to spikes
     const isInvincible = activePowerups.speed > 0 || player.invincible;
     
     coins.forEach((coin, i) => {
@@ -660,7 +700,6 @@
     spikes.forEach((spike, i) => {
       if (rectCollide(spike, player)) {
         if (isInvincible) {
-          // Speed boost destroys spikes on contact
           createParticles(spike.x + spike.width/2, spike.y + spike.height/2, '#06b6d4');
           spikes.splice(i, 1);
         } else if (activePowerups.shield > 0 || player.shield) {
@@ -670,13 +709,15 @@
           spikes.splice(i, 1);
           updatePowerupBadges();
         } else {
+          // DEDUCT 200 POINTS on hit
           combo = 0;
-          score = Math.max(0, score - 50);
+          score = Math.max(0, score - 200);
           createParticles(player.x + player.width/2, player.y + player.height/2, '#ef4444');
           spikes.splice(i, 1);
           
-          canvas.style.transform = `translate(${Math.random()*8-4}px, ${Math.random()*8-4}px)`;
-          setTimeout(() => canvas.style.transform = '', 200);
+          // Screen shake
+          canvas.style.transform = `translate(${Math.random()*10-5}px, ${Math.random()*10-5}px)`;
+          setTimeout(() => canvas.style.transform = '', 250);
           updateHUD();
         }
       }
@@ -700,7 +741,6 @@
   }
 
   function activatePowerup(type) {
-    // Speed boost lasts 10 seconds (600 frames), others 5 seconds
     const duration = type === 'speed' ? 600 : 300;
     
     switch(type) {
@@ -733,16 +773,16 @@
   }
 
   function createParticles(x, y, color) {
-    for (let i = 0; i < 8; i++) {
+    for (let i = 0; i < 10; i++) {
       particles.push({
         x, y,
-        vx: (Math.random() - 0.5) * 8,
-        vy: (Math.random() - 0.5) * 8,
-        life: 20 + Math.random() * 15,
-        maxLife: 35,
+        vx: (Math.random() - 0.5) * 10,
+        vy: (Math.random() - 0.5) * 10,
+        life: 25 + Math.random() * 15,
+        maxLife: 40,
         alpha: 1,
         color,
-        size: Math.random() * 4 + 2
+        size: Math.random() * 5 + 3
       });
     }
   }
@@ -750,106 +790,47 @@
   function render() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // Draw play area boundary line (subtle)
-    ctx.strokeStyle = 'rgba(249, 115, 22, 0.15)';
-    ctx.lineWidth = 1;
-    ctx.setLineDash([8, 8]);
-    ctx.beginPath();
-    ctx.moveTo(0, playAreaTop);
-    ctx.lineTo(canvas.width, playAreaTop);
-    ctx.stroke();
-    ctx.setLineDash([]);
-    
-    // Draw player
-    ctx.save();
-    ctx.translate(player.x + player.width/2, player.y + player.height/2);
-    
-    // Invincible glow (speed boost)
-    if (activePowerups.speed > 0 || player.invincible) {
-      ctx.beginPath();
-      ctx.arc(0, 0, 50, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(6, 182, 212, 0.15)';
-      ctx.fill();
-      ctx.strokeStyle = 'rgba(6, 182, 212, 0.5)';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-    }
-    
-    // Shield glow
-    if (activePowerups.shield > 0 || player.shield) {
-      ctx.beginPath();
-      ctx.arc(0, 0, 42, 0, Math.PI * 2);
-      ctx.strokeStyle = 'rgba(59, 130, 246, 0.4)';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-    }
-    
-    // Player glow
-    ctx.shadowColor = activePowerups.speed > 0 ? '#06b6d4' : '#f97316';
-    ctx.shadowBlur = activePowerups.speed > 0 ? 25 : 15;
-    
-    // Vault body
-    ctx.fillStyle = activePowerups.speed > 0 ? '#06b6d4' : '#f97316';
-    ctx.beginPath();
-    roundRect(ctx, -20, -20, 40, 40, 8);
-    ctx.fill();
-    
-    ctx.shadowBlur = 0;
-    
-    // Inner detail
-    ctx.fillStyle = '#fff';
-    ctx.beginPath();
-    ctx.arc(0, 0, 11, 0, Math.PI * 2);
-    ctx.fill();
-    
-    ctx.fillStyle = activePowerups.speed > 0 ? '#06b6d4' : '#f97316';
-    ctx.beginPath();
-    ctx.arc(0, 0, 5, 0, Math.PI * 2);
-    ctx.fill();
-    
-    ctx.restore();
-    
-    // Draw coins
+    // Draw coins - BIGGER
     coins.forEach(coin => {
       ctx.save();
       ctx.translate(coin.x + coin.width/2, coin.y + coin.height/2);
       
       ctx.shadowColor = '#fbbf24';
-      ctx.shadowBlur = 8;
+      ctx.shadowBlur = 12;
       
       ctx.fillStyle = '#fbbf24';
       ctx.beginPath();
-      ctx.arc(0, 0, 11, 0, Math.PI * 2);
+      ctx.arc(0, 0, 16, 0, Math.PI * 2);
       ctx.fill();
       
       ctx.shadowBlur = 0;
       
       ctx.strokeStyle = '#f59e0b';
-      ctx.lineWidth = 2;
+      ctx.lineWidth = 3;
       ctx.stroke();
       
       ctx.fillStyle = '#fff';
-      ctx.font = 'bold 11px Inter';
+      ctx.font = 'bold 14px Inter';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText('$', 0, 0);
       ctx.restore();
     });
     
-    // Draw diamonds
+    // Draw diamonds - BIGGER
     diamonds.forEach(d => {
       ctx.save();
       ctx.translate(d.x + d.width/2, d.y + d.height/2);
       
       ctx.shadowColor = '#0ea5e9';
-      ctx.shadowBlur = 10;
+      ctx.shadowBlur = 14;
       
       ctx.fillStyle = '#0ea5e9';
       ctx.beginPath();
-      ctx.moveTo(0, -9);
-      ctx.lineTo(9, 0);
-      ctx.lineTo(0, 9);
-      ctx.lineTo(-9, 0);
+      ctx.moveTo(0, -12);
+      ctx.lineTo(12, 0);
+      ctx.lineTo(0, 12);
+      ctx.lineTo(-12, 0);
       ctx.closePath();
       ctx.fill();
       
@@ -861,31 +842,37 @@
       ctx.restore();
     });
     
-    // Draw spikes
+    // Draw spikes - MUCH BIGGER, moving left-to-right
     spikes.forEach(spike => {
       ctx.save();
       ctx.translate(spike.x + spike.width/2, spike.y + spike.height/2);
       
       ctx.shadowColor = '#ef4444';
-      ctx.shadowBlur = 6;
+      ctx.shadowBlur = 10;
       
       ctx.fillStyle = '#ef4444';
       ctx.beginPath();
-      for (let i = 0; i < 5; i++) {
-        const angle = (i * Math.PI * 2 / 5) - Math.PI/2;
-        const x = Math.cos(angle) * 13;
-        const y = Math.sin(angle) * 13;
+      for (let i = 0; i < 6; i++) {
+        const angle = (i * Math.PI * 2 / 6) - Math.PI/2;
+        const x = Math.cos(angle) * 22;
+        const y = Math.sin(angle) * 22;
         if (i === 0) ctx.moveTo(x, y);
         else ctx.lineTo(x, y);
       }
       ctx.closePath();
       ctx.fill();
       
+      // Inner detail
+      ctx.fillStyle = '#7f1d1d';
+      ctx.beginPath();
+      ctx.arc(0, 0, 10, 0, Math.PI * 2);
+      ctx.fill();
+      
       ctx.shadowBlur = 0;
       ctx.restore();
     });
     
-    // Draw power-ups
+    // Draw power-ups - BIGGER
     const powerupColors = {
       double: '#fbbf24',
       magnet: '#8b5cf6',
@@ -898,11 +885,11 @@
       ctx.translate(p.x + p.width/2, p.y + p.height/2);
       
       ctx.shadowColor = powerupColors[p.type];
-      ctx.shadowBlur = 12;
+      ctx.shadowBlur = 16;
       
       ctx.fillStyle = powerupColors[p.type];
       ctx.beginPath();
-      ctx.arc(0, 0, 13, 0, Math.PI * 2);
+      ctx.arc(0, 0, 17, 0, Math.PI * 2);
       ctx.fill();
       
       ctx.shadowBlur = 0;
@@ -912,13 +899,57 @@
       ctx.stroke();
       
       ctx.fillStyle = '#fff';
-      ctx.font = 'bold 11px Inter';
+      ctx.font = 'bold 13px Inter';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       const icons = { double: '2x', magnet: 'M', shield: 'S', speed: '⚡' };
       ctx.fillText(icons[p.type] || '?', 0, 0);
       ctx.restore();
     });
+    
+    // Draw player - BIGGER
+    ctx.save();
+    ctx.translate(player.x + player.width/2, player.y + player.height/2);
+    
+    if (activePowerups.speed > 0 || player.invincible) {
+      ctx.beginPath();
+      ctx.arc(0, 0, 65, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(6, 182, 212, 0.15)';
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(6, 182, 212, 0.5)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+    
+    if (activePowerups.shield > 0 || player.shield) {
+      ctx.beginPath();
+      ctx.arc(0, 0, 55, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(59, 130, 246, 0.4)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+    
+    ctx.shadowColor = activePowerups.speed > 0 ? '#06b6d4' : '#f97316';
+    ctx.shadowBlur = activePowerups.speed > 0 ? 30 : 20;
+    
+    ctx.fillStyle = activePowerups.speed > 0 ? '#06b6d4' : '#f97316';
+    ctx.beginPath();
+    roundRect(ctx, -26, -26, 52, 52, 10);
+    ctx.fill();
+    
+    ctx.shadowBlur = 0;
+    
+    ctx.fillStyle = '#fff';
+    ctx.beginPath();
+    ctx.arc(0, 0, 14, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.fillStyle = activePowerups.speed > 0 ? '#06b6d4' : '#f97316';
+    ctx.beginPath();
+    ctx.arc(0, 0, 7, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.restore();
     
     // Draw particles
     particles.forEach(p => {
@@ -937,10 +968,10 @@
       ctx.save();
       ctx.globalAlpha = Math.max(0, alpha);
       ctx.fillStyle = '#10b981';
-      ctx.font = `bold ${20 + Math.min(combo/3, 30)}px Inter`;
+      ctx.font = `bold ${24 + Math.min(combo/3, 36)}px Inter`;
       ctx.textAlign = 'center';
       ctx.shadowColor = '#10b981';
-      ctx.shadowBlur = 15;
+      ctx.shadowBlur = 20;
       ctx.fillText(`${combo}x COMBO!`, canvas.width/2, canvas.height/3);
       ctx.restore();
     }
@@ -1024,4 +1055,4 @@
 </script>
 
 </body>
-  </html>
+</html>
