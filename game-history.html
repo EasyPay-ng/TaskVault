@@ -120,7 +120,7 @@
     /* STATS */
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 1rem;
       margin-bottom: 2rem;
     }
@@ -152,6 +152,149 @@
     }
     .stat-change.positive { color: var(--green); }
     .stat-change.negative { color: var(--red); }
+
+    /* WINNERS SECTION */
+    .winners-section { margin-bottom: 2rem; }
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    .section-title {
+      font-size: .9rem;
+      font-weight: 700;
+      color: var(--gray-400);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+    .round-selector {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      background: var(--gray-800);
+      border: 1px solid var(--gray-700);
+      border-radius: var(--radius);
+      padding: .375rem .75rem;
+      color: var(--white);
+      font-size: .85rem;
+      font-weight: 500;
+      cursor: pointer;
+      outline: none;
+    }
+    .round-selector option { background: var(--gray-800); }
+
+    .winners-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+    .winner-card {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      border: 1px solid var(--gray-700);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem;
+      text-align: center;
+      transition: all .2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .winner-card:hover { transform: translateY(-2px); border-color: var(--orange); }
+    .winner-card.rank-1 { border-color: rgba(245, 158, 11, 0.4); }
+    .winner-card.rank-1::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--gold), #fbbf24);
+    }
+    .winner-card.rank-2 { border-color: rgba(148, 163, 184, 0.3); }
+    .winner-card.rank-2::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--silver), #cbd5e1);
+    }
+    .winner-card.rank-3 { border-color: rgba(180, 83, 9, 0.3); }
+    .winner-card.rank-3::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--bronze), #d97706);
+    }
+
+    .winner-rank {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto .75rem;
+      font-size: 1.5rem;
+    }
+    .winner-rank.gold { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #78350f; }
+    .winner-rank.silver { background: linear-gradient(135deg, #e2e8f0, #94a3b8); color: #334155; }
+    .winner-rank.bronze { background: linear-gradient(135deg, #fdba74, #ea580c); color: #7c2d12; }
+
+    .winner-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--orange), var(--orange-dark));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto .5rem;
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+
+    .winner-name {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: .25rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .winner-score {
+      font-size: .85rem;
+      color: var(--gray-400);
+      margin-bottom: .5rem;
+    }
+    .winner-score span { color: var(--orange); font-weight: 700; }
+    .winner-prize {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--gold);
+    }
+    .winner-prize-label {
+      font-size: .7rem;
+      color: var(--gray-500);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .no-winners {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 2rem;
+      color: var(--gray-500);
+    }
+    .no-winners i { font-size: 2rem; margin-bottom: .5rem; display: block; }
 
     /* FILTERS */
     .filters-bar {
@@ -422,7 +565,8 @@
 
     /* RESPONSIVE */
     @media (max-width: 768px) {
-      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .stats-grid { grid-template-columns: repeat(3, 1fr); }
+      .winners-grid { grid-template-columns: 1fr; }
       .table-header, .table-row {
         grid-template-columns: 1fr 80px 80px 50px;
       }
@@ -454,7 +598,14 @@
       <div class="stat-card"><div class="skeleton" style="width:60%;height:16px;margin-bottom:.5rem;"></div><div class="skeleton" style="width:40%;height:28px;"></div></div>
       <div class="stat-card"><div class="skeleton" style="width:60%;height:16px;margin-bottom:.5rem;"></div><div class="skeleton" style="width:40%;height:28px;"></div></div>
       <div class="stat-card"><div class="skeleton" style="width:60%;height:16px;margin-bottom:.5rem;"></div><div class="skeleton" style="width:40%;height:28px;"></div></div>
-      <div class="stat-card"><div class="skeleton" style="width:60%;height:16px;margin-bottom:.5rem;"></div><div class="skeleton" style="width:40%;height:28px;"></div></div>
+    </div>
+    <div class="winners-section">
+      <div class="skeleton" style="width:200px;height:20px;margin-bottom:1rem;"></div>
+      <div class="winners-grid">
+        <div class="skeleton" style="width:100%;height:200px;border-radius:16px;"></div>
+        <div class="skeleton" style="width:100%;height:200px;border-radius:16px;"></div>
+        <div class="skeleton" style="width:100%;height:200px;border-radius:16px;"></div>
+      </div>
     </div>
     <div class="table-container">
       <div class="skeleton" style="width:100%;height:48px;border-radius:0;"></div>
@@ -497,7 +648,7 @@
       <div class="stat-card">
         <div class="stat-label">Total Games</div>
         <div class="stat-value" id="stat-total">0</div>
-        <div class="stat-change positive" id="stat-total-change">+0 total</div>
+        <div class="stat-change positive" id="stat-total-change">0 total</div>
       </div>
       <div class="stat-card">
         <div class="stat-label">Win Rate</div>
@@ -509,10 +660,23 @@
         <div class="stat-value" id="stat-wagered">$0.00</div>
         <div class="stat-change negative" id="stat-wagered-change">All time</div>
       </div>
-      <div class="stat-card">
-        <div class="stat-label">Net Profit</div>
-        <div class="stat-value" id="stat-profit">$0.00</div>
-        <div class="stat-change positive" id="stat-profit-change">In profit</div>
+    </div>
+
+    <!-- TOP 3 WINNERS SECTION -->
+    <div class="winners-section">
+      <div class="section-header">
+        <div class="section-title">
+          <i class="ri-trophy-fill" style="color:var(--gold);"></i> Round Winners
+        </div>
+        <select id="roundSelector" class="round-selector" onchange="loadRoundWinners(this.value)">
+          <option value="">Loading rounds...</option>
+        </select>
+      </div>
+      <div class="winners-grid" id="winnersGrid">
+        <div class="no-winners">
+          <i class="ri-emotion-sad-line"></i>
+          <p>No winners data available</p>
+        </div>
       </div>
     </div>
 
@@ -584,6 +748,7 @@
   let currentUser = null;
   let allGames = [];
   let filteredGames = [];
+  let completedRounds = [];
   let currentPage = 1;
   const perPage = 10;
 
@@ -595,46 +760,21 @@
   onAuthStateChanged(auth, async (user) => {
     if (!user) { location.href = 'login.html'; return; }
     currentUser = user;
-    await loadGames();
+    await loadAllData();
   });
 
-  async function loadGames() {
+  async function loadAllData() {
     try {
-      // NO orderBy - avoids composite index requirement
-      // We filter by userId only, then sort client-side
-      const q = query(
-        collection(db, 'gameHistory'),
-        where('userId', '==', currentUser.uid)
-      );
-
-      const snapshot = await getDocs(q);
-
-      allGames = snapshot.docs.map(doc => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          ...data,
-          date: data.timestamp?.toDate ? data.timestamp.toDate() : new Date(data.timestamp || Date.now()),
-          betAmount: Math.abs(data.amount || 0),
-          result: data.type === 'prize' ? 'win' : (data.amount > 0 ? 'win' : 'loss'),
-          payout: data.type === 'prize' ? (data.amount || 0) : 0,
-          score: data.score || 0,
-          roundId: data.roundId || ''
-        };
-      });
-
-      // SORT CLIENT-SIDE by date descending
-      allGames.sort((a, b) => b.date - a.date);
-
-      filteredGames = [...allGames];
-      updateStats();
-      renderTable();
+      await Promise.all([
+        loadGames(),
+        loadCompletedRounds()
+      ]);
 
       loadingState.classList.add('hidden');
       mainContent.classList.remove('hidden');
 
     } catch (err) {
-      console.error('Load games error:', err);
+      console.error('Load error:', err);
       loadingState.classList.add('hidden');
       errorState.classList.remove('hidden');
       
@@ -643,8 +783,6 @@
         msg = 'Permission denied. Check your Firestore security rules.';
       } else if (err.code === 'not-found') {
         msg = 'Collection not found. Make sure you have game history data.';
-      } else if (err.message && err.message.includes('index')) {
-        msg = 'Firestore index issue detected. The query has been fixed to avoid this - please refresh.';
       }
       
       errorMessage.textContent = msg;
@@ -652,31 +790,145 @@
     }
   }
 
+  async function loadGames() {
+    const q = query(
+      collection(db, 'gameHistory'),
+      where('userId', '==', currentUser.uid)
+    );
+
+    const snapshot = await getDocs(q);
+
+    allGames = snapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...data,
+        date: data.timestamp?.toDate ? data.timestamp.toDate() : new Date(data.timestamp || Date.now()),
+        betAmount: Math.abs(data.amount || 0),
+        result: data.type === 'prize' ? 'win' : (data.amount > 0 ? 'win' : 'loss'),
+        payout: data.type === 'prize' ? (data.amount || 0) : 0,
+        score: data.score || 0,
+        roundId: data.roundId || ''
+      };
+    });
+
+    allGames.sort((a, b) => b.date - a.date);
+    filteredGames = [...allGames];
+    updateStats();
+    renderTable();
+  }
+
+  async function loadCompletedRounds() {
+    // Fetch completed rounds - no orderBy to avoid composite index
+    const q = query(
+      collection(db, 'gameRounds'),
+      where('status', '==', 'completed')
+    );
+
+    const snapshot = await getDocs(q);
+    
+    completedRounds = [];
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      completedRounds.push({
+        id: doc.id,
+        ...data,
+        endedAt: data.endsAt?.toDate ? data.endsAt.toDate() : new Date(data.endsAt || Date.now())
+      });
+    });
+
+    // Sort client-side by ended date (newest first)
+    completedRounds.sort((a, b) => b.endedAt - a.endedAt);
+
+    // Populate round selector
+    const selector = document.getElementById('roundSelector');
+    if (completedRounds.length === 0) {
+      selector.innerHTML = '<option value="">No completed rounds</option>';
+      renderWinners([]);
+      return;
+    }
+
+    selector.innerHTML = completedRounds.map((round, index) => 
+      `<option value="${round.id}">Round #${round.roundNumber} – ${formatDateShort(round.endedAt)}</option>`
+    ).join('');
+
+    // Load winners for most recent round
+    await loadRoundWinners(completedRounds[0].id);
+  }
+
+  window.loadRoundWinners = async function(roundId) {
+    if (!roundId) {
+      renderWinners([]);
+      return;
+    }
+
+    const round = completedRounds.find(r => r.id === roundId);
+    if (!round || !round.winners || round.winners.length === 0) {
+      renderWinners([]);
+      return;
+    }
+
+    renderWinners(round.winners);
+  };
+
+  function renderWinners(winners) {
+    const grid = document.getElementById('winnersGrid');
+    
+    if (!winners || winners.length === 0) {
+      grid.innerHTML = `
+        <div class="no-winners">
+          <i class="ri-emotion-sad-line"></i>
+          <p>No winners data for this round</p>
+        </div>
+      `;
+      return;
+    }
+
+    const rankClasses = ['gold', 'silver', 'bronze'];
+    const rankEmojis = ['🥇', '🥈', '🥉'];
+
+    grid.innerHTML = winners.map((winner, index) => {
+      const name = winner.username || 'Unknown';
+      const initial = name.charAt(0).toUpperCase();
+      const rankClass = rankClasses[index] || 'normal';
+      const isYou = winner.userId === currentUser?.uid;
+
+      return `
+        <div class="winner-card rank-${index + 1}">
+          <div class="winner-rank ${rankClass}">${rankEmojis[index]}</div>
+          <div class="winner-avatar">${initial}</div>
+          <div class="winner-name">${escapeHtml(name)} ${isYou ? '<span style="color:var(--orange);">(You)</span>' : ''}</div>
+          <div class="winner-score"><span>${(winner.score || 0).toLocaleString()}</span> pts</div>
+          <div class="winner-prize">$${(winner.prize || 0).toFixed(2)}</div>
+          <div class="winner-prize-label">${index === 0 ? '1st' : index === 1 ? '2nd' : '3rd'} Place</div>
+        </div>
+      `;
+    }).join('');
+  }
+
   function updateStats() {
     const total = allGames.length;
     const wins = allGames.filter(g => g.result === 'win').length;
     const winRate = total > 0 ? Math.round((wins / total) * 100) : 0;
     const wagered = allGames.filter(g => g.type === 'entry').reduce((sum, g) => sum + g.betAmount, 0);
-    const profit = allGames.reduce((sum, g) => sum + (g.payout || 0) - (g.type === 'entry' ? g.betAmount : 0), 0);
 
     document.getElementById('stat-total').textContent = total.toLocaleString();
     document.getElementById('stat-winrate').textContent = winRate + '%';
     document.getElementById('stat-wagered').textContent = '$' + wagered.toFixed(2);
-    
-    const profitEl = document.getElementById('stat-profit');
-    profitEl.textContent = (profit >= 0 ? '+' : '') + '$' + Math.abs(profit).toFixed(2);
-    profitEl.style.color = profit >= 0 ? 'var(--green)' : 'var(--red)';
 
     document.getElementById('stat-total-change').textContent = `${total} total`;
     document.getElementById('stat-winrate-change').textContent = `${winRate}% lifetime`;
     document.getElementById('stat-wagered-change').textContent = 'All time';
-    document.getElementById('stat-profit-change').textContent = profit >= 0 ? 'In profit' : 'In loss';
-    document.getElementById('stat-profit-change').className = 'stat-change ' + (profit >= 0 ? 'positive' : 'negative');
   }
 
   function formatDate(date) {
     const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     return `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
+  }
+
+  function formatDateShort(date) {
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return `${months[date.getMonth()]} ${date.getDate()}`;
   }
 
   function formatTime(date) {
@@ -826,6 +1078,13 @@
     setTimeout(() => toast.classList.remove('show'), 3000);
   }
 
+  function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
   // Event listeners
   document.getElementById('searchInput').addEventListener('input', applyFilters);
   document.getElementById('filterResult').addEventListener('change', applyFilters);
@@ -834,4 +1093,4 @@
 </script>
 
 </body>
-</html>
+        </html>
