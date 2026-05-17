@@ -149,6 +149,8 @@
       display:flex;
       align-items:center;
       gap:.4rem;
+      position:relative;
+      z-index:10;
     }
     .btn-copy:hover{
       background:rgba(255,255,255,0.3);
@@ -656,16 +658,62 @@
 
     searchInput.addEventListener('input', applyFilter);
 
-    // Copy referral link
+    // Fallback copy function for HTTP/non-secure contexts
+    function fallbackCopy(text) {
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-9999px';
+      textArea.style.top = '0';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      
+      try {
+        const successful = document.execCommand('copy');
+        document.body.removeChild(textArea);
+        return successful;
+      } catch (err) {
+        document.body.removeChild(textArea);
+        return false;
+      }
+    }
+
+    // Copy referral link with fallback
     copyBtn.addEventListener('click', async ()=>{
+      console.log('Copy button clicked');
       const code = refCodeEl.textContent || '';
-      if(code === 'Loading...') return;
+      console.log('Code:', code);
+      
+      if(code === 'Loading...') {
+        showToast('Please wait for data to load', 'error');
+        return;
+      }
       
       const encoded = encodeURIComponent(code);
       const url = `https://taskvault.name.ng/register?ref=${encoded}`;
+      console.log('URL to copy:', url);
       
-      try{
-        await navigator.clipboard.writeText(url);
+      let copied = false;
+      
+      // Try modern clipboard API first
+      if (navigator.clipboard && window.isSecureContext) {
+        try {
+          await navigator.clipboard.writeText(url);
+          copied = true;
+          console.log('Copied via navigator.clipboard');
+        } catch (err) {
+          console.log('navigator.clipboard failed:', err);
+        }
+      }
+      
+      // Fallback to execCommand
+      if (!copied) {
+        copied = fallbackCopy(url);
+        console.log('Fallback copy result:', copied);
+      }
+      
+      if (copied) {
         copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied';
         copyBtn.classList.add('copied');
         showToast('Referral link copied to clipboard!');
@@ -674,8 +722,8 @@
           copyBtn.innerHTML = '<i class="fas fa-link"></i> Copy Link';
           copyBtn.classList.remove('copied');
         }, 2000);
-      }catch(err){
-        showToast('Failed to copy link', 'error');
+      } else {
+        showToast('Unable to copy. Please copy manually: ' + url, 'error');
       }
     });
 
