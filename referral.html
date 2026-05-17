@@ -42,7 +42,12 @@
     }
     
     /* Back Button */
-    .top-btn-container{padding:16px 20px}
+    .top-btn-container{
+      padding:16px 20px;
+      max-width:1200px;
+      margin:0 auto;
+      width:95%;
+    }
     .btn-back{
       background:var(--card);
       border:2px solid #fed7aa;
@@ -57,6 +62,7 @@
       align-items:center;
       gap:.5rem;
       box-shadow:var(--shadow-sm);
+      width:fit-content;
     }
     .btn-back:hover{
       background:var(--orange);
@@ -440,13 +446,6 @@
 </head>
 <body>
 
-  <!-- Back Button -->
-  <div class="top-btn-container">
-    <button id="backBtn" class="btn-back">
-      <i class="fas fa-arrow-left"></i> Back to Dashboard
-    </button>
-  </div>
-
   <!-- Header -->
   <header>
     <div class="brand">
@@ -465,6 +464,13 @@
       </div>
     </div>
   </header>
+
+  <!-- Back Button (now below header) -->
+  <div class="top-btn-container">
+    <button id="backBtn" class="btn-back">
+      <i class="fas fa-arrow-left"></i> Back to Dashboard
+    </button>
+  </div>
 
   <!-- Stats Row -->
   <div class="top-row">
@@ -626,7 +632,7 @@
     }
 
     function escapeHtml(str){
-      return String(str).replace(/[&<<>"']/g, m => ({'&':'&amp;','<<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]);
+      return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]);
     }
 
     function applyFilter(){
@@ -656,7 +662,7 @@
       if(code === 'Loading...') return;
       
       const encoded = encodeURIComponent(code);
-      const url = `${window.location.origin}/register?ref=${encoded}`;
+      const url = `https://taskvault.name.ng/register?ref=${encoded}`;
       
       try{
         await navigator.clipboard.writeText(url);
@@ -864,4 +870,4 @@
     }
   </script>
 </body>
-  </html>
+</html>
