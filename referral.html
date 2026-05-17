@@ -610,6 +610,10 @@
       }catch(e){ return '-'; }
     }
 
+    function escapeHtml(str){
+      return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]);
+    }
+
     function renderRows(list, container){
       if(!list.length){
         container.innerHTML = '<tr><td colspan="4" class="no-data"><i class="fas fa-inbox"></i>No records found</td></tr>';
@@ -629,10 +633,6 @@
           <td style="color:var(--muted);font-size:.85rem">${escapeHtml(reg)}</td>
         </tr>`;
       }).join('');
-    }
-
-    function escapeHtml(str){
-      return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]);
     }
 
     function applyFilter(){
