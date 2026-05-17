@@ -421,6 +421,19 @@
       letter-spacing: 0.03em;
     }
 
+    .submissions-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--orange-light);
+      color: var(--orange-dark);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+      margin-top: 8px;
+    }
+
     .task-thumbnail {
       width: 100%;
       max-height: 120px;
@@ -524,7 +537,7 @@
       transform: translateY(-1px);
     }
 
-    /* ==================== OVERLAY / MODAL ==================== */
+    /* ==================== SUBMISSIONS OVERLAY ==================== */
     .overlay {
       position: fixed;
       inset: 0;
@@ -534,7 +547,7 @@
       background: rgba(0, 0, 0, 0.6);
       backdrop-filter: blur(4px);
       z-index: 2600;
-      padding: 20px;
+      padding: 0;
       opacity: 0;
       transition: opacity 0.3s ease;
     }
@@ -546,49 +559,48 @@
 
     .panel {
       width: 100%;
-      max-width: 400px;
-      background: var(--white);
-      border-radius: 20px;
+      max-width: 430px;
+      height: 100dvh;
+      max-height: 850px;
+      background: var(--silk-bg);
+      border-radius: 0;
       padding: 0;
       box-shadow: var(--shadow-xl);
-      max-height: 80vh;
       overflow-y: auto;
-      transform: scale(0.9) translateY(20px);
+      overflow-x: hidden;
+      transform: scale(0.95) translateY(20px);
       transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      display: flex;
+      flex-direction: column;
     }
 
     .overlay.show .panel {
       transform: scale(1) translateY(0);
     }
 
+    @media (min-width: 768px) {
+      .panel {
+        border-radius: 24px;
+        height: 92dvh;
+      }
+    }
+
     .panel-header {
       background: var(--gradient-orange);
       color: white;
-      padding: 20px;
-      border-radius: 20px 20px 0 0;
+      padding: 16px 20px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .panel-header::after {
-      content: '';
-      position: absolute;
-      top: -20px;
-      right: -20px;
-      width: 80px;
-      height: 80px;
-      background: rgba(255,255,255,0.1);
-      border-radius: 50%;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      flex-shrink: 0;
     }
 
     .panel-header h3 {
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 800;
-      position: relative;
-      z-index: 1;
       display: flex;
       align-items: center;
       gap: 8px;
@@ -606,8 +618,6 @@
       align-items: center;
       justify-content: center;
       transition: all 0.2s ease;
-      position: relative;
-      z-index: 1;
       font-size: 16px;
     }
 
@@ -617,36 +627,185 @@
     }
 
     .panel-body {
-      padding: 20px;
+      padding: 16px 20px 80px;
+      flex: 1;
+      overflow-y: auto;
     }
 
-    .panel-line {
+    .panel-body::-webkit-scrollbar {
+      width: 2px;
+    }
+    .panel-body::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .panel-body::-webkit-scrollbar-thumb {
+      background: var(--orange-light);
+      border-radius: 2px;
+    }
+
+    .task-summary {
+      background: var(--white);
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 16px;
+      border: 1px solid rgba(255, 140, 66, 0.06);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .task-summary h4 {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 8px;
+    }
+
+    .task-summary-meta {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      font-size: 11px;
+      color: var(--text-light);
+    }
+
+    .submission-item {
+      background: var(--white);
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 10px;
+      border: 1px solid rgba(255, 140, 66, 0.06);
+      box-shadow: var(--shadow-sm);
+      transition: all 0.3s ease;
+    }
+
+    .submission-item:hover {
+      transform: translateX(2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .submission-header {
       display: flex;
       justify-content: space-between;
-      padding: 10px 0;
-      border-bottom: 1px dashed #e5e7eb;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+
+    .submission-user {
       font-size: 12px;
-    }
-
-    .panel-line:last-child {
-      border-bottom: none;
-    }
-
-    .panel-line .label {
-      color: var(--text-light);
-      font-weight: 500;
-    }
-
-    .panel-line .value {
       font-weight: 700;
       color: var(--text-dark);
     }
 
-    .panel-img {
+    .submission-status {
+      font-size: 9px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 20px;
+      text-transform: uppercase;
+    }
+
+    .submission-status.pending {
+      background: #FEF3C7;
+      color: #92400E;
+    }
+
+    .submission-status.approved {
+      background: #D1FAE5;
+      color: #065F46;
+    }
+
+    .submission-status.rejected {
+      background: #FEE2E2;
+      color: #991B1B;
+    }
+
+    .submission-date {
+      font-size: 10px;
+      color: var(--text-light);
+      margin-bottom: 8px;
+    }
+
+    .submission-proof {
+      font-size: 12px;
+      color: var(--text-dark);
+      line-height: 1.5;
+      margin-bottom: 8px;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .submission-img {
       width: 100%;
+      max-height: 200px;
+      object-fit: cover;
       border-radius: 10px;
-      margin: 10px 0;
+      margin-top: 8px;
       border: 1px solid rgba(255, 140, 66, 0.1);
+      cursor: pointer;
+    }
+
+    .submission-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .btn-action {
+      flex: 1;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .btn-approve {
+      background: #D1FAE5;
+      color: #065F46;
+    }
+
+    .btn-approve:hover {
+      background: #10B981;
+      color: white;
+    }
+
+    .btn-reject {
+      background: #FEE2E2;
+      color: #991B1B;
+    }
+
+    .btn-reject:hover {
+      background: #EF4444;
+      color: white;
+    }
+
+    .no-submissions {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-light);
+    }
+
+    .no-submissions i {
+      font-size: 40px;
+      color: var(--orange-light);
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .no-submissions h4 {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 4px;
+    }
+
+    .no-submissions p {
+      font-size: 11px;
     }
 
     /* ==================== TOAST ==================== */
@@ -817,7 +976,7 @@
         </a>
         <div>
           <div class="header-title">My Advertised Tasks</div>
-          <div class="header-subtitle">Tasks you created and their status</div>
+          <div class="header-subtitle">Tasks you created and their submissions</div>
         </div>
       </div>
     </header>
@@ -898,16 +1057,18 @@
     </nav>
   </div>
 
-  <!-- TASK DETAIL OVERLAY -->
+  <!-- SUBMISSIONS OVERLAY (FULL PAGE PANEL) -->
   <div id="overlay" class="overlay" role="dialog" aria-modal="true">
     <div class="panel" role="document">
       <div class="panel-header">
-        <h3><i class="ri-file-list-3-line"></i> Task Details</h3>
+        <h3><i class="ri-file-list-3-line"></i> Task Submissions</h3>
         <button class="close-x" onclick="closeOverlay()">
           <i class="ri-close-line"></i>
         </button>
       </div>
-      <div class="panel-body" id="overlayContent"></div>
+      <div class="panel-body" id="overlayContent">
+        <!-- Dynamic content -->
+      </div>
     </div>
   </div>
 
@@ -936,6 +1097,7 @@
 
     let currentUser = null;
     let allTasks = [];
+    let taskSubmissions = {}; // Map of taskId -> submissions array
     let unsubscribeTasks = null;
 
     function fmtMoney(n){ return '$' + Number(n || 0).toFixed(3); }
@@ -976,9 +1138,7 @@
     function loadTasks(uid) {
       if (unsubscribeTasks) unsubscribeTasks();
 
-      // Simple query - no orderBy to avoid index requirement
-      const tasksQuery = db.collection('advertise_tasks')
-        .where('owner', '==', uid);
+      const tasksQuery = db.collection('advertise_tasks').where('owner', '==', uid);
 
       unsubscribeTasks = tasksQuery.onSnapshot((snapshot) => {
         allTasks = [];
@@ -987,16 +1147,19 @@
           allTasks.push({
             id: doc.id,
             ...data,
-            createdAt: data.createdAt
+            createdAt: data.createdAt,
+            submissionCount: 0
           });
         });
-        
-        // Sort client-side instead of in query
+
         allTasks.sort((a, b) => {
           const at = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : 0;
           const bt = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : 0;
           return bt - at;
         });
+
+        // Load submission counts for each task
+        loadSubmissionCounts();
 
         renderTasks();
         updateStats();
@@ -1004,14 +1167,12 @@
       }, (err) => {
         console.error('Firestore error:', err);
         document.getElementById('loadingOverlay').style.display = 'none';
-        
-        // Show user-friendly error with retry option
         const listEl = document.getElementById('taskList');
         listEl.innerHTML = `
           <div class="error-state">
             <i class="ri-error-warning-line"></i>
             <h3>Failed to load tasks</h3>
-            <p>${err.message || 'Please check your connection and try again.'}<br><small style="color:var(--text-light);">If this persists, you may need to create a Firestore index for this query.</small></p>
+            <p>${err.message || 'Please check your connection and try again.'}</p>
             <button class="btn-retry" onclick="retryLoad()">
               <i class="ri-refresh-line"></i> Try Again
             </button>
@@ -1019,6 +1180,27 @@
         `;
         showToast('Error loading tasks: ' + (err.message || 'Unknown error'), 'error');
       });
+    }
+
+    // ---- Load submission counts for all tasks ----
+    async function loadSubmissionCounts() {
+      for (const task of allTasks) {
+        try {
+          const snap = await db.collection('advert_submissions')
+            .where('advertId', '==', task.id)
+            .get();
+          task.submissionCount = snap.size;
+          task.submissions = [];
+          snap.forEach(doc => {
+            task.submissions.push({ id: doc.id, ...doc.data() });
+          });
+        } catch (err) {
+          console.warn('Error loading submissions for task', task.id, err);
+          task.submissionCount = 0;
+          task.submissions = [];
+        }
+      }
+      renderTasks(); // Re-render with counts
     }
 
     function retryLoad() {
@@ -1071,7 +1253,7 @@
         const status = (task.status || 'pending').toLowerCase();
         const card = document.createElement('div');
         card.className = `task-card ${status}`;
-        card.onclick = () => openOverlay(task);
+        card.onclick = () => openSubmissionsOverlay(task);
 
         card.innerHTML = `
           <div class="task-header">
@@ -1097,68 +1279,95 @@
               <div class="detail-label">Total Cost</div>
             </div>
           </div>
+          <div class="submissions-badge">
+            <i class="ri-user-received-line"></i> ${task.submissionCount || 0} submission${task.submissionCount !== 1 ? 's' : ''}
+          </div>
           ${task.thumbnail ? `<img class="task-thumbnail" src="${task.thumbnail}" alt="Task thumbnail" onclick="event.stopPropagation()" />` : ''}
         `;
         listEl.appendChild(card);
       });
     }
 
-    // ---- Overlay ----
-    function openOverlay(task) {
+    // ---- Open Submissions Overlay (Full Page Panel) ----
+    function openSubmissionsOverlay(task) {
       const content = document.getElementById('overlayContent');
       const status = (task.status || 'pending').toLowerCase();
 
+      let submissionsHtml = '';
+      if (!task.submissions || task.submissions.length === 0) {
+        submissionsHtml = `
+          <div class="no-submissions">
+            <i class="ri-inbox-line"></i>
+            <h4>No submissions yet</h4>
+            <p>Workers haven't submitted proofs for this task yet.</p>
+          </div>
+        `;
+      } else {
+        submissionsHtml = task.submissions.map(sub => {
+          const subStatus = (sub.status || 'pending').toLowerCase();
+          return `
+            <div class="submission-item">
+              <div class="submission-header">
+                <div class="submission-user">${escapeHtml(sub.username || sub.userName || sub.userId?.substring(0, 8) || 'Unknown')}</div>
+                <div class="submission-status ${subStatus}">${escapeHtml(sub.status || 'PENDING')}</div>
+              </div>
+              <div class="submission-date">${niceDate(sub.createdAt)}</div>
+              ${sub.textProof ? `<div class="submission-proof">${escapeHtml(sub.textProof)}</div>` : ''}
+              ${sub.imageUrl ? `<img class="submission-img" src="${sub.imageUrl}" alt="Proof" onclick="window.open('${sub.imageUrl}', '_blank')" />` : ''}
+              ${subStatus === 'pending' ? `
+                <div class="submission-actions">
+                  <button class="btn-action btn-approve" onclick="reviewSubmission('${task.id}', '${sub.id}', 'approved')">
+                    <i class="ri-check-line"></i> Approve
+                  </button>
+                  <button class="btn-action btn-reject" onclick="reviewSubmission('${task.id}', '${sub.id}', 'rejected')">
+                    <i class="ri-close-line"></i> Reject
+                  </button>
+                </div>
+              ` : ''}
+            </div>
+          `;
+        }).join('');
+      }
+
       content.innerHTML = `
-        <div class="panel-line">
-          <span class="label">Title</span>
-          <span class="value">${escapeHtml(task.title || '-')}</span>
+        <div class="task-summary">
+          <h4>${escapeHtml(task.title || 'Untitled Task')}</h4>
+          <div class="task-summary-meta">
+            <span><i class="ri-global-line"></i> ${escapeHtml(task.platform || '-')}</span>
+            <span><i class="ri-price-tag-3-line"></i> ${escapeHtml(task.subcategory || '-')}</span>
+            <span><i class="ri-coins-line"></i> ${fmtMoney(task.unitPrice)} / worker</span>
+            <span><i class="ri-user-line"></i> ${task.submissionCount || 0} submissions</span>
+          </div>
         </div>
-        <div class="panel-line">
-          <span class="label">Platform</span>
-          <span class="value">${escapeHtml(task.platform || '-')}</span>
-        </div>
-        <div class="panel-line">
-          <span class="label">Subcategory</span>
-          <span class="value">${escapeHtml(task.subcategory || '-')}</span>
-        </div>
-        <div class="panel-line">
-          <span class="label">Status</span>
-          <span class="value" style="color: ${status === 'approved' ? 'var(--success)' : status === 'rejected' ? 'var(--danger)' : 'var(--warning)'};">${escapeHtml(task.status || 'PENDING')}</span>
-        </div>
-        <div class="panel-line">
-          <span class="label">Unit Price</span>
-          <span class="value">${fmtMoney(task.unitPrice)}</span>
-        </div>
-        <div class="panel-line">
-          <span class="label">Workers</span>
-          <span class="value">${task.workers || 0}</span>
-        </div>
-        <div class="panel-line">
-          <span class="label">Total Cost</span>
-          <span class="value" style="color: var(--orange-dark); font-size: 14px;">${fmtMoney(task.totalCost)}</span>
-        </div>
-        <div class="panel-line">
-          <span class="label">Task Link</span>
-          <span class="value" style="font-size: 10px; word-break: break-all;">${escapeHtml(task.taskLink || '-')}</span>
-        </div>
-        <div class="panel-line">
-          <span class="label">Created</span>
-          <span class="value">${niceDate(task.createdAt)}</span>
-        </div>
-        <div class="panel-line">
-          <span class="label">Task ID</span>
-          <span class="value" style="font-size: 10px; word-break: break-all;">${escapeHtml(task.id)}</span>
-        </div>
-        ${task.description ? `
-        <div style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed #e5e7eb;">
-          <div class="label" style="margin-bottom: 6px;">Description</div>
-          <div style="font-size: 12px; color: var(--text-dark); line-height: 1.5;">${escapeHtml(task.description)}</div>
-        </div>` : ''}
-        ${task.thumbnail ? `<img class="panel-img" src="${task.thumbnail}" alt="Task thumbnail" />` : ''}
+        ${submissionsHtml}
       `;
 
       document.getElementById('overlay').classList.add('show');
       document.body.style.overflow = 'hidden';
+    }
+
+    // ---- Review Submission (Approve/Reject) ----
+    async function reviewSubmission(taskId, submissionId, newStatus) {
+      try {
+        await db.collection('advert_submissions').doc(submissionId).update({
+          status: newStatus,
+          reviewedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        showToast(`Submission ${newStatus}!`, 'success');
+        // Refresh submissions for this task
+        const task = allTasks.find(t => t.id === taskId);
+        if (task) {
+          const snap = await db.collection('advert_submissions')
+            .where('advertId', '==', taskId)
+            .get();
+          task.submissions = [];
+          snap.forEach(doc => task.submissions.push({ id: doc.id, ...doc.data() }));
+          openSubmissionsOverlay(task);
+        }
+      } catch (err) {
+        console.error('Review error:', err);
+        showToast('Failed to update submission', 'error');
+      }
     }
 
     function closeOverlay() {
