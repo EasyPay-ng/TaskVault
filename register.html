@@ -132,6 +132,28 @@
         .card-header h1 span { color: var(--primary); }
         .card-header p { color: var(--text-muted); font-size: 0.95rem; font-weight: 400; }
 
+        /* Referral Badge */
+        .referral-badge {
+            background: linear-gradient(135deg, rgba(211, 84, 0, 0.08) 0%, rgba(230, 126, 34, 0.08) 100%);
+            border: 1.5px dashed var(--primary-light);
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: pulseBadge 2s ease-in-out infinite;
+        }
+        .referral-badge i { color: var(--primary); font-size: 1.5rem; }
+        .referral-badge-content { flex: 1; }
+        .referral-badge-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+        .referral-badge-code { font-size: 1.1rem; font-weight: 700; color: var(--primary); letter-spacing: 0.5px; }
+        .referral-badge-hint { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+        @keyframes pulseBadge {
+            0%, 100% { border-color: var(--primary-light); }
+            50% { border-color: rgba(211, 84, 0, 0.3); }
+        }
+
         /* Success Message */
         .success-message {
             display: none;
@@ -190,8 +212,22 @@
             transform: translateY(-1px);
         }
 
+        .input-wrapper.readonly {
+            background: #f5f3ef;
+            border-color: #e0dcd5;
+            cursor: not-allowed;
+            opacity: 0.8;
+        }
+        .input-wrapper.readonly:focus-within {
+            background: #f5f3ef;
+            border-color: #e0dcd5;
+            box-shadow: none;
+            transform: none;
+        }
+
         .input-icon { color: var(--text-muted); font-size: 1.25rem; margin-right: 0.75rem; transition: color 0.3s; }
         .input-wrapper:focus-within .input-icon { color: var(--primary); }
+        .input-wrapper.readonly .input-icon { color: var(--primary-light); }
 
         .input {
             width: 100%;
@@ -205,6 +241,7 @@
             font-weight: 500;
         }
         .input::placeholder { color: #b0b0b0; font-weight: 400; }
+        .input:read-only { cursor: default; color: var(--primary); font-weight: 600; }
 
         select.input { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%237f8c8d' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 0.5rem center; background-size: 1.2rem; padding-right: 2.5rem; }
 
@@ -318,8 +355,21 @@
                     <p>Experience premium gaming rewards. Register to start earning.</p>
                 </div>
 
+                <!-- Referral Badge (shown when ref code exists) -->
+                <div class="referral-badge" id="referralBadge" style="display: none;">
+                    <i class="ph ph-gift"></i>
+                    <div class="referral-badge-content">
+                        <div class="referral-badge-label">Referred By</div>
+                        <div class="referral-badge-code" id="referralBadgeCode">—</div>
+                        <div class="referral-badge-hint">You'll earn bonuses when you upgrade</div>
+                    </div>
+                </div>
+
                 <form id="registerForm" novalidate>
                     
+                    <!-- Referral Code (Hidden but submitted) -->
+                    <input type="hidden" id="referralCode" name="referral">
+
                     <!-- Username -->
                     <div class="form-group" id="group-username">
                         <div class="label-row">
@@ -503,6 +553,24 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
+        // ===== REFERRAL CODE HANDLING =====
+        const urlParams = new URLSearchParams(window.location.search);
+        const refCode = urlParams.get('ref');
+        const referralBadge = document.getElementById('referralBadge');
+        const referralBadgeCode = document.getElementById('referralBadgeCode');
+        const referralCodeInput = document.getElementById('referralCode');
+
+        if (refCode && refCode.trim() !== '') {
+            // Show referral badge with the code
+            referralBadge.style.display = 'flex';
+            referralBadgeCode.textContent = refCode;
+            referralCodeInput.value = refCode;
+        } else {
+            // Direct visit — no referral
+            referralBadge.style.display = 'none';
+            referralCodeInput.value = '';
+        }
+
         // UI Functions
         function showToast(title, message, type = 'success') {
             const toast = document.getElementById('toast');
@@ -582,6 +650,7 @@
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
             const terms = document.getElementById('terms').checked;
+            const referral = document.getElementById('referralCode').value.trim();
 
             // Validate Username
             if (username.length < 3) {
@@ -641,7 +710,7 @@
                 await sendEmailVerification(user);
 
                 // 3. Store additional user data in Firestore
-                await setDoc(doc(db, "users", user.uid), {
+                const userData = {
                     username: username,
                     email: email,
                     country: country,
@@ -651,7 +720,14 @@
                     balance: 0,
                     status: 'active',
                     uid: user.uid
-                });
+                };
+
+                // Add referral field only if it exists
+                if (referral) {
+                    userData.referral = referral;
+                }
+
+                await setDoc(doc(db, "users", user.uid), userData);
 
                 // 4. Show success message
                 document.getElementById('registerFormContainer').style.display = 'none';
