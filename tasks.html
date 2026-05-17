@@ -1,0 +1,1317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Advertise Task — TaskVault</title>
+
+  <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" type="image/jpeg">
+  <link rel="manifest" href="manifest.json">
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --orange-main: #FF8C42;
+      --orange-dark: #E67A35;
+      --orange-light: #FFF0E6;
+      --silk-bg: #FDFBF7;
+      --white: #FFFFFF;
+      --text-dark: #333333;
+      --text-light: #888888;
+      --shadow-sm: 0 2px 6px rgba(255, 140, 66, 0.06);
+      --shadow-md: 0 4px 12px rgba(255, 140, 66, 0.1);
+      --shadow-lg: 0 8px 24px rgba(255, 140, 66, 0.15);
+      --gradient-orange: linear-gradient(135deg, #FF8C42 0%, #FF6B35 100%);
+      --success: #10B981;
+      --danger: #EF4444;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      background-color: #e9ecef;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .app-container {
+      width: 100%;
+      height: 100dvh;
+      max-width: 430px;
+      background-color: var(--silk-bg);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    @media (min-width: 768px) {
+      .app-container {
+        height: 92dvh;
+        max-height: 850px;
+        border-radius: 24px;
+        box-shadow: 0 0 40px rgba(0,0,0,0.12);
+      }
+    }
+
+    .scroll-content {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding-bottom: 80px;
+    }
+
+    .scroll-content::-webkit-scrollbar {
+      width: 2px;
+    }
+    .scroll-content::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .scroll-content::-webkit-scrollbar-thumb {
+      background: var(--orange-light);
+      border-radius: 2px;
+    }
+
+    /* ==================== HEADER ==================== */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 20px 10px;
+      background: var(--white);
+      flex-shrink: 0;
+      position: relative;
+      z-index: 10;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .back-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: var(--orange-light);
+      color: var(--orange-main);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 18px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: none;
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+
+    .back-btn:hover {
+      background: var(--orange-main);
+      color: white;
+    }
+
+    .header-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .header-subtitle {
+      font-size: 10px;
+      color: var(--text-light);
+      font-weight: 400;
+    }
+
+    .notification-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: var(--orange-light);
+      color: var(--orange-main);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 15px;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: none;
+      flex-shrink: 0;
+    }
+
+    .notification-btn:hover {
+      background: var(--orange-main);
+      color: white;
+    }
+
+    /* ==================== BALANCE CARD ==================== */
+    .balance-section {
+      padding: 10px 20px 14px;
+    }
+
+    .balance-card {
+      background: var(--gradient-orange);
+      border-radius: 18px;
+      padding: 20px 18px;
+      color: var(--white);
+      box-shadow: var(--shadow-lg);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .balance-card::after {
+      content: '';
+      position: absolute;
+      top: -30px;
+      right: -30px;
+      width: 100px;
+      height: 100px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 50%;
+    }
+
+    .balance-card::before {
+      content: '';
+      position: absolute;
+      bottom: -15px;
+      left: -15px;
+      width: 60px;
+      height: 60px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 50%;
+    }
+
+    .balance-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .balance-label {
+      font-size: 10px;
+      opacity: 0.85;
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .balance-icon {
+      width: 28px;
+      height: 28px;
+      background: rgba(255,255,255,0.12);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+    }
+
+    .balance-amount {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: baseline;
+      gap: 2px;
+    }
+
+    .balance-amount .currency {
+      font-size: 16px;
+      font-weight: 600;
+      opacity: 0.85;
+    }
+
+    .balance-footer {
+      display: flex;
+      gap: 6px;
+      margin-top: 12px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .stat-pill {
+      background: rgba(255,255,255,0.12);
+      border-radius: 8px;
+      padding: 5px 10px;
+      font-size: 10px;
+      color: rgba(255,255,255,0.9);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* ==================== FORM SECTION ==================== */
+    .form-section {
+      padding: 0 20px 14px;
+    }
+
+    .section-header {
+      padding: 0 0 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .section-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-dark);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .section-title i {
+      color: var(--orange-main);
+      font-size: 12px;
+    }
+
+    .card {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid rgba(255, 140, 66, 0.06);
+      margin-bottom: 12px;
+    }
+
+    label {
+      display: block;
+      margin-top: 12px;
+      font-weight: 600;
+      color: var(--text-dark);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    label:first-child {
+      margin-top: 0;
+    }
+
+    input[type="text"],
+    input[type="url"],
+    input[type="number"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 12px 14px;
+      margin-top: 6px;
+      border-radius: 10px;
+      background: var(--silk-bg);
+      border: 1px solid rgba(255, 140, 66, 0.15);
+      color: var(--text-dark);
+      font-size: 13px;
+      font-weight: 500;
+      outline: none;
+      transition: all 0.2s ease;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--orange-main);
+      box-shadow: 0 0 0 3px rgba(255, 140, 66, 0.1);
+    }
+
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    select {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 32px;
+    }
+
+    input[type="file"] {
+      margin-top: 6px;
+      padding: 8px;
+      font-size: 12px;
+      width: 100%;
+      border-radius: 10px;
+      background: var(--silk-bg);
+      border: 1px solid rgba(255, 140, 66, 0.15);
+    }
+
+    /* Price Row */
+    .price-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .price-box {
+      background: var(--orange-light);
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 140, 66, 0.15);
+      color: var(--orange-dark);
+      font-weight: 700;
+      font-size: 16px;
+      margin-top: 6px;
+      text-align: center;
+    }
+
+    .price-box-label {
+      font-size: 9px;
+      color: var(--text-light);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .total-cost {
+      background: var(--gradient-orange);
+      color: white;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 12px;
+    }
+
+    .total-cost .amount {
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    /* Thumbnail Preview */
+    .thumb-preview {
+      width: 100%;
+      max-width: 160px;
+      border-radius: 10px;
+      display: block;
+      margin-top: 8px;
+      border: 2px solid var(--orange-light);
+    }
+
+    /* Buttons */
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .btn-primary {
+      background: var(--gradient-orange);
+      color: var(--white);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn-primary:active {
+      transform: scale(0.98);
+    }
+
+    .btn-primary:disabled {
+      background: #E8E8E8;
+      color: #AAAAAA;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .btn-ghost {
+      background: var(--white);
+      border: 1px solid rgba(255, 140, 66, 0.2);
+      color: var(--orange-dark);
+    }
+
+    .btn-ghost:hover {
+      background: var(--orange-light);
+    }
+
+    /* Tips Card */
+    .tips-card {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid rgba(255, 140, 66, 0.06);
+    }
+
+    .tips-title {
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: var(--text-dark);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+    }
+
+    .tips-title i {
+      color: var(--orange-main);
+    }
+
+    .tips-list {
+      color: var(--text-light);
+      font-size: 11px;
+      line-height: 1.8;
+      list-style: none;
+    }
+
+    .tips-list li {
+      position: relative;
+      padding-left: 14px;
+    }
+
+    .tips-list li::before {
+      content: '•';
+      position: absolute;
+      left: 0;
+      color: var(--orange-main);
+      font-weight: 800;
+    }
+
+    /* ==================== MODAL ==================== */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2600;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+      padding: 20px;
+    }
+
+    .modal-overlay.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal {
+      background: var(--white);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 360px;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+      transform: scale(0.9) translateY(20px);
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .modal-overlay.show .modal {
+      transform: scale(1) translateY(0);
+    }
+
+    .modal-header {
+      background: var(--gradient-orange);
+      color: white;
+      padding: 20px;
+      border-radius: 20px 20px 0 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .modal-header::after {
+      content: '';
+      position: absolute;
+      top: -20px;
+      right: -20px;
+      width: 80px;
+      height: 80px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 50%;
+    }
+
+    .modal-header h3 {
+      font-size: 16px;
+      font-weight: 800;
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .modal-close {
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: white;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      position: relative;
+      z-index: 1;
+    }
+
+    .modal-close:hover {
+      background: rgba(255,255,255,0.3);
+      transform: rotate(90deg);
+    }
+
+    .modal-body {
+      padding: 16px 20px;
+    }
+
+    .modal-line {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px dashed #e5e7eb;
+      font-size: 12px;
+    }
+
+    .modal-line:last-child {
+      border-bottom: none;
+    }
+
+    .modal-line .label {
+      color: var(--text-light);
+      font-weight: 500;
+    }
+
+    .modal-line .value {
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .modal-line.total-line {
+      background: var(--orange-light);
+      margin: 10px -20px 0;
+      padding: 14px 20px;
+      border-bottom: none;
+      border-radius: 0 0 4px 4px;
+    }
+
+    .modal-line.total-line .value {
+      color: var(--orange-dark);
+      font-size: 16px;
+    }
+
+    .modal-footer {
+      padding: 0 20px 20px;
+      display: flex;
+      gap: 10px;
+    }
+
+    /* ==================== TOAST ==================== */
+    .toast {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-100px);
+      background: var(--white);
+      color: var(--text-dark);
+      padding: 10px 18px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      z-index: 3000;
+      text-align: center;
+      max-width: 90%;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+      border: 1px solid rgba(255, 140, 66, 0.08);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toast.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(-50%) translateY(0);
+      top: 22px;
+    }
+
+    .toast.success { border-left: 3px solid #10B981; }
+    .toast.error { border-left: 3px solid #EF4444; }
+    .toast.info { border-left: 3px solid var(--orange-main); }
+
+    /* ==================== BOTTOM NAV ==================== */
+    .bottom-nav {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--white);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 8px 16px 16px;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.04);
+      border-top-left-radius: 24px;
+      border-top-right-radius: 24px;
+      z-index: 1000;
+      flex-shrink: 0;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-light);
+      text-decoration: none;
+      font-size: 9px;
+      gap: 3px;
+      transition: all 0.3s ease;
+      padding: 6px 14px;
+      border-radius: 14px;
+      font-weight: 500;
+      position: relative;
+    }
+
+    .nav-item i {
+      font-size: 20px;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .nav-item.active {
+      color: var(--orange-main);
+      background: var(--orange-light);
+    }
+
+    .nav-item.active i {
+      transform: translateY(-2px) scale(1.1);
+    }
+
+    .nav-item.active::before {
+      content: '';
+      position: absolute;
+      top: -2px;
+      width: 16px;
+      height: 3px;
+      background: var(--orange-main);
+      border-radius: 2px;
+      opacity: 0;
+      animation: dotIn 0.3s ease forwards;
+    }
+
+    @keyframes dotIn {
+      to { opacity: 1; top: 2px; }
+    }
+
+    .nav-item:hover {
+      color: var(--orange-dark);
+    }
+
+    /* ==================== LOADING ==================== */
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--silk-bg);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 3000;
+      gap: 12px;
+    }
+
+    .spinner {
+      width: 36px;
+      height: 36px;
+      border: 3px solid var(--orange-light);
+      border-top: 3px solid var(--orange-main);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    .loader-text {
+      font-size: 11px;
+      color: var(--text-light);
+      font-weight: 600;
+      letter-spacing: 2px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ==================== ANIMATIONS ==================== */
+    .fade-in {
+      animation: fadeIn 0.5s ease-out forwards;
+      opacity: 0;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .delay-1 { animation-delay: 0.08s; }
+    .delay-2 { animation-delay: 0.16s; }
+    .delay-3 { animation-delay: 0.24s; }
+  </style>
+</head>
+<body>
+
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <div class="loader-text">Loading</div>
+  </div>
+
+  <div class="app-container">
+    <!-- HEADER -->
+    <header class="header fade-in">
+      <div class="header-left">
+        <a href="dashboard.html" class="back-btn">
+          <i class="ri-arrow-left-line"></i>
+        </a>
+        <div>
+          <div class="header-title">Advertise Task</div>
+          <div class="header-subtitle">Create & fund a new task</div>
+        </div>
+      </div>
+      <button class="notification-btn" onclick="showToast('Fill all required fields', 'info')">
+        <i class="ri-question-line"></i>
+      </button>
+    </header>
+
+    <!-- SCROLLABLE CONTENT -->
+    <div class="scroll-content">
+      <!-- BALANCE -->
+      <section class="balance-section fade-in delay-1">
+        <div class="balance-card">
+          <div class="balance-header">
+            <span class="balance-label">Available Balance</span>
+            <div class="balance-icon">
+              <i class="ri-wallet-3-line"></i>
+            </div>
+          </div>
+          <div class="balance-amount">
+            <span class="currency">$</span>
+            <span id="balanceDisplay">0.000</span>
+          </div>
+          <div class="balance-footer">
+            <div class="stat-pill">
+              <i class="ri-shield-check-line"></i>
+              <span>Secured</span>
+            </div>
+            <div class="stat-pill">
+              <i class="ri-user-line"></i>
+              <span id="userNameDisplay">User</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- FORM -->
+      <section class="form-section fade-in delay-2">
+        <div class="section-header">
+          <h3 class="section-title">
+            <i class="ri-bullhorn-line"></i>
+            Task Details
+          </h3>
+        </div>
+
+        <div class="card">
+          <label for="taskTitle">Task Title</label>
+          <input id="taskTitle" type="text" placeholder="Short title for the task" />
+
+          <label for="platform">Platform</label>
+          <select id="platform">
+            <option value="">Select Platform</option>
+            <option>WhatsApp</option>
+            <option>Facebook</option>
+            <option>Instagram</option>
+            <option>Telegram</option>
+            <option>TikTok</option>
+            <option>Website</option>
+            <option>App</option>
+            <option>Twitter</option>
+            <option>YouTube</option>
+          </select>
+
+          <label for="subcategory">Subcategory</label>
+          <select id="subcategory"><option value="">Select Subcategory</option></select>
+
+          <div class="price-row">
+            <div>
+              <label>Min Price</label>
+              <div class="price-box">
+                <div class="price-box-label">Fixed minimum</div>
+                <div id="fixedPriceDisplay">$0.000</div>
+              </div>
+            </div>
+            <div>
+              <label>Unit Price ($)</label>
+              <input id="unitPrice" type="number" value="0" min="0" step="0.001" />
+            </div>
+          </div>
+
+          <label for="workers">Number of Workers</label>
+          <input id="workers" type="number" min="1" value="1" />
+
+          <div class="total-cost" id="totalCost">
+            <span><i class="ri-coins-line"></i> Total Cost</span>
+            <span class="amount" id="totalAmount">$0.000</span>
+          </div>
+
+          <label for="description">Task Description</label>
+          <textarea id="description" placeholder="Describe the task and proof requirements"></textarea>
+
+          <label for="taskLink">Task Link</label>
+          <input id="taskLink" type="url" placeholder="https://example.com/..." />
+
+          <label for="thumbnail">Thumbnail (optional)</label>
+          <input id="thumbnail" type="file" accept="image/*" />
+          <img id="thumbPreview" class="thumb-preview" src="" alt="" style="display:none" />
+
+          <div class="btn-group">
+            <button id="submitBtn" class="btn btn-primary" onclick="previewTask()">
+              <i class="ri-eye-line"></i> Preview
+            </button>
+            <button id="clearBtn" class="btn btn-ghost" onclick="clearForm()">
+              <i class="ri-eraser-line"></i> Clear
+            </button>
+          </div>
+        </div>
+
+        <!-- Tips -->
+        <div class="tips-card fade-in delay-3">
+          <div class="tips-title">
+            <i class="ri-lightbulb-line"></i> Quick Tips
+          </div>
+          <ul class="tips-list">
+            <li>Unit price must be at least the subcategory minimum.</li>
+            <li>Provide a reachable link and clear proof instructions.</li>
+            <li>Tasks are reviewed by moderators before publishing.</li>
+            <li>1 USD = 1,000 platform rate units.</li>
+            <li>Funds are debited immediately upon posting.</li>
+          </ul>
+        </div>
+      </section>
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <nav class="bottom-nav">
+      <a href="menu.html" class="nav-item">
+        <i class="ri-apps-line"></i>
+        <span>Menu</span>
+      </a>
+      <a href="deposit.html" class="nav-item">
+        <i class="ri-wallet-3-line"></i>
+        <span>Deposit</span>
+      </a>
+      <a href="withdraw.html" class="nav-item">
+        <i class="ri-upload-2-line"></i>
+        <span>Withdraw</span>
+      </a>
+      <a href="profile.html" class="nav-item active">
+        <i class="ri-user-3-line"></i>
+        <span>Profile</span>
+      </a>
+    </nav>
+  </div>
+
+  <!-- CONFIRM MODAL -->
+  <div id="confirmModal" class="modal-overlay" role="dialog" aria-modal="true">
+    <div class="modal" role="document">
+      <div class="modal-header">
+        <h3><i class="ri-clipboard-check-line"></i> Confirm Task</h3>
+        <button class="modal-close" onclick="closeModal()">
+          <i class="ri-close-line"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-line"><span class="label">Title</span><span class="value" id="c_title">—</span></div>
+        <div class="modal-line"><span class="label">Platform</span><span class="value" id="c_platform">—</span></div>
+        <div class="modal-line"><span class="label">Subcategory</span><span class="value" id="c_subcategory">—</span></div>
+        <div class="modal-line"><span class="label">Min Price</span><span class="value" id="c_min">$0.000</span></div>
+        <div class="modal-line"><span class="label">Unit Price</span><span class="value" id="c_unit">$0.000</span></div>
+        <div class="modal-line"><span class="label">Workers</span><span class="value" id="c_workers">0</span></div>
+        <div class="modal-line"><span class="label">Total Cost</span><span class="value" id="c_total">$0.000</span></div>
+        <div class="modal-line"><span class="label">Your Balance</span><span class="value" id="c_balance">$0.000</span></div>
+        <div class="modal-line"><span class="label">Thumbnail</span><span class="value" id="c_thumb">—</span></div>
+        <div class="modal-line total-line">
+          <span class="label">Grand Total</span>
+          <span class="value" id="c_sum">$0.000</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" id="confirmPostBtn" onclick="postTask()">
+          <i class="ri-check-line"></i> Confirm & Post
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast">Message</div>
+
+  <!-- FIREBASE SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAv6QCpopa0Q77AVTyjU5cqJEIKIE9OVTs",
+      authDomain: "taskvault-412a0.firebaseapp.com",
+      databaseURL: "https://taskvault-412a0-default-rtdb.firebaseio.com",
+      projectId: "taskvault-412a0",
+      storageBucket: "taskvault-412a0.firebasestorage.app",
+      messagingSenderId: "420716701831",
+      appId: "1:420716701831:web:c987d91f7f4c8684eb7022",
+      measurementId: "G-93JG3LB08B"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // ---- pricing data (in dollars) ----
+    const subcategoryData = {
+      "WhatsApp": { "WhatsApp Group Join": 0.015, "WhatsApp channel follow": 0.020, "WhatsApp Community Join": 0.035, "WhatsApp status post": 0.030, "Contact add": 0.010, "WhatsApp connect": 0.150 },
+      "Facebook": { "Facebook add friend": 0.009, "Facebook comment": 0.009, "Facebook follow": 0.005, "Facebook like": 0.005, "Facebook Group Join": 0.015, "Share a post": 0.020 },
+      "Instagram": { "Comment": 0.009, "Follow": 0.005, "Like": 0.005 },
+      "Telegram": { "Telegram Group Join": 0.025, "Telegram bot": 0.025, "Telegram web app": 0.065 },
+      "TikTok": { "Follow": 0.012, "Like": 0.007, "TikTok post": 0.020, "TikTok repost": 0.015 },
+      "Website": { "Simple sign up": 0.025, "Complex sign up": 0.060, "Online voting": 0.020 },
+      "App": { "Download and register": 0.050, "Complex download": 0.085 },
+      "Twitter": { "Comment": 0.009, "Like": 0.005, "Follow": 0.005, "Retweet": 0.020, "Quote": 0.015 },
+      "YouTube": { "Subscribe": 0.020, "View": 0.003, "Like": 0.004 }
+    };
+
+    let currentFixedPrice = 0;
+    let currentUser = null;
+    let currentBalance = 0;
+    let selectedThumbnailFile = null;
+    let pendingTask = null;
+
+    function fmtMoney(n){ return '$' + Number(n || 0).toFixed(3); }
+
+    function showToast(message, type = 'info'){
+      const toast = document.getElementById('toast');
+      toast.className = 'toast ' + type;
+      let icon = 'ri-information-line';
+      if (type === 'success') icon = 'ri-checkbox-circle-line';
+      if (type === 'error') icon = 'ri-close-circle-line';
+      toast.innerHTML = `<i class="ri-${icon}"></i> ${message}`;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function updateCost(){
+      const workers = Math.max(0, parseInt(document.getElementById('workers').value, 10) || 0);
+      const unit = Math.max(0, Number(document.getElementById('unitPrice').value) || 0);
+      const total = unit * workers;
+      document.getElementById('totalAmount').textContent = fmtMoney(total);
+      return total;
+    }
+
+    document.getElementById('platform').addEventListener('change', () => {
+      const selected = document.getElementById('platform').value;
+      const subSel = document.getElementById('subcategory');
+      subSel.innerHTML = '<option value="">Select Subcategory</option>';
+      currentFixedPrice = 0;
+      document.getElementById('fixedPriceDisplay').textContent = fmtMoney(0);
+      document.getElementById('unitPrice').value = 0;
+      document.getElementById('unitPrice').min = 0;
+      if (subcategoryData[selected]) {
+        Object.entries(subcategoryData[selected]).forEach(([name, price]) => {
+          const opt = document.createElement('option');
+          opt.value = name;
+          opt.textContent = `${name} (${fmtMoney(price)})`;
+          opt.dataset.price = price;
+          subSel.appendChild(opt);
+        });
+      }
+      updateCost();
+    });
+
+    document.getElementById('subcategory').addEventListener('change', () => {
+      const selectedOpt = document.getElementById('subcategory').options[document.getElementById('subcategory').selectedIndex];
+      currentFixedPrice = selectedOpt ? Number(selectedOpt.dataset.price || 0) : 0;
+      document.getElementById('fixedPriceDisplay').textContent = fmtMoney(currentFixedPrice);
+      document.getElementById('unitPrice').min = currentFixedPrice;
+      if (Number(document.getElementById('unitPrice').value) < currentFixedPrice) {
+        document.getElementById('unitPrice').value = currentFixedPrice;
+      }
+      updateCost();
+    });
+
+    document.getElementById('unitPrice').addEventListener('input', () => {
+      const val = Number(document.getElementById('unitPrice').value || 0);
+      if (currentFixedPrice && val < currentFixedPrice) {
+        document.getElementById('unitPrice').value = currentFixedPrice;
+      }
+      updateCost();
+    });
+    document.getElementById('workers').addEventListener('input', updateCost);
+
+    function clearForm(){
+      document.getElementById('taskTitle').value = '';
+      document.getElementById('platform').value = '';
+      document.getElementById('subcategory').innerHTML = '<option value="">Select Subcategory</option>';
+      document.getElementById('fixedPriceDisplay').textContent = fmtMoney(0);
+      document.getElementById('unitPrice').value = 0;
+      document.getElementById('unitPrice').min = 0;
+      document.getElementById('workers').value = 1;
+      document.getElementById('description').value = '';
+      document.getElementById('taskLink').value = '';
+      document.getElementById('totalAmount').textContent = '$0.000';
+      document.getElementById('thumbnail').value = '';
+      selectedThumbnailFile = null;
+      document.getElementById('thumbPreview').style.display = 'none';
+      document.getElementById('thumbPreview').src = '';
+    }
+
+    document.getElementById('thumbnail').addEventListener('change', (e) => {
+      const f = e.target.files && e.target.files[0];
+      if (!f) {
+        selectedThumbnailFile = null;
+        document.getElementById('thumbPreview').style.display = 'none';
+        document.getElementById('thumbPreview').src = '';
+        return;
+      }
+      if (f.size > 5 * 1024 * 1024) {
+        showToast('Thumbnail must be smaller than 5MB', 'error');
+        document.getElementById('thumbnail').value = '';
+        return;
+      }
+      selectedThumbnailFile = f;
+      const url = URL.createObjectURL(f);
+      document.getElementById('thumbPreview').src = url;
+      document.getElementById('thumbPreview').style.display = 'block';
+    });
+
+    // ---- Modal ----
+    function openModal(){
+      document.getElementById('confirmModal').classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeModal(){
+      document.getElementById('confirmModal').classList.remove('show');
+      document.body.style.overflow = '';
+    }
+    document.getElementById('confirmModal').addEventListener('click', (e) => {
+      if(e.target === document.getElementById('confirmModal')) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+      if(e.key === 'Escape' && document.getElementById('confirmModal').classList.contains('show')) closeModal();
+    });
+
+    // ---- Auth ----
+    auth.onAuthStateChanged(async (user) => {
+      if (!user) {
+        showToast('Please sign in first', 'error');
+        document.getElementById('loadingOverlay').style.display = 'none';
+        return;
+      }
+      currentUser = user;
+      try {
+        const snap = await db.collection('users').doc(user.uid).get();
+        const data = snap.exists() ? snap.data() : {};
+        const display = data.username || data.name || user.displayName || (user.email ? user.email.split('@')[0] : 'User');
+        const bal = Number(data.balance ?? data.wallet ?? 0) || 0;
+        document.getElementById('userNameDisplay').textContent = display;
+        document.getElementById('balanceDisplay').textContent = bal.toFixed(3);
+        currentBalance = bal;
+      } catch (err) {
+        console.warn('Could not read profile', err);
+        const display = user.displayName || (user.email ? user.email.split('@')[0] : 'User');
+        document.getElementById('userNameDisplay').textContent = display;
+        currentBalance = 0;
+      }
+      document.getElementById('loadingOverlay').style.display = 'none';
+    });
+
+    // ---- Preview ----
+    function previewTask(){
+      const title = (document.getElementById('taskTitle').value || '').trim();
+      const platform = document.getElementById('platform').value;
+      const subcategory = document.getElementById('subcategory').value;
+      const workers = Math.max(0, parseInt(document.getElementById('workers').value, 10) || 0);
+      const description = (document.getElementById('description').value || '').trim();
+      const taskLink = (document.getElementById('taskLink').value || '').trim();
+      const chosenUnitPrice = Math.max(0, Number(document.getElementById('unitPrice').value) || 0);
+      const totalCost = chosenUnitPrice * workers;
+
+      if (!title || !platform || !subcategory || !taskLink) {
+        showToast('Fill all required fields', 'error');
+        return;
+      }
+      if (chosenUnitPrice < currentFixedPrice) {
+        showToast(`Unit price must be at least ${fmtMoney(currentFixedPrice)}`, 'error');
+        return;
+      }
+
+      pendingTask = { title, platform, subcategory, workers, description, taskLink, chosenUnitPrice, totalCost };
+
+      document.getElementById('c_title').textContent = title;
+      document.getElementById('c_platform').textContent = platform;
+      document.getElementById('c_subcategory').textContent = subcategory;
+      document.getElementById('c_min').textContent = fmtMoney(currentFixedPrice);
+      document.getElementById('c_unit').textContent = fmtMoney(chosenUnitPrice);
+      document.getElementById('c_workers').textContent = workers;
+      document.getElementById('c_total').textContent = fmtMoney(totalCost);
+      document.getElementById('c_balance').textContent = fmtMoney(currentBalance || 0);
+      document.getElementById('c_sum').textContent = fmtMoney(totalCost);
+      document.getElementById('c_thumb').textContent = selectedThumbnailFile ? selectedThumbnailFile.name : '—';
+
+      openModal();
+    }
+
+    // ---- Post ----
+    async function postTask(){
+      if (!pendingTask) return;
+      if (!currentUser) {
+        showToast('Please sign in first', 'error');
+        return;
+      }
+
+      const btn = document.getElementById('confirmPostBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="ri-loader-4-line ri-spin"></i> Posting...';
+
+      const { title, platform, subcategory, workers, description, taskLink, chosenUnitPrice, totalCost } = pendingTask;
+
+      try {
+        let thumbnailUrl = null;
+        if (selectedThumbnailFile) {
+          try {
+            const formData = new FormData();
+            formData.append('file', selectedThumbnailFile);
+            formData.append('upload_preset', 'taskvault_unsigned');
+            const resp = await fetch('https://api.cloudinary.com/v1_1/dq7fpxfbc/image/upload', {
+              method: 'POST',
+              body: formData
+            });
+            const result = await resp.json();
+            if (result.secure_url) thumbnailUrl = result.secure_url;
+          } catch (uploadErr) {
+            console.warn('Upload failed', uploadErr);
+            const cont = confirm('Thumbnail upload failed — continue without it?');
+            if (!cont) throw uploadErr;
+          }
+        }
+
+        await db.runTransaction(async (tx) => {
+          const userRef = db.collection('users').doc(currentUser.uid);
+          const userSnap = await tx.get(userRef);
+          if (!userSnap.exists) throw new Error('User not found');
+          const bal = Number(userSnap.data().balance ?? userSnap.data().wallet ?? 0) || 0;
+          if (bal < totalCost) throw new Error('Insufficient balance. Please deposit first.');
+
+          const taskRef = db.collection('advertise_tasks').doc();
+          tx.set(taskRef, {
+            title,
+            platform,
+            subcategory,
+            unitPrice: chosenUnitPrice,
+            workers,
+            totalCost,
+            description,
+            taskLink,
+            thumbnail: thumbnailUrl || null,
+            owner: currentUser.uid,
+            status: 'pending',
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+
+          tx.update(userRef, { balance: bal - totalCost });
+        });
+
+        showToast('Task posted successfully!', 'success');
+        closeModal();
+        clearForm();
+
+        // Refresh balance
+        try {
+          const uSnap = await db.collection('users').doc(currentUser.uid).get();
+          const fresh = uSnap.exists ? uSnap.data() : {};
+          currentBalance = Number(fresh.balance ?? fresh.wallet ?? 0) || 0;
+          document.getElementById('balanceDisplay').textContent = currentBalance.toFixed(3);
+        } catch (e) { /* ignore */ }
+      } catch (err) {
+        console.error('Post failed', err);
+        showToast(err.message || 'Failed to post task', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="ri-check-line"></i> Confirm & Post';
+      }
+    }
+
+    // Active nav
+    document.addEventListener('DOMContentLoaded', () => {
+      const currentPage = window.location.pathname.split('/').pop();
+      document.querySelectorAll('.nav-item').forEach(item => {
+        const href = item.getAttribute('href');
+        if (href === currentPage) {
+          item.classList.add('active');
+        } else {
+          item.classList.remove('active');
+        }
+      });
+    });
+  </script>
+</body>
+  </html>
