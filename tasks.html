@@ -943,7 +943,6 @@
             <li>Unit price must be at least the subcategory minimum.</li>
             <li>Provide a reachable link and clear proof instructions.</li>
             <li>Tasks are reviewed by moderators before publishing.</li>
-            <li>1 USD = 1,000 platform rate units.</li>
             <li>Funds are debited immediately upon posting.</li>
           </ul>
         </div>
@@ -1043,7 +1042,7 @@
     let currentFixedPrice = 0;
     let currentUser = null;
     let currentBalance = 0;
-    let selectedThumbnailFile = null;
+    let selectedThumbnailBase64 = null;
     let pendingTask = null;
 
     function fmtMoney(n){ return '$' + Number(n || 0).toFixed(3); }
@@ -1119,28 +1118,44 @@
       document.getElementById('taskLink').value = '';
       document.getElementById('totalAmount').textContent = '$0.000';
       document.getElementById('thumbnail').value = '';
-      selectedThumbnailFile = null;
+      selectedThumbnailBase64 = null;
       document.getElementById('thumbPreview').style.display = 'none';
       document.getElementById('thumbPreview').src = '';
     }
 
-    document.getElementById('thumbnail').addEventListener('change', (e) => {
+    // ---- Convert image to base64 ----
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    document.getElementById('thumbnail').addEventListener('change', async (e) => {
       const f = e.target.files && e.target.files[0];
       if (!f) {
-        selectedThumbnailFile = null;
+        selectedThumbnailBase64 = null;
         document.getElementById('thumbPreview').style.display = 'none';
         document.getElementById('thumbPreview').src = '';
         return;
       }
-      if (f.size > 5 * 1024 * 1024) {
-        showToast('Thumbnail must be smaller than 5MB', 'error');
+      if (f.size > 2 * 1024 * 1024) {
+        showToast('Image must be smaller than 2MB', 'error');
         document.getElementById('thumbnail').value = '';
         return;
       }
-      selectedThumbnailFile = f;
-      const url = URL.createObjectURL(f);
-      document.getElementById('thumbPreview').src = url;
-      document.getElementById('thumbPreview').style.display = 'block';
+      try {
+        const base64 = await fileToBase64(f);
+        selectedThumbnailBase64 = base64;
+        document.getElementById('thumbPreview').src = base64;
+        document.getElementById('thumbPreview').style.display = 'block';
+        showToast('Image ready', 'success');
+      } catch (err) {
+        showToast('Failed to read image', 'error');
+        selectedThumbnailBase64 = null;
+      }
     });
 
     // ---- Modal ----
@@ -1159,30 +1174,51 @@
       if(e.key === 'Escape' && document.getElementById('confirmModal').classList.contains('show')) closeModal();
     });
 
-    // ---- Auth ----
+    // ---- Auth & Balance ----
     auth.onAuthStateChanged(async (user) => {
       if (!user) {
         showToast('Please sign in first', 'error');
         document.getElementById('loadingOverlay').style.display = 'none';
+        setTimeout(() => { window.location.href = 'login.html'; }, 2000);
         return;
       }
       currentUser = user;
-      try {
-        const snap = await db.collection('users').doc(user.uid).get();
-        const data = snap.exists() ? snap.data() : {};
-        const display = data.username || data.name || user.displayName || (user.email ? user.email.split('@')[0] : 'User');
-        const bal = Number(data.balance ?? data.wallet ?? 0) || 0;
-        document.getElementById('userNameDisplay').textContent = display;
-        document.getElementById('balanceDisplay').textContent = bal.toFixed(3);
-        currentBalance = bal;
-      } catch (err) {
-        console.warn('Could not read profile', err);
-        const display = user.displayName || (user.email ? user.email.split('@')[0] : 'User');
-        document.getElementById('userNameDisplay').textContent = display;
-        currentBalance = 0;
-      }
+      await loadUserData(user.uid);
       document.getElementById('loadingOverlay').style.display = 'none';
     });
+
+    async function loadUserData(uid) {
+      try {
+        const userRef = db.collection('users').doc(uid);
+        // Set up real-time listener for balance
+        userRef.onSnapshot((doc) => {
+          if (doc.exists) {
+            const data = doc.data();
+            const display = data.username || data.name || currentUser.displayName || (currentUser.email ? currentUser.email.split('@')[0] : 'User');
+            const bal = Number(data.balance ?? data.wallet ?? 0) || 0;
+            
+            document.getElementById('userNameDisplay').textContent = display;
+            document.getElementById('balanceDisplay').textContent = bal.toFixed(3);
+            currentBalance = bal;
+          } else {
+            // Create user doc if doesn't exist
+            userRef.set({
+              balance: 0,
+              createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            document.getElementById('userNameDisplay').textContent = 'User';
+            document.getElementById('balanceDisplay').textContent = '0.000';
+            currentBalance = 0;
+          }
+        }, (err) => {
+          console.error('Balance listener error:', err);
+          showToast('Error loading balance', 'error');
+        });
+      } catch (err) {
+        console.error('Error setting up user data:', err);
+        showToast('Error loading profile', 'error');
+      }
+    }
 
     // ---- Preview ----
     function previewTask(){
@@ -1215,7 +1251,7 @@
       document.getElementById('c_total').textContent = fmtMoney(totalCost);
       document.getElementById('c_balance').textContent = fmtMoney(currentBalance || 0);
       document.getElementById('c_sum').textContent = fmtMoney(totalCost);
-      document.getElementById('c_thumb').textContent = selectedThumbnailFile ? selectedThumbnailFile.name : '—';
+      document.getElementById('c_thumb').textContent = selectedThumbnailBase64 ? 'Yes' : '—';
 
       openModal();
     }
@@ -1235,25 +1271,6 @@
       const { title, platform, subcategory, workers, description, taskLink, chosenUnitPrice, totalCost } = pendingTask;
 
       try {
-        let thumbnailUrl = null;
-        if (selectedThumbnailFile) {
-          try {
-            const formData = new FormData();
-            formData.append('file', selectedThumbnailFile);
-            formData.append('upload_preset', 'taskvault_unsigned');
-            const resp = await fetch('https://api.cloudinary.com/v1_1/dq7fpxfbc/image/upload', {
-              method: 'POST',
-              body: formData
-            });
-            const result = await resp.json();
-            if (result.secure_url) thumbnailUrl = result.secure_url;
-          } catch (uploadErr) {
-            console.warn('Upload failed', uploadErr);
-            const cont = confirm('Thumbnail upload failed — continue without it?');
-            if (!cont) throw uploadErr;
-          }
-        }
-
         await db.runTransaction(async (tx) => {
           const userRef = db.collection('users').doc(currentUser.uid);
           const userSnap = await tx.get(userRef);
@@ -1271,7 +1288,7 @@
             totalCost,
             description,
             taskLink,
-            thumbnail: thumbnailUrl || null,
+            thumbnail: selectedThumbnailBase64 || null,
             owner: currentUser.uid,
             status: 'pending',
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -1283,14 +1300,6 @@
         showToast('Task posted successfully!', 'success');
         closeModal();
         clearForm();
-
-        // Refresh balance
-        try {
-          const uSnap = await db.collection('users').doc(currentUser.uid).get();
-          const fresh = uSnap.exists ? uSnap.data() : {};
-          currentBalance = Number(fresh.balance ?? fresh.wallet ?? 0) || 0;
-          document.getElementById('balanceDisplay').textContent = currentBalance.toFixed(3);
-        } catch (e) { /* ignore */ }
       } catch (err) {
         console.error('Post failed', err);
         showToast(err.message || 'Failed to post task', 'error');
@@ -1314,4 +1323,4 @@
     });
   </script>
 </body>
-  </html>
+</html>
