@@ -298,7 +298,7 @@
     </div>
     <div class="control-item">
       <div class="control-icon">💀</div>
-      <div class="control-text">Dodge skeletons<br>Fire shooters & spikes!</div>
+      <div class="control-text">Dodge skeletons<br>Fire shooter & spikes!</div>
     </div>
     <div class="control-item">
       <div class="control-icon">🔥</div>
@@ -402,7 +402,7 @@
   let diamonds = [];
   let spikes = [];
   let skeletons = [];
-  let fireShooters = [];
+  let fireShooter = null; // Only ONE fire shooter
   let fireballs = [];
   let powerups = [];
   let particles = [];
@@ -503,7 +503,7 @@
     diamonds = [];
     spikes = [];
     skeletons = [];
-    fireShooters = [];
+    fireShooter = null;
     fireballs = [];
     powerups = [];
     particles = [];
@@ -578,7 +578,6 @@
     });
     
     spawnTimer += dt;
-    // REDUCED SPAWN RATE - was 28, now 45 (much slower spawning)
     const baseSpawnRate = activePowerups.frenzy > 0 ? 30 : 45;
     if (spawnTimer >= baseSpawnRate) {
       spawnTimer = 0;
@@ -595,7 +594,6 @@
       spike.x += Math.sin(gameTime * 0.02 + spike.id) * 0.5 * dt;
     });
     
-    // SKELETONS - horizontal only
     skeletons.forEach(skull => {
       skull.x += skull.vx * dt;
       
@@ -617,15 +615,19 @@
       }
     });
     
-    fireShooters.forEach(shooter => {
-      shooter.y += 0.8 * dt;
-      shooter.x += Math.sin(gameTime * 0.015 + shooter.id) * 0.8 * dt;
+    // SINGLE FIRE SHOOTER - moves and shoots
+    if (fireShooter) {
+      fireShooter.y += 0.8 * dt;
+      fireShooter.x += Math.sin(gameTime * 0.015) * 0.8 * dt;
       
-      shooter.shootTimer += dt;
-      if (shooter.shootTimer > shooter.shootInterval) {
-        shooter.shootTimer = 0;
-        const startX = shooter.x + shooter.width/2;
-        const startY = shooter.y + shooter.height/2;
+      // Keep in bounds
+      fireShooter.x = Math.max(30, Math.min(canvas.width - 80, fireShooter.x));
+      
+      fireShooter.shootTimer += dt;
+      if (fireShooter.shootTimer > fireShooter.shootInterval) {
+        fireShooter.shootTimer = 0;
+        const startX = fireShooter.x + fireShooter.width/2;
+        const startY = fireShooter.y + fireShooter.height/2;
         const targetPx = player.x + player.width/2;
         const targetPy = player.y + player.height/2;
         const angle = Math.atan2(targetPy - startY, targetPx - startX);
@@ -639,7 +641,12 @@
           life: 180
         });
       }
-    });
+      
+      // Remove if off screen
+      if (fireShooter.y > canvas.height + 100) {
+        fireShooter = null;
+      }
+    }
     
     fireballs.forEach(fb => {
       fb.x += fb.vx * dt;
@@ -672,7 +679,6 @@
     diamonds = diamonds.filter(d => d.y < offScreen);
     spikes = spikes.filter(s => s.y < offScreen);
     skeletons = skeletons.filter(s => s.y < offScreen + 50);
-    fireShooters = fireShooters.filter(s => s.y < offScreen + 50);
     fireballs = fireballs.filter(f => f.life > 0 && f.x > -50 && f.x < canvas.width + 50 && f.y > -50 && f.y < canvas.height + 50);
     powerups = powerups.filter(p => p.y < offScreen);
   }
@@ -682,13 +688,13 @@
     const x = Math.random() * (canvas.width - padding * 2) + padding;
     const rand = Math.random();
     
-    // REDUCED OBSTACLE RATES - more coins/diamonds, fewer enemies
-    // 55% coins, 15% diamonds, 10% spikes, 6% skeletons, 6% fire shooters, 8% power-ups
-    if (rand < 0.55) {
+    // 58% coins, 20% diamonds, 6% spikes, 7% skeletons, 9% power-ups
+    // Fire shooter spawns separately (only one exists at a time)
+    if (rand < 0.58) {
       coins.push({ x, y: -40, width: 36, height: 36, type: 'coin' });
-    } else if (rand < 0.70) {
+    } else if (rand < 0.78) {
       diamonds.push({ x, y: -40, width: 32, height: 32, type: 'diamond' });
-    } else if (rand < 0.80) {
+    } else if (rand < 0.84) {
       const nearCoin = coins.length > 0 ? coins[coins.length - 1] : null;
       const spikeX = nearCoin ? nearCoin.x + (Math.random() > 0.5 ? 50 : -50) : x;
       spikes.push({ 
@@ -699,7 +705,7 @@
         type: 'spike',
         id: Math.random()
       });
-    } else if (rand < 0.86) {
+    } else if (rand < 0.91) {
       const direction = Math.random() > 0.5 ? 1 : -1;
       const speed = 1.5 + Math.random() * 1.5;
       skeletons.push({
@@ -713,20 +719,22 @@
         chompSpeed: 15 + Math.random() * 10,
         id: Math.random()
       });
-    } else if (rand < 0.92) {
-      fireShooters.push({
+    } else {
+      const types = ['double', 'magnet', 'speed'];
+      const type = types[Math.floor(Math.random() * types.length)];
+      powerups.push({ x, y: -40, width: 40, height: 40, type });
+    }
+    
+    // Spawn single fire shooter if none exists (10% chance per spawn cycle)
+    if (!fireShooter && Math.random() < 0.10) {
+      fireShooter = {
         x: x,
         y: -60,
         width: 50,
         height: 50,
         shootTimer: 0,
-        shootInterval: 45 + Math.random() * 30,
-        id: Math.random()
-      });
-    } else {
-      const types = ['double', 'magnet', 'speed'];
-      const type = types[Math.floor(Math.random() * types.length)];
-      powerups.push({ x, y: -40, width: 40, height: 40, type });
+        shootInterval: 50 + Math.random() * 40
+      };
     }
   }
 
@@ -819,6 +827,30 @@
       }
     });
     
+    // Fire shooter collision
+    if (fireShooter && rectCollide(fireShooter, player)) {
+      if (isInvincible) {
+        createParticles(fireShooter.x + fireShooter.width/2, fireShooter.y + fireShooter.height/2, '#06b6d4');
+        fireShooter = null;
+      } else if (activePowerups.shield > 0 || player.shield) {
+        activePowerups.shield = 0;
+        player.shield = false;
+        createParticles(fireShooter.x + fireShooter.width/2, fireShooter.y + fireShooter.height/2, '#3b82f6');
+        fireShooter = null;
+        updatePowerupBadges();
+      } else {
+        combo = 0;
+        score = Math.max(0, score - 120);
+        player.hitFlash = 30;
+        createParticles(playerCx, playerCy, '#f97316', 20);
+        fireShooter = null;
+        screenShake(10);
+        showDamageText(playerCx, playerCy - 50, '-120', '#f97316');
+        updateHUD();
+      }
+    }
+    
+    // Fireball collisions
     fireballs.forEach((fb, i) => {
       const dist = Math.hypot(fb.x - playerCx, fb.y - playerCy);
       if (dist < fb.radius + 25) {
@@ -1075,9 +1107,10 @@
       ctx.restore();
     });
     
-    fireShooters.forEach(shooter => {
+    // Render SINGLE fire shooter
+    if (fireShooter) {
       ctx.save();
-      ctx.translate(shooter.x + shooter.width/2, shooter.y + shooter.height/2);
+      ctx.translate(fireShooter.x + fireShooter.width/2, fireShooter.y + fireShooter.height/2);
       
       ctx.shadowColor = '#f97316';
       ctx.shadowBlur = 18;
@@ -1105,8 +1138,9 @@
       
       ctx.shadowBlur = 0;
       ctx.restore();
-    });
+    }
     
+    // Render fireballs
     fireballs.forEach(fb => {
       ctx.save();
       ctx.translate(fb.x, fb.y);
@@ -1407,4 +1441,4 @@
 </script>
 
 </body>
-</html>
+  </html>
