@@ -753,6 +753,27 @@
             to { opacity: 1; top: 2px; }
         }
 
+        /* ==================== DYNAMIC GLOW STATUSES ==================== */
+        .status-glow-pending {
+            border-color: var(--orange-main) !important;
+            box-shadow: 0 0 12px rgba(255, 140, 66, 0.35) !important;
+        }
+
+        .status-glow-completed {
+            border-color: var(--success) !important;
+            box-shadow: 0 0 12px rgba(16, 185, 129, 0.45) !important;
+        }
+
+        .status-glow-rejected {
+            border-color: var(--danger) !important;
+            box-shadow: 0 0 12px rgba(239, 68, 68, 0.45) !important;
+        }
+
+        .status-glow-refunded {
+            border-color: #3B82F6 !important;
+            box-shadow: 0 0 12px rgba(59, 130, 246, 0.45) !important;
+        }
+
         /* ==================== ANIMATIONS ==================== */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
@@ -790,7 +811,8 @@
         <i class="fa-solid fa-circle-info"></i>
         <span id="toastMsg">Message</span>
     </div>
-        <div class="app-container">
+
+    <div class="app-container">
         <!-- TOP NAV -->
         <div class="top-nav">
             <button class="nav-back-btn" onclick="window.location.href='dashboard.html'">
@@ -1006,6 +1028,7 @@
                 if (doc.exists) {
                     userData = doc.data();
                     userBalance = userData.balance || 0;
+                    window.KycStatus = userData.KycStatus || 'unverified';
                     updateBalanceDisplay();
                     fetchWithdrawalHistory(uid);
                 } else {
@@ -1013,12 +1036,14 @@
                         balance: 0.00,
                         plan: null,
                         country: null,
+                        KycStatus: 'unverified',
                         lastClaimDate: null,
                         createdAt: firebase.firestore.FieldValue.serverTimestamp()
                     };
                     await db.collection('users').doc(uid).set(newProfile);
                     userData = newProfile;
                     userBalance = 0;
+                    window.KycStatus = 'unverified';
                     updateBalanceDisplay();
                 }
             } catch (error) {
@@ -1079,6 +1104,11 @@
 
         // ==================== BANK WITHDRAWAL ====================
         function selectBankWithdrawal() {
+            if (!window.KycStatus || window.KycStatus.toLowerCase() !== 'verified') {
+                showToast("Access Denied: Your KYC status must be verified to withdraw.");
+                return;
+            }
+
             if (userBalance < WITHDRAWAL_LIMITS.min) {
                 showToast(`Minimum withdrawal is $${WITHDRAWAL_LIMITS.min}`);
                 return;
@@ -1146,6 +1176,10 @@
             const accountNumber = document.getElementById('accountNumber').value.trim();
             const accountName = document.getElementById('accountName').value.trim();
 
+            if (!window.KycStatus || window.KycStatus.toLowerCase() !== 'verified') {
+                showToast("Action rejected: KYC Verification required.");
+                return;
+            }
             if (usd > userBalance) {
                 showToast("Insufficient balance");
                 return;
@@ -1230,16 +1264,31 @@
                 let html = '';
                 snapshot.forEach(doc => {
                     const data = doc.data();
-                    const status = data.status || 'pending';
-                    const statusColor = status === 'completed' ? 'var(--success)' : 
-                                       status === 'pending' ? 'var(--orange-main)' : 'var(--danger)';
-                    const statusBg = status === 'completed' ? 'var(--success-light)' : 
-                                    status === 'pending' ? 'var(--orange-light)' : 'var(--danger-light)';
+                    const status = (data.status || 'pending').toLowerCase();
+                    
+                    let statusColor = 'var(--orange-main)';
+                    let statusBg = 'var(--orange-light)';
+                    let glowClass = 'status-glow-pending';
+
+                    if (status === 'completed' || status === 'approved') {
+                        statusColor = 'var(--success)';
+                        statusBg = 'var(--success-light)';
+                        glowClass = 'status-glow-completed';
+                    } else if (status === 'rejected') {
+                        statusColor = 'var(--danger)';
+                        statusBg = 'var(--danger-light)';
+                        glowClass = 'status-glow-rejected';
+                    } else if (status === 'refunded') {
+                        statusColor = '#3B82F6';
+                        statusBg = '#EFF6FF';
+                        glowClass = 'status-glow-refunded';
+                    }
+                    
                     const time = data.timestamp ? formatTime(data.timestamp) : 'Just now';
                     
                     html += `
-                        <div style="background: var(--white); border-radius: 12px; padding: 14px; margin-bottom: 8px; 
-                                    border: 1px solid rgba(255,140,66,0.06); box-shadow: var(--shadow-sm);">
+                        <div class="${glowClass}" style="background: var(--white); border-radius: 12px; padding: 14px; margin-bottom: 12px; 
+                                    border: 1px solid rgba(255,140,66,0.06); transition: all 0.3s ease;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                                 <span style="font-size: 13px; font-weight: 700; color: var(--text-dark);">
                                     <i class="fa-solid fa-building-columns" style="color: var(--orange-main); margin-right: 6px;"></i>
@@ -1263,53 +1312,6 @@
                 historyContainer.innerHTML = html;
             } catch (error) {
                 console.error("Error fetching history:", error);
-                if (error.code === 'failed-precondition') {
-                    try {
-                        const fallback = await db.collection('withdrawals')
-                            .where('userId', '==', uid)
-                            .limit(10)
-                            .get();
-                        
-                        if (!fallback.empty) {
-                            let html = '';
-                            fallback.forEach(doc => {
-                                const data = doc.data();
-                                const status = data.status || 'pending';
-                                const statusColor = status === 'completed' ? 'var(--success)' : 
-                                                   status === 'pending' ? 'var(--orange-main)' : 'var(--danger)';
-                                const statusBg = status === 'completed' ? 'var(--success-light)' : 
-                                                status === 'pending' ? 'var(--orange-light)' : 'var(--danger-light)';
-                                const time = data.timestamp ? formatTime(data.timestamp) : 'Just now';
-                                
-                                html += `
-                                    <div style="background: var(--white); border-radius: 12px; padding: 14px; margin-bottom: 8px; 
-                                                border: 1px solid rgba(255,140,66,0.06); box-shadow: var(--shadow-sm);">
-                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                                            <span style="font-size: 13px; font-weight: 700; color: var(--text-dark);">
-                                                <i class="fa-solid fa-building-columns" style="color: var(--orange-main); margin-right: 6px;"></i>
-                                                ${data.bankName || 'Bank'}
-                                            </span>
-                                            <span style="font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 20px;
-                                                         background: ${statusBg}; color: ${statusColor}; text-transform: uppercase;">
-                                                ${status}
-                                            </span>
-                                        </div>
-                                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                                            <span style="font-size: 11px; color: var(--text-light);">${time}</span>
-                                            <span style="font-size: 14px; font-weight: 800; color: var(--danger);">-$${data.amountUSD?.toFixed(2) || '0.00'}</span>
-                                        </div>
-                                        <div style="font-size: 11px; color: var(--text-light); margin-top: 4px;">
-                                            ${data.accountName || ''} • ****${data.accountNumber?.slice(-4) || ''}
-                                        </div>
-                                    </div>
-                                `;
-                            });
-                            historyContainer.innerHTML = html;
-                        }
-                    } catch (e) {
-                        console.error("Fallback error:", e);
-                    }
-                }
             }
         }
 
