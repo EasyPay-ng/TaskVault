@@ -22,6 +22,10 @@
             --shadow-md: 0 4px 12px rgba(255, 140, 66, 0.1);
             --shadow-lg: 0 8px 24px rgba(255, 140, 66, 0.15);
             --gradient-orange: linear-gradient(135deg, #FF8C42 0%, #FF6B35 100%);
+            --danger: #EF4444;
+            --danger-light: #FEF2F2;
+            --success: #10B981;
+            --success-light: #ECFDF5;
         }
 
         * {
@@ -143,6 +147,22 @@
             font-size: 12px;
             color: var(--text-light);
             font-weight: 400;
+        }
+
+        /* ==================== SECTION TITLE ==================== */
+        .section-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .section-title i {
+            color: var(--orange-main);
+            font-size: 12px;
         }
 
         /* ==================== RATE DISPLAY BOX ==================== */
@@ -268,7 +288,7 @@
 
         .channel-text .unavailable {
             font-size: 10px;
-            color: #ef4444;
+            color: var(--danger);
             font-weight: 600;
             display: flex;
             align-items: center;
@@ -772,6 +792,22 @@
             font-size: 14px;
         }
 
+        /* ==================== DYNAMIC GLOW STATUSES ==================== */
+        .status-glow-pending {
+            border-color: var(--orange-main) !important;
+            box-shadow: 0 0 12px rgba(255, 140, 66, 0.35) !important;
+        }
+
+        .status-glow-completed {
+            border-color: var(--success) !important;
+            box-shadow: 0 0 12px rgba(16, 185, 129, 0.45) !important;
+        }
+
+        .status-glow-rejected {
+            border-color: var(--danger) !important;
+            box-shadow: 0 0 12px rgba(239, 68, 68, 0.45) !important;
+        }
+
         /* ==================== BOTTOM NAVIGATION ==================== */
         .bottom-nav {
             position: absolute;
@@ -932,6 +968,18 @@
                 </div>
                 <i class="fa-solid fa-chevron-right" style="color:#cbd5e1;"></i>
             </button>
+
+            <!-- RECENT DEPOSITS SECTION -->
+            <div class="section-title fade-in delay-2" style="margin-top: 20px;">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                Recent Deposits
+            </div>
+            <div id="depositHistory" style="margin-bottom: 20px;">
+                <div style="text-align: center; padding: 30px 16px; color: var(--text-light);">
+                    <i class="fa-solid fa-clipboard-list" style="font-size: 28px; color: var(--orange-light); margin-bottom: 8px;"></i>
+                    <p style="font-size: 11px;">No deposits found</p>
+                </div>
+            </div>
         </div>
 
         <!-- BOTTOM NAVIGATION -->
@@ -1066,7 +1114,8 @@
             <button class="btn-primary" onclick="verifyPayment()" style="margin-top:24px;">Verify <i class="fa-solid fa-check-circle"></i></button>
         </div>
     </div>
-        <!-- FIREBASE SDK -->
+
+    <!-- FIREBASE SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
@@ -1112,6 +1161,7 @@
                 const displayName = user.email ? user.email.split('@')[0] : 'User';
                 document.getElementById('displayEmail').textContent = displayName;
                 fetchUserData(user.uid);
+                fetchDepositHistory(user.uid);
             } else {
                 auth.signInAnonymously().catch((error) => {
                     console.error("Auth Error:", error);
@@ -1240,10 +1290,10 @@
                 document.getElementById('overlayVerify').classList.add('active');
             });
         }
-                async function verifyPayment() {
+
+        async function verifyPayment() {
             const val = document.getElementById('transactionId').value.trim();
 
-            // Hidden validation: must be exactly 24 digits, but user is not told
             if (!/^\d{24}$/.test(val)) {
                 showToast("Invalid transaction ID");
                 return;
@@ -1253,7 +1303,6 @@
 
             showLoader("Verifying...", 2000, async () => {
                 try {
-                    // Check if transaction ID already used
                     const snapshot = await db.collection('transactions')
                         .where('transactionId', '==', val)
                         .get();
@@ -1266,13 +1315,11 @@
                     document.getElementById('loaderText').textContent = "Crediting...";
                     document.getElementById('mainLoader').classList.add('active');
 
-                    // Credit user balance
                     const userRef = db.collection('users').doc(currentUser.uid);
                     await userRef.update({
                         balance: firebase.firestore.FieldValue.increment(usdAmount)
                     });
 
-                    // Log transaction
                     await db.collection('transactions').add({
                         userId: currentUser.uid,
                         email: currentUser.email,
@@ -1290,17 +1337,104 @@
                         timestamp: firebase.firestore.FieldValue.serverTimestamp()
                     });
 
-                    // Log activity
                     await logActivity('deposit', 'Bank Transfer Deposit', usdAmount);
 
                     document.getElementById('mainLoader').classList.remove('active');
                     document.getElementById('successModal').classList.add('active');
+                    fetchDepositHistory(currentUser.uid);
                 } catch (error) {
                     console.error("Bank verification error:", error);
                     document.getElementById('mainLoader').classList.remove('active');
                     showToast("Error occurred. Try again.");
                 }
             });
+        }
+
+        // ==================== FETCH DEPOSIT HISTORY ====================
+        async function fetchDepositHistory(uid) {
+            const historyContainer = document.getElementById('depositHistory');
+            try {
+                const snapshot = await db.collection('transactions')
+                    .where('userId', '==', uid)
+                    .where('type', '==', 'deposit')
+                    .orderBy('timestamp', 'desc')
+                    .limit(10)
+                    .get();
+
+                if (snapshot.empty) {
+                    historyContainer.innerHTML = `
+                        <div style="text-align: center; padding: 30px 16px; color: var(--text-light);">
+                            <i class="fa-solid fa-clipboard-list" style="font-size: 28px; color: var(--orange-light); margin-bottom: 8px;"></i>
+                            <p style="font-size: 11px;">No deposits found</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = '';
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const status = (data.status || 'completed').toLowerCase();
+                    
+                    let statusColor = 'var(--success)';
+                    let statusBg = 'var(--success-light)';
+                    let glowClass = 'status-glow-completed';
+
+                    if (status === 'pending') {
+                        statusColor = 'var(--orange-main)';
+                        statusBg = 'var(--orange-light)';
+                        glowClass = 'status-glow-pending';
+                    } else if (status === 'rejected' || status === 'failed') {
+                        statusColor = 'var(--danger)';
+                        statusBg = 'var(--danger-light)';
+                        glowClass = 'status-glow-rejected';
+                    }
+                    
+                    const time = data.timestamp ? formatTime(data.timestamp) : 'Just now';
+                    
+                    html += `
+                        <div class="${glowClass}" style="background: var(--white); border-radius: 12px; padding: 14px; margin-bottom: 12px; 
+                                    border: 1px solid rgba(255,140,66,0.06); transition: all 0.3s ease;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <span style="font-size: 13px; font-weight: 700; color: var(--text-dark);">
+                                    <i class="fa-solid fa-building-columns" style="color: var(--orange-main); margin-right: 6px;"></i>
+                                    Bank Transfer Deposit
+                                </span>
+                                <span style="font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 20px;
+                                             background: ${statusBg}; color: ${statusColor}; text-transform: uppercase;">
+                                    ${status}
+                                </span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="font-size: 11px; color: var(--text-light);">${time}</span>
+                                <span style="font-size: 14px; font-weight: 800; color: var(--success);">+$${data.amountUSD?.toFixed(2) || '0.00'}</span>
+                            </div>
+                            <div style="font-size: 11px; color: var(--text-light); margin-top: 4px; font-family: monospace; letter-spacing: 0.5px;">
+                                Ref: ${data.transactionId ? data.transactionId.slice(0,4) + '...' + data.transactionId.slice(-4) : data.remark || ''}
+                            </div>
+                        </div>
+                    `;
+                });
+                historyContainer.innerHTML = html;
+            } catch (error) {
+                console.error("Error fetching deposit history:", error);
+            }
+        }
+
+        function formatTime(timestamp) {
+            if (!timestamp) return 'Recently';
+            const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+
+            if (diffMins < 1) return 'Just now';
+            if (diffMins < 60) return `${diffMins}m ago`;
+            if (diffHours < 24) return `${diffHours}h ago`;
+            if (diffDays < 7) return `${diffDays}d ago`;
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
         }
 
         // ==================== ACTIVITY LOGGING ====================
@@ -1322,7 +1456,6 @@
 
         // ==================== INIT ====================
         document.addEventListener('DOMContentLoaded', () => {
-            // Set active nav item
             const currentPage = window.location.pathname.split('/').pop();
             document.querySelectorAll('.nav-item').forEach(item => {
                 const href = item.getAttribute('href');
@@ -1336,3 +1469,4 @@
     </script>
 </body>
 </html>
+
