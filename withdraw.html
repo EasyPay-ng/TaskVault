@@ -3,30 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Withdraw</title>
-   
+    <title>Withdraw Funds | TaskVault</title>
+
     <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" type="image/jpeg">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
     <style>
         :root {
             --orange-main: #FF8C42;
             --orange-dark: #E67A35;
             --orange-light: #FFF0E6;
             --silk-bg: #FDFBF7;
-            --white: #FFF;
-            --text-dark: #333;
-            --text-light: #888;
-            --success: #10B981;
-            --success-light: #D1FAE5;
-            --danger: #EF4444;
-            --danger-light: #FEE2E2;
-            --warning: #F59E0B;
-            --warning-light: #FFFBEB;
+            --white: #FFFFFF;
+            --text-dark: #333333;
+            --text-light: #888888;
             --shadow-sm: 0 2px 6px rgba(255, 140, 66, 0.06);
             --shadow-md: 0 4px 12px rgba(255, 140, 66, 0.1);
             --shadow-lg: 0 8px 24px rgba(255, 140, 66, 0.15);
+            --gradient-orange: linear-gradient(135deg, #FF8C42 0%, #FF6B35 100%);
+            --danger: #EF4444;
+            --danger-light: #FEF2F2;
+            --success: #10B981;
+            --success-light: #ECFDF5;
+            --warning: #F59E0B;
+            --warning-light: #FFFBEB;
         }
 
         * {
@@ -43,7 +44,7 @@
         }
 
         body {
-            background: #e9ecef;
+            background-color: #e9ecef;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -53,7 +54,7 @@
             width: 100%;
             height: 100dvh;
             max-width: 430px;
-            background: var(--silk-bg);
+            background-color: var(--silk-bg);
             position: relative;
             overflow: hidden;
             display: flex;
@@ -73,80 +74,388 @@
             flex: 1;
             overflow-y: auto;
             overflow-x: hidden;
-            padding-bottom: 80px;
+            padding: 0 20px;
+            padding-bottom: calc(80px + env(safe-area-inset-bottom));
         }
 
-        /* Header */
-        .header {
-            padding: 16px 20px 12px;
+        .scroll-content::-webkit-scrollbar {
+            width: 2px;
+        }
+        .scroll-content::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .scroll-content::-webkit-scrollbar-thumb {
+            background: var(--orange-light);
+            border-radius: 2px;
+        }
+
+        /* ==================== TOP NAV ==================== */
+        .top-nav {
+            display: flex;
+            align-items: center;
+            padding: 14px 20px 10px;
             background: var(--white);
             flex-shrink: 0;
         }
 
-        .header h1 {
-            color: var(--text-dark);
-            font-size: 18px;
-            font-weight: 700;
+        .nav-back-btn {
+            background: var(--orange-light);
+            border: none;
+            border-radius: 12px;
+            padding: 10px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--orange-main);
+            cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
+            transition: all 0.3s ease;
         }
 
-        .header h1 i {
-            color: var(--orange-main);
-            font-size: 16px;
+        .nav-back-btn:hover {
+            background: var(--orange-main);
+            color: white;
+            transform: translateX(-2px);
         }
 
-        /* Balance Display Card */
-        .balance-section {
-            padding: 16px 20px;
-        }
-
+        /* ==================== BALANCE CARD ==================== */
         .balance-card {
-            background: var(--white);
-            border-radius: 20px;
-            padding: 24px;
-            text-align: center;
-            box-shadow: var(--shadow-sm);
-            border: 1px solid rgba(255, 140, 66, 0.06);
+            background: var(--gradient-orange);
+            border-radius: 18px;
+            padding: 20px;
+            color: white;
+            box-shadow: var(--shadow-lg);
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
         }
 
-        .balance-card p {
-            color: var(--text-light);
-            font-size: 12px;
-            margin-bottom: 4px;
+        .balance-card::after {
+            content: '';
+            position: absolute;
+            top: -30px;
+            right: -30px;
+            width: 100px;
+            height: 100px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+        }
+
+        .balance-label {
+            font-size: 10px;
+            opacity: 0.85;
+            font-weight: 500;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            position: relative;
+            z-index: 1;
         }
 
         .balance-amount {
-            font-size: 28px;
+            font-size: 32px;
+            font-weight: 800;
+            margin-top: 6px;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: baseline;
+            gap: 4px;
+        }
+
+        .balance-amount .currency {
+            font-size: 18px;
+            font-weight: 600;
+            opacity: 0.85;
+        }
+
+        /* ==================== KYC WARNING BANNER ==================== */
+        .kyc-banner {
+            background: var(--warning-light);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            border-radius: 14px;
+            padding: 14px 16px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .kyc-banner:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .kyc-banner.rejected {
+            background: var(--danger-light);
+            border-color: rgba(239, 68, 68, 0.2);
+        }
+
+        .kyc-banner.verified {
+            background: var(--success-light);
+            border-color: rgba(16, 185, 129, 0.2);
+        }
+
+        .kyc-banner-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: var(--warning);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .kyc-banner.rejected .kyc-banner-icon {
+            background: var(--danger);
+        }
+
+        .kyc-banner.verified .kyc-banner-icon {
+            background: var(--success);
+        }
+
+        .kyc-banner-text {
+            flex: 1;
+        }
+
+        .kyc-banner-text h4 {
+            font-size: 13px;
             font-weight: 700;
             color: var(--text-dark);
-            font-family: 'SF Mono', monospace;
+            margin-bottom: 2px;
         }
 
-        /* Withdrawal Form */
-        .form-section {
-            padding: 0 20px 16px;
+        .kyc-banner-text p {
+            font-size: 11px;
+            color: var(--text-light);
         }
 
-        .form-card {
+        .kyc-banner > i {
+            color: var(--warning);
+            font-size: 14px;
+        }
+
+        .kyc-banner.rejected > i {
+            color: var(--danger);
+        }
+
+        .kyc-banner.verified > i {
+            color: var(--success);
+        }
+
+        /* ==================== WITHDRAWAL METHODS ==================== */
+        .section-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .section-title i {
+            color: var(--orange-main);
+            font-size: 12px;
+        }
+
+        .channel-btn {
+            width: 100%;
             background: var(--white);
+            border: 1px solid rgba(255, 140, 66, 0.08);
             border-radius: 16px;
-            padding: 20px;
+            padding: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            margin-bottom: 12px;
+            transition: all 0.3s ease;
+            text-align: left;
             box-shadow: var(--shadow-sm);
-            border: 1px solid rgba(255, 140, 66, 0.06);
         }
 
+        .channel-btn:hover {
+            border-color: var(--orange-main);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .channel-btn:active {
+            transform: scale(0.98);
+        }
+
+        .channel-btn.disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            background: #f8f8f8;
+        }
+
+        .channel-btn.disabled:hover {
+            border-color: rgba(255, 140, 66, 0.08);
+            transform: none;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .channel-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .channel-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .icon-bank {
+            background: var(--orange-light);
+            color: var(--orange-main);
+        }
+
+        .icon-crypto {
+            background: #f1f5f9;
+            color: #94a3b8;
+        }
+
+        .channel-text h3 {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .channel-text span {
+            font-size: 11px;
+            color: var(--text-light);
+            display: block;
+            margin-top: 2px;
+        }
+
+        .channel-text .unavailable {
+            font-size: 10px;
+            color: var(--danger);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 3px;
+        }
+
+        .rate-info-small {
+            font-size: 10px;
+            color: var(--orange-main);
+            font-weight: 600;
+            margin-top: 3px;
+        }
+
+        .channel-btn > i {
+            color: #cbd5e1;
+            font-size: 14px;
+        }
+
+        /* ==================== PAGE OVERLAY ==================== */
+        .page-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--silk-bg);
+            z-index: 100;
+            transform: translateX(100%);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .page-overlay.active {
+            transform: translateX(0);
+        }
+
+        .overlay-header {
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--white);
+            flex-shrink: 0;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .back-btn {
+            background: var(--orange-light);
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            font-size: 14px;
+            color: var(--orange-main);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: var(--orange-main);
+            color: white;
+        }
+
+        .overlay-title {
+            font-weight: 700;
+            font-size: 16px;
+            color: var(--text-dark);
+        }
+
+        .overlay-scroll {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .overlay-scroll::-webkit-scrollbar {
+            width: 2px;
+        }
+        .overlay-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .overlay-scroll::-webkit-scrollbar-thumb {
+            background: var(--orange-light);
+            border-radius: 2px;
+        }
+
+        .overlay-content {
+            padding: 20px;
+            max-width: 430px;
+            margin: 0 auto;
+            width: 100%;
+            padding-bottom: calc(40px + env(safe-area-inset-bottom));
+        }
+
+        /* ==================== INPUT STYLES ==================== */
         .input-group {
             margin-bottom: 16px;
         }
 
-        .input-group label {
+        .input-label {
             display: block;
             font-size: 12px;
             font-weight: 600;
+            margin-bottom: 8px;
             color: var(--text-dark);
-            margin-bottom: 6px;
         }
 
         .input-wrapper {
@@ -155,36 +464,137 @@
             align-items: center;
         }
 
-        .input-wrapper i {
+        .input-wrapper span {
             position: absolute;
-            left: 14px;
+            left: 16px;
+            font-size: 18px;
+            font-weight: 700;
             color: var(--text-light);
+        }
+
+        .text-input, .amount-input, .bank-select {
+            width: 100%;
+            padding: 14px 16px;
             font-size: 14px;
-        }
-
-        .input-wrapper input, .input-wrapper select {
-            width: 100%;
-            padding: 12px 14px 12px 40px;
-            border: 1px solid #E5E7EB;
-            border-radius: 12px;
-            font-size: 13px;
-            background: var(--silk-bg);
-            color: var(--text-dark);
-            outline: none;
-            transition: border-color 0.3s;
-        }
-
-        .input-wrapper input:focus, .input-wrapper select:focus {
-            border-color: var(--orange-main);
-        }
-
-        .btn-withdraw {
-            width: 100%;
-            padding: 14px;
-            border: none;
+            font-weight: 600;
+            border: 2px solid #e2e8f0;
             border-radius: 14px;
-            background: linear-gradient(135deg, #FF8C42 0%, #FF6B35 100%);
-            color: #fff;
+            outline: none;
+            transition: all 0.3s ease;
+            color: var(--text-dark);
+            background: var(--white);
+        }
+
+        .amount-input {
+            padding-left: 40px;
+            font-size: 22px;
+            font-weight: 800;
+        }
+
+        .bank-select {
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23888888' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            padding-right: 40px;
+            cursor: pointer;
+        }
+
+        .bank-select option {
+            font-weight: 500;
+            padding: 8px;
+        }
+
+        .bank-select:focus, .text-input:focus, .amount-input:focus {
+            border-color: var(--orange-main);
+            box-shadow: 0 0 0 4px rgba(255, 140, 66, 0.1);
+        }
+
+        .text-input::placeholder, .amount-input::placeholder {
+            color: #cbd5e1;
+            font-weight: 400;
+        }
+
+        .input-hint {
+            font-size: 11px;
+            color: var(--text-light);
+            margin-top: 6px;
+        }
+
+        .input-hint span {
+            color: var(--orange-main);
+            font-weight: 600;
+        }
+
+        /* ==================== WITHDRAWAL SUMMARY ==================== */
+        .summary-card {
+            background: var(--white);
+            border: 1px solid rgba(255, 140, 66, 0.08);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .summary-row:last-child {
+            border-bottom: none;
+        }
+
+        .summary-label {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        .summary-value {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .summary-value.danger {
+            color: var(--danger);
+        }
+
+        .summary-value.success {
+            color: var(--success);
+        }
+
+        .summary-row.total {
+            padding-top: 12px;
+            margin-top: 4px;
+            border-top: 2px solid var(--orange-light);
+            border-bottom: none;
+        }
+
+        .summary-row.total .summary-label {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .summary-row.total .summary-value {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--orange-main);
+        }
+
+        /* ==================== BUTTONS ==================== */
+        .btn-primary {
+            width: 100%;
+            background: var(--gradient-orange);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 14px;
             font-size: 14px;
             font-weight: 700;
             cursor: pointer;
@@ -192,61 +602,254 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
-            transition: all 0.3s ease;
             box-shadow: var(--shadow-md);
+            transition: all 0.3s ease;
+            margin-top: 16px;
+            margin-bottom: 20px;
         }
 
-        .btn-withdraw:hover {
+        .btn-primary:hover {
+            background: var(--orange-dark);
             transform: translateY(-2px);
             box-shadow: var(--shadow-lg);
         }
 
-        /* KYC Restriction Overlay Card */
-        .restriction-card {
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary:disabled {
+            background: #e2e8f0;
+            color: #94a3b8;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* ==================== NOTICE BOX ==================== */
+        .notice-box {
+            background: var(--orange-light);
+            border-left: 3px solid var(--orange-main);
+            padding: 14px;
+            border-radius: 0 12px 12px 0;
+            margin-bottom: 20px;
+            font-size: 11px;
+            color: var(--orange-dark);
+            line-height: 1.6;
+        }
+
+        .notice-box.danger {
             background: var(--danger-light);
-            border: 1px solid rgba(239, 68, 68, 0.2);
-            border-radius: 16px;
-            padding: 20px;
-            text-align: center;
-            margin-bottom: 16px;
-            display: none; /* Controlled by Javascript */
+            border-left-color: var(--danger);
+            color: #b91c1c;
         }
 
-        .restriction-card i {
-            font-size: 28px;
-            color: var(--danger);
-            margin-bottom: 10px;
-        }
-
-        .restriction-card h3 {
-            font-size: 14px;
+        .notice-box strong {
             font-weight: 700;
-            color: var(--text-dark);
-            margin-bottom: 6px;
         }
 
-        .restriction-card p {
+        /* ==================== LOADER OVERLAY ==================== */
+        .loader-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(253, 251, 247, 0.95);
+            z-index: 9999;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .loader-overlay.active {
+            display: flex;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--orange-light);
+            border-top: 3px solid var(--orange-main);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 12px;
+        }
+
+        .loader-text {
             font-size: 12px;
+            font-weight: 600;
+            color: var(--text-dark);
+            letter-spacing: 1px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ==================== SUCCESS MODAL ==================== */
+        .success-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 10000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+            padding: 20px;
+        }
+
+        .success-modal.active {
+            display: flex;
+        }
+
+        .success-box {
+            background: var(--white);
+            padding: 32px 24px;
+            border-radius: 20px;
+            text-align: center;
+            width: 100%;
+            max-width: 320px;
+            transform: scale(0.9);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .success-modal.active .success-box {
+            transform: scale(1);
+        }
+
+        .success-icon {
+            width: 64px;
+            height: 64px;
+            background: var(--success-light);
+            color: var(--success);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin: 0 auto 16px;
+        }
+
+        .success-box h3 {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .success-box p {
+            font-size: 13px;
+            color: var(--text-light);
+            margin-bottom: 20px;
+        }
+
+        /* ==================== KYC BLOCKED MODAL ==================== */
+        .kyc-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 10000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+            padding: 20px;
+        }
+
+        .kyc-modal.active {
+            display: flex;
+        }
+
+        .kyc-box {
+            background: var(--white);
+            padding: 32px 24px;
+            border-radius: 20px;
+            text-align: center;
+            width: 100%;
+            max-width: 320px;
+            transform: scale(0.9);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .kyc-modal.active .kyc-box {
+            transform: scale(1);
+        }
+
+        .kyc-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin: 0 auto 16px;
+        }
+
+        .kyc-icon.pending {
+            background: var(--warning-light);
+            color: var(--warning);
+        }
+
+        .kyc-icon.rejected {
+            background: var(--danger-light);
             color: var(--danger);
-            margin-bottom: 14px;
+        }
+
+        .kyc-box h3 {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .kyc-box p {
+            font-size: 13px;
+            color: var(--text-light);
+            margin-bottom: 16px;
             line-height: 1.5;
         }
 
-        .btn-verify-now {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: var(--danger);
-            color: white;
-            padding: 8px 16px;
+        .kyc-reason {
+            background: var(--danger-light);
+            color: var(--danger);
+            padding: 10px 14px;
             border-radius: 10px;
             font-size: 12px;
-            font-weight: 600;
-            text-decoration: none;
-            box-shadow: 0 4px 10px rgba(239, 68, 68, 0.2);
+            margin-bottom: 16px;
+            text-align: left;
+            line-height: 1.5;
         }
 
-        /* Modern Bottom Nav */
+        /* ==================== TOAST ==================== */
+        .toast {
+            position: fixed;
+            bottom: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--text-dark);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 99px;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        }
+
+        .toast.show {
+            bottom: 90px;
+        }
+
+        /* ==================== BOTTOM NAVIGATION ==================== */
         .bottom-nav {
             position: absolute;
             bottom: 0;
@@ -256,7 +859,7 @@
             display: flex;
             justify-content: space-around;
             align-items: center;
-            padding: 8px 16px 16px;
+            padding: 8px 16px calc(16px + env(safe-area-inset-bottom));
             box-shadow: 0 -4px 20px rgba(0,0,0,0.04);
             border-top-left-radius: 24px;
             border-top-right-radius: 24px;
@@ -277,6 +880,7 @@
             padding: 6px 14px;
             border-radius: 14px;
             font-weight: 500;
+            position: relative;
         }
 
         .nav-item i {
@@ -293,119 +897,170 @@
             transform: translateY(-2px) scale(1.1);
         }
 
-        /* Toast */
-        .toast {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%) translateY(-100px);
-            background: var(--white);
-            color: var(--text-dark);
-            padding: 10px 18px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            width: 16px;
+            height: 3px;
+            background: var(--orange-main);
+            border-radius: 2px;
             opacity: 0;
-            visibility: hidden;
-            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            z-index: 4000;
-            max-width: 90%;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
-            border-left: 3px solid var(--orange-main);
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            animation: dotIn 0.3s ease forwards;
         }
 
-        .toast.show {
-            opacity: 1;
-            visibility: visible;
-            transform: translateX(-50%) translateY(0);
+        @keyframes dotIn {
+            to { opacity: 1; top: 2px; }
         }
-        .toast.success { border-left-color: #10B981; }
-        .toast.error { border-left-color: #EF4444; }
 
-        .fade-in {
-            animation: fadeIn 0.5s ease-out forwards;
+        /* ==================== DYNAMIC GLOW STATUSES ==================== */
+        .status-glow-pending {
+            border-color: var(--orange-main) !important;
+            box-shadow: 0 0 12px rgba(255, 140, 66, 0.35) !important;
         }
+
+        .status-glow-completed {
+            border-color: var(--success) !important;
+            box-shadow: 0 0 12px rgba(16, 185, 129, 0.45) !important;
+        }
+
+        .status-glow-rejected {
+            border-color: var(--danger) !important;
+            box-shadow: 0 0 12px rgba(239, 68, 68, 0.45) !important;
+        }
+
+        .status-glow-refunded {
+            border-color: #3B82F6 !important;
+            box-shadow: 0 0 12px rgba(59, 130, 246, 0.45) !important;
+        }
+
+        /* ==================== ANIMATIONS ==================== */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
+
+        .fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        .delay-1 { animation-delay: 0.1s; opacity: 0; }
+        .delay-2 { animation-delay: 0.2s; opacity: 0; }
     </style>
 </head>
 <body>
 
+    <!-- LOADER -->
+    <div class="loader-overlay" id="mainLoader">
+        <div class="spinner"></div>
+        <p class="loader-text" id="loaderText">Processing...</p>
+    </div>
+
+    <!-- SUCCESS MODAL -->
+    <div class="success-modal" id="successModal">
+        <div class="success-box">
+            <div class="success-icon"><i class="fa-solid fa-check"></i></div>
+            <h3>Request Submitted!</h3>
+            <p>Your withdrawal is being processed. You'll receive funds shortly.</p>
+            <button class="btn-primary" onclick="window.location.href='dashboard.html'">Dashboard</button>
+        </div>
+    </div>
+
+    <!-- KYC BLOCKED MODAL -->
+    <div class="kyc-modal" id="kycModal">
+        <div class="kyc-box">
+            <div class="kyc-icon" id="kycModalIcon"><i class="fa-solid fa-shield-halved"></i></div>
+            <h3 id="kycModalTitle">Verification Required</h3>
+            <p id="kycModalText">Please complete your KYC verification to unlock withdrawals.</p>
+            <div class="kyc-reason" id="kycRejectionReason" style="display:none;"></div>
+            <button class="btn-primary" id="kycModalBtn" onclick="goToKYC()">
+                <i class="fa-solid fa-arrow-right"></i> Verify Now
+            </button>
+            <button class="btn-primary" style="background: var(--silk-bg); color: var(--text-light); margin-top: 8px; box-shadow: none;" onclick="closeKYCModal()">Maybe Later</button>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast" id="toastBox">
+        <i class="fa-solid fa-circle-info"></i>
+        <span id="toastMsg">Message</span>
+    </div>
+
     <div class="app-container">
-        <!-- HEADER -->
-        <header class="header fade-in">
-            <h1><i class="fa-solid fa-arrow-up-from-bracket"></i> Withdraw Funds</h1>
-        </header>
+        <!-- TOP NAV -->
+        <div class="top-nav">
+            <button class="nav-back-btn" onclick="window.location.href='dashboard.html'">
+                <i class="fa-solid fa-arrow-left"></i> Back
+            </button>
+        </div>
 
         <!-- SCROLLABLE CONTENT -->
         <div class="scroll-content">
             <!-- BALANCE CARD -->
-            <section class="balance-section fade-in">
-                <div class="balance-card">
-                    <p>Available Balance</p>
-                    <div class="balance-amount" id="withdrawalBalance">$0.000</div>
+            <div class="balance-card fade-in">
+                <div class="balance-label">Available Balance</div>
+                <div class="balance-amount">
+                    <span class="currency">$</span>
+                    <span id="balanceDisplay">0.00</span>
                 </div>
-            </section>
+            </div>
 
-            <!-- FORM OR RESTRICTION INTERACTION -->
-            <section class="form-section fade-in">
-                
-                <!-- KYC Warning Message Displayed when user is unverified -->
-                <div class="restriction-card" id="kycRestrictionCard">
-                    <i class="fa-solid fa-triangle-exclamation"></i>
-                    <h3>Withdrawal Locked</h3>
-                    <p id="kycRestrictionText">You must complete your identity setup before accessing payouts.</p>
-                    <a href="kyc.html" class="btn-verify-now">
-                        <i class="fa-solid fa-id-card"></i> Verify Now
-                    </a>
+            <!-- KYC STATUS BANNER -->
+            <div id="kycBanner" class="kyc-banner fade-in delay-1" style="display: none;" onclick="handleKycBannerClick()">
+                <div class="kyc-banner-icon" id="kycBannerIcon"><i class="fa-solid fa-shield-halved"></i></div>
+                <div class="kyc-banner-text">
+                    <h4 id="kycBannerTitle">KYC Required</h4>
+                    <p id="kycBannerText">Complete verification to withdraw funds</p>
                 </div>
+                <i class="fa-solid fa-chevron-right" id="kycBannerArrow"></i>
+            </div>
 
-                <!-- Withdrawal Inputs Form Container -->
-                <div class="form-card" id="withdrawalFormCard">
-                    <form id="withdrawForm" onsubmit="handleWithdrawal(event)">
-                        <div class="input-group">
-                            <label for="method">Payout Gateway</label>
-                            <div class="input-wrapper">
-                                <i class="fa-solid fa-bank"></i>
-                                <select id="method" required>
-                                    <option value="" disabled selected>Select method</option>
-                                    <option value="bank">Bank Transfer</option>
-                                    <option value="crypto">USDT (TRC-20)</option>
-                                    <option value="paypal">PayPal</option>
-                                </select>
-                            </div>
-                        </div>
+            <!-- WITHDRAWAL METHODS -->
+            <div class="section-title fade-in delay-1">
+                <i class="fa-solid fa-wallet"></i>
+                Select Withdrawal Method
+            </div>
 
-                        <div class="input-group">
-                            <label for="address">Account Details / Wallet Address</label>
-                            <div class="input-wrapper">
-                                <i class="fa-solid fa-wallet"></i>
-                                <input type="text" id="address" placeholder="Enter payout recipient value" required>
-                            </div>
-                        </div>
-
-                        <div class="input-group">
-                            <label for="amount">Withdraw Amount ($)</label>
-                            <div class="input-wrapper">
-                                <i class="fa-solid fa-dollar-sign"></i>
-                                <input type="number" id="amount" step="0.001" min="1" placeholder="0.000" required>
-                            </div>
-                        </div>
-
-                        <button type="submit" class="btn-withdraw" id="submitWithdrawBtn">
-                            <i class="fa-solid fa-paper-plane"></i> Submit Request
-                        </button>
-                    </form>
+            <!-- BANK TRANSFER -->
+            <button class="channel-btn fade-in delay-1" id="bankBtn" onclick="selectBankWithdrawal()">
+                <div class="channel-left">
+                    <div class="channel-icon icon-bank"><i class="fa-solid fa-building-columns"></i></div>
+                    <div class="channel-text">
+                        <h3>Bank Transfer</h3>
+                        <span>Withdraw to Nigerian bank</span>
+                        <div class="rate-info-small">₦1,000 per $1</div>
+                    </div>
                 </div>
-            </section>
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
+
+            <!-- CRYPTO (DISABLED) -->
+            <button class="channel-btn disabled fade-in delay-2" onclick="showCryptoUnavailable()">
+                <div class="channel-left">
+                    <div class="channel-icon icon-crypto"><i class="fa-brands fa-bitcoin"></i></div>
+                    <div class="channel-text">
+                        <h3>Cryptocurrency</h3>
+                        <span>USDT, BTC, ETH, TRX, TON</span>
+                        <div class="unavailable"><i class="fa-solid fa-lock"></i> Currently unavailable</div>
+                    </div>
+                </div>
+                <i class="fa-solid fa-chevron-right" style="color:#cbd5e1;"></i>
+            </button>
+
+            <!-- WITHDRAWAL HISTORY -->
+            <div class="section-title fade-in delay-2" style="margin-top: 10px;">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                Recent Withdrawals
+            </div>
+            <div id="withdrawalHistory" style="margin-bottom: 20px;">
+                <div style="text-align: center; padding: 30px 16px; color: var(--text-light);">
+                    <i class="fa-solid fa-clipboard-list" style="font-size: 28px; color: var(--orange-light); margin-bottom: 8px;"></i>
+                    <p style="font-size: 11px;">No withdrawals yet</p>
+                </div>
+            </div>
         </div>
 
-        <!-- MODERN BOTTOM NAV -->
+        <!-- BOTTOM NAVIGATION -->
         <nav class="bottom-nav">
             <a href="menu.html" class="nav-item">
                 <i class="fa-solid fa-bars-staggered"></i>
@@ -426,16 +1081,88 @@
         </nav>
     </div>
 
-    <!-- TOAST ALERT -->
-    <div id="toast" class="toast">Message</div>
+    <!-- ==================== BANK WITHDRAWAL OVERLAY ==================== -->
+    <div class="page-overlay" id="overlayBankWithdraw">
+        <div class="overlay-header">
+            <button class="back-btn" onclick="closeOverlay('overlayBankWithdraw')"><i class="fa-solid fa-arrow-left"></i></button>
+            <div class="overlay-title">Bank Withdrawal</div>
+        </div>
+        <div class="overlay-scroll">
+            <div class="overlay-content">
+                <!-- Rate Info -->
+                <div class="notice-box">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <strong>Rate:</strong> ₦1,000 per $1 | Min: $0.3 | Fee: 5% | Max: $10,000
+                </div>
 
-    <!-- FIREBASE SERVICES -->
+                <!-- Amount Input -->
+                <div class="input-group">
+                    <label class="input-label">Amount (USD)</label>
+                    <div class="input-wrapper">
+                        <span>$</span>
+                        <input type="number" class="amount-input" id="withdrawAmount" placeholder="0.00" min="0.3" step="0.1">
+                    </div>
+                    <div class="input-hint">You'll receive: <span id="nairaReceive">₦0</span></div>
+                </div>
+
+                <!-- Bank Select -->
+                <div class="input-group">
+                    <label class="input-label">Bank Name</label>
+                    <select class="bank-select" id="bankName">
+                        <option value="" disabled selected>Select your bank</option>
+                        <option value="OPay">OPay</option>
+                        <option value="PalmPay">PalmPay</option>
+                        <option value="United Bank of Africa">United Bank of Africa</option>
+                        <option value="Zenith Bank Plc">Zenith Bank Plc</option>
+                        <option value="SmartCash">SmartCash</option>
+                        <option value="Moniepoint">Moniepoint</option>
+                        <option value="Kuda MFB">Kuda MFB</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Account Number</label>
+                    <input type="text" class="text-input" id="accountNumber" placeholder="10-digit account number" maxlength="10" inputmode="numeric" pattern="[0-9]*">
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Account Name</label>
+                    <input type="text" class="text-input" id="accountName" placeholder="Full name on account">
+                </div>
+
+                <!-- Summary -->
+                <div class="summary-card" id="summaryCard" style="display: none;">
+                    <div class="summary-row">
+                        <span class="summary-label">Amount</span>
+                        <span class="summary-value" id="summaryAmount">$0.00</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">Fee (5%)</span>
+                        <span class="summary-value danger" id="summaryFee">-$0.00</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">Rate</span>
+                        <span class="summary-value">₦1,000/$1</span>
+                    </div>
+                    <div class="summary-row total">
+                        <span class="summary-label">You Receive</span>
+                        <span class="summary-value success" id="summaryTotal">₦0</span>
+                    </div>
+                </div>
+
+                <button class="btn-primary" id="withdrawBtn" onclick="submitWithdrawal()" disabled>
+                    Withdraw <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FIREBASE SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
-    
     <script>
-        // Exact production configuration from your profile system
+        // ==================== TASKVAULT FIREBASE CONFIG ====================
         const firebaseConfig = {
             apiKey: "AIzaSyAv6QCpopa0Q77AVTyjU5cqJEIKIE9OVTs",
             authDomain: "taskvault-412a0.firebaseapp.com",
@@ -451,136 +1178,496 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        let currentBalance = 0;
-        let globalKycStatus = 'pending';
+        // ==================== FIXED RATES & SETTINGS ====================
+        const FIXED_RATES = {
+            bank: 1000,
+            fee: 0.05
+        };
+
+        const WITHDRAWAL_LIMITS = {
+            min: 0.3,
+            max: 10000
+        };
+
+        let currentUser = null;
+        let userData = null;
+        let userBalance = 0;
+        let userKycStatus = 'pending'; // lowercase to match Firestore field
+        let userKycRejectionReason = null;
         let userUnsubscribe = null;
 
+        // ==================== AUTH & USER DATA ====================
         auth.onAuthStateChanged((user) => {
             if (user) {
-                // Initialize the same real-time security system listener used on profile page
-                startWithdrawalDataListener(user.uid);
+                currentUser = user;
+                startUserListener(user.uid);
             } else {
-                window.location.href = 'index.html';
+                auth.signInAnonymously().catch((error) => {
+                    console.error("Auth Error:", error);
+                    showToast("Authentication Failed");
+                });
             }
         });
 
-        function startWithdrawalDataListener(uid) {
-            if (userUnsubscribe) userUnsubscribe();
+        // ==================== REAL-TIME USER LISTENER ====================
+        function startUserListener(uid) {
+            if (userUnsubscribe) {
+                userUnsubscribe();
+            }
 
-            userUnsubscribe = db.collection('users').doc(uid).onSnapshot((doc) => {
-                if (doc.exists) {
-                    const data = doc.data();
-                    
-                    // Track global balance state natively
-                    currentBalance = data.balance || 0;
-                    document.getElementById('withdrawalBalance').textContent = '$' + currentBalance.toFixed(3);
-                    
-                    // Track and execute UI updates based on KYC verification status matrix
-                    globalKycStatus = data.kycStatus || 'pending';
-                    evaluateKycPermissions(globalKycStatus, data.kycRejectionReason);
-                } else {
-                    // Fallback state if no Firestore profile doc exists yet
-                    evaluateKycPermissions('pending', null);
+            userUnsubscribe = db.collection('users').doc(uid).onSnapshot(
+                (doc) => {
+                    if (doc.exists) {
+                        userData = doc.data();
+                        userBalance = userData.balance || 0;
+                        
+                        // FIXED: Use lowercase 'kycStatus' to match Firestore field
+                        userKycStatus = (userData.kycStatus || 'pending').toLowerCase();
+                        userKycRejectionReason = userData.kycRejectionReason || null;
+                        
+                        updateBalanceDisplay();
+                        updateKycBanner();
+                        fetchWithdrawalHistory(uid);
+                    } else {
+                        // New user - create default profile
+                        const newProfile = {
+                            balance: 0.00,
+                            plan: null,
+                            country: null,
+                            kycStatus: 'pending',
+                            lastClaimDate: null,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        };
+                        db.collection('users').doc(uid).set(newProfile);
+                        userData = newProfile;
+                        userBalance = 0;
+                        userKycStatus = 'pending';
+                        userKycRejectionReason = null;
+                        updateBalanceDisplay();
+                        updateKycBanner();
+                    }
+                },
+                (error) => {
+                    console.error("User listener error:", error);
+                    showToast("Error loading data");
                 }
-            }, (error) => {
-                console.error("Data tracking initialization failure:", error);
-                showToast('Error syncing wallet values', 'error');
-            });
+            );
         }
 
-        function evaluateKycPermissions(status, reason) {
-            const restrictionCard = document.getElementById('kycRestrictionCard');
-            const restrictionText = document.getElementById('kycRestrictionText');
-            const formCard = document.getElementById('withdrawalFormCard');
-            const submitBtn = document.getElementById('submitWithdrawBtn');
+        function updateBalanceDisplay() {
+            const balanceEl = document.getElementById('balanceDisplay');
+            animateValue(balanceEl, 0, userBalance, 800);
+        }
 
-            if (status === 'verified') {
-                // User verified: Hide warnings, cleanly reveal inputs and action routes
-                restrictionCard.style.display = 'none';
-                formCard.style.opacity = '1';
-                formCard.style.pointerEvents = 'auto';
-                submitBtn.disabled = false;
-                submitBtn.style.filter = 'none';
+        function animateValue(obj, start, end, duration) {
+            const startTime = performance.now();
+            function update(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const easeOut = 1 - Math.pow(1 - progress, 3);
+                const current = start + (end - start) * easeOut;
+                obj.textContent = current.toFixed(3);
+                if (progress < 1) requestAnimationFrame(update);
+            }
+            requestAnimationFrame(update);
+        }
+
+        // ==================== KYC BANNER ====================
+        function updateKycBanner() {
+            const banner = document.getElementById('kycBanner');
+            const icon = document.getElementById('kycBannerIcon');
+            const title = document.getElementById('kycBannerTitle');
+            const text = document.getElementById('kycBannerText');
+            const arrow = document.getElementById('kycBannerArrow');
+            const bankBtn = document.getElementById('bankBtn');
+
+            if (userKycStatus === 'verified') {
+                // Verified - show subtle banner, enable withdrawal
+                banner.style.display = 'flex';
+                banner.className = 'kyc-banner verified fade-in delay-1';
+                icon.innerHTML = '<i class="fa-solid fa-check"></i>';
+                title.textContent = 'KYC Verified';
+                text.textContent = 'You can withdraw funds';
+                arrow.style.display = 'none';
+                bankBtn.classList.remove('disabled');
+                bankBtn.style.opacity = '1';
+                bankBtn.style.cursor = 'pointer';
+            } else if (userKycStatus === 'rejected') {
+                // Rejected - show warning banner
+                banner.style.display = 'flex';
+                banner.className = 'kyc-banner rejected fade-in delay-1';
+                icon.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+                title.textContent = 'KYC Rejected';
+                text.textContent = 'Tap to resubmit verification';
+                arrow.style.display = 'block';
+                bankBtn.classList.add('disabled');
+                bankBtn.onclick = () => showKYCModal('rejected');
             } else {
-                // User either Pending or Rejected: surface warning cards & structure inputs to un-clickable states
-                restrictionCard.style.display = 'block';
-                formCard.style.opacity = '0.4';
-                formCard.style.pointerEvents = 'none';
-                submitBtn.disabled = true;
+                // Pending/unverified - show warning banner
+                banner.style.display = 'flex';
+                banner.className = 'kyc-banner fade-in delay-1';
+                icon.innerHTML = '<i class="fa-solid fa-shield-halved"></i>';
+                title.textContent = 'KYC Required';
+                text.textContent = 'Complete verification to withdraw';
+                arrow.style.display = 'block';
+                bankBtn.classList.add('disabled');
+                bankBtn.onclick = () => showKYCModal('pending');
+            }
+        }
 
-                if (status === 'rejected') {
-                    restrictionText.innerHTML = `Your profile identity files were rejected.<br><strong>Reason:</strong> ${reason || 'Invalid data inputs structure'}`;
+        function handleKycBannerClick() {
+            if (userKycStatus === 'verified') return;
+            showKYCModal(userKycStatus);
+        }
+
+        // ==================== KYC MODAL ====================
+        function showKYCModal(status) {
+            const modal = document.getElementById('kycModal');
+            const icon = document.getElementById('kycModalIcon');
+            const title = document.getElementById('kycModalTitle');
+            const text = document.getElementById('kycModalText');
+            const btn = document.getElementById('kycModalBtn');
+            const reasonBox = document.getElementById('kycRejectionReason');
+
+            if (status === 'rejected') {
+                icon.className = 'kyc-icon rejected';
+                icon.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+                title.textContent = 'KYC Rejected';
+                text.textContent = 'Your KYC verification was rejected. Please review the reason and resubmit.';
+                btn.innerHTML = '<i class="fa-solid fa-arrow-right"></i> Resubmit KYC';
+                if (userKycRejectionReason) {
+                    reasonBox.style.display = 'block';
+                    reasonBox.innerHTML = '<strong>Reason:</strong> ' + escapeHtml(userKycRejectionReason);
                 } else {
-                    restrictionText.textContent = "Your identification documents are currently under evaluation review. Withdrawals will remain locked until verified.";
+                    reasonBox.style.display = 'none';
                 }
+            } else {
+                // pending
+                icon.className = 'kyc-icon pending';
+                icon.innerHTML = '<i class="fa-solid fa-shield-halved"></i>';
+                title.textContent = 'Verification Required';
+                text.textContent = 'Please complete your KYC verification to unlock withdrawals and ensure account security.';
+                btn.innerHTML = '<i class="fa-solid fa-arrow-right"></i> Verify Now';
+                reasonBox.style.display = 'none';
             }
+
+            modal.classList.add('active');
         }
 
-        async function handleWithdrawal(event) {
-            event.preventDefault();
-
-            // Fail-safe conditional loop enforcement: blocks submissions even if CSS/HTML is engineered away via inspector
-            if (globalKycStatus !== 'verified') {
-                showToast('Access Violation: Complete KYC confirmation first.', 'error');
-                return;
-            }
-
-            const method = document.getElementById('method').value;
-            const address = document.getElementById('address').value;
-            const amount = parseFloat(document.getElementById('amount').value);
-
-            if (isNaN(amount) || amount <= 0) {
-                showToast('Please enter a valid numeric amount.', 'error');
-                return;
-            }
-
-            if (amount > currentBalance) {
-                showToast('Insufficient funding balance.', 'error');
-                return;
-            }
-
-            try {
-                document.getElementById('submitWithdrawBtn').disabled = true;
-                
-                // Write transaction into Firestore records history collection pipeline
-                await db.collection('withdrawals').add({
-                    userId: auth.currentUser.uid,
-                    email: auth.currentUser.email,
-                    amount: amount,
-                    method: method,
-                    payoutDetails: address,
-                    status: 'pending',
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-
-                // Deduct balance from customer profile
-                await db.collection('users').doc(auth.currentUser.uid).update({
-                    balance: currentBalance - amount
-                });
-
-                showToast('Withdrawal order applied successfully!', 'success');
-                document.getElementById('withdrawForm').reset();
-
-            } catch (err) {
-                console.error("Transaction pipeline processing structural failure: ", err);
-                showToast('System operational error. Process aborted.', 'error');
-            } finally {
-                document.getElementById('submitWithdrawBtn').disabled = false;
-            }
+        function closeKYCModal() {
+            document.getElementById('kycModal').classList.remove('active');
         }
 
-        function showToast(message, type = 'info') {
-            const toast = document.getElementById('toast');
-            toast.className = 'toast ' + type;
-            toast.textContent = message;
+        function goToKYC() {
+            closeKYCModal();
+            window.location.href = 'kyc.html';
+        }
+
+        // ==================== UI HELPERS ====================
+        function showLoader(text, duration, callback) {
+            document.getElementById('loaderText').textContent = text;
+            document.getElementById('mainLoader').classList.add('active');
+            setTimeout(() => {
+                document.getElementById('mainLoader').classList.remove('active');
+                if (callback) callback();
+            }, duration);
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toastBox');
+            document.getElementById('toastMsg').textContent = msg;
             toast.classList.add('show');
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
+        function closeOverlay(id) {
+            document.getElementById(id).classList.remove('active');
+            document.getElementById('withdrawAmount').value = '';
+            document.getElementById('bankName').value = '';
+            document.getElementById('accountNumber').value = '';
+            document.getElementById('accountName').value = '';
+            document.getElementById('nairaReceive').textContent = '₦0';
+            document.getElementById('summaryCard').style.display = 'none';
+            document.getElementById('withdrawBtn').disabled = true;
+        }
+
+        function showCryptoUnavailable() {
+            showToast("Crypto withdrawal currently unavailable");
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ==================== BANK WITHDRAWAL ====================
+        function selectBankWithdrawal() {
+            // FIXED: Check lowercase kycStatus
+            if (userKycStatus !== 'verified') {
+                showKYCModal(userKycStatus);
+                return;
+            }
+
+            if (userBalance < WITHDRAWAL_LIMITS.min) {
+                showToast(`Minimum withdrawal is $${WITHDRAWAL_LIMITS.min}`);
+                return;
+            }
+            document.getElementById('overlayBankWithdraw').classList.add('active');
+        }
+
+        function calculateWithdrawal() {
+            const usd = parseFloat(document.getElementById('withdrawAmount').value) || 0;
+            const fee = usd * FIXED_RATES.fee;
+            const netUsd = usd - fee;
+            const naira = netUsd * FIXED_RATES.bank;
+
+            document.getElementById('nairaReceive').textContent = `₦${naira.toLocaleString()}`;
+
+            if (usd >= WITHDRAWAL_LIMITS.min) {
+                document.getElementById('summaryCard').style.display = 'block';
+                document.getElementById('summaryAmount').textContent = `$${usd.toFixed(2)}`;
+                document.getElementById('summaryFee').textContent = `-$${fee.toFixed(2)}`;
+                document.getElementById('summaryTotal').textContent = `₦${naira.toLocaleString()}`;
+            } else {
+                document.getElementById('summaryCard').style.display = 'none';
+            }
+
+            validateForm();
+        }
+
+        function validateForm() {
+            const usd = parseFloat(document.getElementById('withdrawAmount').value) || 0;
+            const bankName = document.getElementById('bankName').value;
+            const accountNumber = document.getElementById('accountNumber').value.trim();
+            const accountName = document.getElementById('accountName').value.trim();
+
+            const isValid = usd >= WITHDRAWAL_LIMITS.min && 
+                           usd <= WITHDRAWAL_LIMITS.max && 
+                           usd <= userBalance &&
+                           bankName !== '' &&
+                           accountNumber.length === 10 &&
+                           /^\d{10}$/.test(accountNumber) &&
+                           accountName.length > 0;
+
+            document.getElementById('withdrawBtn').disabled = !isValid;
+        }
+
+        // Prevent non-numeric input in account number
+        document.getElementById('accountNumber').addEventListener('keypress', function(e) {
+            const char = String.fromCharCode(e.which);
+            if (!/[0-9]/.test(char)) {
+                e.preventDefault();
+            }
+        });
+
+        document.getElementById('accountNumber').addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9]/g, '');
+            validateForm();
+        });
+
+        document.getElementById('withdrawAmount').addEventListener('input', calculateWithdrawal);
+        document.getElementById('bankName').addEventListener('change', validateForm);
+        document.getElementById('accountName').addEventListener('input', validateForm);
+
+        async function submitWithdrawal() {
+            const usd = parseFloat(document.getElementById('withdrawAmount').value);
+            const bankName = document.getElementById('bankName').value;
+            const accountNumber = document.getElementById('accountNumber').value.trim();
+            const accountName = document.getElementById('accountName').value.trim();
+
+            // Double-check KYC status before submitting
+            if (userKycStatus !== 'verified') {
+                showKYCModal(userKycStatus);
+                return;
+            }
+            
+            if (usd > userBalance) {
+                showToast("Insufficient balance");
+                return;
+            }
+            if (usd < WITHDRAWAL_LIMITS.min || usd > WITHDRAWAL_LIMITS.max) {
+                showToast(`Amount must be between $${WITHDRAWAL_LIMITS.min} - $${WITHDRAWAL_LIMITS.max}`);
+                return;
+            }
+            if (accountNumber.length !== 10 || !/^\d{10}$/.test(accountNumber)) {
+                showToast("Enter valid 10-digit account number");
+                return;
+            }
+
+            const fee = usd * FIXED_RATES.fee;
+            const netUsd = usd - fee;
+            const naira = netUsd * FIXED_RATES.bank;
+
+            showLoader("Processing...", 2000, async () => {
+                try {
+                    document.getElementById('loaderText').textContent = "Submitting...";
+                    document.getElementById('mainLoader').classList.add('active');
+
+                    const userRef = db.collection('users').doc(currentUser.uid);
+                    await userRef.update({
+                        balance: firebase.firestore.FieldValue.increment(-usd)
+                    });
+
+                    await db.collection('withdrawals').add({
+                        userId: currentUser.uid,
+                        email: currentUser.email,
+                        type: 'withdrawal',
+                        method: 'bank',
+                        amountUSD: usd,
+                        feeUSD: fee,
+                        netUSD: netUsd,
+                        amountNGN: naira,
+                        rate: FIXED_RATES.bank,
+                        bankName: bankName,
+                        accountNumber: accountNumber,
+                        accountName: accountName,
+                        status: 'pending',
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+
+                    await logActivity('withdraw', 'Bank Withdrawal Request', -usd);
+
+                    userBalance -= usd;
+                    updateBalanceDisplay();
+
+                    document.getElementById('mainLoader').classList.remove('active');
+                    closeOverlay('overlayBankWithdraw');
+                    document.getElementById('successModal').classList.add('active');
+                    fetchWithdrawalHistory(currentUser.uid);
+                } catch (error) {
+                    console.error("Withdrawal error:", error);
+                    document.getElementById('mainLoader').classList.remove('active');
+                    showToast("Error occurred. Try again.");
+                }
+            });
+        }
+
+        // ==================== WITHDRAWAL HISTORY ====================
+        async function fetchWithdrawalHistory(uid) {
+            const historyContainer = document.getElementById('withdrawalHistory');
+            try {
+                const snapshot = await db.collection('withdrawals')
+                    .where('userId', '==', uid)
+                    .orderBy('timestamp', 'desc')
+                    .limit(10)
+                    .get();
+
+                if (snapshot.empty) {
+                    historyContainer.innerHTML = `
+                        <div style="text-align: center; padding: 30px 16px; color: var(--text-light);">
+                            <i class="fa-solid fa-clipboard-list" style="font-size: 28px; color: var(--orange-light); margin-bottom: 8px;"></i>
+                            <p style="font-size: 11px;">No withdrawals yet</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = '';
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const status = (data.status || 'pending').toLowerCase();
+                    
+                    let statusColor = 'var(--orange-main)';
+                    let statusBg = 'var(--orange-light)';
+                    let glowClass = 'status-glow-pending';
+
+                    if (status === 'completed' || status === 'approved') {
+                        statusColor = 'var(--success)';
+                        statusBg = 'var(--success-light)';
+                        glowClass = 'status-glow-completed';
+                    } else if (status === 'rejected') {
+                        statusColor = 'var(--danger)';
+                        statusBg = 'var(--danger-light)';
+                        glowClass = 'status-glow-rejected';
+                    } else if (status === 'refunded') {
+                        statusColor = '#3B82F6';
+                        statusBg = '#EFF6FF';
+                        glowClass = 'status-glow-refunded';
+                    }
+                    
+                    const time = data.timestamp ? formatTime(data.timestamp) : 'Just now';
+                    
+                    html += `
+                        <div class="${glowClass}" style="background: var(--white); border-radius: 12px; padding: 14px; margin-bottom: 12px; 
+                                    border: 1px solid rgba(255,140,66,0.06); transition: all 0.3s ease;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <span style="font-size: 13px; font-weight: 700; color: var(--text-dark);">
+                                    <i class="fa-solid fa-building-columns" style="color: var(--orange-main); margin-right: 6px;"></i>
+                                    ${data.bankName || 'Bank'}
+                                </span>
+                                <span style="font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 20px;
+                                             background: ${statusBg}; color: ${statusColor}; text-transform: uppercase;">
+                                    ${status}
+                                </span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="font-size: 11px; color: var(--text-light);">${time}</span>
+                                <span style="font-size: 14px; font-weight: 800; color: var(--danger);">-$${data.amountUSD?.toFixed(2) || '0.00'}</span>
+                            </div>
+                            <div style="font-size: 11px; color: var(--text-light); margin-top: 4px;">
+                                ${data.accountName || ''} • ****${data.accountNumber?.slice(-4) || ''}
+                            </div>
+                        </div>
+                    `;
+                });
+                historyContainer.innerHTML = html;
+            } catch (error) {
+                console.error("Error fetching history:", error);
+            }
+        }
+
+        function formatTime(timestamp) {
+            if (!timestamp) return 'Recently';
+            const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+
+            if (diffMins < 1) return 'Just now';
+            if (diffMins < 60) return `${diffMins}m ago`;
+            if (diffHours < 24) return `${diffHours}h ago`;
+            if (diffDays < 7) return `${diffDays}d ago`;
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        }
+
+        // ==================== ACTIVITY LOGGING ====================
+        async function logActivity(type, title, amount) {
+            if (!currentUser) return;
+            try {
+                await db.collection('users').doc(currentUser.uid)
+                    .collection('activities')
+                    .add({
+                        type: type,
+                        title: title,
+                        amount: amount,
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+            } catch (error) {
+                console.error("Error logging activity:", error);
+            }
+        }
+
+        // ==================== INIT ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentPage = window.location.pathname.split('/').pop();
+            document.querySelectorAll('.nav-item').forEach(item => {
+                const href = item.getAttribute('href');
+                if (href === currentPage || (currentPage === '' || currentPage === 'index.html') && href === 'withdraw.html') {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        });
+
+        // Cleanup listener on page unload
         window.addEventListener('beforeunload', () => {
             if (userUnsubscribe) userUnsubscribe();
         });
     </script>
 </body>
 </html>
-
