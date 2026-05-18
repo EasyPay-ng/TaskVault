@@ -578,7 +578,8 @@
     });
     
     spawnTimer += dt;
-    const baseSpawnRate = activePowerups.frenzy > 0 ? 18 : 28;
+    // REDUCED SPAWN RATE - was 28, now 45 (much slower spawning)
+    const baseSpawnRate = activePowerups.frenzy > 0 ? 30 : 45;
     if (spawnTimer >= baseSpawnRate) {
       spawnTimer = 0;
       spawnEntity();
@@ -594,11 +595,10 @@
       spike.x += Math.sin(gameTime * 0.02 + spike.id) * 0.5 * dt;
     });
     
-    // SKELETONS - move horizontally only, bounce off walls, chomp animation
+    // SKELETONS - horizontal only
     skeletons.forEach(skull => {
       skull.x += skull.vx * dt;
       
-      // Bounce off walls
       if (skull.x <= 0) {
         skull.x = 0;
         skull.vx = Math.abs(skull.vx);
@@ -608,10 +608,8 @@
         skull.vx = -Math.abs(skull.vx);
       }
       
-      // Slow vertical drift (just to keep them on screen, not chasing)
       skull.y += 0.2 * dt;
       
-      // Chomp animation
       skull.chompTimer += dt;
       if (skull.chompTimer > skull.chompSpeed) {
         skull.chompTimer = 0;
@@ -684,11 +682,13 @@
     const x = Math.random() * (canvas.width - padding * 2) + padding;
     const rand = Math.random();
     
-    if (rand < 0.50) {
+    // REDUCED OBSTACLE RATES - more coins/diamonds, fewer enemies
+    // 55% coins, 15% diamonds, 10% spikes, 6% skeletons, 6% fire shooters, 8% power-ups
+    if (rand < 0.55) {
       coins.push({ x, y: -40, width: 36, height: 36, type: 'coin' });
-    } else if (rand < 0.62) {
+    } else if (rand < 0.70) {
       diamonds.push({ x, y: -40, width: 32, height: 32, type: 'diamond' });
-    } else if (rand < 0.77) {
+    } else if (rand < 0.80) {
       const nearCoin = coins.length > 0 ? coins[coins.length - 1] : null;
       const spikeX = nearCoin ? nearCoin.x + (Math.random() > 0.5 ? 50 : -50) : x;
       spikes.push({ 
@@ -699,8 +699,7 @@
         type: 'spike',
         id: Math.random()
       });
-    } else if (rand < 0.85) {
-      // SKELETON - horizontal movement only, random direction
+    } else if (rand < 0.86) {
       const direction = Math.random() > 0.5 ? 1 : -1;
       const speed = 1.5 + Math.random() * 1.5;
       skeletons.push({
@@ -708,13 +707,13 @@
         y: Math.random() * (canvas.height * 0.5) + 30,
         width: 56,
         height: 56,
-        vx: direction * speed, // horizontal velocity only
+        vx: direction * speed,
         mouthOpen: true,
         chompTimer: 0,
         chompSpeed: 15 + Math.random() * 10,
         id: Math.random()
       });
-    } else if (rand < 0.93) {
+    } else if (rand < 0.92) {
       fireShooters.push({
         x: x,
         y: -60,
@@ -882,9 +881,8 @@
     });
   }
 
-  // POWER-UPS LAST LONGER - doubled durations
   function activatePowerup(type) {
-    const duration = type === 'speed' ? 1200 : 600; // was 600/300, now 1200/600
+    const duration = type === 'speed' ? 1200 : 600;
     
     switch(type) {
       case 'double': activePowerups.double = duration; break;
@@ -934,7 +932,6 @@
   function render() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // Draw coins
     coins.forEach(coin => {
       ctx.save();
       ctx.translate(coin.x + coin.width/2, coin.y + coin.height/2);
@@ -961,7 +958,6 @@
       ctx.restore();
     });
     
-    // Draw diamonds
     diamonds.forEach(d => {
       ctx.save();
       ctx.translate(d.x + d.width/2, d.y + d.height/2);
@@ -986,7 +982,6 @@
       ctx.restore();
     });
     
-    // Draw SPIKES
     spikes.forEach(spike => {
       ctx.save();
       ctx.translate(spike.x + spike.width/2, spike.y + spike.height/2);
@@ -1017,7 +1012,6 @@
       ctx.restore();
     });
     
-    // Draw SKELETON HEADS - horizontal movement only, chomping
     skeletons.forEach(skull => {
       ctx.save();
       ctx.translate(skull.x + skull.width/2, skull.y + skull.height/2);
@@ -1025,13 +1019,11 @@
       ctx.shadowColor = '#a1a1aa';
       ctx.shadowBlur = 15;
       
-      // Skull head
       ctx.fillStyle = '#e4e4e7';
       ctx.beginPath();
       ctx.arc(0, -5, 22, 0, Math.PI * 2);
       ctx.fill();
       
-      // Eye sockets
       ctx.fillStyle = '#18181b';
       ctx.beginPath();
       ctx.ellipse(-8, -10, 6, 7, 0, 0, Math.PI * 2);
@@ -1040,7 +1032,6 @@
       ctx.ellipse(8, -10, 6, 7, 0, 0, Math.PI * 2);
       ctx.fill();
       
-      // Nose
       ctx.fillStyle = '#18181b';
       ctx.beginPath();
       ctx.moveTo(0, -2);
@@ -1049,13 +1040,11 @@
       ctx.closePath();
       ctx.fill();
       
-      // Jaw/Mouth
       ctx.fillStyle = '#d4d4d8';
       ctx.beginPath();
       ctx.ellipse(0, 14, 16, skull.mouthOpen ? 12 : 4, 0, 0, Math.PI * 2);
       ctx.fill();
       
-      // Teeth
       ctx.fillStyle = '#f4f4f5';
       const teethCount = 6;
       const jawWidth = 22;
@@ -1086,7 +1075,6 @@
       ctx.restore();
     });
     
-    // Draw FIRE SHOOTERS
     fireShooters.forEach(shooter => {
       ctx.save();
       ctx.translate(shooter.x + shooter.width/2, shooter.y + shooter.height/2);
@@ -1119,7 +1107,6 @@
       ctx.restore();
     });
     
-    // Draw FIREBALLS
     fireballs.forEach(fb => {
       ctx.save();
       ctx.translate(fb.x, fb.y);
@@ -1146,7 +1133,6 @@
       ctx.restore();
     });
     
-    // Draw power-ups
     const powerupColors = {
       double: '#fbbf24',
       magnet: '#8b5cf6',
@@ -1181,7 +1167,7 @@
       ctx.restore();
     });
     
-    // Draw PLAYER - Humanoid Superhero with V sign
+    // PLAYER - Humanoid Superhero with V sign
     ctx.save();
     ctx.translate(player.x + player.width/2, player.y + player.height/2);
     
@@ -1209,7 +1195,6 @@
       ctx.setLineDash([]);
     }
     
-    // Cape (animated)
     const capeWave = Math.sin(gameTime * 0.08) * 8;
     ctx.fillStyle = '#dc2626';
     ctx.beginPath();
@@ -1221,13 +1206,11 @@
     ctx.closePath();
     ctx.fill();
     
-    // Body
     ctx.fillStyle = '#1e3a5f';
     ctx.beginPath();
     roundRect(ctx, -16, -10, 32, 38, 6);
     ctx.fill();
     
-    // V-Sign on chest
     ctx.strokeStyle = '#fbbf24';
     ctx.lineWidth = 3;
     ctx.lineCap = 'round';
@@ -1237,20 +1220,17 @@
     ctx.lineTo(10, -4);
     ctx.stroke();
     
-    // Head
     ctx.fillStyle = '#fca5a5';
     ctx.beginPath();
     ctx.arc(0, -22, 14, 0, Math.PI * 2);
     ctx.fill();
     
-    // Hair
     ctx.fillStyle = '#451a03';
     ctx.beginPath();
     ctx.arc(0, -26, 15, Math.PI, 0);
     ctx.fill();
     ctx.fillRect(-15, -26, 30, 6);
     
-    // Eyes
     ctx.fillStyle = '#1e3a5f';
     ctx.beginPath();
     ctx.ellipse(-5, -22, 3, 4, 0, 0, Math.PI * 2);
@@ -1259,7 +1239,6 @@
     ctx.ellipse(5, -22, 3, 4, 0, 0, Math.PI * 2);
     ctx.fill();
     
-    // Eye shine
     ctx.fillStyle = '#fff';
     ctx.beginPath();
     ctx.arc(-4, -23, 1.5, 0, Math.PI * 2);
@@ -1268,7 +1247,6 @@
     ctx.arc(6, -23, 1.5, 0, Math.PI * 2);
     ctx.fill();
     
-    // Smile
     ctx.strokeStyle = '#be123c';
     ctx.lineWidth = 2;
     ctx.lineCap = 'round';
@@ -1276,7 +1254,6 @@
     ctx.arc(0, -17, 5, 0.2, Math.PI - 0.2);
     ctx.stroke();
     
-    // Arms
     ctx.strokeStyle = '#fca5a5';
     ctx.lineWidth = 7;
     ctx.lineCap = 'round';
@@ -1289,7 +1266,6 @@
     ctx.lineTo(26, 10);
     ctx.stroke();
     
-    // Gloves
     ctx.fillStyle = '#dc2626';
     ctx.beginPath();
     ctx.arc(-28, -22, 5, 0, Math.PI * 2);
@@ -1298,7 +1274,6 @@
     ctx.arc(26, 10, 5, 0, Math.PI * 2);
     ctx.fill();
     
-    // Legs
     ctx.strokeStyle = '#1e3a5f';
     ctx.lineWidth = 8;
     ctx.lineCap = 'round';
@@ -1311,7 +1286,6 @@
     ctx.lineTo(10, 48);
     ctx.stroke();
     
-    // Boots
     ctx.fillStyle = '#dc2626';
     ctx.beginPath();
     roundRect(ctx, -16, 44, 14, 10, 3);
@@ -1322,7 +1296,6 @@
     
     ctx.restore();
     
-    // Draw particles
     particles.forEach(p => {
       ctx.save();
       ctx.globalAlpha = p.alpha;
@@ -1342,7 +1315,6 @@
       ctx.restore();
     });
     
-    // Combo popup
     if (combo > 0 && combo % 10 === 0) {
       const alpha = Math.min(1, (20 - (combo % 20)) / 10);
       ctx.save();
@@ -1435,4 +1407,4 @@
 </script>
 
 </body>
-  </html>
+</html>
