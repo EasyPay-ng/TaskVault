@@ -385,7 +385,6 @@
   let powerupsCollected = 0;
   let comboBonus = 0;
   
-  // Player - Humanoid superhero with V sign
   let player = { 
     x: 0, 
     y: 0, 
@@ -457,7 +456,6 @@
     if (soundEnabled) bgVideo.play().catch(() => {});
   };
 
-  // Touch/click - move to that position (both X and Y)
   canvas.addEventListener('touchstart', handleTouch, { passive: false });
   canvas.addEventListener('touchmove', handleTouch, { passive: false });
   canvas.addEventListener('mousedown', handleMouse);
@@ -513,7 +511,6 @@
     gameTime = 0;
     spawnTimer = 0;
     
-    // Reset player position
     player.x = canvas.width / 2 - player.width / 2;
     player.y = canvas.height - 140;
     targetX = player.x;
@@ -555,7 +552,6 @@
   }
 
   function update(dt) {
-    // Move player smoothly in BOTH directions
     const moveSpeed = activePowerups.speed > 0 ? player.speed * 1.8 : player.speed;
     
     const dx = targetX - player.x;
@@ -564,14 +560,11 @@
     const dy = targetY - player.y;
     player.y += dy * 0.12 * dt;
     
-    // Clamp to screen bounds
     player.x = Math.max(0, Math.min(canvas.width - player.width, player.x));
     player.y = Math.max(0, Math.min(canvas.height - player.height, player.y));
     
-    // Update hit flash
     if (player.hitFlash > 0) player.hitFlash -= dt;
     
-    // Update power-up timers
     Object.keys(activePowerups).forEach(key => {
       if (activePowerups[key] > 0) {
         activePowerups[key] -= dt;
@@ -584,7 +577,6 @@
       }
     });
     
-    // Spawn entities
     spawnTimer += dt;
     const baseSpawnRate = activePowerups.frenzy > 0 ? 18 : 28;
     if (spawnTimer >= baseSpawnRate) {
@@ -592,29 +584,32 @@
       spawnEntity();
     }
     
-    // Coins and diamonds fall
     const baseFallSpeed = activePowerups.speed > 0 ? 4.5 : 2.8;
     [...coins, ...diamonds, ...powerups].forEach(entity => {
       entity.y += baseFallSpeed * dt;
     });
     
-    // SPIKES fall slowly and drift
     spikes.forEach(spike => {
       spike.y += 1.5 * dt;
       spike.x += Math.sin(gameTime * 0.02 + spike.id) * 0.5 * dt;
     });
     
-    // SKELETONS - chase player, chomp animation
+    // SKELETONS - move horizontally only, bounce off walls, chomp animation
     skeletons.forEach(skull => {
-      // Move toward player slowly
-      const dx = (player.x + player.width/2) - (skull.x + skull.width/2);
-      const dy = (player.y + player.height/2) - (skull.y + skull.height/2);
-      const dist = Math.hypot(dx, dy);
+      skull.x += skull.vx * dt;
       
-      if (dist > 5) {
-        skull.x += (dx / dist) * skull.speed * dt;
-        skull.y += (dy / dist) * skull.speed * dt;
+      // Bounce off walls
+      if (skull.x <= 0) {
+        skull.x = 0;
+        skull.vx = Math.abs(skull.vx);
       }
+      if (skull.x + skull.width >= canvas.width) {
+        skull.x = canvas.width - skull.width;
+        skull.vx = -Math.abs(skull.vx);
+      }
+      
+      // Slow vertical drift (just to keep them on screen, not chasing)
+      skull.y += 0.2 * dt;
       
       // Chomp animation
       skull.chompTimer += dt;
@@ -624,12 +619,10 @@
       }
     });
     
-    // FIRE SHOOTERS - drift and shoot fireballs
     fireShooters.forEach(shooter => {
       shooter.y += 0.8 * dt;
       shooter.x += Math.sin(gameTime * 0.015 + shooter.id) * 0.8 * dt;
       
-      // Shoot fireball at player
       shooter.shootTimer += dt;
       if (shooter.shootTimer > shooter.shootInterval) {
         shooter.shootTimer = 0;
@@ -650,14 +643,12 @@
       }
     });
     
-    // FIREBALLS move toward player
     fireballs.forEach(fb => {
       fb.x += fb.vx * dt;
       fb.y += fb.vy * dt;
       fb.life -= dt;
     });
     
-    // Magnet effect
     if (activePowerups.magnet > 0) {
       [...coins, ...diamonds].forEach(entity => {
         const dist = Math.hypot(entity.x - (player.x + player.width/2), entity.y - (player.y + player.height/2));
@@ -682,7 +673,7 @@
     coins = coins.filter(c => c.y < offScreen);
     diamonds = diamonds.filter(d => d.y < offScreen);
     spikes = spikes.filter(s => s.y < offScreen);
-    skeletons = skeletons.filter(s => s.y < offScreen + 50 && s.x > -100 && s.x < canvas.width + 100);
+    skeletons = skeletons.filter(s => s.y < offScreen + 50);
     fireShooters = fireShooters.filter(s => s.y < offScreen + 50);
     fireballs = fireballs.filter(f => f.life > 0 && f.x > -50 && f.x < canvas.width + 50 && f.y > -50 && f.y < canvas.height + 50);
     powerups = powerups.filter(p => p.y < offScreen);
@@ -693,13 +684,11 @@
     const x = Math.random() * (canvas.width - padding * 2) + padding;
     const rand = Math.random();
     
-    // 50% coins, 12% diamonds, 15% spikes, 8% skeletons, 8% fire shooters, 7% power-ups
     if (rand < 0.50) {
       coins.push({ x, y: -40, width: 36, height: 36, type: 'coin' });
     } else if (rand < 0.62) {
       diamonds.push({ x, y: -40, width: 32, height: 32, type: 'diamond' });
     } else if (rand < 0.77) {
-      // BIGGER spikes near coins
       const nearCoin = coins.length > 0 ? coins[coins.length - 1] : null;
       const spikeX = nearCoin ? nearCoin.x + (Math.random() > 0.5 ? 50 : -50) : x;
       spikes.push({ 
@@ -711,20 +700,21 @@
         id: Math.random()
       });
     } else if (rand < 0.85) {
-      // SKELETON HEAD - chases player, chomps
+      // SKELETON - horizontal movement only, random direction
+      const direction = Math.random() > 0.5 ? 1 : -1;
+      const speed = 1.5 + Math.random() * 1.5;
       skeletons.push({
-        x: Math.random() > 0.5 ? -60 : canvas.width + 60,
-        y: Math.random() * (canvas.height * 0.5),
+        x: direction === 1 ? 20 : canvas.width - 76,
+        y: Math.random() * (canvas.height * 0.5) + 30,
         width: 56,
         height: 56,
-        speed: 1.2 + Math.random() * 0.8,
+        vx: direction * speed, // horizontal velocity only
         mouthOpen: true,
         chompTimer: 0,
         chompSpeed: 15 + Math.random() * 10,
         id: Math.random()
       });
     } else if (rand < 0.93) {
-      // FIRE SHOOTER - shoots tracking fireballs
       fireShooters.push({
         x: x,
         y: -60,
@@ -782,7 +772,6 @@
       }
     });
     
-    // SPIKES - bigger, -50 points
     spikes.forEach((spike, i) => {
       if (rectCollide(spike, player)) {
         if (isInvincible) {
@@ -807,7 +796,6 @@
       }
     });
     
-    // SKELETONS - bite player, -100 points
     skeletons.forEach((skull, i) => {
       if (rectCollide(skull, player)) {
         if (isInvincible) {
@@ -832,7 +820,6 @@
       }
     });
     
-    // FIREBALLS - hit player, -120 points
     fireballs.forEach((fb, i) => {
       const dist = Math.hypot(fb.x - playerCx, fb.y - playerCy);
       if (dist < fb.radius + 25) {
@@ -881,25 +868,23 @@
   }
 
   function showDamageText(x, y, text, color) {
-    // Add floating damage text to particles
-    for (let i = 0; i < 1; i++) {
-      particles.push({
-        x, y,
-        vx: (Math.random() - 0.5) * 2,
-        vy: -3,
-        life: 40,
-        maxLife: 40,
-        alpha: 1,
-        color: color,
-        size: 18,
-        isText: true,
-        text: text
-      });
-    }
+    particles.push({
+      x, y,
+      vx: (Math.random() - 0.5) * 2,
+      vy: -3,
+      life: 40,
+      maxLife: 40,
+      alpha: 1,
+      color: color,
+      size: 18,
+      isText: true,
+      text: text
+    });
   }
 
+  // POWER-UPS LAST LONGER - doubled durations
   function activatePowerup(type) {
-    const duration = type === 'speed' ? 600 : 300;
+    const duration = type === 'speed' ? 1200 : 600; // was 600/300, now 1200/600
     
     switch(type) {
       case 'double': activePowerups.double = duration; break;
@@ -1001,7 +986,7 @@
       ctx.restore();
     });
     
-    // Draw SPIKES - bigger, near coins
+    // Draw SPIKES
     spikes.forEach(spike => {
       ctx.save();
       ctx.translate(spike.x + spike.width/2, spike.y + spike.height/2);
@@ -1009,7 +994,6 @@
       ctx.shadowColor = '#ef4444';
       ctx.shadowBlur = 10;
       
-      // Bigger spike shape
       ctx.fillStyle = '#dc2626';
       ctx.beginPath();
       for (let i = 0; i < 8; i++) {
@@ -1033,12 +1017,11 @@
       ctx.restore();
     });
     
-    // Draw SKELETON HEADS - chomping mouths
+    // Draw SKELETON HEADS - horizontal movement only, chomping
     skeletons.forEach(skull => {
       ctx.save();
       ctx.translate(skull.x + skull.width/2, skull.y + skull.height/2);
       
-      // Glow
       ctx.shadowColor = '#a1a1aa';
       ctx.shadowBlur = 15;
       
@@ -1087,7 +1070,6 @@
         ctx.fill();
       }
       
-      // Lower teeth
       if (skull.mouthOpen) {
         for (let i = 0; i < teethCount; i++) {
           const tx = -jawWidth/2 + (jawWidth / (teethCount - 1)) * i;
@@ -1109,11 +1091,9 @@
       ctx.save();
       ctx.translate(shooter.x + shooter.width/2, shooter.y + shooter.height/2);
       
-      // Glow
       ctx.shadowColor = '#f97316';
       ctx.shadowBlur = 18;
       
-      // Body - cannon-like
       ctx.fillStyle = '#7c2d12';
       ctx.beginPath();
       ctx.arc(0, 0, 22, 0, Math.PI * 2);
@@ -1124,13 +1104,11 @@
       ctx.arc(0, 0, 16, 0, Math.PI * 2);
       ctx.fill();
       
-      // Inner fire glow
       ctx.fillStyle = '#fbbf24';
       ctx.beginPath();
       ctx.arc(0, 0, 10, 0, Math.PI * 2);
       ctx.fill();
       
-      // Pulsing center
       const pulse = Math.sin(gameTime * 0.1) * 0.3 + 0.7;
       ctx.fillStyle = `rgba(255, 255, 255, ${pulse})`;
       ctx.beginPath();
@@ -1146,23 +1124,19 @@
       ctx.save();
       ctx.translate(fb.x, fb.y);
       
-      // Trail
       ctx.shadowColor = '#f97316';
       ctx.shadowBlur = 20;
       
-      // Outer fire
       ctx.fillStyle = '#f97316';
       ctx.beginPath();
       ctx.arc(0, 0, fb.radius + 4, 0, Math.PI * 2);
       ctx.fill();
       
-      // Inner fire
       ctx.fillStyle = '#fbbf24';
       ctx.beginPath();
       ctx.arc(0, 0, fb.radius, 0, Math.PI * 2);
       ctx.fill();
       
-      // Core
       ctx.fillStyle = '#fff';
       ctx.beginPath();
       ctx.arc(0, 0, fb.radius * 0.4, 0, Math.PI * 2);
@@ -1211,7 +1185,6 @@
     ctx.save();
     ctx.translate(player.x + player.width/2, player.y + player.height/2);
     
-    // Hit flash
     if (player.hitFlash > 0) {
       ctx.globalAlpha = 0.5 + Math.sin(player.hitFlash * 0.5) * 0.3;
     }
@@ -1282,7 +1255,7 @@
     ctx.beginPath();
     ctx.ellipse(-5, -22, 3, 4, 0, 0, Math.PI * 2);
     ctx.fill();
-      ctx.beginPath();
+    ctx.beginPath();
     ctx.ellipse(5, -22, 3, 4, 0, 0, Math.PI * 2);
     ctx.fill();
     
@@ -1307,12 +1280,10 @@
     ctx.strokeStyle = '#fca5a5';
     ctx.lineWidth = 7;
     ctx.lineCap = 'round';
-    // Left arm (raised in V pose)
     ctx.beginPath();
     ctx.moveTo(-16, -5);
     ctx.lineTo(-28, -22);
     ctx.stroke();
-    // Right arm
     ctx.beginPath();
     ctx.moveTo(16, -5);
     ctx.lineTo(26, 10);
@@ -1464,4 +1435,4 @@
 </script>
 
 </body>
-</html>
+  </html>
