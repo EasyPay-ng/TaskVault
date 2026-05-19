@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>Tasks | TaskVault</title>
+  
+  <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" type="image/jpeg">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <style>
+    :root {
+      --orange-main: #FF8C42;
+      --orange-dark: #E67A35;
+      --orange-light: #FFF0E6;
+      --silk-bg: #FDFBF7;
+      --white: #FFFFFF;
+      --text-dark: #333333;
+      --text-light: #888888;
+      --shadow-sm: 0 2px 6px rgba(255, 140, 66, 0.06);
+      --shadow-md: 0 4px 12px rgba(255, 140, 66, 0.1);
+      --shadow-lg: 0 8px 24px rgba(255, 140, 66, 0.15);
+      --gradient-orange: linear-gradient(135deg, #FF8C42 0%, #FF6B35 100%);
+      --success: #10B981;
+      --danger: #EF4444;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      background-color: #e9ecef;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .app-container {
+      width: 100%;
+      height: 100dvh;
+      max-width: 430px;
+      background-color: var(--silk-bg);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    @media (min-width: 768px) {
+      .app-container {
+        height: 92dvh;
+        max-height: 850px;
+        border-radius: 24px;
+        box-shadow: 0 0 40px rgba(0,0,0,0.12);
+      }
+    }
+
+    .scroll-content {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 0 20px;
+      padding-bottom: calc(80px + env(safe-area-inset-bottom));
+    }
+
+    .scroll-content::-webkit-scrollbar {
+      width: 2px;
+    }
+    .scroll-content::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .scroll-content::-webkit-scrollbar-thumb {
+      background: var(--orange-light);
+      border-radius: 2px;
+    }
+
+    /* ==================== TOP NAV ==================== */
+    .top-nav {
+      display: flex;
+      align-items: center;
+      padding: 14px 20px 10px;
+      background: var(--white);
+      flex-shrink: 0;
+    }
+
+    .nav-back-btn {
+      background: var(--orange-light);
+      border: none;
+      border-radius: 12px;
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--orange-main);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+      text-decoration: none;
+    }
+
+    .nav-back-btn:hover {
+      background: var(--orange-main);
+      color: white;
+      transform: translateX(-2px);
+    }
+
+    /* ==================== HEADER ==================== */
+    .header-section {
+      padding: 16px 20px;
+      background: var(--white);
+      margin-bottom: 16px;
+    }
+
+    .header-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text-dark);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .header-title i {
+      color: var(--orange-main);
+      font-size: 18px;
+    }
+
+    .header-sub {
+      font-size: 12px;
+      color: var(--text-light);
+      margin-top: 4px;
+    }
+
+    /* ==================== SEARCH & CONTROLS ==================== */
+    .controls-bar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .search-box {
+      flex: 1;
+      position: relative;
+    }
+
+    .search-box i {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-light);
+      font-size: 14px;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 12px 14px 12px 40px;
+      border: 2px solid #e2e8f0;
+      border-radius: 14px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-dark);
+      background: var(--white);
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    .search-input:focus {
+      border-color: var(--orange-main);
+      box-shadow: 0 0 0 4px rgba(255, 140, 66, 0.1);
+    }
+
+    .search-input::placeholder {
+      color: #cbd5e1;
+    }
+
+    .refresh-btn {
+      background: var(--orange-light);
+      border: none;
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      color: var(--orange-main);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      flex-shrink: 0;
+    }
+
+    .refresh-btn:hover {
+      background: var(--orange-main);
+      color: white;
+      transform: rotate(180deg);
+    }
+
+    /* ==================== TASK CARDS ==================== */
+    .task-card {
+      background: var(--white);
+      border: 1px solid rgba(255, 140, 66, 0.08);
+      border-radius: 18px;
+      padding: 16px;
+      margin-bottom: 14px;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.3s ease;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+
+    .task-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+      border-color: rgba(255, 140, 66, 0.2);
+    }
+
+    .task-thumb {
+      width: 80px;
+      height: 80px;
+      border-radius: 12px;
+      object-fit: cover;
+      flex-shrink: 0;
+      background: var(--orange-light);
+      cursor: pointer;
+      border: 2px solid rgba(255, 140, 66, 0.1);
+    }
+
+    .task-body {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .task-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+
+    .task-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .task-platform {
+      font-size: 11px;
+      color: var(--text-light);
+      background: var(--orange-light);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+
+    .task-price {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--orange-main);
+    }
+
+    .task-progress {
+      margin-top: 8px;
+    }
+
+    .progress-text {
+      font-size: 11px;
+      color: var(--text-light);
+      margin-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .progress-bar {
+      background: #f1f5f9;
+      height: 6px;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.5s ease;
+    }
+
+    .progress-fill.low { background: var(--orange-main); }
+    .progress-fill.mid { background: #f59e0b; }
+    .progress-fill.high { background: var(--success); }
+    .progress-fill.full { background: var(--danger); }
+
+    .open-btn {
+      width: 100%;
+      margin-top: 10px;
+      background: var(--gradient-orange);
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .open-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .open-btn:disabled {
+      background: #e2e8f0;
+      color: #94a3b8;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    /* ==================== EMPTY STATE ==================== */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-light);
+    }
+
+    .empty-state i {
+      font-size: 48px;
+      color: var(--orange-light);
+      margin-bottom: 16px;
+    }
+
+    .empty-state h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 6px;
+    }
+
+    .empty-state p {
+      font-size: 12px;
+    }
+
+    /* ==================== TASK VIEWER OVERLAY ==================== */
+    .task-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--silk-bg);
+      z-index: 100;
+      transform: translateX(100%);
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .task-overlay.active {
+      transform: translateX(0);
+    }
+
+    .overlay-header {
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--white);
+      flex-shrink: 0;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .back-btn {
+      background: var(--orange-light);
+      border: none;
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      font-size: 14px;
+      color: var(--orange-main);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .back-btn:hover {
+      background: var(--orange-main);
+      color: white;
+    }
+
+    .overlay-title {
+      font-weight: 700;
+      font-size: 16px;
+      color: var(--text-dark);
+    }
+
+    .overlay-scroll {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    .overlay-content {
+      padding: 20px;
+      max-width: 430px;
+      margin: 0 auto;
+      width: 100%;
+      padding-bottom: calc(40px + env(safe-area-inset-bottom));
+    }
+
+    .viewer-thumb {
+      width: 100%;
+      max-width: 200px;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 16px;
+      margin: 0 auto 16px;
+      display: block;
+      cursor: pointer;
+      border: 3px solid var(--orange-light);
+      box-shadow: var(--shadow-md);
+    }
+
+    .viewer-section {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid rgba(255, 140, 66, 0.08);
+    }
+
+    .viewer-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-light);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 6px;
+    }
+
+    .viewer-value {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+
+    .viewer-price {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--orange-main);
+    }
+
+    .viewer-link {
+      color: var(--orange-main);
+      text-decoration: none;
+      word-break: break-all;
+      font-size: 13px;
+    }
+
+    .viewer-link:hover {
+      text-decoration: underline;
+    }
+
+    .proof-textarea {
+      width: 100%;
+      padding: 14px;
+      border: 2px solid #e2e8f0;
+      border-radius: 14px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-dark);
+      background: var(--white);
+      outline: none;
+      resize: vertical;
+      min-height: 100px;
+      transition: all 0.3s ease;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .proof-textarea:focus {
+      border-color: var(--orange-main);
+      box-shadow: 0 0 0 4px rgba(255, 140, 66, 0.1);
+    }
+
+    .proof-file-wrapper {
+      position: relative;
+      width: 100%;
+    }
+
+    .proof-file {
+      width: 100%;
+      padding: 12px;
+      border: 2px dashed #e2e8f0;
+      border-radius: 14px;
+      font-size: 13px;
+      color: var(--text-light);
+      background: var(--white);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .proof-file:hover {
+      border-color: var(--orange-main);
+      background: var(--orange-light);
+    }
+
+    .image-preview {
+      width: 100%;
+      max-height: 200px;
+      object-fit: cover;
+      border-radius: 12px;
+      margin-top: 10px;
+      display: none;
+      border: 2px solid var(--orange-light);
+    }
+
+    .submit-btn {
+      width: 100%;
+      background: var(--gradient-orange);
+      color: white;
+      border: none;
+      padding: 14px;
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: var(--shadow-md);
+      transition: all 0.3s ease;
+      margin-top: 16px;
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .submit-btn:disabled {
+      background: #e2e8f0;
+      color: #94a3b8;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .status-msg {
+      text-align: center;
+      font-size: 12px;
+      font-weight: 600;
+      margin-top: 12px;
+      padding: 10px;
+      border-radius: 10px;
+    }
+
+    .status-msg.error {
+      background: #fef2f2;
+      color: var(--danger);
+    }
+
+    .status-msg.success {
+      background: #ecfdf5;
+      color: var(--success);
+    }
+
+    .status-msg.info {
+      background: var(--orange-light);
+      color: var(--orange-dark);
+    }
+
+    /* ==================== IMAGE OVERLAY ==================== */
+    .img-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.9);
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .img-overlay.active {
+      display: flex;
+    }
+
+    .img-overlay img {
+      max-width: 90%;
+      max-height: 80%;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+
+    /* ==================== BOTTOM NAV ==================== */
+    .bottom-nav {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--white);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 8px 16px calc(16px + env(safe-area-inset-bottom));
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.04);
+      border-top-left-radius: 24px;
+      border-top-right-radius: 24px;
+      z-index: 50;
+      flex-shrink: 0;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-light);
+      text-decoration: none;
+      font-size: 9px;
+      gap: 3px;
+      transition: all 0.3s ease;
+      padding: 6px 14px;
+      border-radius: 14px;
+      font-weight: 500;
+      position: relative;
+    }
+
+    .nav-item i {
+      font-size: 20px;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .nav-item.active {
+      color: var(--orange-main);
+      background: var(--orange-light);
+    }
+
+    .nav-item.active i {
+      transform: translateY(-2px) scale(1.1);
+    }
+
+    /* ==================== ANIMATIONS ==================== */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-in {
+      animation: fadeIn 0.4s ease-out forwards;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- IMAGE OVERLAY -->
+  <div class="img-overlay" id="imgOverlay" onclick="this.classList.remove('active')">
+    <img id="largeImg" src="">
+  </div>
+
+  <!-- TASK VIEWER OVERLAY -->
+  <div class="task-overlay" id="taskOverlay">
+    <div class="overlay-header">
+      <button class="back-btn" onclick="closeTaskViewer()">
+        <i class="fa-solid fa-arrow-left"></i>
+      </button>
+      <div class="overlay-title">Task Details</div>
+    </div>
+    <div class="overlay-scroll">
+      <div class="overlay-content">
+        <img id="viewerThumb" class="viewer-thumb" style="display:none" onclick="openLargeImage(this.src)">
+        
+        <div class="viewer-section">
+          <div class="viewer-label">Task Title</div>
+          <div class="viewer-value" id="viewerTitle"></div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div class="viewer-section" style="margin-bottom:0;">
+            <div class="viewer-label">Platform</div>
+            <div class="viewer-value" id="viewerPlatform"></div>
+          </div>
+          <div class="viewer-section" style="margin-bottom:0;">
+            <div class="viewer-label">Reward</div>
+            <div class="viewer-price" id="viewerPrice"></div>
+          </div>
+        </div>
+
+        <div class="viewer-section">
+          <div class="viewer-label">Progress</div>
+          <div id="viewerProgress"></div>
+        </div>
+
+        <div class="viewer-section">
+          <div class="viewer-label">Description</div>
+          <div class="viewer-value" id="viewerDesc" style="line-height:1.6;"></div>
+        </div>
+
+        <div class="viewer-section">
+          <div class="viewer-label">Task Link</div>
+          <a id="viewerLink" target="_blank" class="viewer-link"></a>
+        </div>
+
+        <div class="viewer-section">
+          <div class="viewer-label">Text Proof</div>
+          <textarea id="proofText" class="proof-textarea" placeholder="Enter your proof text here..."></textarea>
+        </div>
+
+        <div class="viewer-section">
+          <div class="viewer-label">Image Proof</div>
+          <div class="proof-file-wrapper">
+            <input type="file" id="proofImage" class="proof-file" accept="image/*" onchange="previewImage(this)">
+          </div>
+          <img id="imagePreview" class="image-preview">
+        </div>
+
+        <button class="submit-btn" id="submitProofBtn" onclick="submitProof()">
+          <i class="fa-solid fa-paper-plane"></i> Submit Proof
+        </button>
+        <div class="status-msg" id="proofStatus" style="display:none;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="app-container">
+    <!-- TOP NAV -->
+    <div class="top-nav">
+      <a href="dashboard.html" class="nav-back-btn">
+        <i class="fa-solid fa-arrow-left"></i> Back
+      </a>
+    </div>
+
+    <!-- HEADER -->
+    <div class="header-section">
+      <div class="header-title">
+        <i class="fa-solid fa-list-check"></i>
+        Available Tasks
+      </div>
+      <div class="header-sub">Complete quick micro-tasks and earn rewards</div>
+    </div>
+
+    <!-- SCROLLABLE CONTENT -->
+    <div class="scroll-content">
+      <!-- CONTROLS -->
+      <div class="controls-bar fade-in">
+        <div class="search-box">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" class="search-input" id="searchInput" placeholder="Search tasks..." oninput="filterTasks()">
+        </div>
+        <button class="refresh-btn" onclick="refreshTasks()" title="Refresh">
+          <i class="fa-solid fa-rotate-right"></i>
+        </button>
+      </div>
+
+      <!-- TASKS GRID -->
+      <div id="tasksGrid">
+        <div class="empty-state fade-in">
+          <i class="fa-solid fa-spinner fa-spin"></i>
+          <h3>Loading tasks...</h3>
+          <p>Please wait while we fetch available tasks</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTTOM NAVIGATION -->
+    <nav class="bottom-nav">
+      <a href="menu.html" class="nav-item">
+        <i class="fa-solid fa-bars-staggered"></i>
+        <span>Menu</span>
+      </a>
+      <a href="deposit.html" class="nav-item">
+        <i class="fa-solid fa-wallet"></i>
+        <span>Deposit</span>
+      </a>
+      <a href="tasks.html" class="nav-item active">
+        <i class="fa-solid fa-list-check"></i>
+        <span>Tasks</span>
+      </a>
+      <a href="profile.html" class="nav-item">
+        <i class="fa-solid fa-user"></i>
+        <span>Profile</span>
+      </a>
+    </nav>
+  </div>
+
+  <!-- FIREBASE -->
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
+    import {
+      getFirestore, collection, query, where,
+      onSnapshot, addDoc, serverTimestamp,
+      doc, getDoc, getDocs
+    } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
+    import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDy_L7uJeoaWXbUB-LVk_fBv8yHeRjNjZk",
+      authDomain: "beni-wealths.firebaseapp.com",
+      projectId: "beni-wealths",
+      storageBucket: "beni-wealths.firebasestorage.app",
+      messagingSenderId: "807950483822",
+      appId: "1:807950483822:web:e10fa87307e041c4d8417f",
+      measurementId: "G-Z2XP3YN6NS"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    let currentUser = null;
+    let advertsCache = new Map();
+    let userSubmissionIds = new Set();
+    let activeTaskId = null;
+    let advertsListenerUnsub = null;
+
+    // Format NGN currency
+    function formatNGN(n) {
+      try {
+        return '₦' + Math.round(n).toLocaleString('en-NG');
+      } catch {
+        return '₦' + n;
+      }
+    }
+
+    // Calculate unit price (70% of advertiser price)
+    function deriveUnitPrice(ad) {
+      const m = Number(ad?.unitPrice ?? ad?.unit ?? NaN);
+      if (!isNaN(m) && m > 0) return m * 0.7;
+      const tot = Number(ad?.totalCost || 0), w = Number(ad?.workers || 0);
+      return w > 0 ? (tot / w) * 0.7 : 0;
+    }
+
+    // Convert file to base64
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // Fetch user's submitted tasks
+    async function fetchUserSubs(uid) {
+      userSubmissionIds.clear();
+      const subQ = query(collection(db, 'advert_submissions'), where('userId', '==', uid));
+      const snap = await getDocs(subQ);
+      snap.forEach(s => {
+        const d = s.data();
+        const st = (d.status || '').toLowerCase();
+        if (st === 'pending' || st === 'approved') userSubmissionIds.add(d.advertId);
+      });
+    }
+
+    // Progress bar color
+    function getProgressColor(pct) {
+      if (pct >= 100) return 'full';
+      if (pct >= 80) return 'high';
+      if (pct >= 50) return 'mid';
+      return 'low';
+    }
+
+    // Create progress HTML
+    function createProgressHTML(approved, workers) {
+      const pct = workers > 0 ? Math.min((approved / workers) * 100, 100) : 0;
+      const colorClass = getProgressColor(pct);
+      return `
+        <div class="progress-text">
+          <span>${approved} / ${workers} completed</span>
+          <span>${Math.round(pct)}%</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill ${colorClass}" style="width: ${pct}%"></div>
+        </div>
+      `;
+    }
+
+    // Display tasks
+    function displayTasks() {
+      const q = document.getElementById('searchInput').value.trim().toLowerCase();
+      const grid = document.getElementById('tasksGrid');
+      grid.innerHTML = '';
+      let any = false;
+
+      advertsCache.forEach(ad => {
+        if (userSubmissionIds.has(ad.id)) return;
+        
+        const workers = Number(ad.data.workers || 0);
+        const approvedCount = Number(ad.approvedCount || 0);
+        
+        if (workers > 0 && approvedCount >= workers) return;
+        
+        const hay = ((ad.data.title || '') + ' ' + (ad.data.platform || '')).toLowerCase();
+        if (q && !hay.includes(q)) return;
+
+        const card = document.createElement('div');
+        card.className = 'task-card fade-in';
+        
+        const thumb = document.createElement('img');
+        thumb.className = 'task-thumb';
+        thumb.src = ad.data.thumbnail || '';
+        thumb.style.display = ad.data.thumbnail ? 'block' : 'none';
+        thumb.onclick = () => openLargeImage(ad.data.thumbnail);
+
+        const body = document.createElement('div');
+        body.className = 'task-body';
+
+        const title = document.createElement('div');
+        title.className = 'task-title';
+        title.textContent = ad.data.title || 'Untitled Task';
+
+        const meta = document.createElement('div');
+        meta.className = 'task-meta';
+        meta.innerHTML = `
+          <span class="task-platform">${ad.data.platform || 'General'}</span>
+          <span class="task-price">${formatNGN(Math.round(deriveUnitPrice(ad.data)))}</span>
+        `;
+
+        body.append(title, meta);
+
+        if (workers > 0) {
+          const progress = document.createElement('div');
+          progress.className = 'task-progress';
+          progress.innerHTML = createProgressHTML(approvedCount, workers);
+          body.append(progress);
+        }
+
+        const btn = document.createElement('button');
+        btn.className = 'open-btn';
+        btn.innerHTML = '<i class="fa-solid fa-external-link-alt"></i> Open Task';
+        btn.onclick = () => openTaskViewer(ad.id);
+
+        body.append(btn);
+        card.append(thumb, body);
+        grid.append(card);
+        any = true;
+      });
+
+      if (!any) {
+        grid.innerHTML = `
+          <div class="empty-state fade-in">
+            <i class="fa-solid fa-clipboard-list"></i>
+            <h3>No tasks available</h3>
+            <p>Check back later for new tasks</p>
+          </div>
+        `;
+      }
+    }
+
+    // Attach submission listeners for progress updates
+    function attachSubmissionsListeners() {
+      advertsCache.forEach(ad => {
+        const subQ = query(collection(db, 'advert_submissions'), where('advertId', '==', ad.id));
+        onSnapshot(subQ, snap => {
+          let c = 0;
+          snap.forEach(doc => {
+            if ((doc.data().status || '').toLowerCase() === 'approved') c++;
+          });
+          ad.approvedCount = c;
+          displayTasks();
+        });
+      });
+    }
+
+    // Start adverts listener
+    function startAdvertsListener() {
+      const grid = document.getElementById('tasksGrid');
+      grid.innerHTML = `
+        <div class="empty-state fade-in">
+          <i class="fa-solid fa-spinner fa-spin"></i>
+          <h3>Loading tasks...</h3>
+          <p>Please wait while we fetch available tasks</p>
+        </div>
+      `;
+
+      const taskQ = query(collection(db, 'advertise_tasks'), where('status', '==', 'approved'));
+      
+      if (advertsListenerUnsub) advertsListenerUnsub();
+      
+      advertsListenerUnsub = onSnapshot(taskQ, snap => {
+        advertsCache.clear();
+        snap.forEach(docSnap => {
+          advertsCache.set(docSnap.id, {
+            id: docSnap.id,
+            data: docSnap.data(),
+            approvedCount: 0
+          });
+        });
+        attachSubmissionsListeners();
+        displayTasks();
+      });
+    }
+
+    // Open task viewer
+    async function openTaskViewer(id) {
+      activeTaskId = id;
+      const s = await getDoc(doc(db, 'advertise_tasks', id));
+      if (!s.exists()) return;
+
+      const d = s.data();
+      
+      document.getElementById('viewerTitle').textContent = d.title || '';
+      document.getElementById('viewerPlatform').textContent = d.platform || 'General';
+      document.getElementById('viewerPrice').textContent = formatNGN(Math.round(deriveUnitPrice(d)));
+      document.getElementById('viewerDesc').textContent = d.description || '';
+      
+      const link = document.getElementById('viewerLink');
+      link.href = d.taskLink || '#';
+      link.textContent = d.taskLink || 'No link provided';
+
+      const thumb = document.getElementById('viewerThumb');
+      if (d.thumbnail) {
+        thumb.src = d.thumbnail;
+        thumb.style.display = 'block';
+      } else {
+        thumb.style.display = 'none';
+      }
+
+      const approved = Number(advertsCache.get(id)?.approvedCount || 0);
+      const workers = Number(d.workers || 0);
+      document.getElementById('viewerProgress').innerHTML = createProgressHTML(approved, workers);
+
+      // Reset proof form
+      document.getElementById('proofText').value = '';
+      document.getElementById('proofImage').value = '';
+      document.getElementById('imagePreview').style.display = 'none';
+      document.getElementById('proofStatus').style.display = 'none';
+      document.getElementById('submitProofBtn').disabled = false;
+
+      document.getElementById('taskOverlay').classList.add('active');
+      history.pushState({ task: true, id }, '', location.pathname + '?id=' + id);
+    }
+
+    // Close task viewer
+    window.closeTaskViewer = function() {
+      document.getElementById('taskOverlay').classList.remove('active');
+      const u = new URL(location.href);
+      u.searchParams.delete('id');
+      history.replaceState({}, '', u);
+    };
+
+    // Open large image
+    window.openLargeImage = function(src) {
+      if (!src) return;
+      document.getElementById('largeImg').src = src;
+      document.getElementById('imgOverlay').classList.add('active');
+    };
+
+    // Preview selected image
+    window.previewImage = function(input) {
+      const preview = document.getElementById('imagePreview');
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          preview.src = e.target.result;
+          preview.style.display = 'block';
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    };
+
+    // Filter tasks
+    window.filterTasks = function() {
+      displayTasks();
+    };
+
+    // Refresh tasks
+    window.refreshTasks = async function() {
+      if (currentUser) await fetchUserSubs(currentUser.uid);
+      startAdvertsListener();
+    };
+
+    // Submit proof with base64 image
+    window.submitProof = async function() {
+      if (!currentUser) {
+        showStatus('Please sign in first', 'error');
+        return;
+      }
+
+      const text = document.getElementById('proofText').value.trim();
+      const file = document.getElementById('proofImage').files[0];
+
+      if (!text || !file) {
+        showStatus('Both text and image proof are required', 'error');
+        return;
+      }
+
+      // Check file size (max 2MB for base64)
+      if (file.size > 2 * 1024 * 1024) {
+        showStatus('Image too large. Max 2MB.', 'error');
+        return;
+      }
+
+      const btn = document.getElementById('submitProofBtn');
+      btn.disabled = true;
+      showStatus('Processing image...', 'info');
+
+      try {
+        // Convert to base64
+        const base64Image = await fileToBase64(file);
+        
+        showStatus('Submitting proof...', 'info');
+
+        await addDoc(collection(db, 'advert_submissions'), {
+          advertId: activeTaskId,
+          userId: currentUser.uid,
+          textProof: text,
+          imageUrl: base64Image, // Base64 string stored directly
+          status: 'pending',
+          createdAt: serverTimestamp()
+        });
+
+        showStatus('Proof submitted successfully!', 'success');
+        setTimeout(() => {
+          window.location.href = 'tasks.html';
+        }, 1500);
+
+      } catch (err) {
+        console.error('Submit error:', err);
+        btn.disabled = false;
+        showStatus('Failed to submit. Please try again.', 'error');
+      }
+    };
+
+    function showStatus(msg, type) {
+      const el = document.getElementById('proofStatus');
+      el.textContent = msg;
+      el.className = 'status-msg ' + type;
+      el.style.display = 'block';
+    }
+
+    // Auth state
+    onAuthStateChanged(auth, async user => {
+      currentUser = user;
+      userSubmissionIds.clear();
+      if (user) await fetchUserSubs(user.uid);
+      startAdvertsListener();
+    });
+
+    // Handle back button
+    window.addEventListener('popstate', e => {
+      if (!e.state?.task) {
+        document.getElementById('taskOverlay').classList.remove('active');
+      }
+    });
+
+    // Load task from URL
+    window.addEventListener('load', () => {
+      const id = new URL(location.href).searchParams.get('id');
+      if (id) openTaskViewer(id);
+    });
+  </script>
+</body>
+  </html>
