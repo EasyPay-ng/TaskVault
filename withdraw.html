@@ -934,6 +934,47 @@
             box-shadow: 0 0 12px rgba(59, 130, 246, 0.45) !important;
         }
 
+        /* ==================== HISTORY ERROR / EMPTY STATES ==================== */
+        .history-error {
+            text-align: center;
+            padding: 24px 16px;
+            color: var(--text-light);
+        }
+
+        .history-error i {
+            font-size: 28px;
+            color: var(--orange-light);
+            margin-bottom: 8px;
+        }
+
+        .history-error p {
+            font-size: 11px;
+            margin-bottom: 12px;
+        }
+
+        .history-error .error-code {
+            font-size: 10px;
+            color: var(--danger);
+            background: var(--danger-light);
+            padding: 4px 10px;
+            border-radius: 8px;
+            display: inline-block;
+            margin-bottom: 12px;
+        }
+
+        .history-error .create-index-btn {
+            background: var(--gradient-orange);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+
         /* ==================== ANIMATIONS ==================== */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
@@ -1053,9 +1094,9 @@
                 Recent Withdrawals
             </div>
             <div id="withdrawalHistory" style="margin-bottom: 20px;">
-                <div style="text-align: center; padding: 30px 16px; color: var(--text-light);">
-                    <i class="fa-solid fa-clipboard-list" style="font-size: 28px; color: var(--orange-light); margin-bottom: 8px;"></i>
-                    <p style="font-size: 11px;">No withdrawals yet</p>
+                <div class="history-error">
+                    <i class="fa-solid fa-spinner fa-spin"></i>
+                    <p>Loading withdrawals...</p>
                 </div>
             </div>
         </div>
@@ -1192,9 +1233,10 @@
         let currentUser = null;
         let userData = null;
         let userBalance = 0;
-        let userKycStatus = 'pending'; // lowercase to match Firestore field
+        let userKycStatus = 'pending';
         let userKycRejectionReason = null;
         let userUnsubscribe = null;
+        let historyUnsubscribe = null;
 
         // ==================== AUTH & USER DATA ====================
         auth.onAuthStateChanged((user) => {
@@ -1221,13 +1263,14 @@
                         userData = doc.data();
                         userBalance = userData.balance || 0;
                         
-                        // FIXED: Use lowercase 'kycStatus' to match Firestore field
+                        // Use lowercase 'kycStatus' to match Firestore field
                         userKycStatus = (userData.kycStatus || 'pending').toLowerCase();
                         userKycRejectionReason = userData.kycRejectionReason || null;
                         
                         updateBalanceDisplay();
                         updateKycBanner();
-                        fetchWithdrawalHistory(uid);
+                        // Start real-time history listener
+                        startHistoryListener(uid);
                     } else {
                         // New user - create default profile
                         const newProfile = {
@@ -1245,6 +1288,7 @@
                         userKycRejectionReason = null;
                         updateBalanceDisplay();
                         updateKycBanner();
+                        renderEmptyHistory();
                     }
                 },
                 (error) => {
@@ -1282,7 +1326,6 @@
             const bankBtn = document.getElementById('bankBtn');
 
             if (userKycStatus === 'verified') {
-                // Verified - show subtle banner, enable withdrawal
                 banner.style.display = 'flex';
                 banner.className = 'kyc-banner verified fade-in delay-1';
                 icon.innerHTML = '<i class="fa-solid fa-check"></i>';
@@ -1293,7 +1336,6 @@
                 bankBtn.style.opacity = '1';
                 bankBtn.style.cursor = 'pointer';
             } else if (userKycStatus === 'rejected') {
-                // Rejected - show warning banner
                 banner.style.display = 'flex';
                 banner.className = 'kyc-banner rejected fade-in delay-1';
                 icon.innerHTML = '<i class="fa-solid fa-xmark"></i>';
@@ -1303,7 +1345,6 @@
                 bankBtn.classList.add('disabled');
                 bankBtn.onclick = () => showKYCModal('rejected');
             } else {
-                // Pending/unverified - show warning banner
                 banner.style.display = 'flex';
                 banner.className = 'kyc-banner fade-in delay-1';
                 icon.innerHTML = '<i class="fa-solid fa-shield-halved"></i>';
@@ -1342,7 +1383,6 @@
                     reasonBox.style.display = 'none';
                 }
             } else {
-                // pending
                 icon.className = 'kyc-icon pending';
                 icon.innerHTML = '<i class="fa-solid fa-shield-halved"></i>';
                 title.textContent = 'Verification Required';
@@ -1404,7 +1444,6 @@
 
         // ==================== BANK WITHDRAWAL ====================
         function selectBankWithdrawal() {
-            // FIXED: Check lowercase kycStatus
             if (userKycStatus !== 'verified') {
                 showKYCModal(userKycStatus);
                 return;
@@ -1477,7 +1516,6 @@
             const accountNumber = document.getElementById('accountNumber').value.trim();
             const accountName = document.getElementById('accountName').value.trim();
 
-            // Double-check KYC status before submitting
             if (userKycStatus !== 'verified') {
                 showKYCModal(userKycStatus);
                 return;
@@ -1512,7 +1550,7 @@
 
                     await db.collection('withdrawals').add({
                         userId: currentUser.uid,
-                        email: currentUser.email,
+                        email: currentUser.email || userData.email || '',
                         type: 'withdrawal',
                         method: 'bank',
                         amountUSD: usd,
@@ -1535,7 +1573,6 @@
                     document.getElementById('mainLoader').classList.remove('active');
                     closeOverlay('overlayBankWithdraw');
                     document.getElementById('successModal').classList.add('active');
-                    fetchWithdrawalHistory(currentUser.uid);
                 } catch (error) {
                     console.error("Withdrawal error:", error);
                     document.getElementById('mainLoader').classList.remove('active');
@@ -1544,78 +1581,182 @@
             });
         }
 
-        // ==================== WITHDRAWAL HISTORY ====================
-        async function fetchWithdrawalHistory(uid) {
-            const historyContainer = document.getElementById('withdrawalHistory');
+        // ==================== WITHDRAWAL HISTORY (REAL-TIME LISTENER) ====================
+        function startHistoryListener(uid) {
+            // Clean up old listener
+            if (historyUnsubscribe) {
+                historyUnsubscribe();
+            }
+
+            console.log("🔍 Starting history listener for UID:", uid);
+
+            // Try ordered query first (requires composite index)
+            const orderedQuery = db.collection('withdrawals')
+                .where('userId', '==', uid)
+                .orderBy('timestamp', 'desc')
+                .limit(10);
+
+            historyUnsubscribe = orderedQuery.onSnapshot(
+                (snapshot) => {
+                    console.log("📄 Real-time update. Docs found:", snapshot.size);
+                    renderHistory(snapshot);
+                },
+                (error) => {
+                    console.error("❌ Ordered query failed:", error.code, error.message);
+                    
+                    // FALLBACK: If index missing, fetch without orderBy and sort in JS
+                    if (error.code === 'failed-precondition') {
+                        console.log("🔄 Falling back to unordered query...");
+                        fallbackHistoryFetch(uid);
+                    } else {
+                        renderHistoryError(error);
+                    }
+                }
+            );
+        }
+
+        // Fallback: Fetch without orderBy, sort in JavaScript
+        async function fallbackHistoryFetch(uid) {
             try {
                 const snapshot = await db.collection('withdrawals')
                     .where('userId', '==', uid)
-                    .orderBy('timestamp', 'desc')
-                    .limit(10)
+                    .limit(50)
                     .get();
 
-                if (snapshot.empty) {
-                    historyContainer.innerHTML = `
-                        <div style="text-align: center; padding: 30px 16px; color: var(--text-light);">
-                            <i class="fa-solid fa-clipboard-list" style="font-size: 28px; color: var(--orange-light); margin-bottom: 8px;"></i>
-                            <p style="font-size: 11px;">No withdrawals yet</p>
-                        </div>
-                    `;
-                    return;
-                }
+                console.log("📄 Fallback fetch. Docs found:", snapshot.size);
 
-                let html = '';
+                // Sort manually by timestamp descending
+                const docs = [];
                 snapshot.forEach(doc => {
-                    const data = doc.data();
-                    const status = (data.status || 'pending').toLowerCase();
-                    
-                    let statusColor = 'var(--orange-main)';
-                    let statusBg = 'var(--orange-light)';
-                    let glowClass = 'status-glow-pending';
-
-                    if (status === 'completed' || status === 'approved') {
-                        statusColor = 'var(--success)';
-                        statusBg = 'var(--success-light)';
-                        glowClass = 'status-glow-completed';
-                    } else if (status === 'rejected') {
-                        statusColor = 'var(--danger)';
-                        statusBg = 'var(--danger-light)';
-                        glowClass = 'status-glow-rejected';
-                    } else if (status === 'refunded') {
-                        statusColor = '#3B82F6';
-                        statusBg = '#EFF6FF';
-                        glowClass = 'status-glow-refunded';
-                    }
-                    
-                    const time = data.timestamp ? formatTime(data.timestamp) : 'Just now';
-                    
-                    html += `
-                        <div class="${glowClass}" style="background: var(--white); border-radius: 12px; padding: 14px; margin-bottom: 12px; 
-                                    border: 1px solid rgba(255,140,66,0.06); transition: all 0.3s ease;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                                <span style="font-size: 13px; font-weight: 700; color: var(--text-dark);">
-                                    <i class="fa-solid fa-building-columns" style="color: var(--orange-main); margin-right: 6px;"></i>
-                                    ${data.bankName || 'Bank'}
-                                </span>
-                                <span style="font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 20px;
-                                             background: ${statusBg}; color: ${statusColor}; text-transform: uppercase;">
-                                    ${status}
-                                </span>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <span style="font-size: 11px; color: var(--text-light);">${time}</span>
-                                <span style="font-size: 14px; font-weight: 800; color: var(--danger);">-$${data.amountUSD?.toFixed(2) || '0.00'}</span>
-                            </div>
-                            <div style="font-size: 11px; color: var(--text-light); margin-top: 4px;">
-                                ${data.accountName || ''} • ****${data.accountNumber?.slice(-4) || ''}
-                            </div>
-                        </div>
-                    `;
+                    docs.push({ id: doc.id, data: doc.data() });
                 });
-                historyContainer.innerHTML = html;
-            } catch (error) {
-                console.error("Error fetching history:", error);
+
+                docs.sort((a, b) => {
+                    const timeA = a.data.timestamp ? a.data.timestamp.toDate() : new Date(0);
+                    const timeB = b.data.timestamp ? b.data.timestamp.toDate() : new Date(0);
+                    return timeB - timeA;
+                });
+
+                // Take top 10
+                const topDocs = docs.slice(0, 10);
+                
+                // Create a mock snapshot-like object for renderHistory
+                const mockSnapshot = {
+                    size: topDocs.length,
+                    empty: topDocs.length === 0,
+                    forEach: (callback) => {
+                        topDocs.forEach(doc => {
+                            callback({
+                                id: doc.id,
+                                data: () => doc.data
+                            });
+                        });
+                    }
+                };
+
+                renderHistory(mockSnapshot);
+
+                // Show index creation prompt
+                const container = document.getElementById('withdrawalHistory');
+                const indexNotice = document.createElement('div');
+                indexNotice.className = 'history-error';
+                indexNotice.innerHTML = `
+                    <p style="font-size: 10px; color: var(--warning); margin-top: 12px;">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        For faster loading, create a Firestore index for <code>userId</code> + <code>timestamp</code>
+                    </p>
+                    <a href="https://console.firebase.google.com/v1/r/project/taskvault-412a0/firestore/indexes?create_composite=CmVwcm9qZWN0cy90YXNrdmF1bHQtNDEyYTAvZGF0YWJhc2VzLyhkZWZhdWx0KS9jb2xsZWN0aW9uR3JvdXBzL3dpdGhkcmF3YWxzL2luZGV4ZXMvXxABGgpwcm9qZWN0SWQaCHRpbWVzdGFtcCADGgwKCnVzZXJJZBACGgwKCnRpbWVzdGFtcBAB" 
+                       target="_blank" class="create-index-btn" style="margin-top: 8px;">
+                        Create Index
+                    </a>
+                `;
+                container.appendChild(indexNotice);
+
+            } catch (fallbackError) {
+                console.error("❌ Fallback also failed:", fallbackError);
+                renderHistoryError(fallbackError);
             }
+        }
+
+        function renderHistory(snapshot) {
+            const container = document.getElementById('withdrawalHistory');
+
+            if (snapshot.empty) {
+                renderEmptyHistory();
+                return;
+            }
+
+            let html = '';
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                const status = (data.status || 'pending').toLowerCase();
+                
+                let statusColor = 'var(--orange-main)';
+                let statusBg = 'var(--orange-light)';
+                let glowClass = 'status-glow-pending';
+
+                if (status === 'completed' || status === 'approved') {
+                    statusColor = 'var(--success)';
+                    statusBg = 'var(--success-light)';
+                    glowClass = 'status-glow-completed';
+                } else if (status === 'rejected') {
+                    statusColor = 'var(--danger)';
+                    statusBg = 'var(--danger-light)';
+                    glowClass = 'status-glow-rejected';
+                } else if (status === 'refunded') {
+                    statusColor = '#3B82F6';
+                    statusBg = '#EFF6FF';
+                    glowClass = 'status-glow-refunded';
+                }
+                
+                const time = data.timestamp ? formatTime(data.timestamp) : 'Just now';
+                
+                html += `
+                    <div class="${glowClass}" style="background: var(--white); border-radius: 12px; padding: 14px; margin-bottom: 12px; 
+                                border: 1px solid rgba(255,140,66,0.06); transition: all 0.3s ease;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <span style="font-size: 13px; font-weight: 700; color: var(--text-dark);">
+                                <i class="fa-solid fa-building-columns" style="color: var(--orange-main); margin-right: 6px;"></i>
+                                ${escapeHtml(data.bankName || 'Bank')}
+                            </span>
+                            <span style="font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 20px;
+                                         background: ${statusBg}; color: ${statusColor}; text-transform: uppercase;">
+                                ${status}
+                            </span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-size: 11px; color: var(--text-light);">${time}</span>
+                            <span style="font-size: 14px; font-weight: 800; color: var(--danger);">-$${(data.amountUSD || 0).toFixed(2)}</span>
+                        </div>
+                        <div style="font-size: 11px; color: var(--text-light); margin-top: 4px;">
+                            ${escapeHtml(data.accountName || '')} • ****${(data.accountNumber || '').slice(-4)}
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function renderEmptyHistory() {
+            document.getElementById('withdrawalHistory').innerHTML = `
+                <div class="history-error">
+                    <i class="fa-solid fa-clipboard-list"></i>
+                    <p>No withdrawals yet</p>
+                </div>
+            `;
+        }
+
+        function renderHistoryError(error) {
+            const container = document.getElementById('withdrawalHistory');
+            container.innerHTML = `
+                <div class="history-error">
+                    <i class="fa-solid fa-triangle-exclamation" style="color: var(--danger);"></i>
+                    <p>Could not load withdrawal history</p>
+                    <div class="error-code">${error.code || 'Unknown Error'}</div>
+                    <p style="font-size: 10px;">${error.message || ''}</p>
+                </div>
+            `;
         }
 
         function formatTime(timestamp) {
@@ -1664,9 +1805,10 @@
             });
         });
 
-        // Cleanup listener on page unload
+        // Cleanup listeners on page unload
         window.addEventListener('beforeunload', () => {
             if (userUnsubscribe) userUnsubscribe();
+            if (historyUnsubscribe) historyUnsubscribe();
         });
     </script>
 </body>
