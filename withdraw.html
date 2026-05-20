@@ -934,7 +934,24 @@
             box-shadow: 0 0 12px rgba(59, 130, 246, 0.45) !important;
         }
 
-        /* ==================== HISTORY ERROR / EMPTY STATES ==================== */
+        /* ==================== HISTORY EMPTY STATE ==================== */
+        .history-empty {
+            text-align: center;
+            padding: 30px 16px;
+            color: var(--text-light);
+        }
+
+        .history-empty i {
+            font-size: 28px;
+            color: var(--orange-light);
+            margin-bottom: 8px;
+        }
+
+        .history-empty p {
+            font-size: 11px;
+        }
+
+        /* ==================== HISTORY ERROR STATE ==================== */
         .history-error {
             text-align: center;
             padding: 24px 16px;
@@ -960,19 +977,6 @@
             border-radius: 8px;
             display: inline-block;
             margin-bottom: 12px;
-        }
-
-        .history-error .create-index-btn {
-            background: var(--gradient-orange);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 10px;
-            font-size: 12px;
-            font-weight: 700;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
         }
 
         /* ==================== ANIMATIONS ==================== */
@@ -1094,7 +1098,7 @@
                 Recent Withdrawals
             </div>
             <div id="withdrawalHistory" style="margin-bottom: 20px;">
-                <div class="history-error">
+                <div class="history-empty">
                     <i class="fa-solid fa-spinner fa-spin"></i>
                     <p>Loading withdrawals...</p>
                 </div>
@@ -1263,16 +1267,13 @@
                         userData = doc.data();
                         userBalance = userData.balance || 0;
                         
-                        // Use lowercase 'kycStatus' to match Firestore field
                         userKycStatus = (userData.kycStatus || 'pending').toLowerCase();
                         userKycRejectionReason = userData.kycRejectionReason || null;
                         
                         updateBalanceDisplay();
                         updateKycBanner();
-                        // Start real-time history listener
                         startHistoryListener(uid);
                     } else {
-                        // New user - create default profile
                         const newProfile = {
                             balance: 0.00,
                             plan: null,
@@ -1493,7 +1494,6 @@
             document.getElementById('withdrawBtn').disabled = !isValid;
         }
 
-        // Prevent non-numeric input in account number
         document.getElementById('accountNumber').addEventListener('keypress', function(e) {
             const char = String.fromCharCode(e.which);
             if (!/[0-9]/.test(char)) {
@@ -1583,14 +1583,10 @@
 
         // ==================== WITHDRAWAL HISTORY (REAL-TIME LISTENER) ====================
         function startHistoryListener(uid) {
-            // Clean up old listener
             if (historyUnsubscribe) {
                 historyUnsubscribe();
             }
 
-            console.log("🔍 Starting history listener for UID:", uid);
-
-            // Try ordered query first (requires composite index)
             const orderedQuery = db.collection('withdrawals')
                 .where('userId', '==', uid)
                 .orderBy('timestamp', 'desc')
@@ -1598,15 +1594,11 @@
 
             historyUnsubscribe = orderedQuery.onSnapshot(
                 (snapshot) => {
-                    console.log("📄 Real-time update. Docs found:", snapshot.size);
                     renderHistory(snapshot);
                 },
                 (error) => {
-                    console.error("❌ Ordered query failed:", error.code, error.message);
-                    
-                    // FALLBACK: If index missing, fetch without orderBy and sort in JS
+                    console.error("History listener error:", error.code, error.message);
                     if (error.code === 'failed-precondition') {
-                        console.log("🔄 Falling back to unordered query...");
                         fallbackHistoryFetch(uid);
                     } else {
                         renderHistoryError(error);
@@ -1615,7 +1607,6 @@
             );
         }
 
-        // Fallback: Fetch without orderBy, sort in JavaScript
         async function fallbackHistoryFetch(uid) {
             try {
                 const snapshot = await db.collection('withdrawals')
@@ -1623,9 +1614,6 @@
                     .limit(50)
                     .get();
 
-                console.log("📄 Fallback fetch. Docs found:", snapshot.size);
-
-                // Sort manually by timestamp descending
                 const docs = [];
                 snapshot.forEach(doc => {
                     docs.push({ id: doc.id, data: doc.data() });
@@ -1637,10 +1625,8 @@
                     return timeB - timeA;
                 });
 
-                // Take top 10
                 const topDocs = docs.slice(0, 10);
                 
-                // Create a mock snapshot-like object for renderHistory
                 const mockSnapshot = {
                     size: topDocs.length,
                     empty: topDocs.length === 0,
@@ -1655,25 +1641,8 @@
                 };
 
                 renderHistory(mockSnapshot);
-
-                // Show index creation prompt
-                const container = document.getElementById('withdrawalHistory');
-                const indexNotice = document.createElement('div');
-                indexNotice.className = 'history-error';
-                indexNotice.innerHTML = `
-                    <p style="font-size: 10px; color: var(--warning); margin-top: 12px;">
-                        <i class="fa-solid fa-triangle-exclamation"></i>
-                        For faster loading, create a Firestore index for <code>userId</code> + <code>timestamp</code>
-                    </p>
-                    <a href="https://console.firebase.google.com/v1/r/project/taskvault-412a0/firestore/indexes?create_composite=CmVwcm9qZWN0cy90YXNrdmF1bHQtNDEyYTAvZGF0YWJhc2VzLyhkZWZhdWx0KS9jb2xsZWN0aW9uR3JvdXBzL3dpdGhkcmF3YWxzL2luZGV4ZXMvXxABGgpwcm9qZWN0SWQaCHRpbWVzdGFtcCADGgwKCnVzZXJJZBACGgwKCnRpbWVzdGFtcBAB" 
-                       target="_blank" class="create-index-btn" style="margin-top: 8px;">
-                        Create Index
-                    </a>
-                `;
-                container.appendChild(indexNotice);
-
             } catch (fallbackError) {
-                console.error("❌ Fallback also failed:", fallbackError);
+                console.error("Fallback fetch failed:", fallbackError);
                 renderHistoryError(fallbackError);
             }
         }
@@ -1740,7 +1709,7 @@
 
         function renderEmptyHistory() {
             document.getElementById('withdrawalHistory').innerHTML = `
-                <div class="history-error">
+                <div class="history-empty">
                     <i class="fa-solid fa-clipboard-list"></i>
                     <p>No withdrawals yet</p>
                 </div>
@@ -1805,11 +1774,10 @@
             });
         });
 
-        // Cleanup listeners on page unload
         window.addEventListener('beforeunload', () => {
             if (userUnsubscribe) userUnsubscribe();
             if (historyUnsubscribe) historyUnsubscribe();
         });
     </script>
 </body>
-</html>
+    </html>
