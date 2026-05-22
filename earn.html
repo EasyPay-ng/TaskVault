@@ -89,6 +89,7 @@
     .top-nav {
       display: flex;
       align-items: center;
+      justify-content: space-between;
       padding: 14px 20px 10px;
       background: var(--white);
       flex-shrink: 0;
@@ -114,6 +115,36 @@
       background: var(--orange-main);
       color: white;
       transform: translateX(-2px);
+    }
+
+    .my-earnings-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--gradient-orange);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 10px 16px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+
+    .my-earnings-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .my-earnings-btn:active {
+      transform: scale(0.97);
+    }
+
+    .my-earnings-btn i {
+      font-size: 14px;
     }
 
     /* ==================== HEADER ==================== */
@@ -749,6 +780,10 @@
       <a href="dashboard.html" class="nav-back-btn">
         <i class="fa-solid fa-arrow-left"></i> Back
       </a>
+      <a href="earn-history.html" class="my-earnings-btn">
+        <i class="fa-solid fa-coins"></i>
+        <span>My Earnings</span>
+      </a>
     </div>
 
     <!-- HEADER -->
@@ -805,28 +840,26 @@
   </div>
 
   <!-- FIREBASE -->
-  <script type="module">
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
-    import {
-      getFirestore, collection, query, where,
-      onSnapshot, addDoc, serverTimestamp,
-      doc, getDoc, getDocs
-    } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
-    import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
 
+  <script>
+    // ==================== TASKVAULT FIREBASE CONFIG ====================
     const firebaseConfig = {
-      apiKey: "AIzaSyDy_L7uJeoaWXbUB-LVk_fBv8yHeRjNjZk",
-      authDomain: "beni-wealths.firebaseapp.com",
-      projectId: "beni-wealths",
-      storageBucket: "beni-wealths.firebasestorage.app",
-      messagingSenderId: "807950483822",
-      appId: "1:807950483822:web:e10fa87307e041c4d8417f",
-      measurementId: "G-Z2XP3YN6NS"
+      apiKey: "AIzaSyAv6QCpopa0Q77AVTyjU5cqJEIKIE9OVTs",
+      authDomain: "taskvault-412a0.firebaseapp.com",
+      databaseURL: "https://taskvault-412a0-default-rtdb.firebaseio.com",
+      projectId: "taskvault-412a0",
+      storageBucket: "taskvault-412a0.firebasestorage.app",
+      messagingSenderId: "420716701831",
+      appId: "1:420716701831:web:c987d91f7f4c8684eb7022",
+      measurementId: "G-93JG3LB08B"
     };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth(app);
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const auth = firebase.auth();
 
     let currentUser = null;
     let advertsCache = new Map();
@@ -864,8 +897,8 @@
     // Fetch user's submitted tasks
     async function fetchUserSubs(uid) {
       userSubmissionIds.clear();
-      const subQ = query(collection(db, 'advert_submissions'), where('userId', '==', uid));
-      const snap = await getDocs(subQ);
+      const subQ = db.collection('advert_submissions').where('userId', '==', uid);
+      const snap = await subQ.get();
       snap.forEach(s => {
         const d = s.data();
         const st = (d.status || '').toLowerCase();
@@ -971,8 +1004,8 @@
     // Attach submission listeners for progress updates
     function attachSubmissionsListeners() {
       advertsCache.forEach(ad => {
-        const subQ = query(collection(db, 'advert_submissions'), where('advertId', '==', ad.id));
-        onSnapshot(subQ, snap => {
+        const subQ = db.collection('advert_submissions').where('advertId', '==', ad.id);
+        subQ.onSnapshot(snap => {
           let c = 0;
           snap.forEach(doc => {
             if ((doc.data().status || '').toLowerCase() === 'approved') c++;
@@ -994,11 +1027,11 @@
         </div>
       `;
 
-      const taskQ = query(collection(db, 'advertise_tasks'), where('status', '==', 'approved'));
+      const taskQ = db.collection('advertise_tasks').where('status', '==', 'approved');
       
       if (advertsListenerUnsub) advertsListenerUnsub();
       
-      advertsListenerUnsub = onSnapshot(taskQ, snap => {
+      advertsListenerUnsub = taskQ.onSnapshot(snap => {
         advertsCache.clear();
         snap.forEach(docSnap => {
           advertsCache.set(docSnap.id, {
@@ -1015,8 +1048,8 @@
     // Open task viewer
     async function openTaskViewer(id) {
       activeTaskId = id;
-      const s = await getDoc(doc(db, 'advertise_tasks', id));
-      if (!s.exists()) return;
+      const s = await db.collection('advertise_tasks').doc(id).get();
+      if (!s.exists) return;
 
       const d = s.data();
       
@@ -1053,22 +1086,22 @@
     }
 
     // Close task viewer
-    window.closeTaskViewer = function() {
+    function closeTaskViewer() {
       document.getElementById('taskOverlay').classList.remove('active');
       const u = new URL(location.href);
       u.searchParams.delete('id');
       history.replaceState({}, '', u);
-    };
+    }
 
     // Open large image
-    window.openLargeImage = function(src) {
+    function openLargeImage(src) {
       if (!src) return;
       document.getElementById('largeImg').src = src;
       document.getElementById('imgOverlay').classList.add('active');
-    };
+    }
 
     // Preview selected image
-    window.previewImage = function(input) {
+    function previewImage(input) {
       const preview = document.getElementById('imagePreview');
       if (input.files && input.files[0]) {
         const reader = new FileReader();
@@ -1078,21 +1111,21 @@
         };
         reader.readAsDataURL(input.files[0]);
       }
-    };
+    }
 
     // Filter tasks
-    window.filterTasks = function() {
+    function filterTasks() {
       displayTasks();
-    };
+    }
 
     // Refresh tasks
-    window.refreshTasks = async function() {
+    async function refreshTasks() {
       if (currentUser) await fetchUserSubs(currentUser.uid);
       startAdvertsListener();
-    };
+    }
 
     // Submit proof with base64 image
-    window.submitProof = async function() {
+    async function submitProof() {
       if (!currentUser) {
         showStatus('Please sign in first', 'error');
         return;
@@ -1122,13 +1155,13 @@
         
         showStatus('Submitting proof...', 'info');
 
-        await addDoc(collection(db, 'advert_submissions'), {
+        await db.collection('advert_submissions').add({
           advertId: activeTaskId,
           userId: currentUser.uid,
           textProof: text,
           imageUrl: base64Image, // Base64 string stored directly
           status: 'pending',
-          createdAt: serverTimestamp()
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
 
         showStatus('Proof submitted successfully!', 'success');
@@ -1141,7 +1174,7 @@
         btn.disabled = false;
         showStatus('Failed to submit. Please try again.', 'error');
       }
-    };
+    }
 
     function showStatus(msg, type) {
       const el = document.getElementById('proofStatus');
@@ -1151,7 +1184,7 @@
     }
 
     // Auth state
-    onAuthStateChanged(auth, async user => {
+    auth.onAuthStateChanged(async user => {
       currentUser = user;
       userSubmissionIds.clear();
       if (user) await fetchUserSubs(user.uid);
@@ -1172,4 +1205,4 @@
     });
   </script>
 </body>
-  </html>
+</html>
