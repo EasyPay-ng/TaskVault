@@ -533,19 +533,7 @@
       transform: translateY(-2px) scale(1.1);
     }
 
-    /* ==================== LOADING ==================== */
-    .skeleton {
-      background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
-      background-size: 200% 100%;
-      animation: shimmer 1.5s infinite;
-      border-radius: 12px;
-    }
-
-    @keyframes shimmer {
-      0% { background-position: 200% 0; }
-      100% { background-position: -200% 0; }
-    }
-
+    /* ==================== ANIMATIONS ==================== */
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
@@ -608,10 +596,10 @@
 
       <!-- FILTER TABS -->
       <div class="filter-tabs fade-in">
-        <button class="filter-tab active" onclick="filterSubmissions('all')">All</button>
-        <button class="filter-tab" onclick="filterSubmissions('pending')">Pending</button>
-        <button class="filter-tab" onclick="filterSubmissions('approved')">Approved</button>
-        <button class="filter-tab" onclick="filterSubmissions('rejected')">Rejected</button>
+        <button class="filter-tab active" onclick="filterSubmissions('all', this)">All</button>
+        <button class="filter-tab" onclick="filterSubmissions('pending', this)">Pending</button>
+        <button class="filter-tab" onclick="filterSubmissions('approved', this)">Approved</button>
+        <button class="filter-tab" onclick="filterSubmissions('rejected', this)">Rejected</button>
       </div>
 
       <!-- SUBMISSIONS LIST -->
@@ -814,10 +802,10 @@
     }
 
     // Filter submissions
-    function filterSubmissions(filter) {
+    function filterSubmissions(filter, btn) {
       currentFilter = filter;
       document.querySelectorAll('.filter-tab').forEach(tab => tab.classList.remove('active'));
-      event.target.classList.add('active');
+      btn.classList.add('active');
       displaySubmissions();
     }
 
@@ -828,7 +816,7 @@
       document.getElementById('imgOverlay').classList.add('active');
     }
 
-    // Load submissions
+    // Load submissions - NO orderBy to avoid index requirement
     async function loadSubmissions() {
       if (!currentUser) return;
 
@@ -843,9 +831,8 @@
 
       if (unsubListener) unsubListener();
 
-      const q = db.collection('advert_submissions')
-        .where('userId', '==', currentUser.uid)
-        .orderBy('createdAt', 'desc');
+      // Simple query - only filter by userId, no orderBy (avoids composite index)
+      const q = db.collection('advert_submissions').where('userId', '==', currentUser.uid);
 
       unsubListener = q.onSnapshot(async snap => {
         allSubmissions = [];
@@ -856,6 +843,13 @@
           data.id = doc.id;
           allSubmissions.push(data);
           if (data.advertId) advertIds.add(data.advertId);
+        });
+
+        // Sort client-side by createdAt descending
+        allSubmissions.sort((a, b) => {
+          const aTime = a.createdAt ? (a.createdAt.toDate ? a.createdAt.toDate() : new Date(a.createdAt)) : new Date(0);
+          const bTime = b.createdAt ? (b.createdAt.toDate ? b.createdAt.toDate() : new Date(b.createdAt)) : new Date(0);
+          return bTime - aTime;
         });
 
         // Fetch advert details for all submissions
@@ -882,7 +876,7 @@
           <div class="empty-state fade-in">
             <i class="fa-solid fa-triangle-exclamation"></i>
             <h3>Error loading submissions</h3>
-            <p>Please try refreshing the page</p>
+            <p>${err.message || 'Please try refreshing the page'}</p>
           </div>
         `;
       });
@@ -908,4 +902,4 @@
     });
   </script>
 </body>
-    </html>
+</html>
