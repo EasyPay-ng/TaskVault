@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>Games | TaskVault</title>
+  
+  <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" type="image/jpeg">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <style>
+    :root {
+      --orange-main: #FF8C42;
+      --orange-dark: #E67A35;
+      --orange-light: #FFF0E6;
+      --orange-glow: rgba(255, 140, 66, 0.4);
+      --silk-bg: #FDFBF7;
+      --white: #FFFFFF;
+      --text-dark: #333333;
+      --text-light: #888888;
+      --shadow-sm: 0 2px 6px rgba(255, 140, 66, 0.06);
+      --shadow-md: 0 4px 12px rgba(255, 140, 66, 0.1);
+      --shadow-lg: 0 8px 24px rgba(255, 140, 66, 0.15);
+      --shadow-glow: 0 0 40px rgba(255, 140, 66, 0.3);
+      --gradient-orange: linear-gradient(135deg, #FF8C42 0%, #FF6B35 100%);
+      --gradient-gold: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+      --success: #10B981;
+      --danger: #EF4444;
+      --silver: #C0C0C0;
+      --silver-dark: #A0A0A0;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      background-color: #e9ecef;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .app-container {
+      width: 100%;
+      height: 100dvh;
+      max-width: 430px;
+      background-color: var(--silk-bg);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    @media (min-width: 768px) {
+      .app-container {
+        height: 92dvh;
+        max-height: 850px;
+        border-radius: 24px;
+        box-shadow: 0 0 40px rgba(0,0,0,0.12);
+      }
+    }
+
+    .scroll-content {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 0 20px;
+      padding-bottom: calc(80px + env(safe-area-inset-bottom));
+    }
+
+    .scroll-content::-webkit-scrollbar {
+      width: 2px;
+    }
+    .scroll-content::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .scroll-content::-webkit-scrollbar-thumb {
+      background: var(--orange-light);
+      border-radius: 2px;
+    }
+
+    /* ==================== ANIMATED BACKGROUND ==================== */
+    .bg-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.15;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .bg-orb-1 {
+      width: 300px;
+      height: 300px;
+      background: var(--orange-main);
+      top: -100px;
+      right: -100px;
+      animation: floatOrb 8s ease-in-out infinite;
+    }
+    .bg-orb-2 {
+      width: 250px;
+      height: 250px;
+      background: #FFD700;
+      bottom: 100px;
+      left: -80px;
+      animation: floatOrb 10s ease-in-out infinite reverse;
+    }
+    @keyframes floatOrb {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(30px, -30px) scale(1.1); }
+      66% { transform: translate(-20px, 20px) scale(0.9); }
+    }
+
+    /* ==================== TOP NAV ==================== */
+    .top-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px 10px;
+      background: var(--white);
+      flex-shrink: 0;
+      position: relative;
+      z-index: 10;
+    }
+
+    .nav-back-btn {
+      background: var(--orange-light);
+      border: none;
+      border-radius: 12px;
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--orange-main);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+      text-decoration: none;
+    }
+
+    .nav-back-btn:hover {
+      background: var(--orange-main);
+      color: white;
+      transform: translateX(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .plan-badge {
+      background: var(--gradient-gold);
+      color: #333;
+      border: none;
+      border-radius: 12px;
+      padding: 8px 14px;
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
+      animation: shimmerBadge 2s ease-in-out infinite;
+    }
+
+    @keyframes shimmerBadge {
+      0%, 100% { box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3); }
+      50% { box-shadow: 0 2px 16px rgba(255, 215, 0, 0.6); }
+    }
+
+    /* ==================== HEADER ==================== */
+    .header-section {
+      padding: 20px;
+      background: var(--white);
+      margin-bottom: 16px;
+      position: relative;
+      z-index: 10;
+    }
+
+    .header-title {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--text-dark);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+
+    .header-title i {
+      color: var(--orange-main);
+      font-size: 22px;
+      animation: iconPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes iconPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+    }
+
+    .header-sub {
+      font-size: 13px;
+      color: var(--text-light);
+      font-weight: 500;
+    }
+
+    .header-glow {
+      position: absolute;
+      bottom: 0;
+      left: 20px;
+      right: 20px;
+      height: 2px;
+      background: var(--gradient-orange);
+      border-radius: 2px;
+      box-shadow: 0 0 20px var(--orange-glow);
+    }
+
+    /* ==================== GAME CARDS ==================== */
+    .games-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      padding-bottom: 20px;
+      position: relative;
+      z-index: 10;
+    }
+
+    .game-card {
+      background: var(--white);
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: relative;
+      border: 1px solid rgba(255, 140, 66, 0.08);
+    }
+
+    .game-card:hover {
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: var(--shadow-glow);
+      border-color: rgba(255, 140, 66, 0.3);
+    }
+
+    /* Card glow effect on hover */
+    .game-card::before {
+      content: '';
+      position: absolute;
+      inset: -2px;
+      border-radius: 26px;
+      background: var(--gradient-orange);
+      opacity: 0;
+      z-index: -1;
+      transition: opacity 0.4s ease;
+      filter: blur(12px);
+    }
+
+    .game-card:hover::before {
+      opacity: 0.4;
+    }
+
+    .game-image-wrap {
+      position: relative;
+      width: 100%;
+      height: 200px;
+      overflow: hidden;
+    }
+
+    .game-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.6s ease;
+    }
+
+    .game-card:hover .game-image {
+      transform: scale(1.1);
+    }
+
+    .game-image-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 50%);
+      display: flex;
+      align-items: flex-end;
+      padding: 16px;
+    }
+
+    .game-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .game-badge.hot {
+      background: rgba(255, 107, 53, 0.8);
+      animation: pulseBadge 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulseBadge {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    .game-content {
+      padding: 20px;
+    }
+
+    .game-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text-dark);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .game-title i {
+      color: var(--orange-main);
+      font-size: 16px;
+    }
+
+    .game-desc {
+      font-size: 13px;
+      color: var(--text-light);
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+
+    .game-stats {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .game-stat {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-light);
+      font-weight: 600;
+    }
+
+    .game-stat i {
+      color: var(--orange-main);
+      font-size: 13px;
+    }
+
+    .play-btn {
+      width: 100%;
+      background: var(--gradient-orange);
+      color: white;
+      border: none;
+      padding: 14px;
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: var(--shadow-md);
+      transition: all 0.3s ease;
+      text-decoration: none;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .play-btn::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
+      transform: rotate(45deg);
+      transition: all 0.5s;
+      opacity: 0;
+    }
+
+    .play-btn:hover::after {
+      animation: shimmerBtn 0.8s ease;
+    }
+
+    @keyframes shimmerBtn {
+      0% { transform: translateX(-100%) rotate(45deg); opacity: 0; }
+      50% { opacity: 1; }
+      100% { transform: translateX(100%) rotate(45deg); opacity: 0; }
+    }
+
+    .play-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg), 0 0 30px var(--orange-glow);
+    }
+
+    .play-btn:active {
+      transform: scale(0.97);
+    }
+
+    /* ==================== LOCKED OVERLAY ==================== */
+    .locked-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      padding: 40px;
+      text-align: center;
+    }
+
+    .locked-overlay.active {
+      display: flex;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .locked-icon {
+      width: 80px;
+      height: 80px;
+      background: var(--gradient-gold);
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      color: #333;
+      margin-bottom: 24px;
+      box-shadow: 0 0 40px rgba(255, 215, 0, 0.4);
+      animation: lockPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes lockPulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 40px rgba(255, 215, 0, 0.4); }
+      50% { transform: scale(1.05); box-shadow: 0 0 60px rgba(255, 215, 0, 0.6); }
+    }
+
+    .locked-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: white;
+      margin-bottom: 12px;
+    }
+
+    .locked-text {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.7);
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    .upgrade-btn {
+      background: var(--gradient-gold);
+      color: #333;
+      border: none;
+      padding: 14px 32px;
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 20px rgba(255, 215, 0, 0.3);
+      transition: all 0.3s ease;
+      text-decoration: none;
+    }
+
+    .upgrade-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 30px rgba(255, 215, 0, 0.5);
+    }
+
+    /* ==================== BOTTOM NAV ==================== */
+    .bottom-nav {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--white);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 8px 16px calc(16px + env(safe-area-inset-bottom));
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.04);
+      border-top-left-radius: 24px;
+      border-top-right-radius: 24px;
+      z-index: 50;
+      flex-shrink: 0;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-light);
+      text-decoration: none;
+      font-size: 9px;
+      gap: 3px;
+      transition: all 0.3s ease;
+      padding: 6px 14px;
+      border-radius: 14px;
+      font-weight: 500;
+      position: relative;
+    }
+
+    .nav-item i {
+      font-size: 20px;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .nav-item.active {
+      color: var(--orange-main);
+      background: var(--orange-light);
+    }
+
+    .nav-item.active i {
+      transform: translateY(-2px) scale(1.1);
+    }
+
+    /* ==================== ANIMATIONS ==================== */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-in {
+      animation: fadeIn 0.5s ease-out forwards;
+    }
+
+    .slide-up {
+      animation: slideUp 0.6s ease-out forwards;
+      opacity: 0;
+    }
+
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+    .delay-3 { animation-delay: 0.3s; }
+
+    /* Particle effect */
+    .particle {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: var(--orange-main);
+      border-radius: 50%;
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    @keyframes particleFloat {
+      0% { opacity: 0; transform: translateY(0) scale(0); }
+      20% { opacity: 1; transform: translateY(-20px) scale(1); }
+      100% { opacity: 0; transform: translateY(-100px) scale(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- LOCKED OVERLAY (shown if not silver plan) -->
+  <div class="locked-overlay" id="lockedOverlay">
+    <div class="locked-icon">
+      <i class="fa-solid fa-crown"></i>
+    </div>
+    <div class="locked-title">Silver Plan Required</div>
+    <div class="locked-text">
+      Gaming is exclusive to Silver plan members.<br>
+      Upgrade your plan to unlock Vault Rush, Vault Defender,<br>
+      and Subway Runner with amazing rewards!
+    </div>
+    <a href="upgrade.html" class="upgrade-btn">
+      <i class="fa-solid fa-arrow-up"></i> Upgrade to Silver
+    </a>
+  </div>
+
+  <div class="app-container">
+    <!-- Animated Background Orbs -->
+    <div class="bg-orb bg-orb-1"></div>
+    <div class="bg-orb bg-orb-2"></div>
+
+    <!-- TOP NAV -->
+    <div class="top-nav">
+      <a href="dashboard.html" class="nav-back-btn">
+        <i class="fa-solid fa-arrow-left"></i> Back
+      </a>
+      <div class="plan-badge" id="planBadge">
+        <i class="fa-solid fa-crown"></i>
+        <span id="planText">Loading...</span>
+      </div>
+    </div>
+
+    <!-- HEADER -->
+    <div class="header-section">
+      <div class="header-title">
+        <i class="fa-solid fa-gamepad"></i>
+        TaskVault Games
+      </div>
+      <div class="header-sub">Play, compete, and earn rewards</div>
+      <div class="header-glow"></div>
+    </div>
+
+    <!-- SCROLLABLE CONTENT -->
+    <div class="scroll-content">
+      <div class="games-grid">
+
+        <!-- VAULT RUSH -->
+        <div class="game-card slide-up delay-1">
+          <div class="game-image-wrap">
+            <img src="https://store-images.s-microsoft.com/image/apps.20595.14398749873275825.05acf10f-0058-401f-a0d0-05c6d4eefdbe" class="game-image" alt="Vault Rush">
+            <div class="game-image-overlay">
+              <span class="game-badge hot">
+                <i class="fa-solid fa-fire"></i> HOT
+              </span>
+            </div>
+          </div>
+          <div class="game-content">
+            <div class="game-title">
+              <i class="fa-solid fa-bolt"></i>
+              Vault Rush
+            </div>
+            <div class="game-desc">
+              Dash through neon-lit vault corridors, collect coins, dodge traps, and race against time. The faster you go, the bigger the rewards!
+            </div>
+            <div class="game-stats">
+              <div class="game-stat">
+                <i class="fa-solid fa-users"></i> 2.4k playing
+              </div>
+              <div class="game-stat">
+                <i class="fa-solid fa-star"></i> 4.8 rating
+              </div>
+              <div class="game-stat">
+                <i class="fa-solid fa-gem"></i> High rewards
+              </div>
+            </div>
+            <a href="game-lobby.html" class="play-btn">
+              <i class="fa-solid fa-play"></i> Play Now
+            </a>
+          </div>
+        </div>
+
+        <!-- VAULT DEFENDER -->
+        <div class="game-card slide-up delay-2">
+          <div class="game-image-wrap">
+            <img src="https://www.hardcoredroid.com/wp-content/uploads/2023/05/Sphere-Defense-Tower-Defense-Game.jpg" class="game-image" alt="Vault Defender">
+            <div class="game-image-overlay">
+              <span class="game-badge">
+                <i class="fa-solid fa-shield-halved"></i> STRATEGY
+              </span>
+            </div>
+          </div>
+          <div class="game-content">
+            <div class="game-title">
+              <i class="fa-solid fa-shield-halved"></i>
+              Vault Defender
+            </div>
+            <div class="game-desc">
+              Build towers, deploy defenses, and protect the vault from waves of intruders. Strategic thinking earns you massive bonus payouts!
+            </div>
+            <div class="game-stats">
+              <div class="game-stat">
+                <i class="fa-solid fa-users"></i> 1.8k playing
+              </div>
+              <div class="game-stat">
+                <i class="fa-solid fa-star"></i> 4.6 rating
+              </div>
+              <div class="game-stat">
+                <i class="fa-solid fa-chess"></i> Strategy
+              </div>
+            </div>
+            <a href="game-lobby2.html" class="play-btn">
+              <i class="fa-solid fa-play"></i> Play Now
+            </a>
+          </div>
+        </div>
+
+        <!-- SUBWAY RUNNER -->
+        <div class="game-card slide-up delay-3">
+          <div class="game-image-wrap">
+            <img src="https://img.tapimg.net/img.tapimg.net/c21a426ff67bd799edd2154855e66dfbd9b9b149.png" class="game-image" alt="Subway Runner">
+            <div class="game-image-overlay">
+              <span class="game-badge">
+                <i class="fa-solid fa-train"></i> ENDLESS
+              </span>
+            </div>
+          </div>
+          <div class="game-content">
+            <div class="game-title">
+              <i class="fa-solid fa-train-subway"></i>
+              Subway Runner
+            </div>
+            <div class="game-desc">
+              Run through subway tunnels, dodge trains, collect power-ups, and set high scores. Endless fun with endless earning potential!
+            </div>
+            <div class="game-stats">
+              <div class="game-stat">
+                <i class="fa-solid fa-users"></i> 3.1k playing
+              </div>
+              <div class="game-stat">
+                <i class="fa-solid fa-star"></i> 4.9 rating
+              </div>
+              <div class="game-stat">
+                <i class="fa-solid fa-infinity"></i> Endless
+              </div>
+            </div>
+            <a href="game-lobby3.html" class="play-btn">
+              <i class="fa-solid fa-play"></i> Play Now
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- BOTTOM NAVIGATION -->
+    <nav class="bottom-nav">
+      <a href="menu.html" class="nav-item">
+        <i class="fa-solid fa-bars-staggered"></i>
+        <span>Menu</span>
+      </a>
+      <a href="deposit.html" class="nav-item">
+        <i class="fa-solid fa-wallet"></i>
+        <span>Deposit</span>
+      </a>
+      <a href="games.html" class="nav-item active">
+        <i class="fa-solid fa-gamepad"></i>
+        <span>Games</span>
+      </a>
+      <a href="profile.html" class="nav-item">
+        <i class="fa-solid fa-user"></i>
+        <span>Profile</span>
+      </a>
+    </nav>
+  </div>
+
+  <!-- FIREBASE -->
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
+
+  <script>
+    // ==================== TASKVAULT FIREBASE CONFIG ====================
+    const firebaseConfig = {
+      apiKey: "AIzaSyAv6QCpopa0Q77AVTyjU5cqJEIKIE9OVTs",
+      authDomain: "taskvault-412a0.firebaseapp.com",
+      databaseURL: "https://taskvault-412a0-default-rtdb.firebaseio.com",
+      projectId: "taskvault-412a0",
+      storageBucket: "taskvault-412a0.firebasestorage.app",
+      messagingSenderId: "420716701831",
+      appId: "1:420716701831:web:c987d91f7f4c8684eb7022",
+      measurementId: "G-93JG3LB08B"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+
+    // Check user plan on load
+    auth.onAuthStateChanged(async (user) => {
+      if (!user) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      try {
+        const userDoc = await db.collection('users').doc(user.uid).get();
+        const userData = userDoc.data() || {};
+        const plan = (userData.plan || userData.subscription || 'free').toLowerCase();
+
+        // Update plan badge
+        document.getElementById('planText').textContent = plan.charAt(0).toUpperCase() + plan.slice(1);
+
+        // Show locked overlay if not silver or higher
+        if (plan !== 'silver' && plan !== 'gold' && plan !== 'premium' && plan !== 'vip') {
+          document.getElementById('lockedOverlay').classList.add('active');
+          document.body.style.overflow = 'hidden';
+        }
+
+      } catch (err) {
+        console.error('Error checking plan:', err);
+        // Default to locked if error
+        document.getElementById('lockedOverlay').classList.add('active');
+      }
+    });
+
+    // Particle effect on card hover
+    document.querySelectorAll('.game-card').forEach(card => {
+      card.addEventListener('mouseenter', (e) => {
+        createParticles(e.target);
+      });
+    });
+
+    function createParticles(element) {
+      for (let i = 0; i < 6; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.top = '100%';
+        particle.style.animation = `particleFloat ${1 + Math.random()}s ease-out forwards`;
+        particle.style.animationDelay = `${i * 0.1}s`;
+        element.appendChild(particle);
+        setTimeout(() => particle.remove(), 2000);
+      }
+    }
+  </script>
+</body>
+  </html>
