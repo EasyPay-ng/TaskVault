@@ -1097,7 +1097,7 @@
 
     let currentUser = null;
     let allTasks = [];
-    let taskSubmissions = {}; // Map of taskId -> submissions array
+    let taskSubmissions = {};
     let unsubscribeTasks = null;
 
     function fmtMoney(n){ return '$' + Number(n || 0).toFixed(3); }
@@ -1148,7 +1148,8 @@
             id: doc.id,
             ...data,
             createdAt: data.createdAt,
-            submissionCount: 0
+            submissionCount: 0,
+            approvedCount: data.approvedCount || 0
           });
         });
 
@@ -1191,13 +1192,18 @@
             .get();
           task.submissionCount = snap.size;
           task.submissions = [];
+          let approvedCount = 0;
           snap.forEach(doc => {
-            task.submissions.push({ id: doc.id, ...doc.data() });
+            const subData = doc.data();
+            task.submissions.push({ id: doc.id, ...subData });
+            if ((subData.status || '').toLowerCase() === 'approved') approvedCount++;
           });
+          task.approvedCount = approvedCount;
         } catch (err) {
           console.warn('Error loading submissions for task', task.id, err);
           task.submissionCount = 0;
           task.submissions = [];
+          task.approvedCount = 0;
         }
       }
       renderTasks(); // Re-render with counts
@@ -1280,7 +1286,7 @@
             </div>
           </div>
           <div class="submissions-badge">
-            <i class="ri-user-received-line"></i> ${task.submissionCount || 0} submission${task.submissionCount !== 1 ? 's' : ''}
+            <i class="ri-user-received-line"></i> ${task.submissionCount || 0} submission${task.submissionCount !== 1 ? 's' : ''} • ${task.approvedCount || 0} approved
           </div>
           ${task.thumbnail ? `<img class="task-thumbnail" src="${task.thumbnail}" alt="Task thumbnail" onclick="event.stopPropagation()" />` : ''}
         `;
@@ -1305,8 +1311,11 @@
       } else {
         submissionsHtml = task.submissions.map(sub => {
           const subStatus = (sub.status || 'pending').toLowerCase();
+          const isPending = subStatus === 'pending';
+          const isApproved = subStatus === 'approved';
+          
           return `
-            <div class="submission-item">
+            <div class="submission-item" id="sub-${sub.id}">
               <div class="submission-header">
                 <div class="submission-user">${escapeHtml(sub.username || sub.userName || sub.userId?.substring(0, 8) || 'Unknown')}</div>
                 <div class="submission-status ${subStatus}">${escapeHtml(sub.status || 'PENDING')}</div>
@@ -1314,14 +1323,18 @@
               <div class="submission-date">${niceDate(sub.createdAt)}</div>
               ${sub.textProof ? `<div class="submission-proof">${escapeHtml(sub.textProof)}</div>` : ''}
               ${sub.imageUrl ? `<img class="submission-img" src="${sub.imageUrl}" alt="Proof" onclick="window.open('${sub.imageUrl}', '_blank')" />` : ''}
-              ${subStatus === 'pending' ? `
+              ${isPending ? `
                 <div class="submission-actions">
-                  <button class="btn-action btn-approve" onclick="reviewSubmission('${task.id}', '${sub.id}', 'approved')">
-                    <i class="ri-check-line"></i> Approve
+                  <button class="btn-action btn-approve" onclick="reviewSubmission('${task.id}', '${sub.id}', '${sub.userId}', 'approved', ${task.unitPrice || 0})">
+                    <i class="ri-check-line"></i> Approve & Pay
                   </button>
-                  <button class="btn-action btn-reject" onclick="reviewSubmission('${task.id}', '${sub.id}', 'rejected')">
+                  <button class="btn-action btn-reject" onclick="reviewSubmission('${task.id}', '${sub.id}', '${sub.userId}', 'rejected', 0)">
                     <i class="ri-close-line"></i> Reject
                   </button>
+                </div>
+              ` : isApproved ? `
+                <div style="margin-top: 8px; font-size: 11px; color: var(--success); font-weight: 600;">
+                  <i class="ri-check-double-line"></i> Credited ${fmtMoney(task.unitPrice || 0)} to user
                 </div>
               ` : ''}
             </div>
@@ -1337,6 +1350,7 @@
             <span><i class="ri-price-tag-3-line"></i> ${escapeHtml(task.subcategory || '-')}</span>
             <span><i class="ri-coins-line"></i> ${fmtMoney(task.unitPrice)} / worker</span>
             <span><i class="ri-user-line"></i> ${task.submissionCount || 0} submissions</span>
+            <span><i class="ri-check-double-line"></i> ${task.approvedCount || 0} approved</span>
           </div>
         </div>
         ${submissionsHtml}
@@ -1346,27 +1360,114 @@
       document.body.style.overflow = 'hidden';
     }
 
-    // ---- Review Submission (Approve/Reject) ----
-    async function reviewSubmission(taskId, submissionId, newStatus) {
+    // ---- Review Submission with Credit Logic ----
+    async function reviewSubmission(taskId, submissionId, userId, newStatus, rewardAmount) {
+      const btn = event.target.closest('.btn-action');
+      if (btn) btn.disabled = true;
+      
       try {
-        await db.collection('advert_submissions').doc(submissionId).update({
+        // Get submission data first to check if already reviewed
+        const subRef = db.collection('advert_submissions').doc(submissionId);
+        const subDoc = await subRef.get();
+        
+        if (!subDoc.exists) {
+          showToast('Submission not found', 'error');
+          if (btn) btn.disabled = false;
+          return;
+        }
+        
+        const subData = subDoc.data();
+        const currentStatus = (subData.status || '').toLowerCase();
+        
+        // Prevent double-approving or double-rejecting
+        if (currentStatus === 'approved' && newStatus === 'approved') {
+          showToast('This submission is already approved', 'info');
+          if (btn) btn.disabled = false;
+          return;
+        }
+        if (currentStatus === 'rejected' && newStatus === 'rejected') {
+          showToast('This submission is already rejected', 'info');
+          if (btn) btn.disabled = false;
+          return;
+        }
+
+        const batch = db.batch();
+        const now = firebase.firestore.FieldValue.serverTimestamp();
+
+        // 1. Update submission status
+        batch.update(subRef, {
           status: newStatus,
-          reviewedAt: firebase.firestore.FieldValue.serverTimestamp()
+          reviewedAt: now,
+          reviewedBy: currentUser.uid
         });
-        showToast(`Submission ${newStatus}!`, 'success');
-        // Refresh submissions for this task
+
+        // 2. If APPROVED, credit the user
+        if (newStatus === 'approved' && rewardAmount > 0 && userId) {
+          const userRef = db.collection('users').doc(userId);
+          
+          // Check if user document exists first
+          const userDoc = await userRef.get();
+          if (!userDoc.exists) {
+            // Create user doc with initial balance if it doesn't exist
+            batch.set(userRef, {
+              balance: rewardAmount,
+              totalEarned: rewardAmount,
+              createdAt: now,
+              updatedAt: now
+            }, { merge: true });
+          } else {
+            // Increment existing balance
+            batch.update(userRef, {
+              balance: firebase.firestore.FieldValue.increment(rewardAmount),
+              totalEarned: firebase.firestore.FieldValue.increment(rewardAmount),
+              updatedAt: now
+            });
+          }
+          
+          // 3. Update task approved count
+          const taskRef = db.collection('advertise_tasks').doc(taskId);
+          batch.update(taskRef, {
+            approvedCount: firebase.firestore.FieldValue.increment(1)
+          });
+          
+          // 4. Add to earnings history collection (for audit trail)
+          const earningRef = db.collection('earnings').doc();
+          batch.set(earningRef, {
+            userId: userId,
+            advertId: taskId,
+            submissionId: submissionId,
+            amount: rewardAmount,
+            type: 'task_reward',
+            status: 'completed',
+            createdAt: now
+          });
+        }
+
+        // Commit all operations atomically
+        await batch.commit();
+        
+        // Update local data
         const task = allTasks.find(t => t.id === taskId);
         if (task) {
-          const snap = await db.collection('advert_submissions')
-            .where('advertId', '==', taskId)
-            .get();
-          task.submissions = [];
-          snap.forEach(doc => task.submissions.push({ id: doc.id, ...doc.data() }));
-          openSubmissionsOverlay(task);
+          const sub = task.submissions.find(s => s.id === submissionId);
+          if (sub) {
+            sub.status = newStatus;
+            sub.reviewedAt = new Date();
+          }
+          if (newStatus === 'approved') {
+            task.approvedCount = (task.approvedCount || 0) + 1;
+          }
         }
+        
+        showToast(`Submission ${newStatus}! ${newStatus === 'approved' ? '$' + rewardAmount.toFixed(3) + ' credited' : ''}`, 'success');
+        
+        // Refresh the overlay to show updated status
+        if (task) openSubmissionsOverlay(task);
+        
       } catch (err) {
         console.error('Review error:', err);
-        showToast('Failed to update submission', 'error');
+        showToast('Failed to update: ' + (err.message || 'Unknown error'), 'error');
+        if (btn) btn.disabled = false;
       }
     }
 
@@ -1409,4 +1510,4 @@
     });
   </script>
 </body>
-</html>
+  </html>
