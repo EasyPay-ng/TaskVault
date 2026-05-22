@@ -137,26 +137,34 @@
       font-weight: 400;
     }
 
-    .notification-btn {
-      width: 36px;
-      height: 36px;
-      border-radius: 10px;
-      background: var(--orange-light);
-      color: var(--orange-main);
+    .my-tasks-btn {
       display: flex;
-      justify-content: center;
       align-items: center;
-      font-size: 15px;
-      position: relative;
+      gap: 6px;
+      background: var(--gradient-orange);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 8px 14px;
+      font-size: 12px;
+      font-weight: 700;
       cursor: pointer;
       transition: all 0.3s ease;
-      border: none;
+      text-decoration: none;
       flex-shrink: 0;
     }
 
-    .notification-btn:hover {
-      background: var(--orange-main);
-      color: white;
+    .my-tasks-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .my-tasks-btn:active {
+      transform: scale(0.97);
+    }
+
+    .my-tasks-btn i {
+      font-size: 16px;
     }
 
     /* ==================== BALANCE CARD ==================== */
@@ -829,9 +837,10 @@
           <div class="header-subtitle">Create & fund a new task</div>
         </div>
       </div>
-      <button class="notification-btn" onclick="showToast('Fill all required fields', 'info')">
-        <i class="ri-question-line"></i>
-      </button>
+      <a href="tasks-manager.html" class="my-tasks-btn">
+        <i class="ri-task-line"></i>
+        <span>My Tasks</span>
+      </a>
     </header>
 
     <!-- SCROLLABLE CONTENT -->
@@ -1323,4 +1332,4 @@
     });
   </script>
 </body>
-</html>
+            </html>
