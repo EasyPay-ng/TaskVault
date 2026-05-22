@@ -96,22 +96,6 @@
 
     .record-amount { font-size:1.1rem; font-weight:700; color:var(--orange-dark); }
 
-    /* Payout display */
-    .record-payout {
-      margin-top: .5rem;
-      padding: .5rem .75rem;
-      background: #dcfce7;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      gap: .5rem;
-      font-size: .85rem;
-      font-weight: 700;
-      color: var(--green);
-    }
-    .record-payout i { font-size: .9rem; }
-    .record-payout .payout-label { font-size: .75rem; font-weight: 500; color: var(--gray); }
-
     /* Status Badges */
     .status-badge {
       padding:.35rem .7rem; border-radius:20px; font-size:.75rem; font-weight:600;
@@ -120,7 +104,6 @@
     .status-won { background:#dcfce7; color:var(--green); }
     .status-lost { background:#fee2e2; color:var(--red); }
     .status-pending { background:#dbeafe; color:var(--blue); }
-    .status-settled { background:#f3e8ff; color:#9333ea; }
     .status-refunded { background:#f3f4f6; color:var(--gray); }
 
     /* Category Tag */
@@ -182,15 +165,15 @@
       <div class="label">Total Stakes</div>
     </div>
     <div class="stat-card">
-      <div class="number" id="statActive" style="color: var(--yellow);">0</div>
+      <div class="number" id="statActive">0</div>
       <div class="label">Active</div>
     </div>
     <div class="stat-card">
-      <div class="number" id="statWon" style="color: var(--green);">0</div>
+      <div class="number" id="statWon">0</div>
       <div class="label">Won</div>
     </div>
     <div class="stat-card">
-      <div class="number" id="statLost" style="color: var(--red);">0</div>
+      <div class="number" id="statLost">0</div>
       <div class="label">Lost</div>
     </div>
   </div>
@@ -201,7 +184,7 @@
     <button class="tab-btn" data-filter="active">Active</button>
     <button class="tab-btn" data-filter="won">Won</button>
     <button class="tab-btn" data-filter="lost">Lost</button>
-    <button class="tab-btn" data-filter="settled">Settled</button>
+    <button class="tab-btn" data-filter="pending">Pending</button>
     <button class="tab-btn" data-filter="refunded">Refunded</button>
   </div>
 
@@ -209,27 +192,25 @@
   <div class="records-list" id="recordsList"></div>
 </div>
 
-<!-- FIREBASE SDK (Compat - matching your other pages) -->
-<script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+  import {
+    getFirestore, doc, getDoc, collection, query, orderBy, getDocs
+  } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 
-<script>
-  // ==================== TASKVAULT FIREBASE CONFIG ====================
   const firebaseConfig = {
     apiKey: "AIzaSyAv6QCpopa0Q77AVTyjU5cqJEIKIE9OVTs",
     authDomain: "taskvault-412a0.firebaseapp.com",
-    databaseURL: "https://taskvault-412a0-default-rtdb.firebaseio.com",
     projectId: "taskvault-412a0",
     storageBucket: "taskvault-412a0.firebasestorage.app",
     messagingSenderId: "420716701831",
-    appId: "1:420716701831:web:c987d91f7f4c8684eb7022",
-    measurementId: "G-93JG3LB08B"
+    appId: "1:420716701831:web:c987d91f7f4c8684eb7022"
   };
 
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.firestore();
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
 
   let currentUser = null;
   let allStakes = [];
@@ -240,7 +221,7 @@
   const filterTabs = document.getElementById('filterTabs');
   const recordsList = document.getElementById('recordsList');
 
-  auth.onAuthStateChanged(async (user) => {
+  onAuthStateChanged(auth, async (user) => {
     if (!user) { location.href = 'login.html'; return; }
     currentUser = user;
     await loadRecords();
@@ -252,18 +233,13 @@
     filterTabs.classList.remove('hidden');
 
     try {
-      // No orderBy to avoid composite index requirement
-      const q = db.collection('users', currentUser.uid, 'stakes');
+      const q = query(
+        collection(db, 'users', currentUser.uid, 'stakes'),
+        orderBy('createdAt', 'desc')
+      );
       
-      const snap = await q.get();
+      const snap = await getDocs(q);
       allStakes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      
-      // Sort client-side by createdAt descending
-      allStakes.sort((a, b) => {
-        const aTime = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : 0;
-        const bTime = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : 0;
-        return bTime - aTime;
-      });
       
       updateStats();
       renderRecords();
@@ -296,7 +272,7 @@
         active: 'No active stakes.',
         won: 'No winning stakes yet.',
         lost: 'No lost stakes.',
-        settled: 'No settled stakes.',
+        pending: 'No pending results.',
         refunded: 'No refunded stakes.'
       };
       recordsList.innerHTML = `
@@ -311,9 +287,8 @@
 
     let html = '';
     filtered.forEach(stake => {
-      const status = stake.status || 'active';
-      const statusClass = `status-${status}`;
-      const statusText = status.charAt(0).toUpperCase() + status.slice(1);
+      const statusClass = `status-${stake.status || 'active'}`;
+      const statusText = stake.status ? stake.status.charAt(0).toUpperCase() + stake.status.slice(1) : 'Active';
       const catClass = `cat-${stake.category || 'reallife'}`;
       const catIcon = stake.category === 'sports' ? 'fa-futbol' : stake.category === 'crypto' ? 'fa-bitcoin-sign' : stake.category === 'entertainment' ? 'fa-film' : 'fa-globe';
       
@@ -325,19 +300,6 @@
       const pickClass = stake.optionLabel?.toLowerCase() === 'yes' ? 'pick-yes' 
         : stake.optionLabel?.toLowerCase() === 'no' ? 'pick-no' 
         : 'pick-other';
-
-      // Payout display for won/settled
-      let payoutHtml = '';
-      const payout = stake.payoutAmount || 0;
-      if ((status === 'won' || status === 'settled') && payout > 0) {
-        payoutHtml = `
-          <div class="record-payout">
-            <i class="fas fa-trophy"></i>
-            <span class="payout-label">Payout:</span>
-            <span>$${payout.toFixed(3)}</span>
-          </div>
-        `;
-      }
 
       html += `
         <div class="record-card">
@@ -352,13 +314,12 @@
             </div>
             <span class="status-badge ${statusClass}">${statusText}</span>
           </div>
-          ${payoutHtml}
           <div class="record-details">
             <div class="record-pick">
               <span style="font-size:.85rem; color:var(--gray);">Your pick:</span>
               <span class="pick-badge ${pickClass}">${escapeHtml(stake.optionLabel || '—')}</span>
             </div>
-            <div class="record-amount">$${(stake.amount || 0).toFixed(3)}</div>
+            <div class="record-amount">$${(stake.amount || 0).toFixed(2)}</div>
           </div>
         </div>
       `;
@@ -377,9 +338,9 @@
     });
   });
 
-  function signOutUser() {
-    auth.signOut().then(() => location.href = 'login.html');
-  }
+  window.signOutUser = function() {
+    signOut(auth).then(() => location.href = 'login.html');
+  };
 
   function escapeHtml(text) {
     const div = document.createElement('div');
