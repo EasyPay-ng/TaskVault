@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>My Earnings | TaskVault</title>
+  
+  <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" type="image/jpeg">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <style>
+    :root {
+      --orange-main: #FF8C42;
+      --orange-dark: #E67A35;
+      --orange-light: #FFF0E6;
+      --silk-bg: #FDFBF7;
+      --white: #FFFFFF;
+      --text-dark: #333333;
+      --text-light: #888888;
+      --shadow-sm: 0 2px 6px rgba(255, 140, 66, 0.06);
+      --shadow-md: 0 4px 12px rgba(255, 140, 66, 0.1);
+      --shadow-lg: 0 8px 24px rgba(255, 140, 66, 0.15);
+      --gradient-orange: linear-gradient(135deg, #FF8C42 0%, #FF6B35 100%);
+      --success: #10B981;
+      --danger: #EF4444;
+      --warning: #F59E0B;
+      --info: #3B82F6;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      background-color: #e9ecef;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .app-container {
+      width: 100%;
+      height: 100dvh;
+      max-width: 430px;
+      background-color: var(--silk-bg);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    @media (min-width: 768px) {
+      .app-container {
+        height: 92dvh;
+        max-height: 850px;
+        border-radius: 24px;
+        box-shadow: 0 0 40px rgba(0,0,0,0.12);
+      }
+    }
+
+    .scroll-content {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 0 20px;
+      padding-bottom: calc(80px + env(safe-area-inset-bottom));
+    }
+
+    .scroll-content::-webkit-scrollbar {
+      width: 2px;
+    }
+    .scroll-content::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .scroll-content::-webkit-scrollbar-thumb {
+      background: var(--orange-light);
+      border-radius: 2px;
+    }
+
+    /* ==================== TOP NAV ==================== */
+    .top-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px 10px;
+      background: var(--white);
+      flex-shrink: 0;
+    }
+
+    .nav-back-btn {
+      background: var(--orange-light);
+      border: none;
+      border-radius: 12px;
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--orange-main);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+      text-decoration: none;
+    }
+
+    .nav-back-btn:hover {
+      background: var(--orange-main);
+      color: white;
+      transform: translateX(-2px);
+    }
+
+    /* ==================== HEADER ==================== */
+    .header-section {
+      padding: 16px 20px;
+      background: var(--white);
+      margin-bottom: 16px;
+    }
+
+    .header-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text-dark);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .header-title i {
+      color: var(--orange-main);
+      font-size: 18px;
+    }
+
+    .header-sub {
+      font-size: 12px;
+      color: var(--text-light);
+      margin-top: 4px;
+    }
+
+    /* ==================== STATS CARDS ==================== */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .stat-card {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid rgba(255, 140, 66, 0.08);
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .stat-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 8px;
+      font-size: 18px;
+    }
+
+    .stat-icon.pending { background: #FEF3C7; color: var(--warning); }
+    .stat-icon.approved { background: #D1FAE5; color: var(--success); }
+    .stat-icon.rejected { background: #FEE2E2; color: var(--danger); }
+    .stat-icon.earnings { background: var(--orange-light); color: var(--orange-main); }
+
+    .stat-value {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text-dark);
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: var(--text-light);
+      font-weight: 600;
+      margin-top: 2px;
+    }
+
+    /* ==================== FILTER TABS ==================== */
+    .filter-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+
+    .filter-tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .filter-tab {
+      background: var(--white);
+      border: 2px solid #e2e8f0;
+      border-radius: 20px;
+      padding: 8px 16px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-light);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .filter-tab:hover {
+      border-color: var(--orange-main);
+      color: var(--orange-main);
+    }
+
+    .filter-tab.active {
+      background: var(--gradient-orange);
+      border-color: var(--orange-main);
+      color: white;
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* ==================== SUBMISSION CARDS ==================== */
+    .submission-card {
+      background: var(--white);
+      border: 1px solid rgba(255, 140, 66, 0.08);
+      border-radius: 18px;
+      padding: 16px;
+      margin-bottom: 14px;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .submission-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+      border-color: rgba(255, 140, 66, 0.2);
+    }
+
+    .submission-card::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      border-radius: 18px 0 0 18px;
+    }
+
+    .submission-card.status-pending::before { background: var(--warning); }
+    .submission-card.status-approved::before { background: var(--success); }
+    .submission-card.status-rejected::before { background: var(--danger); }
+
+    .submission-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .submission-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-dark);
+      line-height: 1.3;
+      flex: 1;
+      padding-right: 10px;
+    }
+
+    .status-badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      flex-shrink: 0;
+    }
+
+    .status-badge.pending {
+      background: #FEF3C7;
+      color: #92400E;
+    }
+
+    .status-badge.approved {
+      background: #D1FAE5;
+      color: #065F46;
+    }
+
+    .status-badge.rejected {
+      background: #FEE2E2;
+      color: #991B1B;
+    }
+
+    .submission-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-light);
+    }
+
+    .meta-item i {
+      font-size: 12px;
+      color: var(--orange-main);
+    }
+
+    .meta-item .reward {
+      font-weight: 700;
+      color: var(--orange-main);
+    }
+
+    .submission-proof {
+      background: #f8fafc;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+
+    .proof-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-light);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 6px;
+    }
+
+    .proof-text {
+      font-size: 13px;
+      color: var(--text-dark);
+      line-height: 1.5;
+      word-break: break-word;
+    }
+
+    .proof-image {
+      width: 100%;
+      max-height: 180px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-top: 8px;
+      cursor: pointer;
+      border: 2px solid var(--orange-light);
+      transition: all 0.3s ease;
+    }
+
+    .proof-image:hover {
+      transform: scale(1.02);
+      box-shadow: var(--shadow-md);
+    }
+
+    .submission-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 10px;
+      border-top: 1px solid #f1f5f9;
+    }
+
+    .submission-date {
+      font-size: 11px;
+      color: var(--text-light);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .submission-date i {
+      font-size: 11px;
+    }
+
+    .retry-btn {
+      background: var(--orange-light);
+      border: none;
+      border-radius: 10px;
+      padding: 8px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--orange-main);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .retry-btn:hover {
+      background: var(--orange-main);
+      color: white;
+    }
+
+    /* ==================== EMPTY STATE ==================== */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-light);
+    }
+
+    .empty-state i {
+      font-size: 48px;
+      color: var(--orange-light);
+      margin-bottom: 16px;
+    }
+
+    .empty-state h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 6px;
+    }
+
+    .empty-state p {
+      font-size: 12px;
+      margin-bottom: 16px;
+    }
+
+    .browse-btn {
+      background: var(--gradient-orange);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: var(--shadow-md);
+      transition: all 0.3s ease;
+    }
+
+    .browse-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    /* ==================== IMAGE OVERLAY ==================== */
+    .img-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.9);
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .img-overlay.active {
+      display: flex;
+    }
+
+    .img-overlay img {
+      max-width: 90%;
+      max-height: 80%;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+
+    /* ==================== BOTTOM NAV ==================== */
+    .bottom-nav {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--white);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 8px 16px calc(16px + env(safe-area-inset-bottom));
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.04);
+      border-top-left-radius: 24px;
+      border-top-right-radius: 24px;
+      z-index: 50;
+      flex-shrink: 0;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-light);
+      text-decoration: none;
+      font-size: 9px;
+      gap: 3px;
+      transition: all 0.3s ease;
+      padding: 6px 14px;
+      border-radius: 14px;
+      font-weight: 500;
+      position: relative;
+    }
+
+    .nav-item i {
+      font-size: 20px;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .nav-item.active {
+      color: var(--orange-main);
+      background: var(--orange-light);
+    }
+
+    .nav-item.active i {
+      transform: translateY(-2px) scale(1.1);
+    }
+
+    /* ==================== LOADING ==================== */
+    .skeleton {
+      background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 12px;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-in {
+      animation: fadeIn 0.4s ease-out forwards;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- IMAGE OVERLAY -->
+  <div class="img-overlay" id="imgOverlay" onclick="this.classList.remove('active')">
+    <img id="largeImg" src="">
+  </div>
+
+  <div class="app-container">
+    <!-- TOP NAV -->
+    <div class="top-nav">
+      <a href="tasks.html" class="nav-back-btn">
+        <i class="fa-solid fa-arrow-left"></i> Back
+      </a>
+    </div>
+
+    <!-- HEADER -->
+    <div class="header-section">
+      <div class="header-title">
+        <i class="fa-solid fa-coins"></i>
+        My Earnings
+      </div>
+      <div class="header-sub">Track your task submissions and rewards</div>
+    </div>
+
+    <!-- SCROLLABLE CONTENT -->
+    <div class="scroll-content">
+      <!-- STATS -->
+      <div class="stats-grid fade-in" id="statsGrid">
+        <div class="stat-card">
+          <div class="stat-icon pending"><i class="fa-solid fa-clock"></i></div>
+          <div class="stat-value" id="statPending">0</div>
+          <div class="stat-label">Pending</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon approved"><i class="fa-solid fa-check-circle"></i></div>
+          <div class="stat-value" id="statApproved">0</div>
+          <div class="stat-label">Approved</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon rejected"><i class="fa-solid fa-xmark-circle"></i></div>
+          <div class="stat-value" id="statRejected">0</div>
+          <div class="stat-label">Rejected</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon earnings"><i class="fa-solid fa-dollar-sign"></i></div>
+          <div class="stat-value" id="statEarnings">$0.00</div>
+          <div class="stat-label">Total Earned</div>
+        </div>
+      </div>
+
+      <!-- FILTER TABS -->
+      <div class="filter-tabs fade-in">
+        <button class="filter-tab active" onclick="filterSubmissions('all')">All</button>
+        <button class="filter-tab" onclick="filterSubmissions('pending')">Pending</button>
+        <button class="filter-tab" onclick="filterSubmissions('approved')">Approved</button>
+        <button class="filter-tab" onclick="filterSubmissions('rejected')">Rejected</button>
+      </div>
+
+      <!-- SUBMISSIONS LIST -->
+      <div id="submissionsList">
+        <div class="empty-state fade-in">
+          <i class="fa-solid fa-spinner fa-spin"></i>
+          <h3>Loading submissions...</h3>
+          <p>Please wait while we fetch your history</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTTOM NAVIGATION -->
+    <nav class="bottom-nav">
+      <a href="menu.html" class="nav-item">
+        <i class="fa-solid fa-bars-staggered"></i>
+        <span>Menu</span>
+      </a>
+      <a href="deposit.html" class="nav-item">
+        <i class="fa-solid fa-wallet"></i>
+        <span>Deposit</span>
+      </a>
+      <a href="tasks.html" class="nav-item">
+        <i class="fa-solid fa-list-check"></i>
+        <span>Tasks</span>
+      </a>
+      <a href="profile.html" class="nav-item">
+        <i class="fa-solid fa-user"></i>
+        <span>Profile</span>
+      </a>
+    </nav>
+  </div>
+
+  <!-- FIREBASE -->
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
+
+  <script>
+    // ==================== TASKVAULT FIREBASE CONFIG ====================
+    const firebaseConfig = {
+      apiKey: "AIzaSyAv6QCpopa0Q77AVTyjU5cqJEIKIE9OVTs",
+      authDomain: "taskvault-412a0.firebaseapp.com",
+      databaseURL: "https://taskvault-412a0-default-rtdb.firebaseio.com",
+      projectId: "taskvault-412a0",
+      storageBucket: "taskvault-412a0.firebasestorage.app",
+      messagingSenderId: "420716701831",
+      appId: "1:420716701831:web:c987d91f7f4c8684eb7022",
+      measurementId: "G-93JG3LB08B"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+
+    let currentUser = null;
+    let allSubmissions = [];
+    let currentFilter = 'all';
+    let unsubListener = null;
+
+    // Format USD currency
+    function formatUSD(n) {
+      try {
+        const num = Number(n);
+        if (isNaN(num) || num === 0) return '$0.00';
+        return '$' + num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      } catch {
+        return '$' + Number(n).toFixed(2);
+      }
+    }
+
+    // Get unit price from advert data
+    function getUnitPrice(ad) {
+      const priceFields = ['unitPrice', 'unit', 'reward', 'amount', 'price', 'workerPrice', 'pay'];
+      for (const field of priceFields) {
+        const val = Number(ad?.[field]);
+        if (!isNaN(val) && val > 0) return val;
+      }
+      const totalCost = Number(ad?.totalCost || 0);
+      const workers = Number(ad?.workers || 0);
+      if (workers > 0 && totalCost > 0) return totalCost / workers;
+      return 0;
+    }
+
+    // Format relative time
+    function timeAgo(date) {
+      if (!date) return 'Unknown';
+      const now = new Date();
+      const then = date.toDate ? date.toDate() : new Date(date);
+      const diff = Math.floor((now - then) / 1000);
+
+      if (diff < 60) return 'Just now';
+      if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+      if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+      if (diff < 604800) return Math.floor(diff / 86400) + 'd ago';
+      return then.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    // Update stats
+    function updateStats() {
+      let pending = 0, approved = 0, rejected = 0, earnings = 0;
+
+      allSubmissions.forEach(sub => {
+        const status = (sub.status || '').toLowerCase();
+        const price = getUnitPrice(sub.advertData || {});
+
+        if (status === 'pending') pending++;
+        else if (status === 'approved') { approved++; earnings += price; }
+        else if (status === 'rejected') rejected++;
+      });
+
+      document.getElementById('statPending').textContent = pending;
+      document.getElementById('statApproved').textContent = approved;
+      document.getElementById('statRejected').textContent = rejected;
+      document.getElementById('statEarnings').textContent = formatUSD(earnings);
+    }
+
+    // Display submissions
+    function displaySubmissions() {
+      const list = document.getElementById('submissionsList');
+      list.innerHTML = '';
+
+      const filtered = currentFilter === 'all' 
+        ? allSubmissions 
+        : allSubmissions.filter(s => (s.status || '').toLowerCase() === currentFilter);
+
+      if (filtered.length === 0) {
+        const emptyMsg = currentFilter === 'all' 
+          ? 'You haven\'t submitted any tasks yet' 
+          : `No ${currentFilter} submissions found`;
+        const emptyIcon = currentFilter === 'all' ? 'fa-clipboard-list' : 'fa-inbox';
+
+        list.innerHTML = `
+          <div class="empty-state fade-in">
+            <i class="fa-solid ${emptyIcon}"></i>
+            <h3>${emptyMsg}</h3>
+            <p>Complete tasks to start earning rewards</p>
+            <a href="tasks.html" class="browse-btn">
+              <i class="fa-solid fa-list-check"></i> Browse Tasks
+            </a>
+          </div>
+        `;
+        return;
+      }
+
+      filtered.forEach((sub, index) => {
+        const status = (sub.status || '').toLowerCase();
+        const ad = sub.advertData || {};
+        const price = getUnitPrice(ad);
+        const card = document.createElement('div');
+        card.className = `submission-card status-${status} fade-in`;
+        card.style.animationDelay = `${index * 0.05}s`;
+
+        const statusLabels = {
+          pending: { text: 'Pending Review', class: 'pending' },
+          approved: { text: 'Approved', class: 'approved' },
+          rejected: { text: 'Rejected', class: 'rejected' }
+        };
+        const badge = statusLabels[status] || statusLabels.pending;
+
+        const proofImageHtml = sub.imageUrl 
+          ? `<img src="${sub.imageUrl}" class="proof-image" onclick="openLargeImage('${sub.imageUrl}')" alt="Proof">` 
+          : '';
+
+        card.innerHTML = `
+          <div class="submission-header">
+            <div class="submission-title">${ad.title || 'Untitled Task'}</div>
+            <span class="status-badge ${badge.class}">${badge.text}</span>
+          </div>
+          <div class="submission-meta">
+            <div class="meta-item">
+              <i class="fa-solid fa-layer-group"></i>
+              ${ad.platform || 'General'}
+            </div>
+            <div class="meta-item">
+              <i class="fa-solid fa-dollar-sign"></i>
+              <span class="reward">${formatUSD(price)}</span>
+            </div>
+          </div>
+          <div class="submission-proof">
+            <div class="proof-label">Your Proof</div>
+            <div class="proof-text">${sub.textProof || 'No text provided'}</div>
+            ${proofImageHtml}
+          </div>
+          <div class="submission-footer">
+            <div class="submission-date">
+              <i class="fa-regular fa-clock"></i>
+              ${timeAgo(sub.createdAt)}
+            </div>
+            ${status === 'rejected' ? `
+              <button class="retry-btn" onclick="window.location.href='tasks.html'">
+                <i class="fa-solid fa-rotate-right"></i> Retry
+              </button>
+            ` : ''}
+          </div>
+        `;
+
+        list.appendChild(card);
+      });
+    }
+
+    // Filter submissions
+    function filterSubmissions(filter) {
+      currentFilter = filter;
+      document.querySelectorAll('.filter-tab').forEach(tab => tab.classList.remove('active'));
+      event.target.classList.add('active');
+      displaySubmissions();
+    }
+
+    // Open large image
+    function openLargeImage(src) {
+      if (!src) return;
+      document.getElementById('largeImg').src = src;
+      document.getElementById('imgOverlay').classList.add('active');
+    }
+
+    // Load submissions
+    async function loadSubmissions() {
+      if (!currentUser) return;
+
+      const list = document.getElementById('submissionsList');
+      list.innerHTML = `
+        <div class="empty-state fade-in">
+          <i class="fa-solid fa-spinner fa-spin"></i>
+          <h3>Loading submissions...</h3>
+          <p>Please wait while we fetch your history</p>
+        </div>
+      `;
+
+      if (unsubListener) unsubListener();
+
+      const q = db.collection('advert_submissions')
+        .where('userId', '==', currentUser.uid)
+        .orderBy('createdAt', 'desc');
+
+      unsubListener = q.onSnapshot(async snap => {
+        allSubmissions = [];
+        const advertIds = new Set();
+
+        snap.forEach(doc => {
+          const data = doc.data();
+          data.id = doc.id;
+          allSubmissions.push(data);
+          if (data.advertId) advertIds.add(data.advertId);
+        });
+
+        // Fetch advert details for all submissions
+        const advertData = {};
+        const promises = Array.from(advertIds).map(async id => {
+          try {
+            const doc = await db.collection('advertise_tasks').doc(id).get();
+            if (doc.exists) advertData[id] = doc.data();
+          } catch (e) { console.error('Error fetching advert:', e); }
+        });
+
+        await Promise.all(promises);
+
+        // Attach advert data to submissions
+        allSubmissions.forEach(sub => {
+          sub.advertData = advertData[sub.advertId] || { title: 'Unknown Task', platform: 'General' };
+        });
+
+        updateStats();
+        displaySubmissions();
+      }, err => {
+        console.error('Snapshot error:', err);
+        list.innerHTML = `
+          <div class="empty-state fade-in">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <h3>Error loading submissions</h3>
+            <p>Please try refreshing the page</p>
+          </div>
+        `;
+      });
+    }
+
+    // Auth state
+    auth.onAuthStateChanged(user => {
+      currentUser = user;
+      if (user) {
+        loadSubmissions();
+      } else {
+        document.getElementById('submissionsList').innerHTML = `
+          <div class="empty-state fade-in">
+            <i class="fa-solid fa-user-lock"></i>
+            <h3>Please sign in</h3>
+            <p>You need to be logged in to view your submissions</p>
+            <a href="login.html" class="browse-btn">
+              <i class="fa-solid fa-right-to-bracket"></i> Sign In
+            </a>
+          </div>
+        `;
+      }
+    });
+  </script>
+</body>
+    </html>
