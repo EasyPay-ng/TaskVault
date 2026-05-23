@@ -554,9 +554,10 @@
   let gameLoopId = null;
   let timerInterval = null;
 
-  // Joystick state
+  // Joystick state - REDUCED SENSITIVITY
   let joystick = { active: false, dx: 0, dy: 0, startX: 0, startY: 0 };
   let firePressed = false;
+  const JOYSTICK_SENSITIVITY = 0.4; // Reduced from 1.0 to 0.4
 
   // Auth
   let currentUser = null;
@@ -566,7 +567,7 @@
   onAuthStateChanged(auth, (user) => {
     if (!user) { location.href = 'login.html'; return; }
     currentUser = user;
-    if (!entryId || !roundId) location.href = 'vault-defender.html';
+    if (!entryId || !roundId) location.href = 'game-lobby2.html';
   });
 
   // ========== RESIZE ==========
@@ -618,7 +619,7 @@
     const charData = CHARACTERS[selectedChar];
     player = {
       x: canvas.width / 2,
-      y: canvas.height - 60,
+      y: canvas.height - 100,
       w: 40, h: 40,
       bullets: charData.bullets === Infinity ? Infinity : charData.bullets,
       maxBullets: charData.bullets,
@@ -650,7 +651,7 @@
     }, 1000);
   }
 
-  // ========== JOYSTICK ==========
+  // ========== JOYSTICK - REDUCED SENSITIVITY ==========
   function setupJoystick() {
     const zone = document.getElementById('joystickZone');
     const base = document.getElementById('joystickBase');
@@ -676,8 +677,9 @@
 
       if (dist > 0) {
         const scale = Math.min(dist, maxDist) / dist;
-        joystick.dx = (dx / dist) * Math.min(dist, maxDist) / maxDist;
-        joystick.dy = (dy / dist) * Math.min(dist, maxDist) / maxDist;
+        // Apply sensitivity multiplier to reduce movement speed
+        joystick.dx = ((dx / dist) * Math.min(dist, maxDist) / maxDist) * JOYSTICK_SENSITIVITY;
+        joystick.dy = ((dy / dist) * Math.min(dist, maxDist) / maxDist) * JOYSTICK_SENSITIVITY;
         knob.style.transform = `translate(calc(-50% + ${dx * scale}px), calc(-50% + ${dy * scale}px))`;
       }
     }
@@ -733,12 +735,10 @@
     spawnEnemies();
     drawVault();
 
-    // Auto-fire if holding fire button
     if (firePressed) tryFire();
   }
 
   function drawBackground() {
-    // Grid lines
     ctx.strokeStyle = 'rgba(255,255,255,0.03)';
     ctx.lineWidth = 1;
     for (let x = 0; x < canvas.width; x += 40) {
@@ -750,31 +750,27 @@
   }
 
   function drawVault() {
-    const x = canvas.width / 2 - 35;
-    const y = canvas.height - 30;
-    const w = 70;
-    const h = 25;
+    const x = canvas.width / 2 - 40;
+    const y = canvas.height - 35;
+    const w = 80;
+    const h = 28;
 
-    // Glow
     ctx.shadowColor = 'rgba(249,115,22,0.6)';
     ctx.shadowBlur = 20;
     ctx.fillStyle = 'rgba(249,115,22,0.3)';
     ctx.fillRect(x - 5, y - 5, w + 10, h + 10);
     ctx.shadowBlur = 0;
 
-    // Vault body
     ctx.fillStyle = '#f97316';
     ctx.fillRect(x, y, w, h);
     ctx.fillStyle = '#ea580c';
     ctx.fillRect(x + 3, y + 3, w - 6, h - 6);
 
-    // Lock
     ctx.fillStyle = '#fff';
-    ctx.font = 'bold 14px Inter';
+    ctx.font = 'bold 13px Inter';
     ctx.textAlign = 'center';
-    ctx.fillText('🔒 VAULT', canvas.width / 2, y + 17);
+    ctx.fillText('🔒 VAULT', canvas.width / 2, y + 19);
 
-    // HP bar
     const hpPct = vault.hp / vault.maxHp;
     ctx.fillStyle = 'rgba(0,0,0,0.5)';
     ctx.fillRect(x, y - 10, w, 6);
@@ -785,25 +781,21 @@
   function updatePlayer() {
     if (!player) return;
 
-    // Move with joystick
-    player.x += joystick.dx * player.speed * 4;
-    player.y += joystick.dy * player.speed * 4;
+    // Apply reduced sensitivity movement
+    player.x += joystick.dx * player.speed * 3;
+    player.y += joystick.dy * player.speed * 3;
 
-    // Clamp
-    player.x = Math.max(20, Math.min(canvas.width - 20, player.x));
-    player.y = Math.max(canvas.height / 2, Math.min(canvas.height - 80, player.y));
+    player.x = Math.max(25, Math.min(canvas.width - 25, player.x));
+    player.y = Math.max(canvas.height / 2, Math.min(canvas.height - 85, player.y));
 
-    // Draw player
     ctx.font = '32px sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(player.emoji, player.x, player.y);
 
-    // Draw gun
     ctx.fillStyle = player.color;
     ctx.fillRect(player.x - 8, player.y - 20, 16, 12);
 
-    // Muzzle flash when firing
     if (firePressed && Date.now() - lastFire < 100) {
       ctx.fillStyle = '#fbbf24';
       ctx.beginPath();
@@ -826,7 +818,6 @@
     updateBulletDisplay();
 
     if (player.spread) {
-      // Manager: 3-way spread
       for (let i = -1; i <= 1; i++) {
         bullets.push({
           x: player.x, y: player.y - 25,
@@ -837,7 +828,6 @@
         });
       }
     } else if (player.rapid) {
-      // Bot: double shot
       bullets.push({
         x: player.x - 6, y: player.y - 25,
         vx: 0, vy: -player.bulletSpeed,
@@ -867,7 +857,6 @@
       b.x += b.vx;
       b.y += b.vy;
 
-      // Draw bullet
       ctx.fillStyle = b.color;
       ctx.shadowColor = b.color;
       ctx.shadowBlur = 8;
@@ -876,30 +865,25 @@
       ctx.fill();
       ctx.shadowBlur = 0;
 
-      // Trail
       ctx.fillStyle = 'rgba(255,255,255,0.3)';
       ctx.fillRect(b.x - 2, b.y + 4, 4, 8);
 
-      // Off screen
       if (b.y < -10 || b.x < -10 || b.x > canvas.width + 10) {
         bullets.splice(i, 1);
         continue;
       }
 
-      // Hit enemy
       for (let j = enemies.length - 1; j >= 0; j--) {
         const e = enemies[j];
         if (Math.hypot(b.x - e.x, b.y - e.y) < e.radius + 4) {
           e.hp -= b.damage;
 
           if (b.splash) {
-            // CEO splash damage
             enemies.forEach(ne => {
               if (ne !== e && Math.hypot(ne.x - e.x, ne.y - e.y) < 50) {
                 ne.hp -= b.damage * 0.5;
               }
             });
-            // Splash particles
             for (let k = 0; k < 12; k++) {
               particles.push({
                 x: e.x, y: e.y,
@@ -940,7 +924,6 @@
       showFloat(enemy.x, enemy.y - 25, `${combo}x COMBO!`, 'gold');
     }
 
-    // Death particles
     for (let i = 0; i < 15; i++) {
       particles.push({
         x: enemy.x, y: enemy.y,
@@ -963,7 +946,6 @@
     if (spawnTimer >= spawnRate) {
       spawnTimer = 0;
 
-      // Determine type based on time
       let type = 'notification';
       const elapsed = 60 - timeLeft;
       const rand = Math.random();
@@ -1000,23 +982,19 @@
       e.x += e.vx;
       e.y += e.vy;
 
-      // Bounce off walls
       if (e.x < e.radius || e.x > canvas.width - e.radius) e.vx *= -1;
 
-      // Draw enemy
       ctx.font = e.boss ? '32px sans-serif' : '22px sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText(e.emoji, e.x, e.y);
 
-      // HP bar
       const barW = e.boss ? 50 : 30;
       ctx.fillStyle = 'rgba(0,0,0,0.6)';
       ctx.fillRect(e.x - barW / 2, e.y - e.radius - 10, barW, 5);
       ctx.fillStyle = e.color;
       ctx.fillRect(e.x - barW / 2, e.y - e.radius - 10, barW * (e.hp / e.maxHp), 5);
 
-      // Hit vault
       if (e.y > canvas.height - 40) {
         vault.hp -= e.boss ? 30 : 15;
         vaultHits++;
@@ -1025,7 +1003,6 @@
         showFloat(e.x, canvas.height - 50, '-25', 'red');
         showFloat(e.x, canvas.height - 70, '💥 VAULT HIT!', 'red');
 
-        // Screen shake effect
         canvas.style.transform = `translate(${Math.random()*4-2}px, ${Math.random()*4-2}px)`;
         setTimeout(() => canvas.style.transform = '', 100);
 
@@ -1135,9 +1112,10 @@
     document.getElementById('gameOver').classList.add('show');
   }
 
+  // ========== SUBMIT - REDIRECTS TO game-lobby2.html ==========
   window.submitScore = async function() {
     if (!currentUser || !entryId || !roundId) {
-      location.href = 'vault-defender.html';
+      location.href = 'game-lobby2.html';
       return;
     }
 
@@ -1157,7 +1135,8 @@
         completedAt: serverTimestamp()
       });
 
-      location.href = 'vault-defender.html';
+      location.href = 'game-lobby2.html';
+
     } catch (err) {
       console.error('Submit error:', err);
       btn.disabled = false;
