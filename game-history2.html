@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>TaskVault – Vault Defender History</title>
+  <link rel="icon" type="image/jpeg" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg"/>
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --orange: #f97316;
+      --orange-light: #fff7ed;
+      --orange-dark: #ea580c;
+      --orange-soft: #ffedd5;
+      --white: #ffffff;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-400: #9ca3af;
+      --gray-500: #6b7280;
+      --gray-600: #4b5563;
+      --gray-700: #374151;
+      --gray-800: #1f2937;
+      --gray-900: #111827;
+      --red: #ef4444;
+      --red-light: #fee2e2;
+      --green: #10b981;
+      --green-light: #d1fae5;
+      --gold: #f59e0b;
+      --gold-light: #fef3c7;
+      --silver: #94a3b8;
+      --bronze: #b45309;
+      --blue: #3b82f6;
+      --purple: #8b5cf6;
+      --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.05);
+      --shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
+      --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
+      --radius-sm: 6px;
+      --radius: 10px;
+      --radius-lg: 16px;
+      --radius-xl: 24px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, sans-serif; }
+    body { background: linear-gradient(180deg, var(--gray-900) 0%, #0f172a 100%); color: var(--white); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+    header {
+      background: linear-gradient(135deg, var(--orange) 0%, var(--orange-dark) 100%);
+      padding: 1rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: var(--shadow-lg);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo-wrap { display: flex; align-items: center; gap: .75rem; }
+    .logo-wrap img { width: 36px; height: 36px; border-radius: 8px; object-fit: cover; }
+    .logo-wrap h1 { font-size: 1.15rem; font-weight: 800; letter-spacing: -0.02em; }
+    .back-btn {
+      background: rgba(255,255,255,0.15);
+      color: var(--white);
+      border: 1px solid rgba(255,255,255,0.2);
+      padding: .5rem 1rem;
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-size: .85rem;
+      font-weight: 600;
+      transition: all .2s ease;
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+      text-decoration: none;
+    }
+    .back-btn:hover { background: rgba(255,255,255,0.25); }
+
+    .container { max-width: 900px; margin: 0 auto; padding: 1.5rem; }
+
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .page-title h2 { font-size: 1.75rem; font-weight: 800; margin-bottom: .25rem; }
+    .page-title p { color: var(--gray-400); font-size: .9rem; }
+    .header-actions { display: flex; gap: .75rem; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      padding: .625rem 1.25rem;
+      border-radius: var(--radius);
+      font-size: .85rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all .2s ease;
+      text-decoration: none;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--orange) 0%, var(--orange-dark) 100%);
+      color: var(--white);
+      box-shadow: 0 4px 16px rgba(249,115,22,0.3);
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(249,115,22,0.4); }
+    .btn-ghost {
+      background: var(--gray-800);
+      color: var(--gray-400);
+      border: 1px solid var(--gray-700);
+    }
+    .btn-ghost:hover { background: var(--gray-700); color: var(--white); }
+
+    /* STATS */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      border: 1px solid var(--gray-700);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem;
+      transition: all .2s ease;
+    }
+    .stat-card:hover { border-color: var(--gray-600); transform: translateY(-2px); }
+    .stat-label {
+      font-size: .7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--gray-500);
+      margin-bottom: .5rem;
+    }
+    .stat-value {
+      font-size: 1.75rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    .stat-change {
+      font-size: .75rem;
+      font-weight: 600;
+      margin-top: .25rem;
+    }
+    .stat-change.positive { color: var(--green); }
+    .stat-change.negative { color: var(--red); }
+
+    /* WINNERS SECTION */
+    .winners-section { margin-bottom: 2rem; }
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    .section-title {
+      font-size: .9rem;
+      font-weight: 700;
+      color: var(--gray-400);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+    .round-selector {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      background: var(--gray-800);
+      border: 1px solid var(--gray-700);
+      border-radius: var(--radius);
+      padding: .375rem .75rem;
+      color: var(--white);
+      font-size: .85rem;
+      font-weight: 500;
+      cursor: pointer;
+      outline: none;
+    }
+    .round-selector option { background: var(--gray-800); }
+
+    .winners-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+    .winner-card {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      border: 1px solid var(--gray-700);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem;
+      text-align: center;
+      transition: all .2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .winner-card:hover { transform: translateY(-2px); border-color: var(--orange); }
+    .winner-card.rank-1 { border-color: rgba(245, 158, 11, 0.4); }
+    .winner-card.rank-1::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--gold), #fbbf24);
+    }
+    .winner-card.rank-2 { border-color: rgba(148, 163, 184, 0.3); }
+    .winner-card.rank-2::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--silver), #cbd5e1);
+    }
+    .winner-card.rank-3 { border-color: rgba(180, 83, 9, 0.3); }
+    .winner-card.rank-3::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--bronze), #d97706);
+    }
+
+    .winner-rank {
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto .75rem;
+      font-size: 1.5rem;
+    }
+    .winner-rank.gold { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #78350f; }
+    .winner-rank.silver { background: linear-gradient(135deg, #e2e8f0, #94a3b8); color: #334155; }
+    .winner-rank.bronze { background: linear-gradient(135deg, #fdba74, #ea580c); color: #7c2d12; }
+
+    .winner-avatar {
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--orange), var(--orange-dark));
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto .5rem;
+      font-size: 1.25rem; font-weight: 700;
+    }
+
+    .winner-name {
+      font-size: 1rem; font-weight: 700; color: var(--white);
+      margin-bottom: .25rem;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .winner-score {
+      font-size: .85rem; color: var(--gray-400); margin-bottom: .5rem;
+    }
+    .winner-score span { color: var(--orange); font-weight: 700; }
+    .winner-prize {
+      font-size: 1.25rem; font-weight: 800; color: var(--gold);
+    }
+    .winner-prize-label {
+      font-size: .7rem; color: var(--gray-500);
+      text-transform: uppercase; letter-spacing: 0.05em;
+    }
+
+    .no-winners {
+      grid-column: 1 / -1;
+      text-align: center; padding: 2rem; color: var(--gray-500);
+    }
+    .no-winners i { font-size: 2rem; margin-bottom: .5rem; display: block; }
+
+    /* CHARACTER STATS */
+    .char-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: .75rem;
+      margin-bottom: 2rem;
+    }
+    .char-stat-card {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      border: 1px solid var(--gray-700);
+      border-radius: var(--radius);
+      padding: 1rem;
+      text-align: center;
+      transition: all .2s;
+    }
+    .char-stat-card:hover { border-color: var(--orange); }
+    .char-stat-emoji { font-size: 1.5rem; margin-bottom: .25rem; }
+    .char-stat-name { font-size: .75rem; font-weight: 700; color: var(--white); }
+    .char-stat-value { font-size: 1.1rem; font-weight: 800; color: var(--orange); margin-top: .25rem; }
+
+    /* FILTERS */
+    .filters-bar {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      margin-bottom: 1.25rem;
+      flex-wrap: wrap;
+    }
+    .search-box {
+      position: relative;
+      flex: 1;
+      min-width: 200px;
+      max-width: 300px;
+    }
+    .search-box input {
+      width: 100%;
+      background: var(--gray-800);
+      border: 1px solid var(--gray-700);
+      border-radius: var(--radius);
+      padding: .625rem .875rem .625rem 2.25rem;
+      color: var(--white);
+      font-size: .85rem;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .search-box input:focus { border-color: var(--orange); }
+    .search-box i {
+      position: absolute;
+      left: .75rem; top: 50%;
+      transform: translateY(-50%);
+      color: var(--gray-500);
+      font-size: 1rem;
+    }
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      background: var(--gray-800);
+      border: 1px solid var(--gray-700);
+      border-radius: var(--radius);
+      padding: .375rem .5rem .375rem .875rem;
+    }
+    .filter-group label {
+      font-size: .75rem;
+      color: var(--gray-500);
+      font-weight: 500;
+    }
+    .filter-group select,
+    .filter-group input {
+      background: transparent;
+      border: none;
+      color: var(--white);
+      font-size: .85rem;
+      font-weight: 500;
+      outline: none;
+      cursor: pointer;
+      padding: .25rem .5rem;
+    }
+    .filter-group input { cursor: text; }
+    .filter-group select option { background: var(--gray-800); }
+
+    /* TABLE */
+    .table-container {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      border: 1px solid var(--gray-700);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+    .table-header {
+      display: grid;
+      grid-template-columns: 140px 100px 80px 100px 100px 90px 120px 50px;
+      padding: .875rem 1.25rem;
+      background: rgba(249,115,22,0.08);
+      border-bottom: 1px solid var(--gray-700);
+      font-size: .7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--gray-500);
+    }
+    .table-row {
+      display: grid;
+      grid-template-columns: 140px 100px 80px 100px 100px 90px 120px 50px;
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--gray-800);
+      align-items: center;
+      transition: background .15s ease;
+      cursor: pointer;
+    }
+    .table-row:last-child { border-bottom: none; }
+    .table-row:hover { background: rgba(255,255,255,0.03); }
+
+    .cell { font-size: .85rem; font-weight: 500; }
+    .cell-date { display: flex; flex-direction: column; gap: .125rem; }
+    .cell-date .date { font-weight: 600; color: var(--white); }
+    .cell-date .time { font-size: .75rem; color: var(--gray-500); }
+
+    .cell-amount { font-weight: 700; font-size: .9rem; }
+    .cell-score { font-weight: 800; font-size: 1rem; color: var(--orange); }
+    .cell-kills { font-weight: 700; color: var(--red); }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .25rem;
+      padding: .25rem .625rem;
+      border-radius: 20px;
+      font-size: .65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .badge-win { background: rgba(16,185,129,0.15); color: var(--green); border: 1px solid rgba(16,185,129,0.3); }
+    .badge-loss { background: rgba(239,68,68,0.15); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+
+    .badge-payout { font-weight: 700; font-size: .9rem; }
+    .badge-payout.positive { color: var(--green); }
+    .badge-payout.negative { color: var(--red); }
+
+    .cell-character {
+      display: inline-flex;
+      align-items: center;
+      gap: .375rem;
+      font-size: .8rem;
+      font-weight: 600;
+    }
+
+    .cell-actions { display: flex; justify-content: center; }
+    .btn-icon {
+      width: 28px; height: 28px;
+      border-radius: 6px;
+      border: none;
+      background: transparent;
+      color: var(--gray-500);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all .2s;
+      font-size: 1rem;
+    }
+    .btn-icon:hover { background: var(--gray-800); color: var(--white); }
+
+    /* PAGINATION */
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: .875rem 1.25rem;
+      border-top: 1px solid var(--gray-800);
+    }
+    .pagination-info { font-size: .8rem; color: var(--gray-500); }
+    .pagination-controls { display: flex; align-items: center; gap: .25rem; }
+    .page-btn {
+      min-width: 28px; height: 28px;
+      border-radius: 6px;
+      border: 1px solid var(--gray-700);
+      background: var(--gray-800);
+      color: var(--gray-400);
+      font-size: .8rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all .2s;
+    }
+    .page-btn:hover:not(:disabled) { background: var(--gray-700); color: var(--white); }
+    .page-btn.active { background: var(--orange); border-color: var(--orange); color: var(--white); }
+    .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* EMPTY STATE */
+    .empty-state { text-align: center; padding: 3rem 1.5rem; }
+    .empty-state-icon {
+      width: 56px; height: 56px;
+      background: var(--gray-800);
+      border-radius: var(--radius-lg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1rem;
+      font-size: 1.5rem;
+    }
+    .empty-state h3 { font-size: 1rem; font-weight: 700; margin-bottom: .5rem; }
+    .empty-state p { color: var(--gray-500); font-size: .85rem; }
+
+    /* ERROR STATE */
+    .error-state { text-align: center; padding: 3rem 1.5rem; }
+    .error-state-icon {
+      width: 56px; height: 56px;
+      background: var(--red-light);
+      border-radius: var(--radius-lg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1rem;
+      font-size: 1.5rem;
+      color: var(--red);
+    }
+    .error-state h3 { font-size: 1rem; font-weight: 700; margin-bottom: .5rem; color: var(--red); }
+    .error-state p { color: var(--gray-400); font-size: .85rem; margin-bottom: 1rem; }
+
+    /* SKELETON */
+    .skeleton {
+      background: linear-gradient(90deg, var(--gray-800) 25%, var(--gray-700) 50%, var(--gray-800) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: var(--radius-sm);
+    }
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* TOAST */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--gray-900);
+      color: var(--white);
+      padding: .875rem 1.25rem;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-xl);
+      z-index: 4000;
+      opacity: 0;
+      transition: all .3s ease;
+      display: flex;
+      align-items: center;
+      gap: .625rem;
+      font-weight: 600;
+      font-size: .85rem;
+      border: 1px solid var(--gray-700);
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    .toast.success { background: var(--green); border-color: var(--green); }
+    .toast.error { background: var(--red); border-color: var(--red); }
+
+    .hidden { display: none !important; }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      .stats-grid { grid-template-columns: repeat(3, 1fr); }
+      .winners-grid { grid-template-columns: 1fr; }
+      .char-stats { grid-template-columns: repeat(2, 1fr); }
+      .table-header, .table-row {
+        grid-template-columns: 1fr 80px 80px 50px;
+      }
+      .table-header .hide-mobile, .table-row .hide-mobile { display: none; }
+      .page-header { flex-direction: column; align-items: flex-start; }
+    }
+    @media (max-width: 480px) {
+      .stats-grid { grid-template-columns: 1fr; }
+      .char-stats { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<<header>
+  <a href="dashboard.html" class="back-btn">
+    <i class="ri-arrow-left-line"></i> Back
+  </a>
+  <div class="logo-wrap">
+    <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" alt="TaskVault"/>
+    <h1>Vault Defender History</h1>
+  </div>
+  <div style="width:80px;"></div>
+</header>
+
+<div class="container">
+  <!-- Loading State -->
+  <div id="loadingState">
+    <div class="stats-grid">
+      <div class="stat-card"><div class="skeleton" style="width:60%;height:16px;margin-bottom:.5rem;"></div><div class="skeleton" style="width:40%;height:28px;"></div></div>
+      <div class="stat-card"><div class="skeleton" style="width:60%;height:16px;margin-bottom:.5rem;"></div><div class="skeleton" style="width:40%;height:28px;"></div></div>
+      <div class="stat-card"><div class="skeleton" style="width:60%;height:16px;margin-bottom:.5rem;"></div><div class="skeleton" style="width:40%;height:28px;"></div></div>
+    </div>
+    <div class="winners-section">
+      <div class="skeleton" style="width:200px;height:20px;margin-bottom:1rem;"></div>
+      <div class="winners-grid">
+        <div class="skeleton" style="width:100%;height:200px;border-radius:16px;"></div>
+        <div class="skeleton" style="width:100%;height:200px;border-radius:16px;"></div>
+        <div class="skeleton" style="width:100%;height:200px;border-radius:16px;"></div>
+      </div>
+    </div>
+    <div class="table-container">
+      <div class="skeleton" style="width:100%;height:48px;border-radius:0;"></div>
+      <div class="skeleton" style="width:100%;height:56px;margin-top:1px;"></div>
+      <div class="skeleton" style="width:100%;height:56px;margin-top:1px;"></div>
+      <div class="skeleton" style="width:100%;height:56px;margin-top:1px;"></div>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div id="errorState" class="hidden">
+    <div class="error-state">
+      <div class="error-state-icon"><i class="ri-error-warning-line"></i></div>
+      <h3>Failed to Load Game History</h3>
+      <p id="errorMessage">Something went wrong while fetching your data.</p>
+      <button class="btn btn-primary" onclick="location.reload()" style="margin-top:1rem;">
+        <i class="ri-refresh-line"></i> Try Again
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div id="mainContent" class="hidden">
+    <div class="page-header">
+      <div class="page-title">
+        <h2>Vault Defender History</h2>
+        <p>Track your tower defense performance over time</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-ghost" onclick="exportCSV()">
+          <i class="ri-download-line"></i> Export CSV
+        </button>
+        <a href="game-lobby2.html" class="btn btn-primary">
+          <i class="ri-shield-flash-fill"></i> Play Now
+        </a>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Games</div>
+        <div class="stat-value" id="stat-total">0</div>
+        <div class="stat-change positive" id="stat-total-change">0 total</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Best Score</div>
+        <div class="stat-value" id="stat-best">0</div>
+        <div class="stat-change positive" id="stat-best-change">Personal best</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total Kills</div>
+        <div class="stat-value" id="stat-kills">0</div>
+        <div class="stat-change positive" id="stat-kills-change">All time</div>
+      </div>
+    </div>
+
+    <!-- CHARACTER USAGE STATS -->
+    <div class="char-stats" id="charStats">
+      <div class="char-stat-card">
+        <div class="char-stat-emoji">👨‍💻</div>
+        <div class="char-stat-name">Freelancer</div>
+        <div class="char-stat-value" id="char-freelancer">0</div>
+      </div>
+      <div class="char-stat-card">
+        <div class="char-stat-emoji">👔</div>
+        <div class="char-stat-name">Manager</div>
+        <div class="char-stat-value" id="char-manager">0</div>
+      </div>
+      <div class="char-stat-card">
+        <div class="char-stat-emoji">👑</div>
+        <div class="char-stat-name">CEO</div>
+        <div class="char-stat-value" id="char-ceo">0</div>
+      </div>
+      <div class="char-stat-card">
+        <div class="char-stat-emoji">🤖</div>
+        <div class="char-stat-name">Bot</div>
+        <div class="char-stat-value" id="char-bot">0</div>
+      </div>
+    </div>
+
+    <!-- TOP 3 WINNERS SECTION -->
+    <div class="winners-section">
+      <div class="section-header">
+        <div class="section-title">
+          <i class="ri-trophy-fill" style="color:var(--gold);"></i> Round Winners
+        </div>
+        <select id="roundSelector" class="round-selector" onchange="loadRoundWinners(this.value)">
+          <option value="">Loading rounds...</option>
+        </select>
+      </div>
+      <div class="winners-grid" id="winnersGrid">
+        <div class="no-winners">
+          <i class="ri-emotion-sad-line"></i>
+          <p>No winners data available</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="filters-bar">
+      <div class="search-box">
+        <i class="ri-search-line"></i>
+        <input type="text" id="searchInput" placeholder="Search by game ID...">
+      </div>
+      <div class="filter-group">
+        <label>Character:</label>
+        <select id="filterCharacter">
+          <option value="all">All</option>
+          <option value="freelancer">Freelancer</option>
+          <option value="manager">Manager</option>
+          <option value="ceo">CEO</option>
+          <option value="bot">Bot</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Result:</label>
+        <select id="filterResult">
+          <option value="all">All</option>
+          <option value="win">Win</option>
+          <option value="loss">Loss</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>From:</label>
+        <input type="date" id="filterFrom">
+      </div>
+      <div class="filter-group">
+        <label>To:</label>
+        <input type="date" id="filterTo">
+      </div>
+    </div>
+
+    <div class="table-container">
+      <div class="table-header">
+        <div>Date & Time</div>
+        <div class="hide-mobile">Character</div>
+        <div>Score</div>
+        <div class="hide-mobile">Kills</div>
+        <div class="hide-mobile">Result</div>
+        <div>Vault HP</div>
+        <div class="hide-mobile">Round</div>
+        <div></div>
+      </div>
+      <div id="tableBody"></div>
+      <div class="pagination">
+        <div class="pagination-info" id="paginationInfo">Showing 0 of 0 games</div>
+        <div class="pagination-controls" id="paginationControls"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+  import {
+    getFirestore, doc, getDoc, collection, query, where, getDocs
+  } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAv6QCpopa0Q77AVTyjU5cqJEIKIE9OVTs",
+    authDomain: "taskvault-412a0.firebaseapp.com",
+    projectId: "taskvault-412a0",
+    storageBucket: "taskvault-412a0.firebasestorage.app",
+    messagingSenderId: "420716701831",
+    appId: "1:420716701831:web:c987d91f7f4c8684eb7022"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  let currentUser = null;
+  let allGames = [];
+  let filteredGames = [];
+  let completedRounds = [];
+  let currentPage = 1;
+  const perPage = 10;
+
+  const loadingState = document.getElementById('loadingState');
+  const errorState = document.getElementById('errorState');
+  const errorMessage = document.getElementById('errorMessage');
+  const mainContent = document.getElementById('mainContent');
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { location.href = 'login.html'; return; }
+    currentUser = user;
+    await loadAllData();
+  });
+
+  async function loadAllData() {
+    try {
+      await Promise.all([
+        loadGames(),
+        loadCompletedRounds()
+      ]);
+
+      loadingState.classList.add('hidden');
+      mainContent.classList.remove('hidden');
+
+    } catch (err) {
+      console.error('Load error:', err);
+      loadingState.classList.add('hidden');
+      errorState.classList.remove('hidden');
+      
+      let msg = err.message;
+      if (err.code === 'permission-denied') {
+        msg = 'Permission denied. Check your Firestore security rules.';
+      } else if (err.code === 'not-found') {
+        msg = 'Collection not found. Make sure you have game history data.';
+      }
+      
+      errorMessage.textContent = msg;
+      showToast('Error: ' + msg, 'error');
+    }
+  }
+
+  async function loadGames() {
+    const q = query(
+      collection(db, 'gameHistory'),
+      where('userId', '==', currentUser.uid),
+      where('game', '==', 'vaultDefender')
+    );
+
+    const snapshot = await getDocs(q);
+
+    allGames = snapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...data,
+        date: data.timestamp?.toDate ? data.timestamp.toDate() : new Date(data.timestamp || Date.now()),
+        score: data.score || 0,
+        kills: data.kills || 0,
+        vaultHP: data.vaultHP || 0,
+        maxCombo: data.maxCombo || 0,
+        character: data.character || 'freelancer',
+        result: data.type === 'prize' ? 'win' : (data.amount > 0 ? 'win' : 'loss'),
+        payout: data.type === 'prize' ? (data.amount || 0) : 0,
+        roundId: data.roundId || ''
+      };
+    });
+
+    allGames.sort((a, b) => b.date - a.date);
+    filteredGames = [...allGames];
+    updateStats();
+    renderTable();
+  }
+
+  async function loadCompletedRounds() {
+    const q = query(
+      collection(db, 'vaultDefenderRounds'),
+      where('status', '==', 'completed')
+    );
+
+    const snapshot = await getDocs(q);
+    
+    completedRounds = [];
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      completedRounds.push({
+        id: doc.id,
+        ...data,
+        endedAt: data.endsAt?.toDate ? data.endsAt.toDate() : new Date(data.endsAt || Date.now())
+      });
+    });
+
+    completedRounds.sort((a, b) => b.endedAt - a.endedAt);
+
+    const selector = document.getElementById('roundSelector');
+    if (completedRounds.length === 0) {
+      selector.innerHTML = '<option value="">No completed rounds</option>';
+      renderWinners([]);
+      return;
+    }
+
+    selector.innerHTML = completedRounds.map((round, index) => 
+      `<option value="${round.id}">Round #${round.roundNumber} – ${formatDateShort(round.endedAt)}</option>`
+    ).join('');
+
+    await loadRoundWinners(completedRounds[0].id);
+  }
+
+  window.loadRoundWinners = async function(roundId) {
+    if (!roundId) {
+      renderWinners([]);
+      return;
+    }
+
+    const round = completedRounds.find(r => r.id === roundId);
+    if (!round || !round.winners || round.winners.length === 0) {
+      renderWinners([]);
+      return;
+    }
+
+    renderWinners(round.winners);
+  };
+
+  function renderWinners(winners) {
+    const grid = document.getElementById('winnersGrid');
+    
+    if (!winners || winners.length === 0) {
+      grid.innerHTML = `
+        <div class="no-winners">
+          <i class="ri-emotion-sad-line"></i>
+          <p>No winners data for this round</p>
+        </div>
+      `;
+      return;
+    }
+
+    const rankClasses = ['gold', 'silver', 'bronze'];
+    const rankEmojis = ['🥇', '🥈', '🥉'];
+
+    grid.innerHTML = winners.map((winner, index) => {
+      const name = winner.username || 'Unknown';
+      const initial = name.charAt(0).toUpperCase();
+      const rankClass = rankClasses[index] || 'normal';
+      const isYou = winner.userId === currentUser?.uid;
+
+      return `
+        <div class="winner-card rank-${index + 1}">
+          <div class="winner-rank ${rankClass}">${rankEmojis[index]}</div>
+          <div class="winner-avatar">${initial}</div>
+          <div class="winner-name">${escapeHtml(name)} ${isYou ? '<span style="color:var(--orange);">(You)</span>' : ''}</div>
+          <div class="winner-score"><span>${(winner.score || 0).toLocaleString()}</span> pts</div>
+          <div class="winner-prize">$${(winner.prize || 0).toFixed(2)}</div>
+          <div class="winner-prize-label">${index === 0 ? '1st' : index === 1 ? '2nd' : '3rd'} Place</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function updateStats() {
+    const total = allGames.length;
+    const bestScore = total > 0 ? Math.max(...allGames.map(g => g.score)) : 0;
+    const totalKills = allGames.reduce((sum, g) => sum + (g.kills || 0), 0);
+
+    document.getElementById('stat-total').textContent = total.toLocaleString();
+    document.getElementById('stat-best').textContent = bestScore.toLocaleString();
+    document.getElementById('stat-kills').textContent = totalKills.toLocaleString();
+
+    document.getElementById('stat-total-change').textContent = `${total} total`;
+    document.getElementById('stat-best-change').textContent = 'Personal best';
+    document.getElementById('stat-kills-change').textContent = 'All time';
+
+    // Character usage
+    const charCounts = { freelancer: 0, manager: 0, ceo: 0, bot: 0 };
+    allGames.forEach(g => {
+      if (charCounts[g.character] !== undefined) charCounts[g.character]++;
+    });
+    document.getElementById('char-freelancer').textContent = charCounts.freelancer;
+    document.getElementById('char-manager').textContent = charCounts.manager;
+    document.getElementById('char-ceo').textContent = charCounts.ceo;
+    document.getElementById('char-bot').textContent = charCounts.bot;
+  }
+
+  function formatDate(date) {
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
+  }
+
+  function formatDateShort(date) {
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return `${months[date.getMonth()]} ${date.getDate()}`;
+  }
+
+  function formatTime(date) {
+    return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  const CHAR_EMOJIS = {
+    freelancer: '👨‍💻',
+    manager: '👔',
+    ceo: '👑',
+    bot: '🤖'
+  };
+
+  function renderTable() {
+    const start = (currentPage - 1) * perPage;
+    const end = start + perPage;
+    const pageGames = filteredGames.slice(start, end);
+    const tbody = document.getElementById('tableBody');
+
+    if (pageGames.length === 0) {
+      tbody.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">📭</div>
+          <h3>No games found</h3>
+          <p>Try adjusting your filters or play your first game!</p>
+        </div>
+      `;
+      document.getElementById('paginationInfo').textContent = 'Showing 0 of 0 games';
+      document.getElementById('paginationControls').innerHTML = '';
+      return;
+    }
+
+    tbody.innerHTML = pageGames.map(game => {
+      const hpPct = Math.round((game.vaultHP || 0));
+      const hpColor = hpPct > 50 ? 'var(--green)' : hpPct > 25 ? 'var(--gold)' : 'var(--red)';
+      const charEmoji = CHAR_EMOJIS[game.character] || '👤';
+
+      return `
+        <div class="table-row" onclick="viewGame('${game.id}')">
+          <div class="cell cell-date">
+            <span class="date">${formatDate(game.date)}</span>
+            <span class="time">${formatTime(game.date)}</span>
+          </div>
+          <div class="cell cell-character hide-mobile">
+            <span style="font-size:1.1rem;">${charEmoji}</span> ${game.character}
+          </div>
+          <div class="cell cell-score">${game.score.toLocaleString()}</div>
+          <div class="cell cell-kills hide-mobile">${game.kills || 0}</div>
+          <div class="cell hide-mobile">
+            <span class="badge badge-${game.result}">${game.result}</span>
+          </div>
+          <div class="cell">
+            <span style="color:${hpColor};font-weight:700;">${hpPct}%</span>
+          </div>
+          <div class="cell hide-mobile" style="font-family: monospace; font-size: .75rem; color: var(--gray-500);">${game.roundId.slice(0, 12)}...</div>
+          <div class="cell-actions">
+            <button class="btn-icon" title="View Details" onclick="event.stopPropagation(); viewGame('${game.id}')">
+              <i class="ri-eye-line"></i>
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    document.getElementById('paginationInfo').textContent = 
+      `Showing ${start + 1}-${Math.min(end, filteredGames.length)} of ${filteredGames.length} games`;
+
+    const totalPages = Math.ceil(filteredGames.length / perPage);
+    let controls = '';
+    
+    controls += `<button class="page-btn" onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>‹</button>`;
+    
+    for (let i = 1; i <= totalPages; i++) {
+      if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+        controls += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
+      } else if (i === currentPage - 2 || i === currentPage + 2) {
+        controls += `<span style="color: var(--gray-600); padding: 0 .25rem;">...</span>`;
+      }
+    }
+    
+    controls += `<button class="page-btn" onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>›</button>`;
+    
+    document.getElementById('paginationControls').innerHTML = controls;
+  }
+
+  function applyFilters() {
+    const search = document.getElementById('searchInput').value.toLowerCase();
+    const character = document.getElementById('filterCharacter').value;
+    const result = document.getElementById('filterResult').value;
+    const fromDate = document.getElementById('filterFrom').valueAsDate;
+    const toDate = document.getElementById('filterTo').valueAsDate;
+
+    filteredGames = allGames.filter(game => {
+      if (search && !game.id.toLowerCase().includes(search) && !game.roundId.toLowerCase().includes(search)) return false;
+      if (character !== 'all' && game.character !== character) return false;
+      if (result !== 'all' && game.result !== result) return false;
+      if (fromDate && game.date < fromDate) return false;
+      if (toDate) {
+        const endOfDay = new Date(toDate);
+        endOfDay.setHours(23, 59, 59);
+        if (game.date > endOfDay) return false;
+      }
+      return true;
+    });
+
+    currentPage = 1;
+    renderTable();
+  }
+
+  window.changePage = function(page) {
+    const totalPages = Math.ceil(filteredGames.length / perPage);
+    if (page < 1 || page > totalPages) return;
+    currentPage = page;
+    renderTable();
+  };
+
+  window.viewGame = function(gameId) {
+    const game = allGames.find(g => g.id === gameId);
+    if (!game) return;
+    alert(`Game Details:\n\nID: ${game.id}\nDate: ${formatDate(game.date)} ${formatTime(game.date)}\nCharacter: ${CHAR_EMOJIS[game.character] || ''} ${game.character}\nScore: ${game.score.toLocaleString()}\nKills: ${game.kills || 0}\nMax Combo: ${game.maxCombo || 0}x\nVault HP: ${game.vaultHP || 0}%\nResult: ${game.result.toUpperCase()}\nRound: ${game.roundId}\n\n(Connect this to your game replay modal)`);
+  };
+
+  window.exportCSV = function() {
+    const games = filteredGames.length > 0 ? filteredGames : allGames;
+    const headers = ['Game ID', 'Date', 'Time', 'Character', 'Score', 'Kills', 'Max Combo', 'Vault HP', 'Result', 'Round'];
+    const rows = games.map(g => [
+      g.id,
+      formatDate(g.date),
+      formatTime(g.date),
+      g.character,
+      g.score,
+      g.kills || 0,
+      g.maxCombo || 0,
+      (g.vaultHP || 0) + '%',
+      g.result,
+      g.roundId
+    ]);
+
+    const csv = [headers, ...rows].map(row => row.join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `vault-defender-history-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('CSV exported successfully', 'success');
+  };
+
+  function showToast(message, type = 'success') {
+    const toast = document.getElementById('toast');
+    toast.innerHTML = `<i class="ri-${type === 'success' ? 'checkbox-circle' : 'error-warning'}-line"></i> ${message}`;
+    toast.className = `toast ${type} show`;
+    setTimeout(() => toast.classList.remove('show'), 3000);
+  }
+
+  function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  // Event listeners
+  document.getElementById('searchInput').addEventListener('input', applyFilters);
+  document.getElementById('filterCharacter').addEventListener('change', applyFilters);
+  document.getElementById('filterResult').addEventListener('change', applyFilters);
+  document.getElementById('filterFrom').addEventListener('change', applyFilters);
+  document.getElementById('filterTo').addEventListener('change', applyFilters);
+</script>
+
+</body>
+  </html>
