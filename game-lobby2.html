@@ -904,7 +904,7 @@
     }
 
     await updateDoc(doc(db, 'vaultDefenderRounds', roundId), {
-      status: 'completed',
+      status: 'complete',
       endsAt: serverTimestamp(),
       winners: winners,
       prizePool: currentRound?.prizePool || 0
