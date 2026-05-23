@@ -80,7 +80,7 @@
       left: 0;
       right: 0;
       bottom: 160px;
-      background: linear-gradient(180deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+      background: linear-gradient(180deg, #1e293b 0%, #0f172a 50%, #1e293b 100%);
       cursor: crosshair;
     }
 
@@ -350,25 +350,23 @@
       margin-top: .5rem;
     }
 
-    /* WAVE BANNER */
-    .wave-banner {
+    /* SOUND TOGGLE */
+    .sound-toggle {
       position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%) scale(0);
-      background: linear-gradient(135deg, var(--orange), var(--orange-dark));
-      padding: .8rem 1.5rem;
-      border-radius: var(--radius);
-      font-size: 1.3rem;
-      font-weight: 900;
-      z-index: 300;
-      box-shadow: 0 10px 40px rgba(249,115,22,0.4);
-      animation: wavePop .5s ease-out forwards;
-    }
-    @keyframes wavePop {
-      0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
-      50% { transform: translate(-50%, -50%) scale(1.1); }
-      100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+      top: 60px;
+      right: 10px;
+      width: 36px;
+      height: 36px;
+      background: rgba(0,0,0,0.5);
+      border: 1px solid var(--gray-600);
+      border-radius: 8px;
+      color: var(--white);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 200;
+      font-size: 1.1rem;
     }
 
     .hidden { display: none !important; }
@@ -381,7 +379,7 @@
   <div class="start-card">
     <div style="font-size:2.5rem;margin-bottom:.5rem;">🛡️</div>
     <h1>Choose Your Defender</h1>
-    <p>Select a character. Use joystick to move, fire button to shoot. Protect the vault!</p>
+    <p>Select a character. Move left/right to aim, fire to shoot. Protect the vault above!</p>
     <div class="char-select" id="charSelect">
       <div class="char-option selected" data-char="freelancer" onclick="selectChar('freelancer')">
         <span class="emoji">👨‍💻</span>
@@ -421,8 +419,13 @@
   </div>
 </div>
 
+<!-- SOUND TOGGLE -->
+<button class="sound-toggle" id="soundToggle" style="display:none;" onclick="toggleSound()">
+  <i class="ri-volume-up-fill" id="soundIcon"></i>
+</button>
+
 <!-- CANVAS -->
-<canvas id="gameCanvas" style="display:none;"></canvas>
+<<canvas id="gameCanvas" style="display:none;"></canvas>
 
 <!-- JOYSTICK -->
 <div class="joystick-zone" id="joystickZone" style="display:none;">
@@ -481,6 +484,133 @@
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
+
+  // ========== AUDIO SYSTEM ==========
+  let audioCtx = null;
+  let soundEnabled = true;
+  let bgmOscillator = null;
+  let bgmGain = null;
+
+  function initAudio() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+
+  function playSound(type) {
+    if (!soundEnabled || !audioCtx) return;
+    
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    switch(type) {
+      case 'shoot':
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.1);
+        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.1);
+        break;
+      case 'hit':
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(200, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.15);
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.15);
+        break;
+      case 'kill':
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(523, audioCtx.currentTime);
+        osc.frequency.setValueAtTime(659, audioCtx.currentTime + 0.1);
+        osc.frequency.setValueAtTime(784, audioCtx.currentTime + 0.2);
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.3);
+        break;
+      case 'vaultHit':
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(100, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(30, audioCtx.currentTime + 0.3);
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.3);
+        break;
+      case 'empty':
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.1);
+        break;
+      case 'gameOver':
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 1);
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 1);
+        break;
+    }
+  }
+
+  function startBGM() {
+    if (!soundEnabled || !audioCtx) return;
+    if (bgmOscillator) stopBGM();
+
+    bgmOscillator = audioCtx.createOscillator();
+    bgmGain = audioCtx.createGain();
+    bgmOscillator.connect(bgmGain);
+    bgmGain.connect(audioCtx.destination);
+
+    bgmOscillator.type = 'sine';
+    bgmOscillator.frequency.setValueAtTime(110, audioCtx.currentTime);
+    
+    // Simple arpeggio pattern
+    const notes = [110, 130.81, 164.81, 196, 220, 196, 164.81, 130.81];
+    let noteIdx = 0;
+    
+    const interval = setInterval(() => {
+      if (!bgmOscillator || !soundEnabled) {
+        clearInterval(interval);
+        return;
+      }
+      bgmOscillator.frequency.setValueAtTime(notes[noteIdx], audioCtx.currentTime);
+      noteIdx = (noteIdx + 1) % notes.length;
+    }, 250);
+
+    bgmGain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+    bgmOscillator.start();
+  }
+
+  function stopBGM() {
+    if (bgmOscillator) {
+      try { bgmOscillator.stop(); } catch(e) {}
+      bgmOscillator = null;
+    }
+    if (bgmGain) {
+      try { bgmGain.disconnect(); } catch(e) {}
+      bgmGain = null;
+    }
+  }
+
+  window.toggleSound = function() {
+    soundEnabled = !soundEnabled;
+    document.getElementById('soundIcon').className = soundEnabled ? 'ri-volume-up-fill' : 'ri-volume-mute-fill';
+    if (soundEnabled) {
+      initAudio();
+      startBGM();
+    } else {
+      stopBGM();
+    }
+  };
 
   // ========== CHARACTERS ==========
   const CHARACTERS = {
@@ -554,10 +684,11 @@
   let gameLoopId = null;
   let timerInterval = null;
 
-  // Joystick state - REDUCED SENSITIVITY
-  let joystick = { active: false, dx: 0, dy: 0, startX: 0, startY: 0 };
+  // Joystick - HORIZONTAL ONLY, REDUCED SENSITIVITY
+  let joystick = { active: false, dx: 0, startX: 0, startY: 0 };
   let firePressed = false;
-  const JOYSTICK_SENSITIVITY = 0.4; // Reduced from 1.0 to 0.4
+  const JOYSTICK_SENSITIVITY = 0.25; // Further reduced from 0.4
+  const PLAYER_Y_POSITION = 0.88; // Player at 88% down the screen (below vault)
 
   // Auth
   let currentUser = null;
@@ -607,19 +738,23 @@
 
   // ========== START GAME ==========
   window.startGame = function() {
+    initAudio();
+    if (soundEnabled) startBGM();
+
     document.getElementById('startScreen').style.display = 'none';
     document.getElementById('gameHeader').style.display = 'flex';
     document.getElementById('gameCanvas').style.display = 'block';
     document.getElementById('joystickZone').style.display = 'flex';
     document.getElementById('fireBtn').style.display = 'flex';
     document.getElementById('charBar').style.display = 'flex';
+    document.getElementById('soundToggle').style.display = 'flex';
 
     resize();
 
     const charData = CHARACTERS[selectedChar];
     player = {
       x: canvas.width / 2,
-      y: canvas.height - 100,
+      y: canvas.height * PLAYER_Y_POSITION,
       w: 40, h: 40,
       bullets: charData.bullets === Infinity ? Infinity : charData.bullets,
       maxBullets: charData.bullets,
@@ -651,7 +786,7 @@
     }, 1000);
   }
 
-  // ========== JOYSTICK - REDUCED SENSITIVITY ==========
+  // ========== JOYSTICK - HORIZONTAL ONLY ==========
   function setupJoystick() {
     const zone = document.getElementById('joystickZone');
     const base = document.getElementById('joystickBase');
@@ -677,10 +812,11 @@
 
       if (dist > 0) {
         const scale = Math.min(dist, maxDist) / dist;
-        // Apply sensitivity multiplier to reduce movement speed
+        // HORIZONTAL ONLY - ignore Y movement
         joystick.dx = ((dx / dist) * Math.min(dist, maxDist) / maxDist) * JOYSTICK_SENSITIVITY;
-        joystick.dy = ((dy / dist) * Math.min(dist, maxDist) / maxDist) * JOYSTICK_SENSITIVITY;
-        knob.style.transform = `translate(calc(-50% + ${dx * scale}px), calc(-50% + ${dy * scale}px))`;
+        // joystick.dy is always 0 - no vertical movement
+        knob.style.transform = `translate(calc(-50% + ${dx * scale}px), calc(-50% + ${dy * scale * 0.3}px))`;
+        // Visual feedback only for Y, no actual movement
       }
     }
 
@@ -688,7 +824,6 @@
       e.preventDefault();
       joystick.active = false;
       joystick.dx = 0;
-      joystick.dy = 0;
       knob.style.transform = 'translate(-50%, -50%)';
     }
 
@@ -727,13 +862,13 @@
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     drawBackground();
+    drawVault();
     updatePlayer();
     updateBullets();
     updateEnemies();
     updateParticles();
     updateFloatingTexts();
     spawnEnemies();
-    drawVault();
 
     if (firePressed) tryFire();
   }
@@ -749,9 +884,10 @@
     }
   }
 
+  // ========== VAULT AT TOP ==========
   function drawVault() {
     const x = canvas.width / 2 - 40;
-    const y = canvas.height - 35;
+    const y = 15;
     const w = 80;
     const h = 28;
 
@@ -773,33 +909,38 @@
 
     const hpPct = vault.hp / vault.maxHp;
     ctx.fillStyle = 'rgba(0,0,0,0.5)';
-    ctx.fillRect(x, y - 10, w, 6);
+    ctx.fillRect(x, y + h + 4, w, 6);
     ctx.fillStyle = hpPct > 0.5 ? '#10b981' : hpPct > 0.25 ? '#f59e0b' : '#ef4444';
-    ctx.fillRect(x, y - 10, w * hpPct, 6);
+    ctx.fillRect(x, y + h + 4, w * hpPct, 6);
   }
 
+  // ========== PLAYER BELOW VAULT - HORIZONTAL ONLY ==========
   function updatePlayer() {
     if (!player) return;
 
-    // Apply reduced sensitivity movement
+    // HORIZONTAL MOVEMENT ONLY
     player.x += joystick.dx * player.speed * 3;
-    player.y += joystick.dy * player.speed * 3;
+    // Y is fixed - no vertical movement
+    player.y = canvas.height * PLAYER_Y_POSITION;
 
+    // Clamp X only
     player.x = Math.max(25, Math.min(canvas.width - 25, player.x));
-    player.y = Math.max(canvas.height / 2, Math.min(canvas.height - 85, player.y));
 
-    ctx.font = '32px sans-serif';
+    // Draw player
+    ctx.font = '36px sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(player.emoji, player.x, player.y);
 
+    // Gun pointing UP
     ctx.fillStyle = player.color;
-    ctx.fillRect(player.x - 8, player.y - 20, 16, 12);
+    ctx.fillRect(player.x - 6, player.y - 28, 12, 16);
 
+    // Muzzle flash
     if (firePressed && Date.now() - lastFire < 100) {
       ctx.fillStyle = '#fbbf24';
       ctx.beginPath();
-      ctx.arc(player.x, player.y - 28, 6, 0, Math.PI * 2);
+      ctx.arc(player.x, player.y - 34, 8, 0, Math.PI * 2);
       ctx.fill();
     }
   }
@@ -809,6 +950,7 @@
     if (now - lastFire < player.fireRate) return;
     if (player.bullets !== Infinity && player.bullets <= 0) {
       showFloat(player.x, player.y - 30, 'EMPTY!', 'red');
+      playSound('empty');
       return;
     }
 
@@ -816,11 +958,12 @@
     if (player.bullets !== Infinity) player.bullets--;
     bulletsFired++;
     updateBulletDisplay();
+    playSound('shoot');
 
     if (player.spread) {
       for (let i = -1; i <= 1; i++) {
         bullets.push({
-          x: player.x, y: player.y - 25,
+          x: player.x, y: player.y - 30,
           vx: i * 2, vy: -player.bulletSpeed,
           damage: player.damage,
           color: player.color,
@@ -829,20 +972,20 @@
       }
     } else if (player.rapid) {
       bullets.push({
-        x: player.x - 6, y: player.y - 25,
+        x: player.x - 6, y: player.y - 30,
         vx: 0, vy: -player.bulletSpeed,
         damage: player.damage,
         color: player.color
       });
       bullets.push({
-        x: player.x + 6, y: player.y - 25,
+        x: player.x + 6, y: player.y - 30,
         vx: 0, vy: -player.bulletSpeed,
         damage: player.damage,
         color: player.color
       });
     } else {
       bullets.push({
-        x: player.x, y: player.y - 25,
+        x: player.x, y: player.y - 30,
         vx: 0, vy: -player.bulletSpeed,
         damage: player.damage,
         color: player.color,
@@ -877,6 +1020,7 @@
         const e = enemies[j];
         if (Math.hypot(b.x - e.x, b.y - e.y) < e.radius + 4) {
           e.hp -= b.damage;
+          playSound('hit');
 
           if (b.splash) {
             enemies.forEach(ne => {
@@ -919,6 +1063,7 @@
     const points = reward + (comboMult * 5);
     score += points;
 
+    playSound('kill');
     showFloat(enemy.x, enemy.y, `+${points}`, 'green');
     if (combo >= 3) {
       showFloat(enemy.x, enemy.y - 25, `${combo}x COMBO!`, 'gold');
@@ -954,17 +1099,17 @@
       if (elapsed > 40 && rand < 0.08) type = 'dragon';
 
       const types = {
-        notification: { hp: 40, speed: 1.8, reward: 50, radius: 14, color: '#ec4899', emoji: '🔔' },
-        scroll: { hp: 80, speed: 1.2, reward: 80, radius: 18, color: '#06b6d4', emoji: '📜' },
-        dragon: { hp: 300, speed: 0.7, reward: 200, radius: 28, color: '#ef4444', emoji: '🐉', boss: true }
+        notification: { hp: 40, speed: 1.5, reward: 50, radius: 14, color: '#ec4899', emoji: '🔔' },
+        scroll: { hp: 80, speed: 1.0, reward: 80, radius: 18, color: '#06b6d4', emoji: '📜' },
+        dragon: { hp: 300, speed: 0.5, reward: 200, radius: 28, color: '#ef4444', emoji: '🐉', boss: true }
       };
 
       const t = types[type];
       enemies.push({
         x: Math.random() * (canvas.width - 60) + 30,
-        y: -40,
+        y: canvas.height + 40,
         vx: (Math.random() - .5) * 0.5,
-        vy: t.speed,
+        vy: -t.speed,
         hp: t.hp + (elapsed * 2),
         maxHp: t.hp + (elapsed * 2),
         reward: t.reward,
@@ -995,13 +1140,15 @@
       ctx.fillStyle = e.color;
       ctx.fillRect(e.x - barW / 2, e.y - e.radius - 10, barW * (e.hp / e.maxHp), 5);
 
-      if (e.y > canvas.height - 40) {
+      // Hit vault (at top now)
+      if (e.y < 50) {
         vault.hp -= e.boss ? 30 : 15;
         vaultHits++;
         combo = 0;
         score -= 25;
-        showFloat(e.x, canvas.height - 50, '-25', 'red');
-        showFloat(e.x, canvas.height - 70, '💥 VAULT HIT!', 'red');
+        playSound('vaultHit');
+        showFloat(e.x, 60, '-25', 'red');
+        showFloat(e.x, 80, '💥 VAULT HIT!', 'red');
 
         canvas.style.transform = `translate(${Math.random()*4-2}px, ${Math.random()*4-2}px)`;
         setTimeout(() => canvas.style.transform = '', 100);
@@ -1083,6 +1230,8 @@
     gameRunning = false;
     clearInterval(timerInterval);
     cancelAnimationFrame(gameLoopId);
+    stopBGM();
+    playSound('gameOver');
 
     const timeBonus = timeLeft * 3;
     const hpBonus = Math.floor(vault.hp * 3);
@@ -1112,7 +1261,7 @@
     document.getElementById('gameOver').classList.add('show');
   }
 
-  // ========== SUBMIT - REDIRECTS TO game-lobby2.html ==========
+  // ========== SUBMIT ==========
   window.submitScore = async function() {
     if (!currentUser || !entryId || !roundId) {
       location.href = 'game-lobby2.html';
