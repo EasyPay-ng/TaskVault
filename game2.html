@@ -1,4 +1,4 @@
-part1 = '''<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -784,3 +784,1215 @@ with open('/mnt/agents/output/vault_defender_part1.html', 'w') as f:
 
 print("Part 1 written successfully!")
 print(f"Length: {len(part1)} characters")
+part2 = '''
+  // ========== CONTROLS ==========
+  function setupDesktopControls() {
+    document.addEventListener('keydown', (e) => {
+      keys[e.code] = true;
+      if (e.code === 'KeyE') tryInteract();
+      if (e.code === 'Space' && player.onGround) { player.vy = 0.15; player.onGround = false; }
+    });
+    document.addEventListener('keyup', (e) => keys[e.code] = false);
+
+    canvas.addEventListener('click', () => {
+      if (!mouse.locked && gamePhase === 'defend') {
+        canvas.requestPointerLock();
+      }
+    });
+
+    document.addEventListener('pointerlockchange', () => {
+      mouse.locked = document.pointerLockElement === canvas;
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (mouse.locked && gamePhase === 'defend') {
+        player.yaw -= e.movementX * 0.002;
+        player.pitch -= e.movementY * 0.002;
+        player.pitch = Math.max(-Math.PI/2.2, Math.min(Math.PI/2.2, player.pitch));
+      }
+    });
+
+    canvas.addEventListener('mousedown', (e) => {
+      if (e.button === 0) tryAttack();
+    });
+
+    canvas.addEventListener('mouseup', () => {});
+  }
+
+  function setupMobileControls() {
+    const zone = document.getElementById('joystickZone');
+    const base = document.getElementById('joystickBase');
+    const knob = document.getElementById('joystickKnob');
+    let startX = 0, startY = 0;
+
+    zone.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      const touch = e.touches[0];
+      const rect = base.getBoundingClientRect();
+      startX = rect.left + rect.width / 2;
+      startY = rect.top + rect.height / 2;
+      joystick.active = true;
+    }, { passive: false });
+
+    zone.addEventListener('touchmove', (e) => {
+      if (!joystick.active) return;
+      e.preventDefault();
+      const touch = e.touches[0];
+      const dx = touch.clientX - startX;
+      const dy = touch.clientY - startY;
+      const maxDist = 40;
+      const dist = Math.min(maxDist, Math.hypot(dx, dy));
+      const angle = Math.atan2(dy, dx);
+      const clampedDx = Math.cos(angle) * dist;
+      const clampedDy = Math.sin(angle) * dist;
+
+      joystick.dx = (clampedDx / maxDist);
+      joystick.dz = (clampedDy / maxDist);
+      knob.style.transform = `translate(calc(-50% + ${clampedDx}px), calc(-50% + ${clampedDy}px))`;
+    }, { passive: false });
+
+    zone.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      joystick.active = false;
+      joystick.dx = 0;
+      joystick.dz = 0;
+      knob.style.transform = 'translate(-50%, -50%)';
+    }, { passive: false });
+
+    // Look controls - right side of screen
+    let lookStartX = 0, lookStartY = 0;
+    const lookZone = document.getElementById('canvas-container');
+
+    lookZone.addEventListener('touchstart', (e) => {
+      if (e.touches[0].clientX < window.innerWidth / 2) return;
+      lookStartX = e.touches[0].clientX;
+      lookStartY = e.touches[0].clientY;
+    }, { passive: false });
+
+    lookZone.addEventListener('touchmove', (e) => {
+      if (e.touches[0].clientX < window.innerWidth / 2) return;
+      e.preventDefault();
+      const dx = e.touches[0].clientX - lookStartX;
+      const dy = e.touches[0].clientY - lookStartY;
+      player.yaw -= dx * 0.005;
+      player.pitch -= dy * 0.005;
+      player.pitch = Math.max(-Math.PI/2.2, Math.min(Math.PI/2.2, player.pitch));
+      lookStartX = e.touches[0].clientX;
+      lookStartY = e.touches[0].clientY;
+    }, { passive: false });
+
+    // Action buttons
+    document.getElementById('fireBtn').addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      tryAttack();
+    }, { passive: false });
+
+    document.getElementById('punchBtn').addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      player.weapon = null;
+      updateWeaponDisplay();
+      tryAttack();
+    }, { passive: false });
+
+    document.getElementById('interactBtn').addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      tryInteract();
+    }, { passive: false });
+
+    document.getElementById('jumpBtn').addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      if (player.onGround) { player.vy = 0.15; player.onGround = false; }
+    }, { passive: false });
+  }
+
+  // ========== PIN SETUP ==========
+  window.movePin = function(idx) {
+    const val = document.getElementById('pin' + idx).value;
+    if (val && idx < 4) document.getElementById('pin' + (idx + 1)).focus();
+  };
+
+  window.pinKey = function(e, idx) {
+    if (e.key === 'Backspace' && !e.target.value && idx > 1) {
+      document.getElementById('pin' + (idx - 1)).focus();
+    }
+  };
+
+  window.setPin = function() {
+    const p1 = document.getElementById('pin1').value;
+    const p2 = document.getElementById('pin2').value;
+    const p3 = document.getElementById('pin3').value;
+    const p4 = document.getElementById('pin4').value;
+
+    if (!p1 || !p2 || !p3 || !p4) {
+      document.getElementById('pinError').style.display = 'block';
+      return;
+    }
+
+    vaultPIN = p1 + p2 + p3 + p4;
+    document.getElementById('pinError').style.display = 'none';
+    document.getElementById('pinScreen').classList.add('hidden');
+    document.getElementById('prepScreen').classList.remove('hidden');
+
+    // Set vault door pin
+    const vaultDoor = doors.find(d => d.data.type === 'iron');
+    if (vaultDoor) vaultDoor.data.pin = vaultPIN;
+
+    initAudio();
+    playSound('vaultLocked');
+    showNotification('Vault locked! PIN set. Prepare for defense!');
+
+    startPrepPhase();
+  };
+
+  function startPrepPhase() {
+    gamePhase = 'prep';
+    prepTimeLeft = 20;
+    document.getElementById('prepTimer').textContent = prepTimeLeft;
+
+    document.getElementById('gameHud').style.display = 'flex';
+    document.getElementById('ammoHud').style.display = 'flex';
+    document.getElementById('weaponHud').style.display = 'flex';
+    document.getElementById('crosshair').style.display = 'block';
+
+    prepInterval = setInterval(() => {
+      prepTimeLeft--;
+      document.getElementById('prepTimer').textContent = prepTimeLeft;
+      if (prepTimeLeft <= 5) {
+        document.getElementById('prepTimer').style.color = '#ef4444';
+        playSound('hit');
+      }
+      if (prepTimeLeft <= 0) {
+        clearInterval(prepInterval);
+        document.getElementById('prepScreen').classList.add('hidden');
+        startDefendPhase();
+      }
+    }, 1000);
+  }
+
+  function startDefendPhase() {
+    gamePhase = 'defend';
+    gameRunning = true;
+    timeLeft = 60;
+    document.getElementById('timer').textContent = timeLeft;
+    showNotification('MOBS ARE COMING! Defend the vault!');
+    playSound('doorBreak');
+
+    timerInterval = setInterval(() => {
+      if (!gameRunning) return;
+      timeLeft--;
+      document.getElementById('timer').textContent = timeLeft;
+      if (timeLeft <= 10) document.getElementById('timer').style.color = '#ef4444';
+      if (timeLeft <= 0) endGame(true);
+    }, 1000);
+
+    if (!isMobile) canvas.requestPointerLock();
+  }
+
+  // ========== PLAYER MOVEMENT ==========
+  function updatePlayer(dt) {
+    if (gamePhase !== 'prep' && gamePhase !== 'defend') return;
+
+    const speed = 3.5; // Reduced speed
+    const sensitivity = 0.8; // Reduced sensitivity
+
+    let moveX = 0, moveZ = 0;
+
+    if (isMobile && joystick.active) {
+      moveX = joystick.dx * speed * sensitivity;
+      moveZ = joystick.dz * speed * sensitivity;
+    } else {
+      if (keys['KeyW'] || keys['ArrowUp']) moveZ -= speed * sensitivity * dt;
+      if (keys['KeyS'] || keys['ArrowDown']) moveZ += speed * sensitivity * dt;
+      if (keys['KeyA'] || keys['ArrowLeft']) moveX -= speed * sensitivity * dt;
+      if (keys['KeyD'] || keys['ArrowRight']) moveX += speed * sensitivity * dt;
+    }
+
+    // Apply rotation to movement
+    const cos = Math.cos(player.yaw);
+    const sin = Math.sin(player.yaw);
+    const worldMoveX = moveX * cos - moveZ * sin;
+    const worldMoveZ = moveX * sin + moveZ * cos;
+
+    // Collision detection
+    const newX = player.x + worldMoveX;
+    const newZ = player.z + worldMoveZ;
+
+    if (!checkWallCollision(newX, player.z)) player.x = newX;
+    if (!checkWallCollision(player.x, newZ)) player.z = newZ;
+
+    // Gravity
+    player.vy -= 0.5 * dt;
+    player.y += player.vy;
+
+    if (player.y <= 1.6) {
+      player.y = 1.6;
+      player.vy = 0;
+      player.onGround = true;
+    }
+
+    // Camera update
+    camera.position.set(player.x, player.y, player.z);
+    camera.rotation.order = 'YXZ';
+    camera.rotation.y = player.yaw;
+    camera.rotation.x = player.pitch;
+
+    // Update cooldowns
+    if (player.punchCooldown > 0) player.punchCooldown -= dt;
+    if (player.fireCooldown > 0) player.fireCooldown -= dt;
+  }
+
+  function checkWallCollision(x, z) {
+    const playerRadius = 0.3;
+    const playerHeight = 1.6;
+
+    // Check blocks
+    for (const block of blocks) {
+      if (!block.solid) continue;
+      const bx = block.x || block.mesh.position.x;
+      const by = block.y || block.mesh.position.y;
+      const bz = block.z || block.mesh.position.z;
+
+      if (Math.abs(x - bx) < 0.5 + playerRadius &&
+          Math.abs(z - bz) < 0.5 + playerRadius &&
+          player.y < by + 0.5 && player.y > by - 0.5) {
+        return true;
+      }
+    }
+
+    // Check closed doors
+    for (const door of doors) {
+      if (door.open || door.broken) continue;
+      const dx = door.data.x;
+      const dz = door.data.z;
+      const dw = door.data.w / 2 + 0.1;
+      const dh = door.data.h;
+
+      if (Math.abs(x - dx) < dw && Math.abs(z - dz) < 0.4 &&
+          player.y < dh) {
+        return true;
+      }
+    }
+
+    // World bounds
+    if (x < -14.5 || x > 14.5 || z < -14.5 || z > 14.5) return true;
+
+    return false;
+  }
+
+  // ========== INTERACTION ==========
+  function tryInteract() {
+    if (gamePhase !== 'prep' && gamePhase !== 'defend') return;
+
+    const reach = 2.5;
+    const forward = new THREE.Vector3(0, 0, -1);
+    forward.applyEuler(new THREE.Euler(player.pitch, player.yaw, 0, 'YXZ'));
+
+    // Check doors
+    for (const door of doors) {
+      if (door.broken) continue;
+      const dx = door.data.x - player.x;
+      const dz = door.data.z - player.z;
+      const dist = Math.hypot(dx, dz);
+
+      if (dist < reach) {
+        if (door.data.type === 'iron' && door.data.locked) {
+          // Need to unlock with PIN
+          const enteredPin = prompt('Enter vault PIN:');
+          if (enteredPin === vaultPIN) {
+            door.data.locked = false;
+            door.open = true;
+            animateDoorOpen(door);
+            showFloatScreen('Vault unlocked!', 'gold');
+            playSound('vaultLocked');
+          } else {
+            showFloatScreen('Wrong PIN!', 'red');
+            playSound('empty');
+          }
+          return;
+        }
+
+        door.open = !door.open;
+        animateDoorOpen(door);
+        playSound(door.open ? 'pickup' : 'doorHit');
+        showFloatScreen(door.open ? 'Door opened' : 'Door closed', 'blue');
+        return;
+      }
+    }
+
+    // Check items
+    for (const item of items) {
+      if (item.picked) continue;
+      const dx = item.mesh.position.x - player.x;
+      const dz = item.mesh.position.z - player.z;
+      const dist = Math.hypot(dx, dz);
+
+      if (dist < reach) {
+        pickUpItem(item);
+        return;
+      }
+    }
+  }
+
+  function animateDoorOpen(door) {
+    const targetRotation = door.open ? -Math.PI / 2 : 0;
+    const startRotation = door.mesh.rotation.y;
+    const duration = 500;
+    const startTime = Date.now();
+
+    function animate() {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      door.mesh.rotation.y = startRotation + (targetRotation - startRotation) * eased;
+      if (progress < 1) requestAnimationFrame(animate);
+    }
+    animate();
+  }
+
+  function pickUpItem(item) {
+    item.picked = true;
+    scene.remove(item.mesh);
+    itemsPicked++;
+    playSound('pickup');
+
+    if (item.type === 'weapon') {
+      player.weapon = item.data.weapon;
+      player.ammo = WEAPONS[item.data.weapon].ammo;
+      showFloatScreen(`Picked up ${WEAPONS[item.data.weapon].name}!`, 'gold');
+    } else if (item.type === 'food') {
+      player.hp = Math.min(player.maxHp, player.hp + item.data.heal);
+      showFloatScreen(`+${item.data.heal} HP`, 'green');
+      updateHealthDisplay();
+    } else if (item.type === 'ammo') {
+      if (player.weapon) {
+        player.ammo += item.data.amount;
+        showFloatScreen(`+${item.data.amount} Ammo`, 'blue');
+      } else {
+        showFloatScreen('No weapon equipped!', 'red');
+        return;
+      }
+    }
+
+    updateWeaponDisplay();
+  }
+
+  // ========== ATTACK SYSTEM ==========
+  function tryAttack() {
+    if (gamePhase !== 'defend') return;
+
+    if (player.weapon && player.ammo > 0) {
+      tryShoot();
+    } else {
+      tryPunch();
+    }
+  }
+
+  function tryShoot() {
+    if (player.fireCooldown > 0) return;
+    if (!player.weapon || player.ammo <= 0) {
+      tryPunch();
+      return;
+    }
+
+    const weapon = WEAPONS[player.weapon];
+    player.fireCooldown = weapon.fireRate / 1000;
+    player.ammo--;
+    shotsFired++;
+    updateWeaponDisplay();
+    playSound('shoot');
+
+    // Muzzle flash
+    const flash = new THREE.Mesh(
+      new THREE.SphereGeometry(0.1, 6, 6),
+      new THREE.MeshBasicMaterial({ color: 0xffaa00 })
+    );
+    flash.position.copy(camera.position);
+    const forward = new THREE.Vector3(0, 0, -1);
+    forward.applyEuler(new THREE.Euler(player.pitch, player.yaw, 0, 'YXZ'));
+    flash.position.add(forward.clone().multiplyScalar(0.5));
+    scene.add(flash);
+    setTimeout(() => scene.remove(flash), 50);
+
+    // Create projectile
+    const projectile = {
+      mesh: new THREE.Mesh(
+        new THREE.SphereGeometry(0.08, 6, 6),
+        new THREE.MeshBasicMaterial({ color: weapon.color })
+      ),
+      x: camera.position.x,
+      y: camera.position.y,
+      z: camera.position.z,
+      vx: forward.x * 25,
+      vy: forward.y * 25,
+      vz: forward.z * 25,
+      damage: weapon.damage,
+      range: weapon.range,
+      traveled: 0,
+      spread: weapon.spread || false
+    };
+
+    scene.add(projectile.mesh);
+    projectiles.push(projectile);
+
+    // Shotgun spread
+    if (weapon.spread) {
+      for (let i = -2; i <= 2; i++) {
+        if (i === 0) continue;
+        const spreadForward = forward.clone();
+        spreadForward.x += i * 0.1;
+        spreadForward.normalize();
+        const spreadProj = {
+          mesh: new THREE.Mesh(
+            new THREE.SphereGeometry(0.06, 6, 6),
+            new THREE.MeshBasicMaterial({ color: weapon.color })
+          ),
+          x: camera.position.x,
+          y: camera.position.y,
+          z: camera.position.z,
+          vx: spreadForward.x * 20,
+          vy: spreadForward.y * 20,
+          vz: spreadForward.z * 20,
+          damage: weapon.damage * 0.6,
+          range: weapon.range,
+          traveled: 0
+        };
+        scene.add(spreadProj.mesh);
+        projectiles.push(spreadProj);
+      }
+    }
+
+    // Recoil
+    player.pitch += 0.02;
+  }
+
+  function tryPunch() {
+    if (player.punchCooldown > 0) return;
+    player.punchCooldown = 0.5;
+    punchesThrown++;
+    playSound('punch');
+
+    // Punch animation
+    const punchArm = new THREE.Mesh(
+      new THREE.BoxGeometry(0.15, 0.15, 0.5),
+      new THREE.MeshStandardMaterial({ color: 0xffccaa })
+    );
+    punchArm.position.copy(camera.position);
+    const forward = new THREE.Vector3(0, 0, -1);
+    forward.applyEuler(new THREE.Euler(player.pitch, player.yaw, 0, 'YXZ'));
+    punchArm.position.add(forward.clone().multiplyScalar(0.8));
+    punchArm.lookAt(punchArm.position.clone().add(forward));
+    scene.add(punchArm);
+
+    let punchTime = 0;
+    function animatePunch() {
+      punchTime += 0.1;
+      if (punchTime < 0.3) {
+        punchArm.position.add(forward.clone().multiplyScalar(0.05));
+        requestAnimationFrame(animatePunch);
+      } else if (punchTime < 0.5) {
+        punchArm.position.sub(forward.clone().multiplyScalar(0.05));
+        requestAnimationFrame(animatePunch);
+      } else {
+        scene.remove(punchArm);
+      }
+    }
+    animatePunch();
+
+    // Check punch hit
+    const punchReach = 1.5;
+    for (let i = mobs.length - 1; i >= 0; i--) {
+      const mob = mobs[i];
+      const dist = Math.hypot(mob.x - player.x, mob.z - player.z);
+      if (dist < punchReach && Math.abs(mob.y - player.y) < 2) {
+        damageMob(mob, i, 15);
+        showFloatScreen('Punch hit!', 'red');
+        break;
+      }
+    }
+
+    // Check door punch
+    for (const door of doors) {
+      if (door.broken || door.open) continue;
+      const dist = Math.hypot(door.data.x - player.x, door.data.z - player.z);
+      if (dist < punchReach) {
+        door.hp -= 5;
+        playSound('doorHit');
+        showFloatScreen(`Door: ${Math.max(0, door.hp)}/${door.maxHp}`, 'red');
+        updateDoorVisual(door);
+        if (door.hp <= 0) breakDoor(door);
+      }
+    }
+  }
+'''
+
+with open('/mnt/agents/output/vault_defender_part2.html', 'w') as f:
+    f.write(part2)
+
+print("Part 2 written successfully!")
+print(f"Length: {len(part2)} characters")
+  // ========== MOB SYSTEM ==========
+  function spawnMobs() {
+    if (gamePhase !== 'defend') return;
+
+    const maxMobs = 5 + Math.floor((60 - timeLeft) / 10);
+    if (mobs.length >= maxMobs) return;
+
+    // Spawn outside building
+    const spawnPoints = [
+      { x: -12, z: -12 }, { x: 12, z: -12 },
+      { x: -12, z: 12 }, { x: 12, z: 12 },
+      { x: 0, z: -14 }, { x: 0, z: 14 }
+    ];
+
+    const spawn = spawnPoints[Math.floor(Math.random() * spawnPoints.length)];
+
+    const types = ['zombie', 'skeleton', 'creeper'];
+    const type = types[Math.floor(Math.random() * types.length)];
+
+    const mobData = {
+      zombie: { hp: 60, speed: 1.8, damage: 10, color: 0x2d5016, size: 0.9, reward: 50 },
+      skeleton: { hp: 40, speed: 2.2, damage: 8, color: 0xe5e5e5, size: 0.85, reward: 40 },
+      creeper: { hp: 30, speed: 2.0, damage: 25, color: 0x22c55e, size: 0.8, reward: 60, explode: true }
+    };
+
+    const data = mobData[type];
+    const elapsed = 60 - timeLeft;
+    const scaledHp = data.hp + elapsed * 2;
+
+    // Create voxel mob
+    const group = new THREE.Group();
+
+    // Body
+    const body = new THREE.Mesh(
+      new THREE.BoxGeometry(data.size, data.size * 1.2, data.size * 0.6),
+      new THREE.MeshStandardMaterial({ color: data.color, roughness: 0.8 })
+    );
+    body.position.y = data.size * 0.6;
+    body.castShadow = true;
+    group.add(body);
+
+    // Head
+    const head = new THREE.Mesh(
+      new THREE.BoxGeometry(data.size * 0.7, data.size * 0.7, data.size * 0.7),
+      new THREE.MeshStandardMaterial({ color: data.color, roughness: 0.8 })
+    );
+    head.position.y = data.size * 1.3;
+    head.castShadow = true;
+    group.add(head);
+
+    // Eyes
+    const eyeColor = type === 'zombie' ? 0xff0000 : type === 'skeleton' ? 0x000000 : 0x000000;
+    const leftEye = new THREE.Mesh(
+      new THREE.BoxGeometry(0.1, 0.1, 0.05),
+      new THREE.MeshBasicMaterial({ color: eyeColor })
+    );
+    leftEye.position.set(-0.15, data.size * 1.3, data.size * 0.36);
+    group.add(leftEye);
+    const rightEye = new THREE.Mesh(
+      new THREE.BoxGeometry(0.1, 0.1, 0.05),
+      new THREE.MeshBasicMaterial({ color: eyeColor })
+    );
+    rightEye.position.set(0.15, data.size * 1.3, data.size * 0.36);
+    group.add(rightEye);
+
+    // Arms
+    const armGeo = new THREE.BoxGeometry(0.2, 0.6, 0.2);
+    const armMat = new THREE.MeshStandardMaterial({ color: data.color });
+    const leftArm = new THREE.Mesh(armGeo, armMat);
+    leftArm.position.set(-data.size * 0.6, data.size * 0.6, 0);
+    group.add(leftArm);
+    const rightArm = new THREE.Mesh(armGeo, armMat);
+    rightArm.position.set(data.size * 0.6, data.size * 0.6, 0);
+    group.add(rightArm);
+
+    // Legs
+    const legGeo = new THREE.BoxGeometry(0.25, 0.5, 0.25);
+    const leftLeg = new THREE.Mesh(legGeo, armMat);
+    leftLeg.position.set(-0.2, 0.25, 0);
+    group.add(leftLeg);
+    const rightLeg = new THREE.Mesh(legGeo, armMat);
+    rightLeg.position.set(0.2, 0.25, 0);
+    group.add(rightLeg);
+
+    group.position.set(spawn.x, 0, spawn.z);
+    scene.add(group);
+
+    const mob = {
+      mesh: group,
+      x: spawn.x, y: 0, z: spawn.z,
+      hp: scaledHp, maxHp: scaledHp,
+      speed: data.speed * 0.6, // Reduced speed
+      damage: data.damage,
+      reward: data.reward,
+      type: type,
+      size: data.size,
+      explode: data.explode || false,
+      fuse: 0,
+      targetDoor: null,
+      attackCooldown: 0,
+      animTime: Math.random() * 10
+    };
+
+    mobs.push(mob);
+  }
+
+  function updateMobs(dt) {
+    for (let i = mobs.length - 1; i >= 0; i--) {
+      const mob = mobs[i];
+      mob.animTime += dt * 5;
+
+      // Find target: vault room or nearest door
+      let targetX = 0, targetZ = 7; // Vault position
+      let targetDist = Math.hypot(targetX - mob.x, targetZ - mob.z);
+
+      // Check for closed doors in path
+      let blockedByDoor = null;
+      for (const door of doors) {
+        if (door.broken || door.open) continue;
+        const dDist = Math.hypot(door.data.x - mob.x, door.data.z - mob.z);
+        if (dDist < targetDist && dDist < 8) {
+          targetX = door.data.x;
+          targetZ = door.data.z;
+          targetDist = dDist;
+          blockedByDoor = door;
+        }
+      }
+
+      mob.targetDoor = blockedByDoor;
+
+      // Movement
+      if (targetDist > 0.8) {
+        const dx = targetX - mob.x;
+        const dz = targetZ - mob.z;
+        const dist = Math.hypot(dx, dz);
+        mob.x += (dx / dist) * mob.speed * dt;
+        mob.z += (dz / dist) * mob.speed * dt;
+
+        // Face target
+        mob.mesh.rotation.y = Math.atan2(dx, dz);
+
+        // Animation
+        mob.mesh.children[5].rotation.x = Math.sin(mob.animTime) * 0.5; // left leg
+        mob.mesh.children[6].rotation.x = Math.sin(mob.animTime + Math.PI) * 0.5; // right leg
+        mob.mesh.children[3].rotation.x = Math.sin(mob.animTime + Math.PI) * 0.3; // left arm
+        mob.mesh.children[4].rotation.x = Math.sin(mob.animTime) * 0.3; // right arm
+      }
+
+      // Attack door
+      if (blockedByDoor && targetDist < 1.2) {
+        mob.attackCooldown -= dt;
+        if (mob.attackCooldown <= 0) {
+          mob.attackCooldown = 1.5;
+          blockedByDoor.hp -= mob.damage;
+          playSound('doorHit');
+
+          // Punch animation
+          mob.mesh.children[4].rotation.x = -1;
+          setTimeout(() => { mob.mesh.children[4].rotation.x = 0; }, 200);
+
+          // Visual feedback
+          createParticles(blockedByDoor.data.x, 1, blockedByDoor.data.z, 0x8b6914, 5);
+          showFloatScreen(`Door hit! ${Math.max(0, blockedByDoor.hp)}/${blockedByDoor.maxHp}`, 'red');
+
+          updateDoorVisual(blockedByDoor);
+
+          if (blockedByDoor.hp <= 0) {
+            breakDoor(blockedByDoor);
+          }
+        }
+      }
+
+      // Attack player
+      const playerDist = Math.hypot(mob.x - player.x, mob.z - player.z);
+      if (playerDist < 1.0) {
+        mob.attackCooldown -= dt;
+        if (mob.attackCooldown <= 0) {
+          mob.attackCooldown = 1.0;
+          player.hp -= mob.damage;
+          playSound('hit');
+          showFloatScreen(`-${mob.damage} HP`, 'red');
+          updateHealthDisplay();
+
+          // Screen shake
+          camera.position.x += (Math.random() - 0.5) * 0.2;
+          camera.position.y += (Math.random() - 0.5) * 0.2;
+
+          if (player.hp <= 0) {
+            player.hp = 0;
+            endGame(false);
+          }
+        }
+      }
+
+      // Creeper explode
+      if (mob.explode && playerDist < 3) {
+        mob.fuse += dt;
+        if (mob.fuse > 2) {
+          // Explosion
+          createExplosion(mob.x, mob.y + 0.5, mob.z, 0x22c55e, 30);
+          playSound('doorBreak');
+
+          // Damage nearby
+          if (playerDist < 4) {
+            player.hp -= 30;
+            showFloatScreen('CREEPER EXPLOSION! -30 HP', 'red');
+            updateHealthDisplay();
+          }
+
+          // Damage doors
+          for (const door of doors) {
+            const dDist = Math.hypot(door.data.x - mob.x, door.data.z - mob.z);
+            if (dDist < 3 && !door.broken) {
+              door.hp -= 50;
+              updateDoorVisual(door);
+              if (door.hp <= 0) breakDoor(door);
+            }
+          }
+
+          scene.remove(mob.mesh);
+          mobs.splice(i, 1);
+          continue;
+        }
+
+        // Flash before explode
+        if (mob.fuse > 1.5) {
+          mob.mesh.children[0].material.emissive = new THREE.Color(0xff0000);
+          mob.mesh.children[0].material.emissiveIntensity = Math.sin(Date.now() * 0.02) * 0.5 + 0.5;
+        }
+      }
+
+      mob.mesh.position.set(mob.x, mob.y, mob.z);
+    }
+  }
+
+  function damageMob(mob, index, damage) {
+    mob.hp -= damage;
+    playSound('hit');
+
+    // Flash red
+    mob.mesh.children[0].material.emissive = new THREE.Color(0xff0000);
+    mob.mesh.children[0].material.emissiveIntensity = 0.5;
+    setTimeout(() => {
+      if (mob.mesh) mob.mesh.children[0].material.emissiveIntensity = 0;
+    }, 100);
+
+    // Knockback
+    const dx = mob.x - player.x;
+    const dz = mob.z - player.z;
+    const dist = Math.hypot(dx, dz);
+    if (dist > 0) {
+      mob.x += (dx / dist) * 0.5;
+      mob.z += (dz / dist) * 0.5;
+    }
+
+    if (mob.hp <= 0) {
+      killMob(mob, index);
+    }
+  }
+
+  function killMob(mob, index) {
+    kills++;
+    combo++;
+    if (combo > maxCombo) maxCombo = combo;
+
+    const comboMult = Math.min(combo, 10);
+    const points = mob.reward + comboMult * 5;
+    score += points;
+
+    playSound('kill');
+    createExplosion(mob.x, mob.y + 0.5, mob.z, mob.type === 'zombie' ? 0x2d5016 : mob.type === 'skeleton' ? 0xe5e5e5 : 0x22c55e, 20);
+    showFloatScreen(`+${points}`, 'green');
+    if (combo >= 3) {
+      showFloatScreen(`${combo}x COMBO!`, 'gold');
+    }
+
+    // Drop item chance
+    if (Math.random() < 0.3) {
+      const dropType = Math.random() < 0.5 ? 'food' : 'ammo';
+      const dropData = dropType === 'food' ? { heal: 20 } : { amount: 10 };
+      const dropMesh = new THREE.Mesh(
+        new THREE.BoxGeometry(0.3, 0.3, 0.3),
+        new THREE.MeshStandardMaterial({ color: dropType === 'food' ? 0x22c55e : 0xf59e0b })
+      );
+      dropMesh.position.set(mob.x, 0.3, mob.z);
+      dropMesh.castShadow = true;
+      scene.add(dropMesh);
+      items.push({
+        mesh: dropMesh,
+        type: dropType,
+        data: dropData,
+        label: dropType === 'food' ? '+20 HP' : '+10 Ammo',
+        picked: false
+      });
+    }
+
+    scene.remove(mob.mesh);
+    mobs.splice(index, 1);
+    updateScore();
+  }
+
+  // ========== PROJECTILES ==========
+  function updateProjectiles(dt) {
+    for (let i = projectiles.length - 1; i >= 0; i--) {
+      const p = projectiles[i];
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.z += p.vz * dt;
+      p.traveled += Math.hypot(p.vx * dt, p.vz * dt);
+
+      p.mesh.position.set(p.x, p.y, p.z);
+
+      // Trail
+      if (Math.random() < 0.3) {
+        createParticles(p.x, p.y, p.z, p.mesh.material.color, 1);
+      }
+
+      // Check range
+      if (p.traveled > p.range) {
+        scene.remove(p.mesh);
+        projectiles.splice(i, 1);
+        continue;
+      }
+
+      // Check mob collision
+      let hit = false;
+      for (let j = mobs.length - 1; j >= 0; j--) {
+        const mob = mobs[j];
+        const dist = Math.hypot(p.x - mob.x, p.y - (mob.y + mob.size), p.z - mob.z);
+        if (dist < mob.size + 0.2) {
+          damageMob(mob, j, p.damage);
+          hit = true;
+          break;
+        }
+      }
+
+      if (hit) {
+        scene.remove(p.mesh);
+        projectiles.splice(i, 1);
+        continue;
+      }
+
+      // Check wall collision
+      if (checkWallCollision(p.x, p.z) && p.y < 3) {
+        createParticles(p.x, p.y, p.z, 0x888888, 3);
+        scene.remove(p.mesh);
+        projectiles.splice(i, 1);
+        continue;
+      }
+
+      // Out of bounds
+      if (Math.abs(p.x) > 20 || Math.abs(p.z) > 20 || p.y < -1) {
+        scene.remove(p.mesh);
+        projectiles.splice(i, 1);
+      }
+    }
+  }
+
+  // ========== DOOR SYSTEM ==========
+  function updateDoorVisual(door) {
+    const hpPct = door.hp / door.maxHp;
+    const doorMesh = door.mesh;
+
+    // Change color based on damage
+    if (hpPct > 0.7) {
+      doorMesh.children.forEach(child => {
+        if (child.material && child.material.color) {
+          child.material.color.setHex(door.data.type === 'iron' ? 0x4a4a5a : 0x8b6914);
+        }
+      });
+    } else if (hpPct > 0.3) {
+      doorMesh.children.forEach(child => {
+        if (child.material && child.material.color) {
+          child.material.color.setHex(0xa0522d);
+        }
+      });
+    } else {
+      doorMesh.children.forEach(child => {
+        if (child.material && child.material.color) {
+          child.material.color.setHex(0x8b0000);
+        }
+      });
+    }
+
+    // Shake effect
+    if (hpPct < 1) {
+      doorMesh.position.x = door.data.x + (Math.random() - 0.5) * 0.05;
+      doorMesh.position.z = door.data.z + (Math.random() - 0.5) * 0.05;
+    }
+  }
+
+  function breakDoor(door) {
+    door.broken = true;
+    door.open = true;
+    doorsBroken++;
+    playSound('doorBreak');
+
+    // Break animation
+    createExplosion(door.data.x, 1, door.data.z, door.data.type === 'iron' ? 0x4a4a5a : 0x8b6914, 25);
+
+    // Remove door mesh
+    scene.remove(door.mesh);
+
+    // Add debris
+    for (let i = 0; i < 8; i++) {
+      const debris = new THREE.Mesh(
+        new THREE.BoxGeometry(0.2, 0.2, 0.2),
+        new THREE.MeshStandardMaterial({ color: door.data.type === 'iron' ? 0x4a4a5a : 0x8b6914 })
+      );
+      debris.position.set(
+        door.data.x + (Math.random() - 0.5) * 2,
+        0.1 + Math.random() * 0.5,
+        door.data.z + (Math.random() - 0.5) * 2
+      );
+      debris.castShadow = true;
+      scene.add(debris);
+    }
+
+    showFloatScreen(`${door.data.type === 'iron' ? 'IRON' : 'WOODEN'} DOOR BROKEN!`, 'red');
+
+    // If vault door broken, game over
+    if (door.data.type === 'iron') {
+      showNotification('VAULT BREACHED! DEFEND AT ALL COSTS!');
+    }
+  }
+
+  // ========== PARTICLES ==========
+  function createParticles(x, y, z, color, count) {
+    for (let i = 0; i < count; i++) {
+      const size = 0.05 + Math.random() * 0.1;
+      const mesh = new THREE.Mesh(
+        new THREE.BoxGeometry(size, size, size),
+        new THREE.MeshBasicMaterial({ color: color })
+      );
+      mesh.position.set(x, y, z);
+      scene.add(mesh);
+
+      particles.push({
+        mesh: mesh,
+        vx: (Math.random() - 0.5) * 4,
+        vy: Math.random() * 3 + 1,
+        vz: (Math.random() - 0.5) * 4,
+        life: 0.5 + Math.random() * 0.5,
+        gravity: -5
+      });
+    }
+  }
+
+  function createExplosion(x, y, z, color, count) {
+    for (let i = 0; i < count; i++) {
+      const mesh = new THREE.Mesh(
+        new THREE.BoxGeometry(0.08, 0.08, 0.08),
+        new THREE.MeshBasicMaterial({ color: color })
+      );
+      mesh.position.set(x, y, z);
+      scene.add(mesh);
+
+      particles.push({
+        mesh: mesh,
+        vx: (Math.random() - 0.5) * 8,
+        vy: Math.random() * 5 + 2,
+        vz: (Math.random() - 0.5) * 8,
+        life: 1.0,
+        gravity: -8
+      });
+    }
+  }
+
+  function updateParticles(dt) {
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i];
+      p.vy += p.gravity * dt;
+      p.mesh.position.x += p.vx * dt;
+      p.mesh.position.y += p.vy * dt;
+      p.mesh.position.z += p.vz * dt;
+      p.life -= dt;
+
+      p.mesh.rotation.x += p.vx * dt;
+      p.mesh.rotation.y += p.vy * dt;
+
+      if (p.life <= 0 || p.mesh.position.y < -1) {
+        scene.remove(p.mesh);
+        particles.splice(i, 1);
+      }
+    }
+  }
+  // ========== GAME LOOP ==========
+  let lastTime = 0;
+  let spawnTimer = 0;
+
+  function animate(time = 0) {
+    gameLoopId = requestAnimationFrame(animate);
+    const dt = Math.min((time - lastTime) / 1000, 0.05);
+    lastTime = time;
+
+    if (gamePhase === 'prep' || gamePhase === 'defend') {
+      updatePlayer(dt);
+      updateProjectiles(dt);
+      updateParticles(dt);
+
+      // Animate items
+      items.forEach(item => {
+        if (!item.picked) {
+          item.mesh.rotation.y += dt;
+          item.mesh.position.y = 0.3 + Math.sin(Date.now() * 0.003 + item.mesh.position.x) * 0.1;
+        }
+      });
+
+      if (gamePhase === 'defend') {
+        spawnTimer += dt;
+        const spawnRate = Math.max(2, 5 - (60 - timeLeft) * 0.05);
+        if (spawnTimer >= spawnRate) {
+          spawnTimer = 0;
+          spawnMobs();
+        }
+        updateMobs(dt);
+      }
+    }
+
+    renderer.render(scene, camera);
+  }
+
+  // ========== HUD UPDATES ==========
+  function updateScore() {
+    document.getElementById('scoreDisplay').textContent = score;
+  }
+
+  function updateHealthDisplay() {
+    const pct = Math.max(0, (player.hp / player.maxHp) * 100);
+    document.getElementById('healthFill').style.width = pct + '%';
+    document.getElementById('healthText').textContent = Math.max(0, Math.floor(player.hp));
+
+    if (pct < 30) {
+      document.getElementById('healthFill').style.background = 'linear-gradient(90deg, #ef4444, #dc2626)';
+    } else if (pct < 60) {
+      document.getElementById('healthFill').style.background = 'linear-gradient(90deg, #f59e0b, #ea580c)';
+    } else {
+      document.getElementById('healthFill').style.background = 'linear-gradient(90deg, #ef4444, #f97316)';
+    }
+  }
+
+  function updateWeaponDisplay() {
+    const weaponName = document.getElementById('weaponName');
+    const ammoDisplay = document.getElementById('ammoDisplay');
+
+    if (player.weapon) {
+      const w = WEAPONS[player.weapon];
+      weaponName.textContent = w.name === 'Pistol' ? '🔫 ' + w.name :
+                               w.name === 'Shotgun' ? '🔫 ' + w.name :
+                               w.name === 'Rifle' ? '🎯 ' + w.name :
+                               w.name === 'SMG' ? '🔫 ' + w.name : w.name;
+      ammoDisplay.innerHTML = `<i class="ri-fire-fill" style="color:var(--orange);"></i> ${player.ammo}/${w.maxAmmo}`;
+    } else {
+      weaponName.textContent = '👊 Fists';
+      ammoDisplay.innerHTML = `<i class="ri-fire-fill" style="color:var(--orange);"></i> Fists`;
+    }
+  }
+
+  // ========== FLOATING TEXT ==========
+  function showFloatScreen(text, color) {
+    const el = document.createElement('div');
+    el.className = `float-text ${color}`;
+    el.textContent = text;
+    el.style.left = '50%';
+    el.style.top = '40%';
+    document.body.appendChild(el);
+    setTimeout(() => { if (el.parentNode) el.remove(); }, 800);
+  }
+
+  function showNotification(text) {
+    const existing = document.querySelector('.notification');
+    if (existing) existing.remove();
+
+    const el = document.createElement('div');
+    el.className = 'notification';
+    el.textContent = text;
+    document.body.appendChild(el);
+    setTimeout(() => { if (el.parentNode) el.remove(); }, 3000);
+  }
+
+  // ========== END GAME ==========
+  function endGame(vaultSecured) {
+    gameRunning = false;
+    gamePhase = 'over';
+    clearInterval(timerInterval);
+    cancelAnimationFrame(gameLoopId);
+    playSound('gameOver');
+
+    if (document.pointerLockElement) document.exitPointerLock();
+
+    // Calculate bonuses
+    const timeBonus = timeLeft * 5;
+    const hpBonus = Math.floor(player.hp * 2);
+    const comboBonus = maxCombo * 20;
+    const doorBonus = doorsBroken * 10;
+    const itemBonus = itemsPicked * 5;
+    const vaultBonus = vaultSecured ? 500 : 0;
+
+    score += timeBonus + hpBonus + comboBonus + doorBonus + itemBonus + vaultBonus;
+
+    document.getElementById('endTitle').textContent = vaultSecured ? 'VAULT SECURED!' : 'VAULT LOST!';
+    document.getElementById('endTitle').style.background = vaultSecured
+      ? 'linear-gradient(135deg, var(--green), var(--gold))'
+      : 'linear-gradient(135deg, var(--red), var(--orange))';
+    document.getElementById('endTitle').style.webkitBackgroundClip = 'text';
+    document.getElementById('endTitle').style.webkitTextFillColor = 'transparent';
+
+    document.getElementById('finalScore').textContent = score;
+
+    const breakdown = document.getElementById('scoreBreakdown');
+    breakdown.innerHTML = `
+      <div class="break-item"><span>Kills (${kills})</span><span class="val green">+${kills * 30}</span></div>
+      <div class="break-item"><span>Time Bonus</span><span class="val green">+${timeBonus}</span></div>
+      <div class="break-item"><span>HP Remaining</span><span class="val green">+${hpBonus}</span></div>
+      <div class="break-item"><span>Max Combo (${maxCombo}x)</span><span class="val gold">+${comboBonus}</span></div>
+      <div class="break-item"><span>Doors Broken</span><span class="val red">-${doorBonus}</span></div>
+      <div class="break-item"><span>Items Picked</span><span class="val green">+${itemBonus}</span></div>
+      ${vaultBonus ? `<div class="break-item"><span>Vault Secured!</span><span class="val gold">+${vaultBonus}</span></div>` : ''}
+      <div class="break-item"><span>Shots Fired</span><span class="val blue">${shotsFired}</span></div>
+      <div class="break-item"><span>Punches Thrown</span><span class="val blue">${punchesThrown}</span></div>
+      <div class="break-item" style="border-top:2px solid var(--orange);margin-top:.5rem;padding-top:.5rem;font-weight:800;">
+        <span>FINAL SCORE</span><span class="val gold">${score}</span>
+      </div>
+    `;
+
+    document.getElementById('gameOverScreen').classList.remove('hidden');
+  }
+
+  // ========== SUBMIT SCORE ==========
+  window.submitScore = async function() {
+    if (!currentUser || !entryId || !roundId) {
+      location.href = 'game-lobby2.html';
+      return;
+    }
+
+    const btn = document.querySelector('#gameOverScreen .screen-btn');
+    btn.disabled = true;
+    btn.textContent = 'Submitting...';
+
+    try {
+      await updateDoc(doc(db, 'vaultDefenderRounds', roundId, 'entries', entryId), {
+        score: score,
+        playerHP: Math.max(0, player.hp),
+        kills: kills,
+        maxCombo: maxCombo,
+        doorsBroken: doorsBroken,
+        itemsPicked: itemsPicked,
+        shotsFired: shotsFired,
+        punchesThrown: punchesThrown,
+        timeLeft: timeLeft,
+        vaultSecured: player.hp > 0 && timeLeft > 0,
+        completedAt: serverTimestamp()
+      });
+      location.href = 'game-lobby2.html';
+    } catch (err) {
+      console.error('Submit error:', err);
+      btn.disabled = false;
+      btn.textContent = 'Try Again';
+    }
+  };
+
+  // ========== START ==========
+  init();
+</script>
+</body>
+</html>
