@@ -1996,3 +1996,390 @@ print(f"Length: {len(part2)} characters")
 </script>
 </body>
 </html>
+camera.position.y += (Math.random() - 0.5) * 0.2;
+          if (player.hp <= 0) {
+            player.hp = 0;
+            endGame(false);
+          }
+        }
+      }
+      if (mob.explode && playerDist < 3) {
+        mob.fuse += dt;
+        if (mob.fuse > 2) {
+          createExplosion(mob.x, mob.y + 0.5, mob.z, 0x22c55e, 30);
+          playSound('doorBreak');
+          if (playerDist < 4) {
+            player.hp -= 30;
+            showFloatScreen('CREEPER EXPLOSION! -30 HP', 'red');
+            updateHealthDisplay();
+          }
+          for (const door of doors) {
+            const dDist = Math.hypot(door.data.x - mob.x, door.data.z - mob.z);
+            if (dDist < 3 && !door.broken) {
+              door.hp -= 50;
+              updateDoorVisual(door);
+              if (door.hp <= 0) breakDoor(door);
+            }
+          }
+          scene.remove(mob.mesh);
+          mobs.splice(i, 1);
+          continue;
+        }
+        if (mob.fuse > 1.5) {
+          mob.mesh.children[0].material.emissive = new THREE.Color(0xff0000);
+          mob.mesh.children[0].material.emissiveIntensity = Math.sin(Date.now() * 0.02) * 0.5 + 0.5;
+        }
+      }
+      mob.mesh.position.set(mob.x, mob.y, mob.z);
+    }
+  }
+
+  function damageMob(mob, index, damage) {
+    mob.hp -= damage;
+    playSound('hit');
+    mob.mesh.children[0].material.emissive = new THREE.Color(0xff0000);
+    mob.mesh.children[0].material.emissiveIntensity = 0.5;
+    setTimeout(() => {
+      if (mob.mesh) mob.mesh.children[0].material.emissiveIntensity = 0;
+    }, 100);
+    const dx = mob.x - player.x;
+    const dz = mob.z - player.z;
+    const dist = Math.hypot(dx, dz);
+    if (dist > 0) {
+      mob.x += (dx / dist) * 0.5;
+      mob.z += (dz / dist) * 0.5;
+    }
+    if (mob.hp <= 0) killMob(mob, index);
+  }
+
+  function killMob(mob, index) {
+    kills++;
+    combo++;
+    if (combo > maxCombo) maxCombo = combo;
+    const comboMult = Math.min(combo, 10);
+    const points = mob.reward + comboMult * 5;
+    score += points;
+    playSound('kill');
+    createExplosion(mob.x, mob.y + 0.5, mob.z, mob.type === 'zombie' ? 0x2d5016 : mob.type === 'skeleton' ? 0xe5e5e5 : 0x22c55e, 20);
+    showFloatScreen(`+${points}`, 'green');
+    if (combo >= 3) showFloatScreen(`${combo}x COMBO!`, 'gold');
+    if (Math.random() < 0.3) {
+      const dropType = Math.random() < 0.5 ? 'food' : 'ammo';
+      const dropData = dropType === 'food' ? { heal: 20 } : { amount: 10 };
+      const dropMesh = new THREE.Mesh(
+        new THREE.BoxGeometry(0.3, 0.3, 0.3),
+        new THREE.MeshStandardMaterial({ color: dropType === 'food' ? 0x22c55e : 0xf59e0b })
+      );
+      dropMesh.position.set(mob.x, 0.3, mob.z);
+      dropMesh.castShadow = true;
+      scene.add(dropMesh);
+      items.push({
+        mesh: dropMesh, type: dropType, data: dropData,
+        label: dropType === 'food' ? '+20 HP' : '+10 Ammo', picked: false
+      });
+    }
+    scene.remove(mob.mesh);
+    mobs.splice(index, 1);
+    updateScore();
+  }
+
+  function updateProjectiles(dt) {
+    for (let i = projectiles.length - 1; i >= 0; i--) {
+      const p = projectiles[i];
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.z += p.vz * dt;
+      p.traveled += Math.hypot(p.vx * dt, p.vz * dt);
+      p.mesh.position.set(p.x, p.y, p.z);
+      if (Math.random() < 0.3) createParticles(p.x, p.y, p.z, p.mesh.material.color, 1);
+      if (p.traveled > p.range) {
+        scene.remove(p.mesh);
+        projectiles.splice(i, 1);
+        continue;
+      }
+      let hit = false;
+      for (let j = mobs.length - 1; j >= 0; j--) {
+        const mob = mobs[j];
+        const dist = Math.hypot(p.x - mob.x, p.y - (mob.y + mob.size), p.z - mob.z);
+        if (dist < mob.size + 0.2) {
+          damageMob(mob, j, p.damage);
+          hit = true;
+          break;
+        }
+      }
+      if (hit) {
+        scene.remove(p.mesh);
+        projectiles.splice(i, 1);
+        continue;
+      }
+      if (checkWallCollision(p.x, p.z) && p.y < 3) {
+        createParticles(p.x, p.y, p.z, 0x888888, 3);
+        scene.remove(p.mesh);
+        projectiles.splice(i, 1);
+        continue;
+      }
+      if (Math.abs(p.x) > 20 || Math.abs(p.z) > 20 || p.y < -1) {
+        scene.remove(p.mesh);
+        projectiles.splice(i, 1);
+      }
+    }
+  }
+
+  function updateDoorVisual(door) {
+    const hpPct = door.hp / door.maxHp;
+    const doorMesh = door.mesh;
+    if (hpPct > 0.7) {
+      doorMesh.children.forEach(child => {
+        if (child.material && child.material.color) child.material.color.setHex(door.data.type === 'iron' ? 0x4a4a5a : 0x8b6914);
+      });
+    } else if (hpPct > 0.3) {
+      doorMesh.children.forEach(child => {
+        if (child.material && child.material.color) child.material.color.setHex(0xa0522d);
+      });
+    } else {
+      doorMesh.children.forEach(child => {
+        if (child.material && child.material.color) child.material.color.setHex(0x8b0000);
+      });
+    }
+    if (hpPct < 1) {
+      doorMesh.position.x = door.data.x + (Math.random() - 0.5) * 0.05;
+      doorMesh.position.z = door.data.z + (Math.random() - 0.5) * 0.05;
+    }
+  }
+
+  function breakDoor(door) {
+    door.broken = true;
+    door.open = true;
+    doorsBroken++;
+    playSound('doorBreak');
+    createExplosion(door.data.x, 1, door.data.z, door.data.type === 'iron' ? 0x4a4a5a : 0x8b6914, 25);
+    scene.remove(door.mesh);
+    for (let i = 0; i < 8; i++) {
+      const debris = new THREE.Mesh(
+        new THREE.BoxGeometry(0.2, 0.2, 0.2),
+        new THREE.MeshStandardMaterial({ color: door.data.type === 'iron' ? 0x4a4a5a : 0x8b6914 })
+      );
+      debris.position.set(
+        door.data.x + (Math.random() - 0.5) * 2,
+        0.1 + Math.random() * 0.5,
+        door.data.z + (Math.random() - 0.5) * 2
+      );
+      debris.castShadow = true;
+      scene.add(debris);
+    }
+    showFloatScreen(`${door.data.type === 'iron' ? 'IRON' : 'WOODEN'} DOOR BROKEN!`, 'red');
+    if (door.data.type === 'iron') showNotification('VAULT BREACHED! DEFEND AT ALL COSTS!');
+  }
+
+  function createParticles(x, y, z, color, count) {
+    for (let i = 0; i < count; i++) {
+      const size = 0.05 + Math.random() * 0.1;
+      const mesh = new THREE.Mesh(
+        new THREE.BoxGeometry(size, size, size),
+        new THREE.MeshBasicMaterial({ color: color })
+      );
+      mesh.position.set(x, y, z);
+      scene.add(mesh);
+      particles.push({
+        mesh: mesh,
+        vx: (Math.random() - 0.5) * 4,
+        vy: Math.random() * 3 + 1,
+        vz: (Math.random() - 0.5) * 4,
+        life: 0.5 + Math.random() * 0.5,
+        gravity: -5
+      });
+    }
+  }
+
+  function createExplosion(x, y, z, color, count) {
+    for (let i = 0; i < count; i++) {
+      const mesh = new THREE.Mesh(
+        new THREE.BoxGeometry(0.08, 0.08, 0.08),
+        new THREE.MeshBasicMaterial({ color: color })
+      );
+      mesh.position.set(x, y, z);
+      scene.add(mesh);
+      particles.push({
+        mesh: mesh,
+        vx: (Math.random() - 0.5) * 8,
+        vy: Math.random() * 5 + 2,
+        vz: (Math.random() - 0.5) * 8,
+        life: 1.0,
+        gravity: -8
+      });
+    }
+  }
+
+  function updateParticles(dt) {
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i];
+      p.vy += p.gravity * dt;
+      p.mesh.position.x += p.vx * dt;
+      p.mesh.position.y += p.vy * dt;
+      p.mesh.position.z += p.vz * dt;
+      p.life -= dt;
+      p.mesh.rotation.x += p.vx * dt;
+      p.mesh.rotation.y += p.vy * dt;
+      if (p.life <= 0 || p.mesh.position.y < -1) {
+        scene.remove(p.mesh);
+        particles.splice(i, 1);
+      }
+    }
+  }
+
+  let lastTime = 0;
+  let spawnTimer = 0;
+
+  function animate(time = 0) {
+    gameLoopId = requestAnimationFrame(animate);
+    const dt = Math.min((time - lastTime) / 1000, 0.05);
+    lastTime = time;
+    if (gamePhase === 'prep' || gamePhase === 'defend') {
+      updatePlayer(dt);
+      updateProjectiles(dt);
+      updateParticles(dt);
+      items.forEach(item => {
+        if (!item.picked) {
+          item.mesh.rotation.y += dt;
+          item.mesh.position.y = 0.3 + Math.sin(Date.now() * 0.003 + item.mesh.position.x) * 0.1;
+        }
+      });
+      if (gamePhase === 'defend') {
+        spawnTimer += dt;
+        const spawnRate = Math.max(2, 5 - (60 - timeLeft) * 0.05);
+        if (spawnTimer >= spawnRate) {
+          spawnTimer = 0;
+          spawnMobs();
+        }
+        updateMobs(dt);
+      }
+    }
+    renderer.render(scene, camera);
+  }
+
+  function updateScore() {
+    document.getElementById('scoreDisplay').textContent = score;
+  }
+
+  function updateHealthDisplay() {
+    const pct = Math.max(0, (player.hp / player.maxHp) * 100);
+    document.getElementById('healthFill').style.width = pct + '%';
+    document.getElementById('healthText').textContent = Math.max(0, Math.floor(player.hp));
+    if (pct < 30) {
+      document.getElementById('healthFill').style.background = 'linear-gradient(90deg, #ef4444, #dc2626)';
+    } else if (pct < 60) {
+      document.getElementById('healthFill').style.background = 'linear-gradient(90deg, #f59e0b, #ea580c)';
+    } else {
+      document.getElementById('healthFill').style.background = 'linear-gradient(90deg, #ef4444, #f97316)';
+    }
+  }
+
+  function updateWeaponDisplay() {
+    const weaponName = document.getElementById('weaponName');
+    const ammoDisplay = document.getElementById('ammoDisplay');
+    if (player.weapon) {
+      const w = WEAPONS[player.weapon];
+      weaponName.textContent = w.name === 'Pistol' ? '🔫 ' + w.name :
+                               w.name === 'Shotgun' ? '🔫 ' + w.name :
+                               w.name === 'Rifle' ? '🎯 ' + w.name :
+                               w.name === 'SMG' ? '🔫 ' + w.name : w.name;
+      ammoDisplay.innerHTML = `<i class="ri-fire-fill" style="color:var(--orange);"></i> ${player.ammo}/${w.maxAmmo}`;
+    } else {
+      weaponName.textContent = '👊 Fists';
+      ammoDisplay.innerHTML = `<i class="ri-fire-fill" style="color:var(--orange);"></i> Fists`;
+    }
+  }
+
+  function showFloatScreen(text, color) {
+    const el = document.createElement('div');
+    el.className = `float-text ${color}`;
+    el.textContent = text;
+    el.style.left = '50%';
+    el.style.top = '40%';
+    document.body.appendChild(el);
+    setTimeout(() => { if (el.parentNode) el.remove(); }, 800);
+  }
+
+  function showNotification(text) {
+    const existing = document.querySelector('.notification');
+    if (existing) existing.remove();
+    const el = document.createElement('div');
+    el.className = 'notification';
+    el.textContent = text;
+    document.body.appendChild(el);
+    setTimeout(() => { if (el.parentNode) el.remove(); }, 3000);
+  }
+
+  function endGame(vaultSecured) {
+    gameRunning = false;
+    gamePhase = 'over';
+    clearInterval(timerInterval);
+    cancelAnimationFrame(gameLoopId);
+    playSound('gameOver');
+    if (document.pointerLockElement) document.exitPointerLock();
+    const timeBonus = timeLeft * 5;
+    const hpBonus = Math.floor(player.hp * 2);
+    const comboBonus = maxCombo * 20;
+    const doorBonus = doorsBroken * 10;
+    const itemBonus = itemsPicked * 5;
+    const vaultBonus = vaultSecured ? 500 : 0;
+    score += timeBonus + hpBonus + comboBonus + doorBonus + itemBonus + vaultBonus;
+    document.getElementById('endTitle').textContent = vaultSecured ? 'VAULT SECURED!' : 'VAULT LOST!';
+    document.getElementById('endTitle').style.background = vaultSecured
+      ? 'linear-gradient(135deg, var(--green), var(--gold))'
+      : 'linear-gradient(135deg, var(--red), var(--orange))';
+    document.getElementById('endTitle').style.webkitBackgroundClip = 'text';
+    document.getElementById('endTitle').style.webkitTextFillColor = 'transparent';
+    document.getElementById('finalScore').textContent = score;
+    const breakdown = document.getElementById('scoreBreakdown');
+    breakdown.innerHTML = `
+      <div class="break-item"><span>Kills (${kills})</span><span class="val green">+${kills * 30}</span></div>
+      <div class="break-item"><span>Time Bonus</span><span class="val green">+${timeBonus}</span></div>
+      <div class="break-item"><span>HP Remaining</span><span class="val green">+${hpBonus}</span></div>
+      <div class="break-item"><span>Max Combo (${maxCombo}x)</span><span class="val gold">+${comboBonus}</span></div>
+      <div class="break-item"><span>Doors Broken</span><span class="val red">-${doorBonus}</span></div>
+      <div class="break-item"><span>Items Picked</span><span class="val green">+${itemBonus}</span></div>
+      ${vaultBonus ? `<div class="break-item"><span>Vault Secured!</span><span class="val gold">+${vaultBonus}</span></div>` : ''}
+      <div class="break-item"><span>Shots Fired</span><span class="val blue">${shotsFired}</span></div>
+      <div class="break-item"><span>Punches Thrown</span><span class="val blue">${punchesThrown}</span></div>
+      <div class="break-item" style="border-top:2px solid var(--orange);margin-top:.5rem;padding-top:.5rem;font-weight:800;">
+        <span>FINAL SCORE</span><span class="val gold">${score}</span>
+      </div>
+    `;
+    document.getElementById('gameOverScreen').classList.remove('hidden');
+  }
+
+  window.submitScore = async function() {
+    if (!currentUser || !entryId || !roundId) {
+      location.href = 'game-lobby2.html';
+      return;
+    }
+    const btn = document.querySelector('#gameOverScreen .screen-btn');
+    btn.disabled = true;
+    btn.textContent = 'Submitting...';
+    try {
+      await updateDoc(doc(db, 'vaultDefenderRounds', roundId, 'entries', entryId), {
+        score: score,
+        playerHP: Math.max(0, player.hp),
+        kills: kills,
+        maxCombo: maxCombo,
+        doorsBroken: doorsBroken,
+        itemsPicked: itemsPicked,
+        shotsFired: shotsFired,
+        punchesThrown: punchesThrown,
+        timeLeft: timeLeft,
+        vaultSecured: player.hp > 0 && timeLeft > 0,
+        completedAt: serverTimestamp()
+      });
+      location.href = 'game-lobby2.html';
+    } catch (err) {
+      console.error('Submit error:', err);
+      btn.disabled = false;
+      btn.textContent = 'Try Again';
+    }
+  };
+
+  init();
+</script>
+</body>
+</html>
