@@ -247,8 +247,7 @@
     "three/addons/": "https://unpkg.com/three@0.164.0/examples/jsm/"
   }
 }
-</script>
-
+    </script>
 <script type="module">
   import * as THREE from 'three';
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
@@ -439,70 +438,82 @@
       camera.updateProjectionMatrix();
       renderer.setSize(container.clientWidth, container.clientHeight);
     });
-  }  function createTrack() {
+  }
+
+  function createTrack() {
     const trackGroup = new THREE.Group();
 
-    // Floor tiles
-    const tileGeo = new THREE.BoxGeometry(2.4, 0.2, 2.4);
+    // Floor tiles - smooth rounded look
+    const tileGeo = new THREE.CylinderGeometry(1.3, 1.3, 0.15, 16);
     const tileMat1 = new THREE.MeshStandardMaterial({ color: 0x2a2a3a, roughness: 0.9 });
     const tileMat2 = new THREE.MeshStandardMaterial({ color: 0x333344, roughness: 0.9 });
 
-    for (let z = 10; z > -TRACK_LENGTH; z -= 2.4) {
+    for (let z = 10; z > -TRACK_LENGTH; z -= 2.6) {
       for (let x = -1; x <= 1; x++) {
-        const mat = (Math.floor(z / 2.4) + x) % 2 === 0 ? tileMat1 : tileMat2;
+        const mat = (Math.floor(z / 2.6) + x) % 2 === 0 ? tileMat1 : tileMat2;
         const tile = new THREE.Mesh(tileGeo, mat);
-        tile.position.set(x * LANE_WIDTH, -0.1, z);
+        tile.position.set(x * LANE_WIDTH, -0.08, z);
         tile.receiveShadow = true;
         trackGroup.add(tile);
       }
     }
 
-    // Side walls
-    const wallGeo = new THREE.BoxGeometry(1, 4, TRACK_LENGTH);
-    const wallMat = new THREE.MeshStandardMaterial({ color: 0x1a1a2a, roughness: 0.8 });
-    const leftWall = new THREE.Mesh(wallGeo, wallMat);
-    leftWall.position.set(-5, 2, -TRACK_LENGTH / 2 + 5);
-    leftWall.receiveShadow = true;
-    trackGroup.add(leftWall);
+    // Side walls - curved panels instead of boxes
+    for (let z = 10; z > -TRACK_LENGTH; z -= 3) {
+      const wallPanel = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.5, 0.5, 3, 8, 1, false, 0, Math.PI),
+        new THREE.MeshStandardMaterial({ color: 0x1a1a2a, roughness: 0.8 })
+      );
+      wallPanel.rotation.z = Math.PI / 2;
+      wallPanel.rotation.y = Math.PI / 2;
+      wallPanel.position.set(-4.5, 2, z);
+      wallPanel.scale.set(1, 1, 1.5);
+      trackGroup.add(wallPanel);
 
-    const rightWall = new THREE.Mesh(wallGeo, wallMat);
-    rightWall.position.set(5, 2, -TRACK_LENGTH / 2 + 5);
-    rightWall.receiveShadow = true;
-    trackGroup.add(rightWall);
+      const wallPanelR = wallPanel.clone();
+      wallPanelR.position.set(4.5, 2, z);
+      wallPanelR.rotation.z = -Math.PI / 2;
+      wallPanelR.rotation.y = Math.PI / 2;
+      trackGroup.add(wallPanelR);
+    }
 
-    // Wall details - pipes and lights
+    // Wall details - pipes (cylinders) and lights
     for (let z = 5; z > -TRACK_LENGTH; z -= 8) {
       const pipe = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.15, 0.15, 1, 8),
+        new THREE.CylinderGeometry(0.12, 0.12, 1.2, 12),
         new THREE.MeshStandardMaterial({ color: 0x4a4a5a, metalness: 0.6 })
       );
       pipe.rotation.z = Math.PI / 2;
-      pipe.position.set(-4.5, 3, z);
+      pipe.position.set(-4.2, 3, z);
       trackGroup.add(pipe);
 
       const light = new THREE.Mesh(
-        new THREE.BoxGeometry(0.8, 0.2, 0.4),
-        new THREE.MeshBasicMaterial({ color: 0xf97316 })
+        new THREE.SphereGeometry(0.3, 12, 12),
+        new THREE.MeshBasicMaterial({ color: 0xf97316, emissive: 0xf97316, emissiveIntensity: 0.5 })
       );
       light.position.set(0, 3.8, z);
       trackGroup.add(light);
     }
 
-    // Ceiling
-    const ceilingGeo = new THREE.PlaneGeometry(12, TRACK_LENGTH);
-    const ceilingMat = new THREE.MeshStandardMaterial({ color: 0x151520, roughness: 0.9 });
-    const ceiling = new THREE.Mesh(ceilingGeo, ceilingMat);
-    ceiling.rotation.x = Math.PI / 2;
-    ceiling.position.set(0, 4, -TRACK_LENGTH / 2 + 5);
-    trackGroup.add(ceiling);
+    // Ceiling - smooth curved
+    for (let z = 10; z > -TRACK_LENGTH; z -= 4) {
+      const ceilingPanel = new THREE.Mesh(
+        new THREE.CylinderGeometry(6, 6, 4, 16, 1, true, 0, Math.PI),
+        new THREE.MeshStandardMaterial({ color: 0x151520, roughness: 0.9, side: THREE.DoubleSide })
+      );
+      ceilingPanel.rotation.z = Math.PI;
+      ceilingPanel.position.set(0, 4, z);
+      trackGroup.add(ceilingPanel);
+    }
 
-    // Rails
-    const railGeo = new THREE.BoxGeometry(0.15, 0.8, TRACK_LENGTH);
+    // Rails - rounded cylinders
+    const railGeo = new THREE.CylinderGeometry(0.08, 0.08, TRACK_LENGTH, 12);
     const railMat = new THREE.MeshStandardMaterial({ color: 0x888888, metalness: 0.8, roughness: 0.2 });
     const leftRail = new THREE.Mesh(railGeo, railMat);
+    leftRail.rotation.x = Math.PI / 2;
     leftRail.position.set(-3.8, 0.4, -TRACK_LENGTH / 2 + 5);
     trackGroup.add(leftRail);
-    const rightRail = new THREE.Mesh(railGeo, railMat);
+    const rightRail = leftRail.clone();
     rightRail.position.set(3.8, 0.4, -TRACK_LENGTH / 2 + 5);
     trackGroup.add(rightRail);
 
@@ -513,78 +524,139 @@
 
   function createPlayerMesh() {
     playerGroup = new THREE.Group();
-
     const charData = CHARACTERS[selectedChar];
 
-    // Body
-    const body = new THREE.Mesh(
-      new THREE.BoxGeometry(0.6, 0.9, 0.35),
-      new THREE.MeshStandardMaterial({ color: charData.color, roughness: 0.6 })
+    // Torso - rounded capsule-like shape using scaled sphere
+    const torso = new THREE.Mesh(
+      new THREE.SphereGeometry(0.35, 16, 16),
+      new THREE.MeshStandardMaterial({ color: charData.color, roughness: 0.5 })
     );
-    body.position.y = 0.9;
-    body.castShadow = true;
-    playerGroup.add(body);
+    torso.scale.set(1, 1.4, 0.7);
+    torso.position.y = 1.1;
+    torso.castShadow = true;
+    torso.name = 'torso';
+    playerGroup.add(torso);
 
-    // Head
+    // Head - smooth sphere
     const head = new THREE.Mesh(
-      new THREE.BoxGeometry(0.4, 0.45, 0.4),
+      new THREE.SphereGeometry(0.28, 16, 16),
       new THREE.MeshStandardMaterial({ color: 0xffccaa, roughness: 0.8 })
     );
-    head.position.y = 1.65;
+    head.position.y = 1.85;
     head.castShadow = true;
     playerGroup.add(head);
 
-    // Cap/hat
+    // Cap - smooth dome
     const cap = new THREE.Mesh(
-      new THREE.BoxGeometry(0.45, 0.15, 0.5),
-      new THREE.MeshStandardMaterial({ color: charData.color })
+      new THREE.SphereGeometry(0.32, 16, 16, 0, Math.PI * 2, 0, Math.PI / 2),
+      new THREE.MeshStandardMaterial({ color: charData.color, roughness: 0.4 })
     );
     cap.position.set(0, 1.9, 0.05);
+    cap.rotation.x = -0.2;
     playerGroup.add(cap);
 
-    // Arms
-    const armGeo = new THREE.BoxGeometry(0.15, 0.6, 0.15);
-    const armMat = new THREE.MeshStandardMaterial({ color: 0xffccaa });
+    // Cap brim
+    const brim = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.32, 0.32, 0.05, 16),
+      new THREE.MeshStandardMaterial({ color: charData.color })
+    );
+    brim.position.set(0, 1.88, 0.15);
+    brim.rotation.x = 0.3;
+    playerGroup.add(brim);
+
+    // Arms - capsules (cylinders with rounded ends)
+    const armGeo = new THREE.CylinderGeometry(0.08, 0.07, 0.55, 12);
+    const armMat = new THREE.MeshStandardMaterial({ color: 0xffccaa, roughness: 0.8 });
     const leftArm = new THREE.Mesh(armGeo, armMat);
-    leftArm.position.set(-0.4, 1.1, 0);
+    leftArm.position.set(-0.42, 1.25, 0);
     leftArm.name = 'leftArm';
     playerGroup.add(leftArm);
     const rightArm = new THREE.Mesh(armGeo, armMat);
-    rightArm.position.set(0.4, 1.1, 0);
+    rightArm.position.set(0.42, 1.25, 0);
     rightArm.name = 'rightArm';
     playerGroup.add(rightArm);
 
-    // Legs
-    const legGeo = new THREE.BoxGeometry(0.2, 0.7, 0.2);
-    const legMat = new THREE.MeshStandardMaterial({ color: 0x1a1a2a });
+    // Hands - small spheres
+    const handGeo = new THREE.SphereGeometry(0.08, 12, 12);
+    const leftHand = new THREE.Mesh(handGeo, armMat);
+    leftHand.position.set(-0.42, 0.95, 0);
+    leftHand.name = 'leftHand';
+    playerGroup.add(leftHand);
+    const rightHand = new THREE.Mesh(handGeo, armMat);
+    rightHand.position.set(0.42, 0.95, 0);
+    rightHand.name = 'rightHand';
+    playerGroup.add(rightHand);
+
+    // Legs - capsules
+    const legGeo = new THREE.CylinderGeometry(0.1, 0.09, 0.65, 12);
+    const legMat = new THREE.MeshStandardMaterial({ color: 0x1a1a2a, roughness: 0.7 });
     const leftLeg = new THREE.Mesh(legGeo, legMat);
-    leftLeg.position.set(-0.15, 0.35, 0);
+    leftLeg.position.set(-0.15, 0.38, 0);
     leftLeg.name = 'leftLeg';
     playerGroup.add(leftLeg);
     const rightLeg = new THREE.Mesh(legGeo, legMat);
-    rightLeg.position.set(0.15, 0.35, 0);
+    rightLeg.position.set(0.15, 0.38, 0);
     rightLeg.name = 'rightLeg';
     playerGroup.add(rightLeg);
 
+    // Shoes
+    const shoeGeo = new THREE.SphereGeometry(0.12, 12, 12);
+    const shoeMat = new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.6 });
+    const leftShoe = new THREE.Mesh(shoeGeo, shoeMat);
+    leftShoe.scale.set(1, 0.6, 1.4);
+    leftShoe.position.set(-0.15, 0.06, 0.05);
+    leftShoe.name = 'leftShoe';
+    playerGroup.add(leftShoe);
+    const rightShoe = new THREE.Mesh(shoeGeo, shoeMat);
+    rightShoe.scale.set(1, 0.6, 1.4);
+    rightShoe.position.set(0.15, 0.06, 0.05);
+    rightShoe.name = 'rightShoe';
+    playerGroup.add(rightShoe);
+
     // Backpack (for jetpack visual)
     const backpack = new THREE.Mesh(
-      new THREE.BoxGeometry(0.4, 0.5, 0.25),
-      new THREE.MeshStandardMaterial({ color: 0x4a4a5a })
+      new THREE.SphereGeometry(0.3, 12, 12),
+      new THREE.MeshStandardMaterial({ color: 0x4a4a5a, roughness: 0.6 })
     );
-    backpack.position.set(0, 1.1, -0.3);
+    backpack.scale.set(1, 1.2, 0.6);
+    backpack.position.set(0, 1.1, -0.35);
     backpack.name = 'backpack';
     backpack.visible = false;
     playerGroup.add(backpack);
 
+    // Jetpack nozzles
+    const nozzleGeo = new THREE.CylinderGeometry(0.06, 0.08, 0.2, 8);
+    const nozzleMat = new THREE.MeshStandardMaterial({ color: 0x666666, metalness: 0.7 });
+    const nozzleL = new THREE.Mesh(nozzleGeo, nozzleMat);
+    nozzleL.rotation.x = Math.PI / 2;
+    nozzleL.position.set(-0.12, 0.7, -0.45);
+    nozzleL.name = 'nozzleL';
+    nozzleL.visible = false;
+    playerGroup.add(nozzleL);
+    const nozzleR = nozzleL.clone();
+    nozzleR.position.set(0.12, 0.7, -0.45);
+    nozzleR.name = 'nozzleR';
+    nozzleR.visible = false;
+    playerGroup.add(nozzleR);
+
     // Shield bubble
-    const shieldGeo = new THREE.SphereGeometry(1.2, 16, 16);
+    const shieldGeo = new THREE.SphereGeometry(1.3, 24, 24);
     const shieldMat = new THREE.MeshBasicMaterial({
-      color: 0x8b5cf6, transparent: true, opacity: 0.2, side: THREE.DoubleSide
+      color: 0x8b5cf6, transparent: true, opacity: 0.15, side: THREE.DoubleSide
     });
     const shield = new THREE.Mesh(shieldGeo, shieldMat);
     shield.name = 'shield';
     shield.visible = false;
     playerGroup.add(shield);
+
+    // Shield glow ring
+    const shieldRing = new THREE.Mesh(
+      new THREE.TorusGeometry(1.3, 0.03, 8, 32),
+      new THREE.MeshBasicMaterial({ color: 0x8b5cf6, transparent: true, opacity: 0.4 })
+    );
+    shieldRing.name = 'shieldRing';
+    shieldRing.visible = false;
+    playerGroup.add(shieldRing);
 
     playerGroup.position.set(0, 0, 0);
     scene.add(playerGroup);
@@ -608,24 +680,21 @@
       const dy = touch.clientY - startY;
       const dt = Date.now() - startTime;
 
-      if (dt > 500) return; // Too slow
-      if (Math.abs(dx) < 30 && Math.abs(dy) < 30) return; // Too small
+      if (dt > 500) return;
+      if (Math.abs(dx) < 30 && Math.abs(dy) < 30) return;
 
       if (Math.abs(dx) > Math.abs(dy)) {
-        // Horizontal swipe
-        if (dx > 0) moveLane(1); // Right
-        else moveLane(-1); // Left
+        if (dx > 0) moveLane(1);
+        else moveLane(-1);
       } else {
-        // Vertical swipe
-        if (dy < 0) jump(); // Up
-        else slide(); // Down
+        if (dy < 0) jump();
+        else slide();
       }
     }
 
     document.addEventListener('touchstart', handleStart, { passive: true });
     document.addEventListener('touchend', handleEnd, { passive: true });
 
-    // Keyboard for desktop testing
     document.addEventListener('keydown', (e) => {
       if (!gameRunning) return;
       if (e.key === 'ArrowLeft' || e.key === 'a') moveLane(-1);
@@ -670,16 +739,16 @@
     document.getElementById('distanceDisplay').style.display = 'block';
     document.getElementById('powerupBar').style.display = 'flex';
 
-    // Apply character bonuses
     const charData = CHARACTERS[selectedChar];
     if (charData.bonus === 'magnet') { player.magnetTimer = 3; player.magnetActive = true; }
     if (charData.bonus === 'jump') { player.jumpPower = 8; }
     if (charData.bonus === 'shield') { player.shieldTimer = 5; player.shieldActive = true; }
 
-    // Reset player mesh color
     if (playerMesh) {
-      playerMesh.children[0].material.color.setHex(charData.color);
-      playerMesh.children[2].material.color.setHex(charData.color);
+      const torso = playerMesh.children.find(c => c.name === 'torso');
+      const cap = playerMesh.children.find(c => c === playerMesh.children[2]);
+      if (torso) torso.material.color.setHex(charData.color);
+      if (cap) cap.material.color.setHex(charData.color);
     }
 
     gameRunning = true;
@@ -688,7 +757,6 @@
     totalCoins = 0; totalPowerups = 0; nearMisses = 0; maxCombo = 0;
     missions = { coin100: false, powerup3: false, distance500: false, noCrash200: false };
 
-    // Reset player
     player.lane = 0; player.targetLane = 0;
     player.y = 0; player.vy = 0;
     player.isJumping = false; player.isSliding = false;
@@ -698,12 +766,10 @@
     player.doubleCoins = false; player.doubleTimer = 0;
     player.invincible = false; player.invincibleTimer = 0;
 
-    // Clear old objects
     activeObjects.forEach(obj => scene.remove(obj.mesh));
     activeObjects = [];
     lastSegmentZ = -10;
 
-    // Pre-generate some segments
     for (let i = 0; i < 15; i++) {
       generateSegment(lastSegmentZ);
       lastSegmentZ -= SEGMENT_LENGTH;
@@ -714,9 +780,7 @@
 
   // ========== WORLD GENERATION ==========
   function generateSegment(z) {
-    const lane = Math.floor(Math.random() * 3) - 1; // -1, 0, 1
-
-    // Determine what to spawn
+    const lane = Math.floor(Math.random() * 3) - 1;
     const rand = Math.random();
     let type = 'empty';
 
@@ -730,23 +794,20 @@
     if (type === 'coins') {
       const pattern = Math.random();
       if (pattern < 0.4) {
-        // Line of coins
         for (let i = 0; i < 5; i++) {
-          createCoin(lane * LANE_WIDTH, 0.6, z - i * 0.8);
+          createCoin(lane * LANE_WIDTH, 1.8, z - i * 0.8);
         }
       } else if (pattern < 0.7) {
-        // Arc of coins
         for (let i = 0; i < 7; i++) {
           const angle = (i / 6) * Math.PI;
           const cx = lane * LANE_WIDTH + Math.cos(angle) * 0.8;
-          const cy = 0.6 + Math.sin(angle) * 1.2;
+          const cy = 1.8 + Math.sin(angle) * 1.2;
           createCoin(cx, cy, z - i * 0.6);
         }
       } else {
-        // Triple lane coins
         for (let l = -1; l <= 1; l++) {
           for (let i = 0; i < 3; i++) {
-            createCoin(l * LANE_WIDTH, 0.6, z - i * 0.8);
+            createCoin(l * LANE_WIDTH, 1.8, z - i * 0.8);
           }
         }
       }
@@ -762,24 +823,43 @@
     } else if (type === 'powerup') {
       const powerups = ['magnet', 'jetpack', 'shield', 'double', 'sneakers'];
       const puType = powerups[Math.floor(Math.random() * powerups.length)];
-      createPowerup(lane * LANE_WIDTH, 0.8, z, puType);
+      createPowerup(lane * LANE_WIDTH, 1.8, z, puType);
     }
 
-    // Always add some ground detail
     if (Math.random() < 0.3) {
       createGroundDetail(z);
     }
   }
 
   function createCoin(x, y, z) {
-    const geo = new THREE.CylinderGeometry(0.25, 0.25, 0.08, 12);
+    // Smooth gold coin - cylinder with rounded edges
+    const geo = new THREE.CylinderGeometry(0.22, 0.22, 0.06, 16);
     const mat = new THREE.MeshStandardMaterial({
-      color: 0xf59e0b, metalness: 0.9, roughness: 0.1, emissive: 0xf59e0b, emissiveIntensity: 0.2
+      color: 0xffd700, metalness: 0.95, roughness: 0.05,
+      emissive: 0xffaa00, emissiveIntensity: 0.3
     });
     const mesh = new THREE.Mesh(geo, mat);
     mesh.rotation.x = Math.PI / 2;
     mesh.position.set(x, y, z);
     mesh.castShadow = true;
+
+    // Coin inner detail - smaller cylinder
+    const innerGeo = new THREE.CylinderGeometry(0.14, 0.14, 0.07, 16);
+    const innerMat = new THREE.MeshStandardMaterial({
+      color: 0xffec8b, metalness: 0.9, roughness: 0.1
+    });
+    const inner = new THREE.Mesh(innerGeo, innerMat);
+    inner.rotation.x = Math.PI / 2;
+    mesh.add(inner);
+
+    // Sparkle
+    const sparkle = new THREE.Mesh(
+      new THREE.SphereGeometry(0.05, 8, 8),
+      new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.8 })
+    );
+    sparkle.position.set(0.18, 0.1, 0);
+    mesh.add(sparkle);
+
     scene.add(mesh);
 
     activeObjects.push({
@@ -789,28 +869,49 @@
   }
 
   function createBarrier(x, y, z, subtype) {
-    const height = subtype === 'high' ? 1.8 : 0.6;
-    const geo = new THREE.BoxGeometry(2, height, 0.5);
-    const mat = new THREE.MeshStandardMaterial({ color: subtype === 'high' ? 0xef4444 : 0xf59e0b, roughness: 0.7 });
-    const mesh = new THREE.Mesh(geo, mat);
-    mesh.position.set(x, height / 2, z);
-    mesh.castShadow = true;
-    scene.add(mesh);
+    // Lower, smoother barriers
+    const height = subtype === 'high' ? 1.0 : 0.4;
+    const geo = new THREE.CylinderGeometry(0.15, 0.15, height, 8);
+    const mat = new THREE.MeshStandardMaterial({ color: subtype === 'high' ? 0xef4444 : 0xf59e0b, roughness: 0.5, metalness: 0.3 });
+    
+    const group = new THREE.Group();
+    
+    // Main barrier - rounded horizontal bar instead of box
+    const bar = new THREE.Mesh(
+      new THREE.CapsuleGeometry(0.12, 1.8, 4, 8),
+      mat
+    );
+    bar.rotation.z = Math.PI / 2;
+    bar.position.y = height / 2;
+    bar.castShadow = true;
+    group.add(bar);
 
-    // Warning stripes
-    for (let i = 0; i < 3; i++) {
-      const stripe = new THREE.Mesh(
-        new THREE.BoxGeometry(2.05, 0.15, 0.55),
-        new THREE.MeshBasicMaterial({ color: i % 2 === 0 ? 0xffffff : 0x000000 })
-      );
-      stripe.position.set(x, 0.2 + i * 0.5, z);
-      scene.add(stripe);
-      activeObjects.push({ mesh: stripe, type: 'detail', x: x, y: 0, z: z, collected: true });
-    }
+    // Support posts - cylinders
+    const postGeo = new THREE.CylinderGeometry(0.08, 0.1, height, 8);
+    const postMat = new THREE.MeshStandardMaterial({ color: 0x666666, metalness: 0.5 });
+    const leftPost = new THREE.Mesh(postGeo, postMat);
+    leftPost.position.set(-0.9, height / 2, 0);
+    group.add(leftPost);
+    const rightPost = new THREE.Mesh(postGeo, postMat);
+    rightPost.position.set(0.9, height / 2, 0);
+    group.add(rightPost);
+
+    // Warning lights - small spheres on top
+    const lightGeo = new THREE.SphereGeometry(0.08, 8, 8);
+    const lightMat = new THREE.MeshBasicMaterial({ color: 0xff0000, emissive: 0xff0000, emissiveIntensity: 0.8 });
+    const leftLight = new THREE.Mesh(lightGeo, lightMat);
+    leftLight.position.set(-0.9, height + 0.1, 0);
+    group.add(leftLight);
+    const rightLight = new THREE.Mesh(lightGeo, lightMat);
+    rightLight.position.set(0.9, height + 0.1, 0);
+    group.add(rightLight);
+
+    group.position.set(x, 0, z);
+    scene.add(group);
 
     activeObjects.push({
-      mesh: mesh, type: 'barrier', subtype: subtype,
-      x: x, y: 0, z: z, width: 2.2, height: height, depth: 0.6,
+      mesh: group, type: 'barrier', subtype: subtype,
+      x: x, y: 0, z: z, width: 2.2, height: height + 0.3, depth: 0.5,
       collected: false
     });
   }
@@ -818,44 +919,66 @@
   function createTrain(x, y, z, moving) {
     const trainGroup = new THREE.Group();
 
-    // Body
+    // Train body - rounded box using scaled sphere for smooth look
     const body = new THREE.Mesh(
-      new THREE.BoxGeometry(2.2, 2.5, 8),
-      new THREE.MeshStandardMaterial({ color: 0x3b82f6, metalness: 0.5, roughness: 0.4 })
+      new THREE.SphereGeometry(1.1, 16, 16),
+      new THREE.MeshStandardMaterial({ color: 0x3b82f6, metalness: 0.4, roughness: 0.3 })
     );
-    body.position.y = 1.25;
+    body.scale.set(1, 1.1, 3.5);
+    body.position.y = 1.3;
     body.castShadow = true;
     trainGroup.add(body);
 
-    // Windows
-    for (let wz = -3; wz <= 3; wz += 2) {
-      const window = new THREE.Mesh(
-        new THREE.BoxGeometry(2.25, 0.8, 1.2),
-        new THREE.MeshBasicMaterial({ color: 0x87ceeb, transparent: true, opacity: 0.6 })
+    // Train front - smoother nose
+    const nose = new THREE.Mesh(
+      new THREE.SphereGeometry(0.9, 16, 16),
+      new THREE.MeshStandardMaterial({ color: 0x2563eb, metalness: 0.4, roughness: 0.3 })
+    );
+    nose.scale.set(1, 1, 0.6);
+    nose.position.set(0, 1.3, -3.2);
+    trainGroup.add(nose);
+
+    // Windows - rounded rectangles using scaled spheres
+    for (let wz = -2; wz <= 2; wz += 1.5) {
+      const windowMesh = new THREE.Mesh(
+        new THREE.SphereGeometry(0.35, 12, 12),
+        new THREE.MeshStandardMaterial({ color: 0x87ceeb, transparent: true, opacity: 0.5, metalness: 0.8 })
       );
-      window.position.set(0, 1.8, wz);
-      trainGroup.add(window);
+      windowMesh.scale.set(1.3, 0.7, 0.1);
+      windowMesh.position.set(0, 1.7, wz);
+      trainGroup.add(windowMesh);
     }
 
-    // Headlights
-    const lightL = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.2, 0.2, 0.1, 8),
-      new THREE.MeshBasicMaterial({ color: 0xffffaa })
-    );
-    lightL.rotation.x = Math.PI / 2;
-    lightL.position.set(-0.6, 1, -4);
+    // Headlights - glowing spheres
+    const lightGeo = new THREE.SphereGeometry(0.15, 12, 12);
+    const lightMat = new THREE.MeshBasicMaterial({ color: 0xffffaa, emissive: 0xffffaa, emissiveIntensity: 1 });
+    const lightL = new THREE.Mesh(lightGeo, lightMat);
+    lightL.position.set(-0.5, 1.1, -3.5);
     trainGroup.add(lightL);
-
     const lightR = lightL.clone();
-    lightR.position.set(0.6, 1, -4);
+    lightR.position.set(0.5, 1.1, -3.5);
     trainGroup.add(lightR);
+
+    // Wheels - cylinders
+    const wheelGeo = new THREE.CylinderGeometry(0.25, 0.25, 0.15, 12);
+    const wheelMat = new THREE.MeshStandardMaterial({ color: 0x333333, metalness: 0.7 });
+    const wheelPositions = [
+      [-0.8, 0.25, -2.5], [0.8, 0.25, -2.5],
+      [-0.8, 0.25, 2.5], [0.8, 0.25, 2.5]
+    ];
+    wheelPositions.forEach(pos => {
+      const wheel = new THREE.Mesh(wheelGeo, wheelMat);
+      wheel.rotation.x = Math.PI / 2;
+      wheel.position.set(...pos);
+      trainGroup.add(wheel);
+    });
 
     trainGroup.position.set(x, y, z);
     scene.add(trainGroup);
 
     activeObjects.push({
       mesh: trainGroup, type: 'train', x: x, y: y, z: z,
-      width: 2.4, height: 2.6, depth: 8.2,
+      width: 2.4, height: 2.4, depth: 7.5,
       moving: moving, moveDir: moving ? (Math.random() < 0.5 ? -1 : 1) : 0,
       moveSpeed: moving ? 3 : 0, collected: false
     });
@@ -873,32 +996,43 @@
 
     const group = new THREE.Group();
 
-    // Main orb
+    // Main orb - smooth sphere
     const orb = new THREE.Mesh(
-      new THREE.SphereGeometry(0.35, 12, 12),
+      new THREE.SphereGeometry(0.3, 20, 20),
       new THREE.MeshStandardMaterial({
         color: colors[puType], emissive: emissive[puType],
-        emissiveIntensity: 0.5, metalness: 0.3
+        emissiveIntensity: 0.6, metalness: 0.2, roughness: 0.2
       })
     );
     group.add(orb);
 
-    // Ring
+    // Outer glow ring - torus
     const ring = new THREE.Mesh(
-      new THREE.TorusGeometry(0.5, 0.05, 8, 16),
-      new THREE.MeshBasicMaterial({ color: colors[puType], transparent: true, opacity: 0.5 })
+      new THREE.TorusGeometry(0.45, 0.04, 12, 32),
+      new THREE.MeshBasicMaterial({ color: colors[puType], transparent: true, opacity: 0.4 })
     );
     ring.rotation.x = Math.PI / 2;
     group.add(ring);
 
-    // Icon floating above
-    const iconGeo = new THREE.PlaneGeometry(0.4, 0.4);
-    // We'll use colored plane instead of texture for simplicity
-    const icon = new THREE.Mesh(iconGeo, new THREE.MeshBasicMaterial({
-      color: 0xffffff, transparent: true, opacity: 0.8, side: THREE.DoubleSide
-    }));
-    icon.position.y = 0.6;
-    group.add(icon);
+    // Second rotating ring
+    const ring2 = new THREE.Mesh(
+      new THREE.TorusGeometry(0.55, 0.02, 8, 24),
+      new THREE.MeshBasicMaterial({ color: colors[puType], transparent: true, opacity: 0.25 })
+    );
+    ring2.rotation.y = Math.PI / 4;
+    group.add(ring2);
+
+    // Floating particles around powerup
+    for (let i = 0; i < 6; i++) {
+      const particle = new THREE.Mesh(
+        new THREE.SphereGeometry(0.04, 8, 8),
+        new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.6 })
+      );
+      const angle = (i / 6) * Math.PI * 2;
+      particle.position.set(Math.cos(angle) * 0.5, Math.sin(angle * 2) * 0.2, Math.sin(angle) * 0.5);
+      particle.name = 'orbitParticle';
+      group.add(particle);
+    }
 
     group.position.set(x, y, z);
     scene.add(group);
@@ -910,40 +1044,39 @@
   }
 
   function createGroundDetail(z) {
-    // Random ground clutter
-    const types = ['crate', 'can', 'paper'];
+    const types = ['crate', 'can', 'barrel'];
     const type = types[Math.floor(Math.random() * types.length)];
     const lane = Math.floor(Math.random() * 3) - 1;
     const x = lane * LANE_WIDTH + (Math.random() - 0.5) * 1.5;
 
     let mesh;
     if (type === 'crate') {
+      // Rounded crate
       mesh = new THREE.Mesh(
-        new THREE.BoxGeometry(0.5, 0.5, 0.5),
-        new THREE.MeshStandardMaterial({ color: 0x8b4513 })
+        new THREE.SphereGeometry(0.3, 12, 12),
+        new THREE.MeshStandardMaterial({ color: 0x8b4513, roughness: 0.8 })
       );
-      mesh.position.set(x, 0.25, z);
+      mesh.scale.set(1, 1, 1);
+      mesh.position.set(x, 0.3, z);
     } else if (type === 'can') {
       mesh = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.1, 0.1, 0.3, 8),
+        new THREE.CylinderGeometry(0.08, 0.08, 0.25, 12),
         new THREE.MeshStandardMaterial({ color: 0x888888, metalness: 0.8 })
       );
-      mesh.position.set(x, 0.15, z);
+      mesh.position.set(x, 0.13, z);
     } else {
+      // Barrel
       mesh = new THREE.Mesh(
-        new THREE.BoxGeometry(0.3, 0.02, 0.3),
-        new THREE.MeshStandardMaterial({ color: 0xffffff })
+        new THREE.CylinderGeometry(0.2, 0.22, 0.5, 12),
+        new THREE.MeshStandardMaterial({ color: 0x654321, roughness: 0.7 })
       );
-      mesh.position.set(x, 0.01, z);
-      mesh.rotation.y = Math.random() * Math.PI;
+      mesh.position.set(x, 0.25, z);
     }
 
     mesh.castShadow = true;
     scene.add(mesh);
     activeObjects.push({ mesh: mesh, type: 'detail', x: x, y: 0, z: z, collected: true });
-  }
-
-  // ========== GAME LOOP ==========
+  }  // ========== GAME LOOP ==========
   let lastTime = 0;
   let stepTimer = 0;
 
@@ -964,18 +1097,18 @@
       spawnObjects(dt);
       updateHUD();
 
-      // Step sound
       stepTimer += dt;
       if (stepTimer > 0.3 && !player.isJumping && !player.jetpackActive) {
         stepTimer = 0;
         playSound('step');
       }
     } else {
-      // Idle animation
       if (playerMesh) {
         playerMesh.position.y = Math.sin(gameTime * 2) * 0.05;
-        playerMesh.children[3].rotation.x = Math.sin(gameTime * 4) * 0.3;
-        playerMesh.children[4].rotation.x = Math.sin(gameTime * 4 + Math.PI) * 0.3;
+        const leftArm = playerMesh.children.find(c => c.name === 'leftArm');
+        const rightArm = playerMesh.children.find(c => c.name === 'rightArm');
+        if (leftArm) leftArm.rotation.x = Math.sin(gameTime * 4) * 0.3;
+        if (rightArm) rightArm.rotation.x = Math.sin(gameTime * 4 + Math.PI) * 0.3;
       }
     }
 
@@ -983,7 +1116,6 @@
   }
 
   function updatePlayer(dt) {
-    // Lane switching
     const laneDiff = player.targetLane - player.lane;
     if (Math.abs(laneDiff) > 0.01) {
       player.lane += laneDiff * player.laneSwitchSpeed * dt;
@@ -992,7 +1124,6 @@
       }
     }
 
-    // Jumping / gravity
     if (player.jetpackActive) {
       player.y = Math.min(player.y + 8 * dt, 5);
       player.vy = 0;
@@ -1006,7 +1137,6 @@
       }
     }
 
-    // Sliding
     if (player.isSliding) {
       player.slideTimer -= dt;
       if (player.slideTimer <= 0) {
@@ -1014,39 +1144,46 @@
       }
     }
 
-    // Invincibility
     if (player.invincible) {
       player.invincibleTimer -= dt;
       if (player.invincibleTimer <= 0) player.invincible = false;
     }
 
-    // Update mesh position and animation
     if (playerMesh) {
       playerMesh.position.x = player.lane * LANE_WIDTH;
       playerMesh.position.y = player.y;
 
-      // Running animation
+      const leftArm = playerMesh.children.find(c => c.name === 'leftArm');
+      const rightArm = playerMesh.children.find(c => c.name === 'rightArm');
+      const leftHand = playerMesh.children.find(c => c.name === 'leftHand');
+      const rightHand = playerMesh.children.find(c => c.name === 'rightHand');
+      const leftLeg = playerMesh.children.find(c => c.name === 'leftLeg');
+      const rightLeg = playerMesh.children.find(c => c.name === 'rightLeg');
+      const leftShoe = playerMesh.children.find(c => c.name === 'leftShoe');
+      const rightShoe = playerMesh.children.find(c => c.name === 'rightShoe');
+
       if (!player.isJumping && !player.jetpackActive) {
         const runSpeed = speed * 0.5;
-        playerMesh.children[3].rotation.x = Math.sin(gameTime * runSpeed) * 0.6; // left arm
-        playerMesh.children[4].rotation.x = Math.sin(gameTime * runSpeed + Math.PI) * 0.6; // right arm
-        playerMesh.children[5].rotation.x = Math.sin(gameTime * runSpeed + Math.PI) * 0.5; // left leg
-        playerMesh.children[6].rotation.x = Math.sin(gameTime * runSpeed) * 0.5; // right leg
+        if (leftArm) leftArm.rotation.x = Math.sin(gameTime * runSpeed) * 0.6;
+        if (rightArm) rightArm.rotation.x = Math.sin(gameTime * runSpeed + Math.PI) * 0.6;
+        if (leftHand) leftHand.position.y = 0.95 + Math.sin(gameTime * runSpeed) * 0.1;
+        if (rightHand) rightHand.position.y = 0.95 + Math.sin(gameTime * runSpeed + Math.PI) * 0.1;
+        if (leftLeg) leftLeg.rotation.x = Math.sin(gameTime * runSpeed + Math.PI) * 0.5;
+        if (rightLeg) rightLeg.rotation.x = Math.sin(gameTime * runSpeed) * 0.5;
+        if (leftShoe) leftShoe.position.z = 0.05 + Math.sin(gameTime * runSpeed + Math.PI) * 0.15;
+        if (rightShoe) rightShoe.position.z = 0.05 + Math.sin(gameTime * runSpeed) * 0.15;
       } else if (player.jetpackActive) {
-        // Jetpack pose
-        playerMesh.children[3].rotation.x = -0.5;
-        playerMesh.children[4].rotation.x = -0.5;
-        playerMesh.children[5].rotation.x = 0.2;
-        playerMesh.children[6].rotation.x = -0.2;
+        if (leftArm) leftArm.rotation.x = -0.5;
+        if (rightArm) rightArm.rotation.x = -0.5;
+        if (leftLeg) leftLeg.rotation.x = 0.2;
+        if (rightLeg) rightLeg.rotation.x = -0.2;
       } else {
-        // Jump pose
-        playerMesh.children[3].rotation.x = -0.8;
-        playerMesh.children[4].rotation.x = 0.8;
-        playerMesh.children[5].rotation.x = 0.3;
-        playerMesh.children[6].rotation.x = -0.3;
+        if (leftArm) leftArm.rotation.x = -0.8;
+        if (rightArm) rightArm.rotation.x = 0.8;
+        if (leftLeg) leftLeg.rotation.x = 0.3;
+        if (rightLeg) rightLeg.rotation.x = -0.3;
       }
 
-      // Slide pose
       if (player.isSliding) {
         playerMesh.scale.y = 0.5;
         playerMesh.position.y = player.y - 0.4;
@@ -1054,22 +1191,33 @@
         playerMesh.scale.y = 1;
       }
 
-      // Shield visual
       const shield = playerMesh.children.find(c => c.name === 'shield');
+      const shieldRing = playerMesh.children.find(c => c.name === 'shieldRing');
       if (shield) {
         shield.visible = player.shieldActive;
         shield.rotation.y += dt * 2;
       }
+      if (shieldRing) {
+        shieldRing.visible = player.shieldActive;
+        shieldRing.rotation.x += dt * 3;
+        shieldRing.rotation.z += dt * 1.5;
+      }
 
-      // Jetpack visual
       const backpack = playerMesh.children.find(c => c.name === 'backpack');
+      const nozzleL = playerMesh.children.find(c => c.name === 'nozzleL');
+      const nozzleR = playerMesh.children.find(c => c.name === 'nozzleR');
       if (backpack) {
         backpack.visible = player.jetpackActive;
+        if (nozzleL) nozzleL.visible = player.jetpackActive;
+        if (nozzleR) nozzleR.visible = player.jetpackActive;
         if (player.jetpackActive) {
-          // Jet flame
           createParticles(
-            playerMesh.position.x, playerMesh.position.y - 0.5, playerMesh.position.z + 0.3,
+            playerMesh.position.x - 0.12, playerMesh.position.y - 0.5, playerMesh.position.z + 0.45,
             0xff6600, 2
+          );
+          createParticles(
+            playerMesh.position.x + 0.12, playerMesh.position.y - 0.5, playerMesh.position.z + 0.45,
+            0xff8800, 2
           );
         }
       }
@@ -1077,50 +1225,53 @@
   }
 
   function updateWorld(dt) {
-    // Move world toward player (illusion of running forward)
     distance += speed * dt;
     score += Math.floor(speed * dt * multiplier);
-
-    // Speed up over time
     speed = baseSpeed + Math.floor(distance / 100) * 0.5;
-
-    // Increase multiplier
     multiplier = 1 + Math.floor(distance / 200);
 
-    // Move objects
     activeObjects.forEach(obj => {
       if (obj.type === 'train' && obj.moving) {
         obj.x += obj.moveDir * obj.moveSpeed * dt;
         obj.mesh.position.x = obj.x;
-        // Bounce off walls
         if (obj.x > 3 || obj.x < -3) obj.moveDir *= -1;
       }
     });
   }
 
   function updateObjects(dt) {
-    // Remove far behind objects
     for (let i = activeObjects.length - 1; i >= 0; i--) {
       const obj = activeObjects[i];
-      obj.z += speed * dt; // Objects move toward camera
+      obj.z += speed * dt;
 
       if (obj.mesh) {
         obj.mesh.position.z = obj.z;
 
-        // Coin rotation
         if (obj.type === 'coin' && !obj.collected) {
           obj.mesh.rotation.z += obj.rotSpeed * dt;
+          const sparkle = obj.mesh.children.find(c => c.geometry && c.geometry.type === 'SphereGeometry' && c !== obj.mesh.children[1]);
+          if (sparkle) {
+            sparkle.position.y = 0.1 + Math.sin(gameTime * 5) * 0.05;
+            sparkle.material.opacity = 0.5 + Math.sin(gameTime * 8) * 0.3;
+          }
         }
 
-        // Powerup bobbing
         if (obj.type === 'powerup' && !obj.collected) {
           obj.bobTime += dt * 3;
           obj.mesh.position.y = obj.y + Math.sin(obj.bobTime) * 0.2;
           obj.mesh.rotation.y += dt * 2;
+          obj.mesh.children.forEach(child => {
+            if (child.name === 'orbitParticle') {
+              const idx = obj.mesh.children.indexOf(child);
+              const angle = (idx / 6) * Math.PI * 2 + gameTime * 2;
+              child.position.x = Math.cos(angle) * 0.5;
+              child.position.z = Math.sin(angle) * 0.5;
+              child.position.y = Math.sin(angle * 2 + gameTime * 3) * 0.15;
+            }
+          });
         }
       }
 
-      // Remove if passed camera
       if (obj.z > 10) {
         scene.remove(obj.mesh);
         activeObjects.splice(i, 1);
@@ -1136,6 +1287,7 @@
       p.mesh.position.y += p.vy * dt;
       p.mesh.position.z += p.vz * dt;
       p.life -= dt;
+      p.mesh.scale.multiplyScalar(0.98);
 
       if (p.life <= 0 || p.mesh.position.y < -1) {
         scene.remove(p.mesh);
@@ -1145,14 +1297,12 @@
   }
 
   function updatePowerups(dt) {
-    // Magnet
     if (player.magnetActive) {
       player.magnetTimer -= dt;
       if (player.magnetTimer <= 0) {
         player.magnetActive = false;
         updatePowerupBar();
       } else {
-        // Pull nearby coins
         activeObjects.forEach(obj => {
           if (obj.type === 'coin' && !obj.collected) {
             const dx = (player.lane * LANE_WIDTH) - obj.x;
@@ -1169,17 +1319,15 @@
       }
     }
 
-    // Jetpack
     if (player.jetpackActive) {
       player.jetpackTimer -= dt;
       if (player.jetpackTimer <= 0) {
         player.jetpackActive = false;
-        player.vy = -2; // Gentle landing
+        player.vy = -2;
         updatePowerupBar();
       }
     }
 
-    // Shield
     if (player.shieldActive) {
       player.shieldTimer -= dt;
       if (player.shieldTimer <= 0) {
@@ -1188,7 +1336,6 @@
       }
     }
 
-    // Double coins
     if (player.doubleCoins) {
       player.doubleTimer -= dt;
       if (player.doubleTimer <= 0) {
@@ -1199,7 +1346,6 @@
   }
 
   function updateCamera() {
-    // Smooth follow
     const targetX = player.lane * LANE_WIDTH * 0.3;
     camera.position.x += (targetX - camera.position.x) * 0.05;
 
@@ -1211,7 +1357,6 @@
       camera.lookAt(player.lane * LANE_WIDTH, 1, -5);
     }
 
-    // Slight tilt on lane switch
     camera.rotation.z = (player.lane * LANE_WIDTH - camera.position.x) * -0.02;
   }
 
@@ -1241,13 +1386,11 @@
         if (Math.abs(px - obj.x) < (obj.width / 2 + playerWidth) &&
             Math.abs(pz - obj.z) < (obj.depth / 2 + 0.3)) {
           if (obj.subtype === 'high') {
-            // Must jump over
             if (py < obj.height && !player.invincible) {
               crash();
               return;
             }
           } else {
-            // Must slide under
             if (!player.isSliding && py < 1 && !player.invincible) {
               crash();
               return;
@@ -1261,7 +1404,6 @@
             crash();
             return;
           } else if (player.shieldActive) {
-            // Shield breaks but saves you
             player.shieldActive = false;
             player.invincible = true;
             player.invincibleTimer = 1;
@@ -1284,16 +1426,12 @@
     score += 10 * multiplier;
 
     playSound('coin');
+    createParticles(coinObj.x, coinObj.y, coinObj.z, 0xf59e0b, 8);
 
-    // Visual
-    createParticles(coinObj.x, coinObj.y, coinObj.z, 0xf59e0b, 5);
-
-    // Floating text
     const screenX = (coinObj.x / 8 + 0.5) * window.innerWidth;
     const screenY = window.innerHeight * 0.4;
     showFloatText(`+${value}`, 'gold', screenX, screenY);
 
-    // Check missions
     if (totalCoins >= 100 && !missions.coin100) {
       missions.coin100 = true;
       score += 500;
@@ -1365,7 +1503,6 @@
   }
 
   function spawnObjects(dt) {
-    // Spawn new segments as player advances
     const spawnZ = -distance - 30;
     while (lastSegmentZ > spawnZ) {
       generateSegment(lastSegmentZ);
@@ -1377,7 +1514,7 @@
     for (let i = 0; i < count; i++) {
       const size = 0.05 + Math.random() * 0.08;
       const mesh = new THREE.Mesh(
-        new THREE.BoxGeometry(size, size, size),
+        new THREE.SphereGeometry(size, 8, 8),
         new THREE.MeshBasicMaterial({ color: color })
       );
       mesh.position.set(x, y, z);
@@ -1398,10 +1535,8 @@
     gameRunning = false;
     playSound('crash');
 
-    // Crash particles
     createParticles(player.lane * LANE_WIDTH, player.y + 0.5, 0, 0xef4444, 20);
 
-    // Screen shake
     const originalPos = camera.position.clone();
     let shakeTime = 0;
     function shake() {
@@ -1416,7 +1551,6 @@
     }
     shake();
 
-    // Show game over after brief delay
     setTimeout(() => showGameOver(), 800);
   }
 
