@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin | Withdrawal Requests</title>
 
     <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" type="image/jpeg">
@@ -40,34 +40,28 @@
 
         html, body {
             height: 100%;
-            overflow: hidden;
         }
 
         body {
             background-color: #e9ecef;
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 20px;
         }
 
         .app-container {
             width: 100%;
-            height: 100dvh;
-            max-width: 430px;
+            max-width: 900px;
             background-color: var(--silk-bg);
             position: relative;
             overflow: hidden;
             display: flex;
             flex-direction: column;
-        }
-
-        @media (min-width: 768px) {
-            .app-container {
-                height: 92dvh;
-                max-height: 850px;
-                border-radius: 24px;
-                box-shadow: 0 0 40px rgba(0,0,0,0.12);
-            }
+            border-radius: 24px;
+            box-shadow: 0 0 40px rgba(0,0,0,0.12);
+            min-height: calc(100vh - 40px);
         }
 
         .scroll-content {
@@ -75,18 +69,18 @@
             overflow-y: auto;
             overflow-x: hidden;
             padding: 0 20px;
-            padding-bottom: calc(20px + env(safe-area-inset-bottom));
+            padding-bottom: 20px;
         }
 
         .scroll-content::-webkit-scrollbar {
-            width: 2px;
+            width: 6px;
         }
         .scroll-content::-webkit-scrollbar-track {
             background: transparent;
         }
         .scroll-content::-webkit-scrollbar-thumb {
             background: var(--orange-light);
-            border-radius: 2px;
+            border-radius: 3px;
         }
 
         /* ==================== TOP NAV ==================== */
@@ -112,6 +106,7 @@
             align-items: center;
             gap: 8px;
             transition: all 0.3s ease;
+            text-decoration: none;
         }
 
         .nav-back-btn:hover {
@@ -438,6 +433,10 @@
             pointer-events: none;
         }
 
+        .btn-hidden {
+            display: none !important;
+        }
+
         /* ==================== EMPTY STATE ==================== */
         .empty-state {
             text-align: center;
@@ -728,7 +727,7 @@
         <i class="fa-solid fa-shield-halved"></i>
         <h2>Access Denied</h2>
         <p>You do not have permission to view this page. This area is restricted to administrators only.</p>
-        <button class="nav-back-btn" onclick="window.location.href='dashboard.html'">
+        <button class="nav-back-btn" onclick="window.location.href='admin.html'">
             <i class="fa-solid fa-arrow-left"></i> Go Back
         </button>
     </div>
@@ -774,7 +773,7 @@
     <div class="app-container" id="appContainer">
         <!-- TOP NAV -->
         <div class="top-nav">
-            <button class="nav-back-btn" onclick="window.location.href='dashboard.html'">
+            <button class="nav-back-btn" onclick="window.location.href='admin.html'">
                 <i class="fa-solid fa-arrow-left"></i> Back
             </button>
             <div class="admin-badge">
@@ -966,7 +965,9 @@
                 return;
             }
 
-            container.innerHTML = filtered.map((w, index) => `
+            container.innerHTML = filtered.map((w, index) => {
+                const status = w.status || 'pending';
+                return `
                 <div class="withdrawal-card fade-in" style="animation-delay: ${index * 0.05}s">
                     <div class="withdrawal-header">
                         <div class="withdrawal-avatar">
@@ -976,7 +977,7 @@
                             <div class="withdrawal-name">${escapeHtml(w.accountName || 'Unknown')}</div>
                             <div class="withdrawal-email">${escapeHtml(w.email || 'No email')}</div>
                         </div>
-                        <span class="withdrawal-status status-badge-${w.status || 'pending'}">${w.status || 'pending'}</span>
+                        <span class="withdrawal-status status-badge-${status}">${status}</span>
                     </div>
                     
                     <div class="withdrawal-details">
@@ -985,7 +986,7 @@
                             <span class="detail-value amount">-$${w.amountUSD?.toFixed(2) || '0.00'}</span>
                         </div>
                         <div class="detail-row">
-                            <span class="detail-label">Fee (5%)</span>
+                            <span class="detail-label">Fee (10%)</span>
                             <span class="detail-value">-$${w.feeUSD?.toFixed(2) || '0.00'}</span>
                         </div>
                         <div class="detail-row">
@@ -1013,35 +1014,36 @@
 
                     ${getActionButtons(w)}
                 </div>
-            `).join('');
+            `}).join('');
         }
 
         function getActionButtons(w) {
-            if (w.status === 'approved' || w.status === 'completed') {
+            const status = w.status || 'pending';
+
+            // APPROVED: cannot be rejected or refunded
+            if (status === 'approved' || status === 'completed') {
                 return `
                     <div class="withdrawal-actions">
                         <button class="btn-approve btn-disabled">
                             <i class="fa-solid fa-check"></i> Approved
                         </button>
-                        <button class="btn-refund" onclick="openRefundModal('${w.id}')">
-                            <i class="fa-solid fa-rotate-left"></i> Refund
-                        </button>
                     </div>
                 `;
             }
-            if (w.status === 'rejected') {
+
+            // REJECTED: cannot be approved or refunded
+            if (status === 'rejected') {
                 return `
                     <div class="withdrawal-actions">
-                        <button class="btn-approve" onclick="approveWithdrawal('${w.id}')">
-                            <i class="fa-solid fa-check"></i> Approve
-                        </button>
                         <button class="btn-reject btn-disabled">
                             <i class="fa-solid fa-xmark"></i> Rejected
                         </button>
                     </div>
                 `;
             }
-            if (w.status === 'refunded') {
+
+            // REFUNDED: final state, no actions
+            if (status === 'refunded') {
                 return `
                     <div class="withdrawal-actions">
                         <button class="btn-refund btn-disabled">
@@ -1050,7 +1052,8 @@
                     </div>
                 `;
             }
-            // pending
+
+            // PENDING: can approve or reject
             return `
                 <div class="withdrawal-actions">
                     <button class="btn-approve" onclick="approveWithdrawal('${w.id}')">
@@ -1067,11 +1070,20 @@
         async function approveWithdrawal(docId) {
             if (!isAdmin) return;
 
+            // Check if already approved/rejected/refunded
+            const withdrawal = allWithdrawals.find(w => w.id === docId);
+            if (!withdrawal) {
+                showToast("Withdrawal not found");
+                return;
+            }
+            const status = withdrawal.status || 'pending';
+            if (status !== 'pending') {
+                showToast("This withdrawal can no longer be approved");
+                return;
+            }
+
             showLoader("Approving...");
             try {
-                const withdrawal = allWithdrawals.find(w => w.id === docId);
-                if (!withdrawal) throw new Error("Withdrawal not found");
-
                 await db.collection('withdrawals').doc(docId).update({
                     status: 'approved',
                     reviewedAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -1091,6 +1103,18 @@
 
         // ==================== REJECT ====================
         function openRejectModal(docId) {
+            // Check if already approved/rejected/refunded
+            const withdrawal = allWithdrawals.find(w => w.id === docId);
+            if (!withdrawal) {
+                showToast("Withdrawal not found");
+                return;
+            }
+            const status = withdrawal.status || 'pending';
+            if (status !== 'pending') {
+                showToast("This withdrawal can no longer be rejected");
+                return;
+            }
+
             actionDocId = docId;
             document.getElementById('rejectReason').value = '';
             document.getElementById('rejectModal').classList.add('active');
@@ -1110,11 +1134,16 @@
                 return;
             }
 
+            // Double-check status before rejecting
+            const withdrawal = allWithdrawals.find(w => w.id === actionDocId);
+            if (!withdrawal || (withdrawal.status && withdrawal.status !== 'pending')) {
+                showToast("This withdrawal can no longer be rejected");
+                closeRejectModal();
+                return;
+            }
+
             showLoader("Rejecting...");
             try {
-                const withdrawal = allWithdrawals.find(w => w.id === actionDocId);
-                if (!withdrawal) throw new Error("Withdrawal not found");
-
                 await db.collection('withdrawals').doc(actionDocId).update({
                     status: 'rejected',
                     reviewedAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -1138,6 +1167,17 @@
             const withdrawal = allWithdrawals.find(w => w.id === docId);
             if (!withdrawal) return;
 
+            // Check if already refunded
+            if (withdrawal.status === 'refunded') {
+                showToast("This withdrawal has already been refunded");
+                return;
+            }
+            // Only approved can be refunded
+            if (withdrawal.status !== 'approved' && withdrawal.status !== 'completed') {
+                showToast("Only approved withdrawals can be refunded");
+                return;
+            }
+
             actionDocId = docId;
             actionData = withdrawal;
             document.getElementById('refundAmountDisplay').textContent = `$${withdrawal.amountUSD?.toFixed(2) || '0.00'}`;
@@ -1153,11 +1193,24 @@
         async function confirmRefund() {
             if (!isAdmin || !actionDocId || !actionData) return;
 
+            // Double-check status
+            const withdrawal = allWithdrawals.find(w => w.id === actionDocId);
+            if (!withdrawal || withdrawal.status === 'refunded') {
+                showToast("This withdrawal has already been refunded");
+                closeRefundModal();
+                return;
+            }
+            if (withdrawal.status !== 'approved' && withdrawal.status !== 'completed') {
+                showToast("Only approved withdrawals can be refunded");
+                closeRefundModal();
+                return;
+            }
+
             showLoader("Processing refund...");
             try {
                 const userRef = db.collection('users').doc(actionData.userId);
 
-                // Atomically increment user balance back [^8^]
+                // Atomically increment user balance back
                 await userRef.update({
                     balance: firebase.firestore.FieldValue.increment(actionData.amountUSD)
                 });
@@ -1201,4 +1254,4 @@
         }
     </script>
 </body>
-</html>
+    </html>
