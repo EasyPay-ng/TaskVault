@@ -1,6 +1,6 @@
 {
-    "name": "CashClique",
-    "short_name": "CashClique",
+    "name": "TaskVault",
+    "short_name": "TaskVault",
     "description": "Earn rewards daily",
     "start_url": "/index.html",
     "display": "standalone",
