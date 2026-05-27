@@ -35,6 +35,8 @@
       --purple-light: #ede9fe;
       --yellow: #f59e0b;
       --yellow-light: #fef3c7;
+      --cyan: #06b6d4;
+      --cyan-light: #cffafe;
       --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.05);
       --shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1);
       --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
@@ -214,6 +216,9 @@
     .quick-action.tasks { border-color: var(--yellow-light); }
     .quick-action.tasks:hover { background: var(--yellow-light); color: var(--yellow); border-color: var(--yellow); }
     .quick-action.tasks i { color: var(--yellow); }
+    .quick-action.games { border-color: var(--cyan-light); }
+    .quick-action.games:hover { background: var(--cyan-light); color: var(--cyan); border-color: var(--cyan); }
+    .quick-action.games i { color: var(--cyan); }
 
     /* Action Bar */
     .action-bar {
@@ -801,6 +806,9 @@
     <a href="admin-tasks.html" class="quick-action tasks">
       <i class="ri-task-line"></i> Submissions
     </a>
+    <a href="admin-game.html" class="quick-action games">
+      <i class="ri-gamepad-line"></i> Games
+    </a>
   </div>
 
   <!-- Action Bar -->
@@ -922,7 +930,19 @@
             <div class="detail-label">Username</div>
             <div class="detail-value" id="detailUsername">-</div>
           </div>
-          <div class="detail-item full-width">
+          <div class="detail-item">
+            <div class="detail-label">Phone Number</div>
+            <div class="detail-value" id="detailPhone">-</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Country</div>
+            <div class="detail-value" id="detailCountry">-</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Referral Code</div>
+            <div class="detail-value" id="detailReferral">-</div>
+          </div>
+          <div class="detail-item">
             <div class="detail-label">Account Status</div>
             <div class="detail-value" id="detailStatus">-</div>
           </div>
@@ -989,7 +1009,7 @@
         <div class="detail-grid">
           <div class="detail-item">
             <div class="detail-label">Country</div>
-            <div class="detail-value" id="detailCountry">-</div>
+            <div class="detail-value" id="detailLocCountry">-</div>
           </div>
           <div class="detail-item">
             <div class="detail-label">IP Address</div>
@@ -1067,6 +1087,14 @@
   const searchInput = document.getElementById('searchInput');
   const sortSelect = document.getElementById('sortSelect');
 
+  // Country code to name mapping
+  const countryNames = {
+    'NG': 'Nigeria', 'CM': 'Cameroon', 'GH': 'Ghana', 'PH': 'Philippines',
+    'CN': 'China', 'GA': 'Gabon', 'US': 'United States', 'GB': 'United Kingdom',
+    'CA': 'Canada', 'HU': 'Hungary', 'ZA': 'South Africa', 'AU': 'Australia',
+    'DE': 'Germany', 'FR': 'France', 'IN': 'India', 'JP': 'Japan', 'BR': 'Brazil'
+  };
+
   onAuthStateChanged(auth, async (user) => {
     if (!user) { location.href = 'login.html'; return; }
     if (user.email?.toLowerCase() !== ADMIN_EMAIL) {
@@ -1131,7 +1159,9 @@
         (u.email?.toLowerCase() || '').includes(query) ||
         (u.username?.toLowerCase() || '').includes(query) ||
         (u.displayName?.toLowerCase() || '').includes(query) ||
-        u.uid.toLowerCase().includes(query)
+        u.uid.toLowerCase().includes(query) ||
+        (u.phone?.toLowerCase() || '').includes(query) ||
+        (u.country?.toLowerCase() || '').includes(query)
       );
     }
     
@@ -1228,13 +1258,17 @@
     const joined = user.createdAt?.toDate ? user.createdAt.toDate() : new Date(user.createdAt || Date.now());
     document.getElementById('profileJoined').textContent = joined.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
     
-    // Populate details
+    // Populate Account Information details
     document.getElementById('detailFullName').textContent = user.displayName || '-';
     document.getElementById('detailEmail').textContent = user.email || '-';
     document.getElementById('detailUid').textContent = user.uid;
     document.getElementById('detailUsername').textContent = user.username || '-';
+    document.getElementById('detailPhone').textContent = user.phone || '-';
+    document.getElementById('detailCountry').textContent = countryNames[user.country] || user.country || '-';
+    document.getElementById('detailReferral').textContent = user.referral || 'None';
     document.getElementById('detailStatus').textContent = (user.accountStatus || 'active').charAt(0).toUpperCase() + (user.accountStatus || 'active').slice(1);
     
+    // Populate Financial Details
     document.getElementById('detailBalance').textContent = '$' + (user.balance || 0).toFixed(2);
     document.getElementById('detailDeposited').textContent = '$' + (user.totalDeposited || 0).toFixed(2);
     document.getElementById('detailWithdrawn').textContent = '$' + (user.totalWithdrawn || 0).toFixed(2);
@@ -1243,6 +1277,7 @@
     profitEl.textContent = (profit >= 0 ? '+' : '') + '$' + profit.toFixed(2);
     profitEl.className = 'detail-value ' + (profit >= 0 ? 'positive' : 'negative');
     
+    // Populate KYC Information
     const kycStatus = user.kycStatus || 'none';
     const kycEl = document.getElementById('detailKycStatus');
     kycEl.textContent = kycStatus.charAt(0).toUpperCase() + kycStatus.slice(1);
@@ -1251,7 +1286,8 @@
     document.getElementById('detailKycDate').textContent = user.kycVerifiedAt?.toDate?.().toLocaleDateString('en-US') || '-';
     document.getElementById('detailKycDocs').textContent = user.kycDocuments?.join(', ') || 'None submitted';
     
-    document.getElementById('detailCountry').textContent = user.country || '-';
+    // Populate Location & Device
+    document.getElementById('detailLocCountry').textContent = countryNames[user.country] || user.country || '-';
     document.getElementById('detailIp').textContent = user.lastIp || '-';
     document.getElementById('detailLastLogin').textContent = user.lastLogin?.toDate?.().toLocaleString('en-US') || '-';
     document.getElementById('detailDevice').textContent = user.lastDevice || '-';
@@ -1280,6 +1316,9 @@
         { label: 'Full Name', key: 'displayName', type: 'text', value: selectedUser.displayName || '' },
         { label: 'Username', key: 'username', type: 'text', value: selectedUser.username || '' },
         { label: 'Email', key: 'email', type: 'email', value: selectedUser.email || '' },
+        { label: 'Phone Number', key: 'phone', type: 'text', value: selectedUser.phone || '' },
+        { label: 'Country', key: 'country', type: 'select', value: selectedUser.country || '', options: ['NG','CM','GH','PH','CN','GA','US','GB','CA','HU','ZA','AU','DE','FR','IN','JP','BR'] },
+        { label: 'Referral Code', key: 'referral', type: 'text', value: selectedUser.referral || '' },
         { label: 'Account Status', key: 'accountStatus', type: 'select', value: selectedUser.accountStatus || 'active', options: ['active', 'suspended', 'banned'] }
       );
     }
@@ -1309,11 +1348,15 @@
     let html = '';
     fields.forEach(field => {
       if (field.type === 'select') {
+        const optionLabels = field.key === 'country' ? countryNames : null;
         html += `
           <div class="form-group">
             <label>${field.label}</label>
             <select id="edit-${field.key}" data-key="${field.key}">
-              ${field.options.map(opt => `<option value="${opt}" ${field.value === opt ? 'selected' : ''}>${opt.charAt(0).toUpperCase() + opt.slice(1)}</option>`).join('')}
+              ${field.options.map(opt => {
+                const label = optionLabels ? optionLabels[opt] || opt : opt.charAt(0).toUpperCase() + opt.slice(1);
+                return `<option value="${opt}" ${field.value === opt ? 'selected' : ''}>${label}</option>`;
+              }).join('')}
             </select>
           </div>
         `;
@@ -1418,4 +1461,4 @@
 </script>
 
 </body>
-        </html>
+</html>
