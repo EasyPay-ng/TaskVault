@@ -1,356 +1,1797 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>TaskVault – Stake Records</title>
-  <!-- Favicon -->
-  <link rel="icon" type="image/jpeg" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg"/>
-  <link rel="shortcut icon" type="image/jpeg" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg"/>
-  
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-  <style>
-    :root {
-      --orange: #f97316;
-      --orange-light: #fff7ed;
-      --orange-dark: #ea580c;
-      --white: #fff;
-      --gray: #6b7280;
-      --red: #dc2626;
-      --green: #16a34a;
-      --blue: #2563eb;
-      --yellow: #eab308;
-      --shadow: rgba(0,0,0,0.08);
-    }
-    * { box-sizing: border-box; margin:0; padding:0; font-family:'Segoe UI',system-ui,sans-serif; }
-    body { background:var(--orange-light); color:#1f2937; min-height:100vh; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TaskVault Dashboard</title>
+    
+    <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" type="image/jpeg">
+    <link rel="manifest" href="manifest.json">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --orange-main: #FF8C42;
+            --orange-dark: #E67A35;
+            --orange-light: #FFF0E6;
+            --silk-bg: #FDFBF7;
+            --white: #FFFFFF;
+            --text-dark: #333333;
+            --text-light: #888888;
+            --shadow-sm: 0 2px 6px rgba(255, 140, 66, 0.06);
+            --shadow-md: 0 4px 12px rgba(255, 140, 66, 0.1);
+            --shadow-lg: 0 8px 24px rgba(255, 140, 66, 0.15);
+            --gradient-orange: linear-gradient(135deg, #FF8C42 0%, #FF6B35 100%);
+            --success: #10B981;
+            --danger: #EF4444;
+        }
 
-    /* Header */
-    header {
-      background:var(--orange); color:var(--white);
-      padding:1rem 1.5rem; display:flex; justify-content:space-between; align-items:center;
-      box-shadow:0 2px 8px var(--shadow); position:sticky; top:0; z-index:100;
-    }
-    .logo-wrap { display:flex; align-items:center; gap:.6rem; cursor:pointer; }
-    .logo-wrap img { width:32px; height:32px; border-radius:6px; object-fit:cover; }
-    .logo-wrap h1 { font-size:1.1rem; font-weight:700; }
-    .header-btns { display:flex; gap:.5rem; align-items:center; }
-    .header-btn {
-      background:rgba(255,255,255,0.2); color:var(--white); border:none;
-      padding:.4rem .8rem; border-radius:6px; cursor:pointer; font-size:.85rem;
-    }
-    .header-btn:hover { background:rgba(255,255,255,0.3); }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-    /* Container */
-    .container { max-width:800px; margin:0 auto; padding:1.5rem; }
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
 
-    /* Stats Bar */
-    .stats-bar {
-      display:grid; grid-template-columns:repeat(4, 1fr); gap:1rem; margin-bottom:1.5rem;
-    }
-    .stat-card {
-      background:var(--white); border-radius:12px; padding:1rem; text-align:center;
-      box-shadow:0 2px 8px var(--shadow);
-    }
-    .stat-card .number { font-size:1.5rem; font-weight:700; color:var(--orange); }
-    .stat-card .label { font-size:.75rem; color:var(--gray); margin-top:.25rem; text-transform:uppercase; }
+        body {
+            background-color: #e9ecef;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
 
-    /* Filter Tabs */
-    .filter-tabs {
-      display:flex; gap:.5rem; margin-bottom:1.5rem; overflow-x:auto;
-    }
-    .tab-btn {
-      padding:.6rem 1.2rem; border:none; background:var(--white);
-      color:var(--gray); border-radius:8px; cursor:pointer; font-size:.85rem;
-      font-weight:600; transition:all .2s; white-space:nowrap;
-    }
-    .tab-btn.active { background:var(--orange); color:var(--white); }
-    .tab-btn:hover:not(.active) { background:#fed7aa; color:var(--orange-dark); }
+        .app-container {
+            width: 100%;
+            height: 100dvh;
+            max-width: 430px;
+            background-color: var(--silk-bg);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
 
-    /* Records List */
-    .records-list { display:grid; gap:.75rem; }
-    .record-card {
-      background:var(--white); border-radius:12px; padding:1.25rem;
-      box-shadow:0 2px 8px var(--shadow); transition:transform .2s;
-    }
-    .record-card:hover { transform:translateX(4px); }
-    .record-header {
-      display:flex; justify-content:space-between; align-items:start; margin-bottom:.75rem;
-    }
-    .record-topic { font-size:1rem; font-weight:700; line-height:1.4; flex:1; }
-    .record-meta { display:flex; gap:.5rem; align-items:center; margin-top:.5rem; }
-    .record-meta span { font-size:.8rem; color:var(--gray); }
-    .record-meta .dot { width:4px; height:4px; background:#d1d5db; border-radius:50%; }
+        @media (min-width: 768px) {
+            .app-container {
+                height: 92dvh;
+                max-height: 850px;
+                border-radius: 24px;
+                box-shadow: 0 0 40px rgba(0,0,0,0.12);
+            }
+        }
 
-    .record-details {
-      display:flex; justify-content:space-between; align-items:center;
-      padding-top:.75rem; border-top:1px solid #f3f4f6;
-    }
-    .record-pick { display:flex; align-items:center; gap:.5rem; }
-    .pick-badge {
-      padding:.35rem .7rem; border-radius:6px; font-size:.85rem; font-weight:600;
-    }
-    .pick-yes { background:#dcfce7; color:var(--green); }
-    .pick-no { background:#fee2e2; color:var(--red); }
-    .pick-other { background:#dbeafe; color:var(--blue); }
+        .scroll-content {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-bottom: 80px;
+        }
 
-    .record-amount { font-size:1.1rem; font-weight:700; color:var(--orange-dark); }
+        .scroll-content::-webkit-scrollbar {
+            width: 2px;
+        }
+        .scroll-content::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .scroll-content::-webkit-scrollbar-thumb {
+            background: var(--orange-light);
+            border-radius: 2px;
+        }
 
-    /* Status Badges */
-    .status-badge {
-      padding:.35rem .7rem; border-radius:20px; font-size:.75rem; font-weight:600;
-    }
-    .status-active { background:#fef3c7; color:#92400e; }
-    .status-won { background:#dcfce7; color:var(--green); }
-    .status-lost { background:#fee2e2; color:var(--red); }
-    .status-pending { background:#dbeafe; color:var(--blue); }
-    .status-refunded { background:#f3f4f6; color:var(--gray); }
+        /* ==================== NOTIFICATION BANNER ==================== */
+        .notif-banner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--gradient-orange);
+            color: white;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            z-index: 2500;
+            transform: translateY(-100%);
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
 
-    /* Category Tag */
-    .cat-tag {
-      display:inline-flex; align-items:center; gap:.3rem;
-      padding:.2rem .5rem; border-radius:4px; font-size:.7rem; font-weight:600;
-    }
-    .cat-sports { background:#fee2e2; color:var(--red); }
-    .cat-crypto { background:#dbeafe; color:var(--blue); }
-    .cat-reallife { background:#dcfce7; color:var(--green); }
-    .cat-entertainment { background:#f3e8ff; color:#9333ea; }
+        .notif-banner.show {
+            transform: translateY(0);
+        }
 
-    /* Empty State */
-    .empty-state { text-align:center; padding:3rem 1rem; color:var(--gray); }
-    .empty-state i { font-size:3rem; margin-bottom:1rem; color:#e5e7eb; }
-    .empty-state h3 { font-size:1.1rem; margin-bottom:.5rem; color:#374151; }
-    .empty-state p { font-size:.9rem; }
+        .notif-banner p {
+            font-size: 12px;
+            font-weight: 500;
+            flex: 1;
+        }
 
-    /* Loading */
-    .skeleton-card {
-      background:var(--white); border-radius:12px; padding:1.25rem;
-      box-shadow:0 2px 8px var(--shadow); margin-bottom:.75rem;
-    }
-    .skeleton { background:linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size:200% 100%; animation:shimmer 1.5s infinite; border-radius:6px; height:16px; margin-bottom:.5rem; }
-    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+        .notif-banner button {
+            background: white;
+            color: var(--orange-main);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
 
-    .hidden { display:none !important; }
-  </style>
+        .notif-banner button:hover {
+            transform: scale(1.05);
+        }
+
+        .notif-banner .close-banner {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 6px 10px;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ==================== ACTIVATION MODAL ==================== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2600;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            padding: 20px;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .activate-modal {
+            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+            border-radius: 20px;
+            padding: 28px 24px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(239, 68, 68, 0.4);
+            max-width: 360px;
+            width: 100%;
+            text-align: center;
+            transform: scale(0.9) translateY(20px);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .modal-overlay.show .activate-modal {
+            transform: scale(1) translateY(0);
+        }
+
+        .activate-modal::before {
+            content: '';
+            position: absolute;
+            top: -30px;
+            right: -30px;
+            width: 100px;
+            height: 100px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 50%;
+        }
+
+        .activate-modal::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: -20px;
+            width: 80px;
+            height: 80px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 50%;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 32px;
+            height: 32px;
+            background: rgba(255,255,255,0.15);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: rgba(255,255,255,0.25);
+            transform: rotate(90deg);
+        }
+
+        .modal-icon {
+            width: 56px;
+            height: 56px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin: 0 auto 16px;
+            position: relative;
+            z-index: 1;
+            animation: pulseGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.3); }
+            50% { box-shadow: 0 0 0 12px rgba(255,255,255,0); }
+        }
+
+        .activate-modal h3 {
+            font-size: 18px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .activate-modal p {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-bottom: 20px;
+            line-height: 1.6;
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn-activate {
+            background: white;
+            color: #EF4444;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 1;
+            text-decoration: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+
+        .btn-activate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+
+        .btn-activate:active {
+            transform: scale(0.97);
+        }
+
+        /* ==================== HEADER ==================== */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 20px 10px;
+            background: var(--white);
+            flex-shrink: 0;
+        }
+
+        .user-greeting {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: var(--gradient-orange);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 700;
+            color: white;
+            box-shadow: 0 3px 10px rgba(255, 140, 66, 0.25);
+            flex-shrink: 0;
+        }
+
+        .greeting-text h1 {
+            font-size: 10px;
+            color: var(--text-light);
+            font-weight: 400;
+        }
+
+        .greeting-text h2 {
+            font-size: 14px;
+            color: var(--text-dark);
+            font-weight: 700;
+        }
+
+        .notification-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: var(--orange-light);
+            color: var(--orange-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 15px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            flex-shrink: 0;
+        }
+
+        .notification-btn:hover {
+            background: var(--orange-main);
+            color: white;
+        }
+
+        .notification-btn.enabled {
+            background: var(--orange-main);
+            color: white;
+            animation: glowBell 2s ease-in-out infinite;
+        }
+
+        @keyframes glowBell {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(255, 140, 66, 0.4); }
+            50% { box-shadow: 0 0 0 8px rgba(255, 140, 66, 0); }
+        }
+
+        .notification-btn .badge {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 8px;
+            height: 8px;
+            background: #ff4444;
+            border-radius: 50%;
+            border: 2px solid var(--orange-light);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(255, 68, 68, 0.6); }
+            50% { box-shadow: 0 0 0 4px rgba(255, 68, 68, 0); }
+        }
+
+        /* ==================== BALANCE CARD ==================== */
+        .balance-section {
+            padding: 10px 20px 14px;
+        }
+
+        .balance-card {
+            background: var(--gradient-orange);
+            border-radius: 18px;
+            padding: 20px 18px;
+            color: var(--white);
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .balance-card::after {
+            content: '';
+            position: absolute;
+            top: -30px;
+            right: -30px;
+            width: 100px;
+            height: 100px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+        }
+
+        .balance-card::before {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: -15px;
+            width: 60px;
+            height: 60px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 50%;
+        }
+
+        .balance-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .balance-label {
+            font-size: 10px;
+            opacity: 0.85;
+            font-weight: 500;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .balance-icon {
+            width: 28px;
+            height: 28px;
+            background: rgba(255,255,255,0.12);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .balance-amount {
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: baseline;
+            gap: 2px;
+        }
+
+        .balance-amount .currency {
+            font-size: 16px;
+            font-weight: 600;
+            opacity: 0.85;
+        }
+
+        .balance-footer {
+            display: flex;
+            gap: 6px;
+            margin-top: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-pill {
+            background: rgba(255,255,255,0.12);
+            border-radius: 8px;
+            padding: 5px 10px;
+            font-size: 10px;
+            color: rgba(255,255,255,0.9);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .stat-pill i {
+            font-size: 8px;
+        }
+
+        .stat-pill.up { color: #86efac; }
+        .stat-pill.down { color: #fca5a5; }
+
+        /* ==================== QUICK ACTIONS ==================== */
+        .quick-actions {
+            padding: 0 20px 12px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .action-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .action-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: white;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .action-icon.deposit {
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+        }
+        .action-icon.withdraw {
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+        }
+        .action-icon.transfer {
+            background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+        }
+        .action-icon.stake {
+            background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+        }
+
+        .action-btn span {
+            font-size: 9px;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        /* ==================== SECTION HEADERS ==================== */
+        .section-header {
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .section-title i {
+            color: var(--orange-main);
+            font-size: 12px;
+        }
+
+        /* ==================== DAILY CLAIM CARD ==================== */
+        .claim-card {
+            background: var(--white);
+            margin: 0 20px 14px;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(255, 140, 66, 0.06);
+        }
+
+        .claim-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .claim-badge {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: white;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-3px); }
+        }
+
+        .claim-info h3 {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .claim-info p {
+            font-size: 10px;
+            color: var(--text-light);
+        }
+
+        .silver-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+            color: white;
+            font-size: 9px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 20px;
+            margin-left: 6px;
+        }
+
+        .claim-reward {
+            display: flex;
+            align-items: baseline;
+            justify-content: center;
+            gap: 4px;
+            margin-bottom: 12px;
+        }
+
+        .claim-reward .amount {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--orange-main);
+        }
+
+        .claim-reward .label {
+            font-size: 12px;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: var(--gradient-orange);
+            color: var(--white);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-primary:hover {
+            background: var(--orange-dark);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+
+        .btn-disabled {
+            background: #E8E8E8;
+            color: #AAAAAA;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .claim-status {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 10px;
+            color: var(--orange-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        /* ==================== ACTIVITY SECTION ==================== */
+        .activity-section {
+            padding: 0 20px 12px;
+        }
+
+        .activity-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .activity-item {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 1px solid rgba(255, 140, 66, 0.04);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .activity-item:hover {
+            transform: translateX(2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .activity-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .activity-icon.claim {
+            background: var(--orange-light);
+            color: var(--orange-main);
+        }
+        .activity-icon.deposit {
+            background: #DBEAFE;
+            color: #3B82F6;
+        }
+        .activity-icon.withdraw {
+            background: #FEE2E2;
+            color: #EF4444;
+        }
+        .activity-icon.referral {
+            background: #D1FAE5;
+            color: #10B981;
+        }
+        .activity-icon.activation {
+            background: #F3E8FF;
+            color: #8B5CF6;
+        }
+
+        .activity-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .activity-details h4 {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-dark);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .activity-details p {
+            font-size: 9px;
+            color: var(--text-light);
+            margin-top: 1px;
+        }
+
+        .activity-amount {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--orange-main);
+            flex-shrink: 0;
+        }
+
+        .activity-amount.negative {
+            color: #EF4444;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 24px 16px;
+            color: var(--text-light);
+        }
+
+        .empty-state i {
+            font-size: 28px;
+            color: var(--orange-light);
+            margin-bottom: 6px;
+        }
+
+        .empty-state p {
+            font-size: 11px;
+        }
+
+        /* ==================== MODERN BOTTOM NAV ==================== */
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--white);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 8px 16px 16px;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.04);
+            border-top-left-radius: 24px;
+            border-top-right-radius: 24px;
+            z-index: 1000;
+            flex-shrink: 0;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-light);
+            text-decoration: none;
+            font-size: 9px;
+            gap: 3px;
+            transition: all 0.3s ease;
+            padding: 6px 14px;
+            border-radius: 14px;
+            font-weight: 500;
+            position: relative;
+        }
+
+        .nav-item i {
+            font-size: 20px;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .nav-item.active {
+            color: var(--orange-main);
+            background: var(--orange-light);
+        }
+
+        .nav-item.active i {
+            transform: translateY(-2px) scale(1.1);
+        }
+
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            width: 16px;
+            height: 3px;
+            background: var(--orange-main);
+            border-radius: 2px;
+            opacity: 0;
+            animation: dotIn 0.3s ease forwards;
+        }
+
+        @keyframes dotIn {
+            to { opacity: 1; top: 2px; }
+        }
+
+        .nav-item:hover {
+            color: var(--orange-dark);
+        }
+
+        /* ==================== FLOATING DOWNLOAD BUTTON ==================== */
+        .floating-download-btn {
+            position: fixed;
+            bottom: 90px;
+            right: 16px;
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: var(--gradient-orange);
+            color: white;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 140, 66, 0.4);
+            z-index: 1500;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            animation: floatDownload 3s ease-in-out infinite;
+        }
+
+        .floating-download-btn:hover {
+            transform: scale(1.1) translateY(-4px);
+            box-shadow: 0 8px 25px rgba(255, 140, 66, 0.5);
+        }
+
+        .floating-download-btn:active {
+            transform: scale(0.95);
+        }
+
+        @keyframes floatDownload {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+
+        .floating-download-btn .download-tooltip {
+            position: absolute;
+            right: 60px;
+            top: 50%;
+            transform: translateY(-50%) translateX(10px);
+            background: var(--text-dark);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+
+        .floating-download-btn .download-tooltip::after {
+            content: '';
+            position: absolute;
+            right: -5px;
+            top: 50%;
+            transform: translateY(-50%);
+            border-width: 5px 0 5px 5px;
+            border-style: solid;
+            border-color: transparent transparent transparent var(--text-dark);
+        }
+
+        .floating-download-btn:hover .download-tooltip {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(-50%) translateX(0);
+        }
+
+        /* ==================== TOAST ==================== */
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: var(--white);
+            color: var(--text-dark);
+            padding: 10px 18px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            z-index: 2000;
+            text-align: center;
+            max-width: 90%;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+            border: 1px solid rgba(255, 140, 66, 0.08);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toast.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+            top: 22px;
+        }
+
+        .toast.success { border-left: 3px solid #10B981; }
+        .toast.error { border-left: 3px solid #EF4444; }
+        .toast.info { border-left: 3px solid var(--orange-main); }
+
+        /* ==================== LOADING ==================== */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--silk-bg);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+            gap: 12px;
+        }
+
+        .spinner {
+            width: 36px;
+            height: 36px;
+            border: 3px solid var(--orange-light);
+            border-top: 3px solid var(--orange-main);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .loader-text {
+            font-size: 11px;
+            color: var(--text-light);
+            font-weight: 600;
+            letter-spacing: 2px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ==================== ANIMATIONS ==================== */
+        .fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+            opacity: 0;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .delay-1 { animation-delay: 0.08s; }
+        .delay-2 { animation-delay: 0.16s; }
+        .delay-3 { animation-delay: 0.24s; }
+    </style>
 </head>
 <body>
 
-<header>
-  <div class="logo-wrap" onclick="location.href='stake.html'">
-    <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" alt="TaskVault"/>
-    <h1>Stake Records</h1>
-  </div>
-  <div class="header-btns">
-    <button class="header-btn" onclick="location.href='stake.html'">
-      <i class="fas fa-arrow-left"></i> Back to Stake
-    </button>
-    <button class="header-btn" onclick="signOutUser()">
-      <i class="fas fa-sign-out-alt"></i>
-    </button>
-  </div>
-</header>
-
-<div class="container">
-  <!-- Loading -->
-  <div id="loadingState">
-    <div class="skeleton-card"><div class="skeleton" style="width:100%;height:18px;"></div><div class="skeleton" style="width:60%;height:14px;"></div></div>
-    <div class="skeleton-card"><div class="skeleton" style="width:100%;height:18px;"></div><div class="skeleton" style="width:60%;height:14px;"></div></div>
-    <div class="skeleton-card"><div class="skeleton" style="width:100%;height:18px;"></div><div class="skeleton" style="width:60%;height:14px;"></div></div>
-  </div>
-
-  <!-- Stats -->
-  <div id="statsBar" class="stats-bar hidden">
-    <div class="stat-card">
-      <div class="number" id="statTotal">0</div>
-      <div class="label">Total Stakes</div>
+    <!-- Notification Permission Banner -->
+    <div class="notif-banner" id="notifBanner">
+        <p><i class="ri-notification-3-line"></i> Enable notifications to get alerts on rewards & updates</p>
+        <button onclick="requestNotificationPermission()">Enable</button>
+        <button class="close-banner" onclick="dismissNotifBanner()"><i class="ri-close-line"></i></button>
     </div>
-    <div class="stat-card">
-      <div class="number" id="statActive">0</div>
-      <div class="label">Active</div>
-    </div>
-    <div class="stat-card">
-      <div class="number" id="statWon">0</div>
-      <div class="label">Won</div>
-    </div>
-    <div class="stat-card">
-      <div class="number" id="statLost">0</div>
-      <div class="label">Lost</div>
-    </div>
-  </div>
 
-  <!-- Filter Tabs -->
-  <div id="filterTabs" class="filter-tabs hidden">
-    <button class="tab-btn active" data-filter="all">All</button>
-    <button class="tab-btn" data-filter="active">Active</button>
-    <button class="tab-btn" data-filter="won">Won</button>
-    <button class="tab-btn" data-filter="lost">Lost</button>
-    <button class="tab-btn" data-filter="pending">Pending</button>
-    <button class="tab-btn" data-filter="refunded">Refunded</button>
-  </div>
-
-  <!-- Records List -->
-  <div class="records-list" id="recordsList"></div>
-</div>
-
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
-  import {
-    getFirestore, doc, getDoc, collection, query, orderBy, getDocs
-  } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyAv6QCpopa0Q77AVTyjU5cqJEIKIE9OVTs",
-    authDomain: "taskvault-412a0.firebaseapp.com",
-    projectId: "taskvault-412a0",
-    storageBucket: "taskvault-412a0.firebasestorage.app",
-    messagingSenderId: "420716701831",
-    appId: "1:420716701831:web:c987d91f7f4c8684eb7022"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-
-  let currentUser = null;
-  let allStakes = [];
-  let activeFilter = 'all';
-
-  const loadingState = document.getElementById('loadingState');
-  const statsBar = document.getElementById('statsBar');
-  const filterTabs = document.getElementById('filterTabs');
-  const recordsList = document.getElementById('recordsList');
-
-  onAuthStateChanged(auth, async (user) => {
-    if (!user) { location.href = 'login.html'; return; }
-    currentUser = user;
-    await loadRecords();
-  });
-
-  async function loadRecords() {
-    loadingState.classList.add('hidden');
-    statsBar.classList.remove('hidden');
-    filterTabs.classList.remove('hidden');
-
-    try {
-      const q = query(
-        collection(db, 'users', currentUser.uid, 'stakes'),
-        orderBy('createdAt', 'desc')
-      );
-      
-      const snap = await getDocs(q);
-      allStakes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      
-      updateStats();
-      renderRecords();
-    } catch (err) {
-      console.error('Load records error:', err);
-      recordsList.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><h3>Failed to load</h3><p>Could not fetch your stake records. Try refreshing.</p></div>';
-    }
-  }
-
-  function updateStats() {
-    const total = allStakes.length;
-    const active = allStakes.filter(s => s.status === 'active').length;
-    const won = allStakes.filter(s => s.status === 'won').length;
-    const lost = allStakes.filter(s => s.status === 'lost').length;
-    
-    document.getElementById('statTotal').textContent = total;
-    document.getElementById('statActive').textContent = active;
-    document.getElementById('statWon').textContent = won;
-    document.getElementById('statLost').textContent = lost;
-  }
-
-  function renderRecords() {
-    let filtered = activeFilter === 'all' 
-      ? allStakes 
-      : allStakes.filter(s => s.status === activeFilter);
-    
-    if (filtered.length === 0) {
-      const emptyMessages = {
-        all: 'No stake records yet.',
-        active: 'No active stakes.',
-        won: 'No winning stakes yet.',
-        lost: 'No lost stakes.',
-        pending: 'No pending results.',
-        refunded: 'No refunded stakes.'
-      };
-      recordsList.innerHTML = `
-        <div class="empty-state">
-          <i class="fas fa-inbox"></i>
-          <h3>Nothing here</h3>
-          <p>${emptyMessages[activeFilter] || 'No records found.'}</p>
+    <!-- Activation Modal -->
+    <div class="modal-overlay" id="activateModal">
+        <div class="activate-modal">
+            <button class="modal-close" onclick="closeActivateModal()">
+                <i class="ri-close-line"></i>
+            </button>
+            <div class="modal-icon">
+                <i class="ri-vip-crown-line"></i>
+            </div>
+            <h3>ACTIVATE YOUR ACCOUNT NOW!</h3>
+            <p>Enjoy seamless experience with varieties of tasks, games and lots more events.</p>
+            <a href="activate.html" class="btn-activate">
+                <i class="ri-flashlight-line"></i> Activate
+            </a>
         </div>
-      `;
-      return;
-    }
+    </div>
 
-    let html = '';
-    filtered.forEach(stake => {
-      const statusClass = `status-${stake.status || 'active'}`;
-      const statusText = stake.status ? stake.status.charAt(0).toUpperCase() + stake.status.slice(1) : 'Active';
-      const catClass = `cat-${stake.category || 'reallife'}`;
-      const catIcon = stake.category === 'sports' ? 'fa-futbol' : stake.category === 'crypto' ? 'fa-bitcoin-sign' : stake.category === 'entertainment' ? 'fa-film' : 'fa-globe';
-      
-      const date = stake.createdAt?.toDate?.() 
-        ? stake.createdAt.toDate().toLocaleString('en-US', { month:'short', day:'numeric', year:'numeric', hour:'2-digit', minute:'2-digit' })
-        : 'Just now';
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <div class="loader-text">Loading</div>
+    </div>
 
-      // Pick badge color
-      const pickClass = stake.optionLabel?.toLowerCase() === 'yes' ? 'pick-yes' 
-        : stake.optionLabel?.toLowerCase() === 'no' ? 'pick-no' 
-        : 'pick-other';
+    <div class="app-container">
+        <!-- HEADER -->
+        <header class="header fade-in">
+            <div class="user-greeting">
+                <div class="avatar" id="userAvatar">U</div>
+                <div class="greeting-text">
+                    <h1 id="greetingText">Welcome Back</h1>
+                    <h2 id="userEmail">Loading...</h2>
+                </div>
+            </div>
+            <button class="notification-btn" id="notifBtn" onclick="toggleNotifications()">
+                <i class="ri-notification-3-line" id="notifIcon"></i>
+                <div class="badge" id="notifBadge"></div>
+            </button>
+        </header>
 
-      html += `
-        <div class="record-card">
-          <div class="record-header">
-            <div>
-              <div class="record-topic">${escapeHtml(stake.topicQuestion || 'Unknown Topic')}</div>
-              <div class="record-meta">
-                <span class="cat-tag ${catClass}"><i class="fas ${catIcon}"></i> ${stake.category || 'General'}</span>
-                <span class="dot"></span>
-                <span>${date}</span>
-              </div>
-            </div>
-            <span class="status-badge ${statusClass}">${statusText}</span>
-          </div>
-          <div class="record-details">
-            <div class="record-pick">
-              <span style="font-size:.85rem; color:var(--gray);">Your pick:</span>
-              <span class="pick-badge ${pickClass}">${escapeHtml(stake.optionLabel || '—')}</span>
-            </div>
-            <div style="text-align:right;">
-              <div class="record-amount">$${(stake.amount || 0).toFixed(2)}</div>
-              ${(stake.status === 'won' || stake.status === 'settled') && stake.payoutAmount > 0 ? `<div style="font-size:.85rem; color:var(--green); font-weight:600;"><i class="fas fa-coins"></i> Payout: $${stake.payoutAmount.toFixed(3)}</div>` : ''}
-            </div>
-          </div>
+        <!-- SCROLLABLE CONTENT -->
+        <div class="scroll-content">
+            <!-- BALANCE -->
+            <section class="balance-section fade-in delay-1">
+                <div class="balance-card">
+                    <div class="balance-header">
+                        <span class="balance-label">Total Balance</span>
+                        <div class="balance-icon">
+                            <i class="ri-wallet-3-line"></i>
+                        </div>
+                    </div>
+                    <div class="balance-amount">
+                        <span class="currency">$</span>
+                        <span id="balanceDisplay">0.00</span>
+                    </div>
+                    <div class="balance-footer">
+                        <div class="stat-pill" id="dailyChange">
+                            <i class="ri-arrow-up-line"></i>
+                            <span>0.0% today</span>
+                        </div>
+                        <div class="stat-pill">
+                            <i class="ri-shield-check-line"></i>
+                            <span>Secured</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- QUICK ACTIONS -->
+            <section class="quick-actions fade-in delay-2">
+                <a href="deposit.html" class="action-btn">
+                    <div class="action-icon deposit">
+                        <i class="ri-download-2-line"></i>
+                    </div>
+                    <span>Deposit</span>
+                </a>
+                <a href="withdraw.html" class="action-btn">
+                    <div class="action-icon withdraw">
+                        <i class="ri-upload-2-line"></i>
+                    </div>
+                    <span>Withdraw</span>
+                </a>
+                <a href="transfer.html" class="action-btn">
+                    <div class="action-icon transfer">
+                        <i class="ri-send-plane-line"></i>
+                    </div>
+                    <span>Transfer</span>
+                </a>
+                <a href="stake.html" class="action-btn">
+                    <div class="action-icon stake">
+                        <i class="ri-bar-chart-grouped-line"></i>
+                    </div>
+                    <span>Stake</span>
+                </a>
+            </section>
+
+            <!-- DAILY CLAIM -->
+            <section class="fade-in delay-3">
+                <div class="section-header">
+                    <h3 class="section-title">
+                        <i class="ri-gift-line"></i>
+                        Daily Reward
+                    </h3>
+                </div>
+                <div class="claim-card">
+                    <div class="claim-header">
+                        <div class="claim-badge">
+                            <i class="ri-gift-line"></i>
+                        </div>
+                        <div class="claim-info">
+                            <h3 id="claimTitle">Daily Claim</h3>
+                            <p>Claim your free reward every 24 hours</p>
+                        </div>
+                    </div>
+                    <div class="claim-reward">
+                        <span class="amount" id="claimAmount">$0.001</span>
+                        <span class="label">reward</span>
+                    </div>
+                    <button id="claimBtn" class="btn btn-primary" onclick="claimDaily()">
+                        <i class="ri-gift-line"></i> Claim Now
+                    </button>
+                    <p id="claimStatus" class="claim-status" style="display: none;">
+                        <i class="ri-time-line"></i>
+                        <span>Next claim available tomorrow</span>
+                    </p>
+                </div>
+            </section>
+
+            <!-- RECENT ACTIVITY -->
+            <section class="activity-section fade-in delay-3">
+                <div class="section-header">
+                    <h3 class="section-title">
+                        <i class="ri-flashlight-line"></i>
+                        Recent Activity
+                    </h3>
+                </div>
+                <div class="activity-list" id="activityList"></div>
+            </section>
         </div>
-      `;
-    });
-    
-    recordsList.innerHTML = html;
-  }
 
-  // Filter tabs
-  document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      activeFilter = btn.dataset.filter;
-      renderRecords();
-    });
-  });
+        <!-- MODERN BOTTOM NAV -->
+        <nav class="bottom-nav">
+            <a href="menu.html" class="nav-item">
+                <i class="ri-apps-line"></i>
+                <span>Menu</span>
+            </a>
+            <a href="deposit.html" class="nav-item">
+                <i class="ri-wallet-3-line"></i>
+                <span>Deposit</span>
+            </a>
+            <a href="withdraw.html" class="nav-item">
+                <i class="ri-upload-2-line"></i>
+                <span>Withdraw</span>
+            </a>
+            <a href="profile.html" class="nav-item active">
+                <i class="ri-user-3-line"></i>
+                <span>Profile</span>
+            </a>
+        </nav>
+    </div>
 
-  window.signOutUser = function() {
-    signOut(auth).then(() => location.href = 'login.html');
-  };
+    <!-- FLOATING DOWNLOAD APP BUTTON -->
+    <button class="floating-download-btn" id="downloadAppBtn" onclick="downloadApp()" title="Download TaskVault App">
+        <i class="ri-download-cloud-2-line"></i>
+        <span class="download-tooltip">Get TaskVault App</span>
+    </button>
 
-  function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-  }
-</script>
+    <div id="toast" class="toast">Message</div>
 
+    <!-- FIREBASE SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-messaging-compat.js"></script>
+        <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAv6QCpopa0Q77AVTyjU5cqJEIKIE9OVTs",
+            authDomain: "taskvault-412a0.firebaseapp.com",
+            databaseURL: "https://taskvault-412a0-default-rtdb.firebaseio.com",
+            projectId: "taskvault-412a0",
+            storageBucket: "taskvault-412a0.firebasestorage.app",
+            messagingSenderId: "420716701831",
+            appId: "1:420716701831:web:c987d91f7f4c8684eb7022",
+            measurementId: "G-93JG3LB08B"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const messaging = firebase.messaging();
+
+        let currentUser = null;
+        let userData = null;
+        let isSilver = false;
+        let dailyClaimAmount = 0.001;
+
+        // ==================== PUSH NOTIFICATIONS ====================
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('firebase-messaging-sw.js')
+                .then((registration) => {
+                    messaging.useServiceWorker(registration);
+                    initNotifications();
+                })
+                .catch((err) => console.error('SW registration failed:', err));
+        }
+
+        function initNotifications() {
+            if (Notification.permission === 'granted') {
+                getFCMToken();
+                updateNotifUI(true);
+            } else if (Notification.permission === 'default') {
+                setTimeout(() => {
+                    if (localStorage.getItem('notifBannerDismissed') !== 'true') {
+                        document.getElementById('notifBanner').classList.add('show');
+                    }
+                }, 2000);
+            } else {
+                updateNotifUI(false);
+            }
+
+            messaging.onMessage((payload) => {
+                showToast(payload.notification?.title || 'New notification!', 'info');
+                if (Notification.permission === 'granted') {
+                    new Notification(payload.notification?.title || 'TaskVault', {
+                        body: payload.notification?.body || '',
+                        icon: 'https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg',
+                        badge: 'https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg'
+                    });
+                }
+            });
+        }
+
+        async function requestNotificationPermission() {
+            try {
+                const permission = await Notification.requestPermission();
+                if (permission === 'granted') {
+                    await getFCMToken();
+                    updateNotifUI(true);
+                    showToast('Notifications enabled!', 'success');
+                    dismissNotifBanner();
+                } else {
+                    updateNotifUI(false);
+                    showToast('Notifications blocked', 'error');
+                }
+            } catch (error) {
+                showToast('Error enabling notifications', 'error');
+            }
+        }
+
+        async function getFCMToken() {
+            try {
+                const token = await messaging.getToken({
+                    vapidKey: 'BDMl6lwl1CPgT8cFGEDSo0sv8o1e5tZQ5ljOHNKGv5_vMzz287qEXzrea8htR4_iJOHqG7bo-G8TZkCu-fYlgZs'
+                });
+                if (token && currentUser) {
+                    await db.collection('users').doc(currentUser.uid).update({
+                        fcmToken: token,
+                        notificationsEnabled: true,
+                        tokenUpdatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                }
+            } catch (error) {
+                console.error('Error getting FCM token:', error);
+            }
+        }
+
+        function toggleNotifications() {
+            if (Notification.permission === 'granted') {
+                if (confirm('Disable notifications? You will miss important updates.')) {
+                    messaging.deleteToken().then(() => {
+                        if (currentUser) {
+                            db.collection('users').doc(currentUser.uid).update({
+                                notificationsEnabled: false,
+                                fcmToken: null
+                            });
+                        }
+                        updateNotifUI(false);
+                        showToast('Notifications disabled', 'info');
+                    });
+                }
+            } else {
+                requestNotificationPermission();
+            }
+        }
+
+        function updateNotifUI(enabled) {
+            const btn = document.getElementById('notifBtn');
+            const icon = document.getElementById('notifIcon');
+            const badge = document.getElementById('notifBadge');
+            if (enabled) {
+                btn.classList.add('enabled');
+                icon.classList.remove('ri-notification-3-line');
+                icon.classList.add('ri-notification-3-fill');
+                badge.style.display = 'block';
+            } else {
+                btn.classList.remove('enabled');
+                icon.classList.remove('ri-notification-3-fill');
+                icon.classList.add('ri-notification-3-line');
+                badge.style.display = 'none';
+            }
+        }
+
+        function dismissNotifBanner() {
+            document.getElementById('notifBanner').classList.remove('show');
+            localStorage.setItem('notifBannerDismissed', 'true');
+        }
+
+        // ==================== ACTIVATION MODAL ====================
+        function checkActivationStatus() {
+            if (!userData) return;
+            const plan = userData.plan;
+            isSilver = plan === 'silver' || plan === 'Silver' || plan === 'SILVER';
+            
+            // Update claim amount based on plan
+            dailyClaimAmount = isSilver ? 0.002 : 0.001;
+            document.getElementById('claimAmount').textContent = `$${dailyClaimAmount.toFixed(3)}`;
+            
+            // Show silver badge if applicable
+            if (isSilver) {
+                const claimTitle = document.getElementById('claimTitle');
+                claimTitle.innerHTML = `Daily Claim <span class="silver-badge"><i class="ri-vip-crown-line"></i> 2x</span>`;
+            }
+            
+            if (!plan || !isSilver) {
+                showActivateModal();
+            }
+        }
+
+        function showActivateModal() {
+            document.getElementById('activateModal').classList.add('show');
+        }
+
+        function closeActivateModal() {
+            document.getElementById('activateModal').classList.remove('show');
+        }
+
+        document.getElementById('activateModal').addEventListener('click', function(e) {
+            if (e.target === this) closeActivateModal();
+        });
+
+        // ==================== AUTH & DATA ====================
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                currentUser = user;
+                const displayName = user.email ? user.email.split('@')[0] : 'User';
+                document.getElementById('userEmail').textContent = displayName;
+                document.getElementById('userAvatar').textContent = displayName.charAt(0).toUpperCase();
+                fetchUserData(user.uid);
+                fetchActivityFeed(user.uid);
+                if (Notification.permission === 'granted') getFCMToken();
+            } else {
+                auth.signInAnonymously().catch((error) => {
+                    showToast("Authentication Failed", "error");
+                    hideLoading();
+                });
+            }
+        });
+
+        async function fetchUserData(uid) {
+            try {
+                const doc = await db.collection('users').doc(uid).get();
+                if (doc.exists) {
+                    userData = doc.data();
+                    updateUI();
+                    checkActivationStatus();
+                    calculateDailyChange(uid);
+                } else {
+                    const newProfile = {
+                        balance: 0.00,
+                        plan: null,
+                        lastClaimDate: null,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    };
+                    await db.collection('users').doc(uid).set(newProfile);
+                    userData = newProfile;
+                    updateUI();
+                    checkActivationStatus();
+                }
+            } catch (error) {
+                document.getElementById('balanceDisplay').innerText = "0.00";
+                hideLoading();
+            }
+            hideLoading();
+        }
+
+        // ==================== REAL DAILY CHANGE ====================
+        async function calculateDailyChange(uid) {
+            try {
+                const now = new Date();
+                const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                const startOfYesterday = new Date(startOfDay);
+                startOfYesterday.setDate(startOfYesterday.getDate() - 1);
+
+                // Get yesterday's balance snapshot (from activity or calculate)
+                const yesterdaySnapshot = await db.collection('users').doc(uid)
+                    .collection('activities')
+                    .where('timestamp', '<', firebase.firestore.Timestamp.fromDate(startOfDay))
+                    .where('timestamp', '>=', firebase.firestore.Timestamp.fromDate(startOfYesterday))
+                    .orderBy('timestamp', 'desc')
+                    .limit(1)
+                    .get();
+
+                let yesterdayBalance = 0;
+                if (!yesterdaySnapshot.empty) {
+                    // Approximate: get balance before today's activities
+                    const allActivities = await db.collection('users').doc(uid)
+                        .collection('activities')
+                        .orderBy('timestamp', 'desc')
+                        .get();
+                    
+                    let runningBalance = userData.balance || 0;
+                    allActivities.forEach(doc => {
+                        const activity = doc.data();
+                        const activityDate = activity.timestamp?.toDate ? activity.timestamp.toDate() : new Date();
+                        if (activityDate < startOfDay) {
+                            yesterdayBalance = runningBalance;
+                            return;
+                        }
+                        runningBalance -= (activity.amount || 0);
+                    });
+                    if (yesterdayBalance === 0) yesterdayBalance = runningBalance;
+                } else {
+                    // No yesterday data, use balance from 24h ago approximation
+                    yesterdayBalance = (userData.balance || 0) - getTodayEarnings(uid);
+                }
+
+                const currentBalance = userData.balance || 0;
+                let changePercent = 0;
+                
+                if (yesterdayBalance > 0) {
+                    changePercent = ((currentBalance - yesterdayBalance) / yesterdayBalance) * 100;
+                } else if (currentBalance > 0) {
+                    changePercent = 100; // New earnings from zero
+                }
+
+                updateDailyChangeUI(changePercent);
+            } catch (error) {
+                console.error("Error calculating daily change:", error);
+                updateDailyChangeUI(0);
+            }
+        }
+
+        async function getTodayEarnings(uid) {
+            const now = new Date();
+            const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            
+            try {
+                const snapshot = await db.collection('users').doc(uid)
+                    .collection('activities')
+                    .where('timestamp', '>=', firebase.firestore.Timestamp.fromDate(startOfDay))
+                    .get();
+                
+                let earnings = 0;
+                snapshot.forEach(doc => {
+                    const amount = doc.data().amount || 0;
+                    if (amount > 0) earnings += amount;
+                });
+                return earnings;
+            } catch (error) {
+                return 0;
+            }
+        }
+
+        function updateDailyChangeUI(percent) {
+            const pill = document.getElementById('dailyChange');
+            const isPositive = percent >= 0;
+            const absPercent = Math.abs(percent).toFixed(1);
+            
+            pill.className = `stat-pill ${isPositive ? 'up' : 'down'}`;
+            pill.innerHTML = `
+                <i class="ri-arrow-${isPositive ? 'up' : 'down'}-line"></i>
+                <span>${isPositive ? '+' : ''}${absPercent}% today</span>
+            `;
+        }
+
+        // ==================== ACTIVITY FEED (LIMIT 10) ====================
+        async function fetchActivityFeed(uid) {
+            const activityList = document.getElementById('activityList');
+            try {
+                const snapshot = await db.collection('users').doc(uid)
+                    .collection('activities')
+                    .orderBy('timestamp', 'desc')
+                    .limit(10)
+                    .get();
+
+                if (snapshot.empty) {
+                    renderEmptyState(activityList);
+                    return;
+                }
+
+                activityList.innerHTML = '';
+                snapshot.forEach(doc => {
+                    renderActivityItem(activityList, doc.data());
+                });
+            } catch (error) {
+                renderEmptyState(activityList);
+            }
+        }
+
+        function renderActivityItem(container, activity) {
+            const item = document.createElement('div');
+            item.className = 'activity-item';
+            const iconConfig = getActivityIcon(activity.type);
+            const amountClass = activity.amount < 0 ? 'activity-amount negative' : 'activity-amount';
+            const amountPrefix = activity.amount < 0 ? '-' : '+';
+            const timeAgo = formatTimeAgo(activity.timestamp);
+
+            item.innerHTML = `
+                <div class="activity-icon ${iconConfig.class}">
+                    <i class="ri-${iconConfig.icon}"></i>
+                </div>
+                <div class="activity-details">
+                    <h4>${activity.title || 'Activity'}</h4>
+                    <p>${timeAgo}</p>
+                </div>
+                <div class="${amountClass}">${amountPrefix}$${Math.abs(activity.amount || 0).toFixed(3)}</div>
+            `;
+            container.appendChild(item);
+        }
+
+        function getActivityIcon(type) {
+            const icons = {
+                claim: { icon: 'gift-line', class: 'claim' },
+                deposit: { icon: 'download-2-line', class: 'deposit' },
+                withdraw: { icon: 'upload-2-line', class: 'withdraw' },
+                referral: { icon: 'user-add-line', class: 'referral' },
+                bonus: { icon: 'star-line', class: 'claim' },
+                activation: { icon: 'vip-crown-line', class: 'activation' },
+                default: { icon: 'checkbox-circle-line', class: 'claim' }
+            };
+            return icons[type] || icons.default;
+        }
+
+        function renderEmptyState(container) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="ri-file-list-3-line"></i>
+                    <p>No activity yet. Start by claiming your daily reward!</p>
+                </div>
+            `;
+        }
+
+        function formatTimeAgo(timestamp) {
+            if (!timestamp) return 'Recently';
+            const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+
+            if (diffMins < 1) return 'Just now';
+            if (diffMins < 60) return `${diffMins}m ago`;
+            if (diffHours < 24) return `${diffHours}h ago`;
+            if (diffDays < 7) return `${diffDays}d ago`;
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        }
+
+        async function logActivity(type, title, amount) {
+            if (!currentUser) return;
+            try {
+                await db.collection('users').doc(currentUser.uid)
+                    .collection('activities')
+                    .add({
+                        type: type,
+                        title: title,
+                        amount: amount,
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                fetchActivityFeed(currentUser.uid);
+            } catch (error) {
+                console.error("Error logging activity:", error);
+            }
+        }
+                    function updateUI() {
+            animateValue('balanceDisplay', 0, userData.balance, 800);
+            checkClaimStatus();
+        }
+
+        function animateValue(id, start, end, duration) {
+            const obj = document.getElementById(id);
+            const startTime = performance.now();
+            function update(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const easeOut = 1 - Math.pow(1 - progress, 3);
+                const current = start + (end - start) * easeOut;
+                obj.innerText = current.toFixed(3);
+                if (progress < 1) requestAnimationFrame(update);
+            }
+            requestAnimationFrame(update);
+        }
+
+        function checkClaimStatus() {
+            const btn = document.getElementById('claimBtn');
+            const statusText = document.getElementById('claimStatus');
+            if (!userData.lastClaimDate) {
+                enableClaimButton(btn, statusText);
+                return;
+            }
+            const lastClaim = userData.lastClaimDate.toDate ? userData.lastClaimDate.toDate() : new Date(userData.lastClaimDate);
+            const now = new Date();
+            const diffMs = now - lastClaim;
+            const diffHours = diffMs / (1000 * 60 * 60);
+            if (diffHours < 24) {
+                disableClaimButton(btn, statusText);
+                const remaining = Math.ceil(24 - diffHours);
+                statusText.innerHTML = `<i class="ri-time-line"></i><span>Next claim in ${remaining}h</span>`;
+            } else {
+                enableClaimButton(btn, statusText);
+            }
+        }
+
+        function enableClaimButton(btn, statusText) {
+            btn.classList.add('btn-primary');
+            btn.classList.remove('btn-disabled');
+            btn.innerHTML = '<i class="ri-gift-line"></i> Claim Now';
+            btn.disabled = false;
+            statusText.style.display = "none";
+        }
+
+        function disableClaimButton(btn, statusText) {
+            btn.classList.remove('btn-primary');
+            btn.classList.add('btn-disabled');
+            btn.innerHTML = '<i class="ri-checkbox-circle-line"></i> Claimed';
+            btn.disabled = true;
+            statusText.style.display = "flex";
+        }
+
+        async function claimDaily() {
+            if (!currentUser) {
+                showToast("Please login first!", "error");
+                return;
+            }
+            const btn = document.getElementById('claimBtn');
+            btn.innerHTML = '<i class="ri-loader-4-line ri-spin"></i> Processing...';
+            btn.disabled = true;
+
+            try {
+                const userRef = db.collection('users').doc(currentUser.uid);
+                const claimReward = isSilver ? 0.002 : 0.001;
+                const newBalance = (parseFloat(userData.balance) || 0) + claimReward;
+                
+                await userRef.update({
+                    balance: newBalance,
+                    lastClaimDate: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                userData.balance = newBalance;
+                userData.lastClaimDate = new Date();
+                
+                const claimTitle = isSilver ? 'Daily Claim — Silver (2x)' : 'Daily Claim Reward';
+                await logActivity('claim', claimTitle, claimReward);
+                
+                updateUI();
+                calculateDailyChange(currentUser.uid);
+                showToast(`Successfully claimed $${claimReward.toFixed(3)}!`, "success");
+            } catch (error) {
+                console.error("Claim error:", error);
+                showToast("Error claiming. Try again.", "error");
+                btn.innerHTML = '<i class="ri-gift-line"></i> Claim Now';
+                btn.disabled = false;
+            }
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.className = 'toast ' + type;
+            let icon = 'ri-information-line';
+            if (type === 'success') icon = 'ri-checkbox-circle-line';
+            if (type === 'error') icon = 'ri-close-circle-line';
+            toast.innerHTML = `<i class="ri-${icon}"></i> ${message}`;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
+
+        function setGreeting() {
+            const hour = new Date().getHours();
+            let greeting = 'Welcome Back';
+            if (hour < 12) greeting = 'Good Morning';
+            else if (hour < 17) greeting = 'Good Afternoon';
+            else greeting = 'Good Evening';
+            document.getElementById('greetingText').textContent = greeting;
+        }
+
+        // ==================== DOWNLOAD APP ====================
+        function downloadApp() {
+            // Check if running as PWA
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+            
+            if (isStandalone) {
+                showToast('TaskVault is already installed!', 'info');
+                return;
+            }
+
+            // Check if install prompt is available
+            if (window.deferredPrompt) {
+                window.deferredPrompt.prompt();
+                window.deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        showToast('TaskVault app installed!', 'success');
+                    } else {
+                        showToast('Install cancelled', 'info');
+                    }
+                    window.deferredPrompt = null;
+                });
+            } else {
+                // Fallback: show instructions or redirect
+                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+                const isAndroid = /Android/.test(navigator.userAgent);
+                
+                if (isIOS) {
+                    showToast('Tap Share → Add to Home Screen to install TaskVault', 'info');
+                } else if (isAndroid) {
+                    showToast('Tap menu (⋮) → Add to Home Screen to install TaskVault', 'info');
+                } else {
+                    showToast('Install TaskVault from your browser menu', 'info');
+                }
+            }
+        }
+
+        // Capture beforeinstallprompt event
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            window.deferredPrompt = e;
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            setGreeting();
+            const currentPage = window.location.pathname.split('/').pop();
+            document.querySelectorAll('.nav-item').forEach(item => {
+                const href = item.getAttribute('href');
+                if (href === currentPage || (currentPage === '' || currentPage === 'index.html') && href === 'profile.html') {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+            
+            if (localStorage.getItem('notifBannerDismissed') === 'true') {
+                document.getElementById('notifBanner').style.display = 'none';
+            }
+        });
+    </script>
 </body>
 </html>
