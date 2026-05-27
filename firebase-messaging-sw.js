@@ -18,7 +18,7 @@ const messaging = firebase.messaging();
 messaging.onBackgroundMessage((payload) => {
     console.log('[firebase-messaging-sw.js] Received background message:', payload);
 
-    const notificationTitle = payload.notification?.title || 'CashClique';
+    const notificationTitle = payload.notification?.title || 'TaskVault';
     const notificationOptions = {
         body: payload.notification?.body || 'You have a new notification',
         icon: 'https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg',
