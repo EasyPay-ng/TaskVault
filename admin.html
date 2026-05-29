@@ -1593,5 +1593,61 @@
         }
         
         updates[key] = value;
-      });
+      });      updates.updatedAt = serverTimestamp();
+      updates.updatedBy = currentUser.email;
+      
+      await updateDoc(doc(db, 'users', selectedUser.uid), updates);
+      
+      Object.assign(selectedUser, updates);
+      const idx = allUsers.findIndex(u => u.uid === selectedUser.uid);
+      if (idx !== -1) Object.assign(allUsers[idx], updates);
+      
+      renderUsers();
+      openUserDetail(selectedUser.uid);
+      closeEditModal();
+      showToast('User updated successfully', 'success');
+    } catch (err) {
+      console.error('Update error:', err);
+      showToast('Failed to update user: ' + err.message, 'error');
+    } finally {
+      saveBtn.disabled = false;
+      saveBtn.innerHTML = '<i class="ri-save-line"></i> Save Changes';
+    }
+  };
+
+  function showToast(message, type = 'success') {
+    const toast = document.getElementById('toast');
+    toast.innerHTML = `<i class="ri-${type === 'success' ? 'checkbox-circle' : 'error-warning'}-line"></i> ${message}`;
+    toast.className = `toast ${type} show`;
+    setTimeout(() => toast.classList.remove('show'), 3000);
+  }
+
+  searchInput.addEventListener('input', renderUsers);
+  sortSelect.addEventListener('change', renderUsers);
+
+  window.signOutUser = function() {
+    signOut(auth).then(() => location.href = 'login.html');
+  };
+
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  document.getElementById('userOverlay').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('userOverlay')) {
+      closeUserOverlay();
+    }
+  });
+
+  document.getElementById('editModal').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('editModal')) {
+      closeEditModal();
+    }
+  });
+</script>
+
+</body>
+</html>
       
