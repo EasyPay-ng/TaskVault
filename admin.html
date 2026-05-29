@@ -53,7 +53,6 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, sans-serif; }
     body { background: var(--gray-50); color: var(--gray-800); min-height: 100vh; -webkit-font-smoothing: antialiased; }
 
-    /* Header */
     header {
       background: linear-gradient(135deg, var(--orange) 0%, var(--orange-dark) 100%);
       color: var(--white);
@@ -97,10 +96,8 @@
     }
     .header-btn:hover { background: rgba(255,255,255,0.25); transform: translateY(-1px); }
 
-    /* Container */
     .container { max-width: 1400px; margin: 0 auto; padding: 1.5rem; }
 
-    /* Stats Cards */
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -132,6 +129,7 @@
     .stat-card.pending::before { background: var(--yellow); }
     .stat-card.verified::before { background: var(--purple); }
     .stat-card.silver::before { background: var(--silver); }
+    .stat-card.email-verified::before { background: var(--green); }
     
     .stat-header {
       display: flex;
@@ -153,6 +151,7 @@
     .stat-card.pending .stat-icon { background: var(--yellow-light); color: var(--yellow); }
     .stat-card.verified .stat-icon { background: var(--purple-light); color: var(--purple); }
     .stat-card.silver .stat-icon { background: var(--silver-light); color: var(--silver); }
+    .stat-card.email-verified .stat-icon { background: var(--green-light); color: var(--green); }
     
     .stat-trend {
       font-size: .75rem;
@@ -178,7 +177,6 @@
       letter-spacing: -0.02em;
     }
 
-    /* Quick Actions Bar */
     .quick-actions-bar {
       display: flex;
       gap: .75rem;
@@ -224,7 +222,6 @@
     .quick-action.games:hover { background: var(--cyan-light); color: var(--cyan); border-color: var(--cyan); }
     .quick-action.games i { color: var(--cyan); }
 
-    /* Action Bar */
     .action-bar {
       display: flex;
       justify-content: space-between;
@@ -271,7 +268,6 @@
     }
     .sort-select:focus { border-color: var(--orange); box-shadow: 0 0 0 3px var(--orange-soft); }
 
-    /* Table */
     .table-wrap {
       background: var(--white);
       border-radius: var(--radius-lg);
@@ -367,7 +363,6 @@
 
     .date-cell { font-size: .8rem; color: var(--gray-500); }
 
-    /* User Detail Overlay */
     .overlay {
       position: fixed;
       inset: 0;
@@ -578,7 +573,6 @@
     .detail-value.negative { color: var(--red); font-weight: 700; }
     .detail-value.silver { color: var(--silver); font-weight: 700; }
 
-    /* Edit Modal */
     .modal-overlay {
       position: fixed;
       inset: 0;
@@ -704,44 +698,32 @@
     .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(249,115,22,0.3); }
     .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; }
 
-    /* Quick toggle buttons in detail view */
-    .toggle-row {
+    .inline-actions {
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: .75rem 1.25rem;
-      border-bottom: 1px solid var(--gray-100);
+      gap: .5rem;
+      flex-wrap: wrap;
     }
-    .toggle-row:last-child { border-bottom: none; }
-    .toggle-info { display: flex; flex-direction: column; gap: .15rem; }
-    .toggle-label { font-size: .85rem; font-weight: 600; color: var(--gray-700); }
-    .toggle-desc { font-size: .75rem; color: var(--gray-500); }
-    .toggle-switch {
-      position: relative;
-      width: 48px;
-      height: 26px;
-      background: var(--gray-300);
-      border-radius: 13px;
+    .inline-btn {
+      padding: .4rem .75rem;
+      border-radius: var(--radius-sm);
+      font-size: .75rem;
+      font-weight: 600;
       cursor: pointer;
-      transition: background .2s ease;
-      flex-shrink: 0;
+      border: 1.5px solid transparent;
+      transition: all .2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: .3rem;
     }
-    .toggle-switch.active { background: var(--orange); }
-    .toggle-switch::after {
-      content: '';
-      position: absolute;
-      top: 3px;
-      left: 3px;
-      width: 20px;
-      height: 20px;
-      background: var(--white);
-      border-radius: 50%;
-      transition: transform .2s ease;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-    }
-    .toggle-switch.active::after { transform: translateX(22px); }
+    .inline-btn.silver { background: var(--silver-light); color: var(--silver); border-color: var(--silver-light); }
+    .inline-btn.silver:hover { background: var(--silver); color: var(--white); }
+    .inline-btn.none { background: var(--gray-100); color: var(--gray-500); border-color: var(--gray-200); }
+    .inline-btn.none:hover { background: var(--gray-500); color: var(--white); }
+    .inline-btn.verify { background: var(--green-light); color: var(--green); border-color: var(--green-light); }
+    .inline-btn.verify:hover { background: var(--green); color: var(--white); }
+    .inline-btn.unverify { background: var(--red-light); color: var(--red); border-color: var(--red-light); }
+    .inline-btn.unverify:hover { background: var(--red); color: var(--white); }
 
-    /* Loading */
     .skeleton-row { height: 64px; background: linear-gradient(90deg, var(--gray-100) 25%, var(--gray-200) 50%, var(--gray-100) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; margin-bottom: 1px; }
     @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
 
@@ -773,33 +755,6 @@
     .toast.show { transform: translateY(0); opacity: 1; }
     .toast.success { background: var(--green); }
     .toast.error { background: var(--red); }
-
-    /* Inline action buttons */
-    .inline-actions {
-      display: flex;
-      gap: .5rem;
-      flex-wrap: wrap;
-    }
-    .inline-btn {
-      padding: .4rem .75rem;
-      border-radius: var(--radius-sm);
-      font-size: .75rem;
-      font-weight: 600;
-      cursor: pointer;
-      border: 1.5px solid transparent;
-      transition: all .2s ease;
-      display: inline-flex;
-      align-items: center;
-      gap: .3rem;
-    }
-    .inline-btn.silver { background: var(--silver-light); color: var(--silver); border-color: var(--silver-light); }
-    .inline-btn.silver:hover { background: var(--silver); color: var(--white); }
-    .inline-btn.none { background: var(--gray-100); color: var(--gray-500); border-color: var(--gray-200); }
-    .inline-btn.none:hover { background: var(--gray-500); color: var(--white); }
-    .inline-btn.verify { background: var(--green-light); color: var(--green); border-color: var(--green-light); }
-    .inline-btn.verify:hover { background: var(--green); color: var(--white); }
-    .inline-btn.unverify { background: var(--red-light); color: var(--red); border-color: var(--red-light); }
-    .inline-btn.unverify:hover { background: var(--red); color: var(--white); }
   </style>
 </head>
 <body>
@@ -849,14 +804,14 @@
         <div class="stat-value" id="statPending">0</div>
       </div>
     </div>
-    <div class="stat-card silver">
+    <div class="stat-card email-verified">
       <div class="stat-header">
-        <div class="stat-icon"><i class="ri-vip-crown-line"></i></div>
+        <div class="stat-icon"><i class="ri-mail-check-line"></i></div>
         <span class="stat-trend trend-up"><i class="ri-arrow-up-line"></i> 5%</span>
       </div>
       <div class="stat-info">
-        <h3>Silver Plan</h3>
-        <div class="stat-value" id="statSilver">0</div>
+        <h3>Email Verified</h3>
+        <div class="stat-value" id="statEmailVerified">0</div>
       </div>
     </div>
   </div>
@@ -1200,7 +1155,6 @@
   const searchInput = document.getElementById('searchInput');
   const sortSelect = document.getElementById('sortSelect');
 
-  // Country code to name mapping
   const countryNames = {
     'NG': 'Nigeria', 'CM': 'Cameroon', 'GH': 'Ghana', 'PH': 'Philippines',
     'CN': 'China', 'GA': 'Gabon', 'US': 'United States', 'GB': 'United Kingdom',
@@ -1246,11 +1200,25 @@
     }
   }
 
+  // ========== KEY FIX: Check BOTH Firestore AND fallback for emailVerified ==========
+  function isEmailVerified(user) {
+    // Priority 1: Firestore emailVerified field (set by admin or user action)
+    if (user.emailVerified === true) return true;
+    if (user.emailVerified === false) return false;
+    
+    // Priority 2: Legacy field names some apps might use
+    if (user.email_verified === true) return true;
+    if (user.isEmailVerified === true) return true;
+    
+    // Priority 3: If no explicit field, default to unverified (admin must verify)
+    return false;
+  }
+
   function updateStats() {
     const total = allUsers.length;
     const pending = allUsers.filter(u => u.kycStatus === 'pending').length;
     const verified = allUsers.filter(u => u.kycStatus === 'verified').length;
-    const silver = allUsers.filter(u => u.plan === 'silver').length;
+    const emailVerified = allUsers.filter(u => isEmailVerified(u)).length;
     const active = allUsers.filter(u => {
       const lastActive = u.lastLogin?.toDate?.() || u.updatedAt?.toDate?.();
       if (!lastActive) return false;
@@ -1260,13 +1228,12 @@
     document.getElementById('statTotal').textContent = total;
     document.getElementById('statActive').textContent = active;
     document.getElementById('statPending').textContent = pending;
-    document.getElementById('statSilver').textContent = silver;
+    document.getElementById('statEmailVerified').textContent = emailVerified;
   }
 
   function renderUsers() {
     let filtered = [...allUsers];
     
-    // Search filter
     const query = searchInput.value.trim().toLowerCase();
     if (query) {
       filtered = filtered.filter(u => 
@@ -1279,7 +1246,6 @@
       );
     }
     
-    // Sort
     const sort = sortSelect.value;
     filtered.sort((a, b) => {
       switch(sort) {
@@ -1319,7 +1285,8 @@
       const planClass = plan === 'silver' ? 'status-silver' : 'status-none';
       const planText = plan === 'silver' ? 'Silver' : 'None';
       
-      const emailVerified = user.emailVerified === true;
+      // ========== KEY FIX: Use isEmailVerified() helper ==========
+      const emailVerified = isEmailVerified(user);
       const emailClass = emailVerified ? 'status-email-verified' : 'status-email-unverified';
       const emailText = emailVerified ? 'Verified' : 'Unverified';
       
@@ -1369,14 +1336,12 @@
     
     selectedUser = user;
     
-    // Populate profile header
     const name = user.username || user.displayName || user.email?.split('@')[0] || 'Unknown';
     document.getElementById('profileAvatar').textContent = name.charAt(0).toUpperCase();
     document.getElementById('profileName').textContent = name;
     document.getElementById('profileEmail').textContent = user.email || 'No email';
     document.getElementById('profileBalance').textContent = '$' + (user.balance || 0).toFixed(2);
     
-    // Load stake stats
     try {
       const stakesSnap = await getDocs(collection(db, 'users', uid, 'stakes'));
       const stakes = stakesSnap.docs.map(d => d.data());
@@ -1391,7 +1356,6 @@
     const joined = user.createdAt?.toDate ? user.createdAt.toDate() : new Date(user.createdAt || Date.now());
     document.getElementById('profileJoined').textContent = joined.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
     
-    // Populate Account Information details
     document.getElementById('detailFullName').textContent = user.displayName || '-';
     document.getElementById('detailEmail').textContent = user.email || '-';
     document.getElementById('detailUid').textContent = user.uid;
@@ -1401,18 +1365,18 @@
     document.getElementById('detailReferral').textContent = user.referral || 'None';
     document.getElementById('detailStatus').textContent = (user.accountStatus || 'active').charAt(0).toUpperCase() + (user.accountStatus || 'active').slice(1);
     
-    // Populate Plan & Verification Status
+    // Plan & Email Verification
     const plan = user.plan || 'none';
     const planEl = document.getElementById('detailPlan');
     planEl.textContent = plan === 'silver' ? 'Silver' : 'None';
     planEl.className = 'detail-value ' + (plan === 'silver' ? 'silver' : '');
     
-    const emailVerified = user.emailVerified === true;
+    // ========== KEY FIX: Use isEmailVerified() helper ==========
+    const emailVerified = isEmailVerified(user);
     const emailEl = document.getElementById('detailEmailVerified');
     emailEl.textContent = emailVerified ? 'Verified' : 'Unverified';
     emailEl.className = 'detail-value ' + (emailVerified ? 'positive' : 'negative');
     
-    // Populate Financial Details
     document.getElementById('detailBalance').textContent = '$' + (user.balance || 0).toFixed(2);
     document.getElementById('detailDeposited').textContent = '$' + (user.totalDeposited || 0).toFixed(2);
     document.getElementById('detailWithdrawn').textContent = '$' + (user.totalWithdrawn || 0).toFixed(2);
@@ -1421,7 +1385,6 @@
     profitEl.textContent = (profit >= 0 ? '+' : '') + '$' + profit.toFixed(2);
     profitEl.className = 'detail-value ' + (profit >= 0 ? 'positive' : 'negative');
     
-    // Populate KYC Information
     const kycStatus = user.kycStatus || 'none';
     const kycEl = document.getElementById('detailKycStatus');
     kycEl.textContent = kycStatus.charAt(0).toUpperCase() + kycStatus.slice(1);
@@ -1430,13 +1393,11 @@
     document.getElementById('detailKycDate').textContent = user.kycVerifiedAt?.toDate?.().toLocaleDateString('en-US') || '-';
     document.getElementById('detailKycDocs').textContent = user.kycDocuments?.join(', ') || 'None submitted';
     
-    // Populate Location & Device
     document.getElementById('detailLocCountry').textContent = countryNames[user.country] || user.country || '-';
     document.getElementById('detailIp').textContent = user.lastIp || '-';
     document.getElementById('detailLastLogin').textContent = user.lastLogin?.toDate?.().toLocaleString('en-US') || '-';
     document.getElementById('detailDevice').textContent = user.lastDevice || '-';
     
-    // Show overlay
     document.getElementById('userOverlay').classList.add('show');
     document.body.style.overflow = 'hidden';
   };
@@ -1447,7 +1408,6 @@
     selectedUser = null;
   };
 
-  // Quick update functions for Plan
   window.quickUpdatePlan = async function(planValue) {
     if (!selectedUser) return;
     await updateUserField(selectedUser.uid, 'plan', planValue);
@@ -1457,7 +1417,6 @@
     await updateUserField(uid, 'plan', planValue);
   };
 
-  // Quick update functions for Email Verified
   window.quickUpdateEmailVerified = async function(verified) {
     if (!selectedUser) return;
     await updateUserField(selectedUser.uid, 'emailVerified', verified);
@@ -1477,7 +1436,6 @@
       
       await updateDoc(doc(db, 'users', uid), updates);
       
-      // Update local data
       const user = allUsers.find(u => u.uid === uid);
       if (user) {
         user[field] = value;
@@ -1485,7 +1443,6 @@
         user.updatedBy = currentUser.email;
       }
       
-      // Refresh UI
       renderUsers();
       if (selectedUser && selectedUser.uid === uid) {
         openUserDetail(uid);
@@ -1499,7 +1456,6 @@
     }
   }
 
-  // Edit Modal Functions
   window.openEditModal = function(section = 'all') {
     if (!selectedUser) return;
     currentEditSection = section;
@@ -1522,7 +1478,7 @@
     if (section === 'all' || section === 'plan') {
       fields.push(
         { label: 'Plan Status', key: 'plan', type: 'select', value: selectedUser.plan || 'none', options: ['none', 'silver'] },
-        { label: 'Email Verified', key: 'emailVerified', type: 'select', value: selectedUser.emailVerified === true ? 'true' : 'false', options: ['true', 'false'] }
+        { label: 'Email Verified', key: 'emailVerified', type: 'select', value: isEmailVerified(selectedUser) ? 'true' : 'false', options: ['true', 'false'] }
       );
     }
     
@@ -1621,12 +1577,10 @@
       
       await updateDoc(doc(db, 'users', selectedUser.uid), updates);
       
-      // Update local data
       Object.assign(selectedUser, updates);
       const idx = allUsers.findIndex(u => u.uid === selectedUser.uid);
       if (idx !== -1) Object.assign(allUsers[idx], updates);
       
-      // Refresh UI
       renderUsers();
       openUserDetail(selectedUser.uid);
       closeEditModal();
@@ -1647,7 +1601,6 @@
     setTimeout(() => toast.classList.remove('show'), 3000);
   }
 
-  // Filter listeners
   searchInput.addEventListener('input', renderUsers);
   sortSelect.addEventListener('change', renderUsers);
 
@@ -1661,14 +1614,12 @@
     return div.innerHTML;
   }
 
-  // Close overlay on backdrop click
   document.getElementById('userOverlay').addEventListener('click', (e) => {
     if (e.target === document.getElementById('userOverlay')) {
       closeUserOverlay();
     }
   });
 
-  // Close modal on backdrop click
   document.getElementById('editModal').addEventListener('click', (e) => {
     if (e.target === document.getElementById('editModal')) {
       closeEditModal();
@@ -1677,4 +1628,4 @@
 </script>
 
 </body>
-</html>
+  </html>
