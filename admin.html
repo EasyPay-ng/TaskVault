@@ -37,6 +37,8 @@
       --yellow-light: #fef3c7;
       --cyan: #06b6d4;
       --cyan-light: #cffafe;
+      --silver: #a1a1aa;
+      --silver-light: #f4f4f5;
       --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.05);
       --shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1);
       --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
@@ -129,6 +131,7 @@
     .stat-card.active::before { background: var(--green); }
     .stat-card.pending::before { background: var(--yellow); }
     .stat-card.verified::before { background: var(--purple); }
+    .stat-card.silver::before { background: var(--silver); }
     
     .stat-header {
       display: flex;
@@ -149,6 +152,7 @@
     .stat-card.active .stat-icon { background: var(--green-light); color: var(--green); }
     .stat-card.pending .stat-icon { background: var(--yellow-light); color: var(--yellow); }
     .stat-card.verified .stat-icon { background: var(--purple-light); color: var(--purple); }
+    .stat-card.silver .stat-icon { background: var(--silver-light); color: var(--silver); }
     
     .stat-trend {
       font-size: .75rem;
@@ -357,6 +361,9 @@
     .status-pending { background: var(--yellow-light); color: var(--yellow); }
     .status-rejected { background: var(--red-light); color: var(--red); }
     .status-none { background: var(--gray-100); color: var(--gray-500); }
+    .status-silver { background: var(--silver-light); color: var(--silver); }
+    .status-email-verified { background: var(--green-light); color: var(--green); }
+    .status-email-unverified { background: var(--red-light); color: var(--red); }
 
     .date-cell { font-size: .8rem; color: var(--gray-500); }
 
@@ -569,6 +576,7 @@
     }
     .detail-value.positive { color: var(--green); font-weight: 700; }
     .detail-value.negative { color: var(--red); font-weight: 700; }
+    .detail-value.silver { color: var(--silver); font-weight: 700; }
 
     /* Edit Modal */
     .modal-overlay {
@@ -696,6 +704,43 @@
     .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(249,115,22,0.3); }
     .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; }
 
+    /* Quick toggle buttons in detail view */
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: .75rem 1.25rem;
+      border-bottom: 1px solid var(--gray-100);
+    }
+    .toggle-row:last-child { border-bottom: none; }
+    .toggle-info { display: flex; flex-direction: column; gap: .15rem; }
+    .toggle-label { font-size: .85rem; font-weight: 600; color: var(--gray-700); }
+    .toggle-desc { font-size: .75rem; color: var(--gray-500); }
+    .toggle-switch {
+      position: relative;
+      width: 48px;
+      height: 26px;
+      background: var(--gray-300);
+      border-radius: 13px;
+      cursor: pointer;
+      transition: background .2s ease;
+      flex-shrink: 0;
+    }
+    .toggle-switch.active { background: var(--orange); }
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 20px;
+      height: 20px;
+      background: var(--white);
+      border-radius: 50%;
+      transition: transform .2s ease;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    .toggle-switch.active::after { transform: translateX(22px); }
+
     /* Loading */
     .skeleton-row { height: 64px; background: linear-gradient(90deg, var(--gray-100) 25%, var(--gray-200) 50%, var(--gray-100) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; margin-bottom: 1px; }
     @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
@@ -728,11 +773,38 @@
     .toast.show { transform: translateY(0); opacity: 1; }
     .toast.success { background: var(--green); }
     .toast.error { background: var(--red); }
+
+    /* Inline action buttons */
+    .inline-actions {
+      display: flex;
+      gap: .5rem;
+      flex-wrap: wrap;
+    }
+    .inline-btn {
+      padding: .4rem .75rem;
+      border-radius: var(--radius-sm);
+      font-size: .75rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1.5px solid transparent;
+      transition: all .2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: .3rem;
+    }
+    .inline-btn.silver { background: var(--silver-light); color: var(--silver); border-color: var(--silver-light); }
+    .inline-btn.silver:hover { background: var(--silver); color: var(--white); }
+    .inline-btn.none { background: var(--gray-100); color: var(--gray-500); border-color: var(--gray-200); }
+    .inline-btn.none:hover { background: var(--gray-500); color: var(--white); }
+    .inline-btn.verify { background: var(--green-light); color: var(--green); border-color: var(--green-light); }
+    .inline-btn.verify:hover { background: var(--green); color: var(--white); }
+    .inline-btn.unverify { background: var(--red-light); color: var(--red); border-color: var(--red-light); }
+    .inline-btn.unverify:hover { background: var(--red); color: var(--white); }
   </style>
 </head>
 <body>
 
-<header>
+<<header>
   <div class="logo-wrap">
     <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" alt="TaskVault"/>
     <h1>TaskVault <span class="admin-badge">ADMIN</span></h1>
@@ -777,14 +849,14 @@
         <div class="stat-value" id="statPending">0</div>
       </div>
     </div>
-    <div class="stat-card verified">
+    <div class="stat-card silver">
       <div class="stat-header">
-        <div class="stat-icon"><i class="ri-shield-check-line"></i></div>
-        <span class="stat-trend trend-up"><i class="ri-arrow-up-line"></i> 15%</span>
+        <div class="stat-icon"><i class="ri-vip-crown-line"></i></div>
+        <span class="stat-trend trend-up"><i class="ri-arrow-up-line"></i> 5%</span>
       </div>
       <div class="stat-info">
-        <h3>KYC Verified</h3>
-        <div class="stat-value" id="statVerified">0</div>
+        <h3>Silver Plan</h3>
+        <div class="stat-value" id="statSilver">0</div>
       </div>
     </div>
   </div>
@@ -847,10 +919,12 @@
         <tr>
           <th>User</th>
           <th>Username</th>
-          <th>User ID</th>
+          <th>Plan</th>
+          <th>Email Verified</th>
           <th>Balance</th>
           <th>KYC Status</th>
           <th>Joined</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody id="usersBody"></tbody>
@@ -945,6 +1019,45 @@
           <div class="detail-item">
             <div class="detail-label">Account Status</div>
             <div class="detail-value" id="detailStatus">-</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Plan & Verification Status Card -->
+      <div class="detail-card">
+        <div class="detail-card-header">
+          <span><i class="ri-vip-crown-line"></i> Plan & Verification Status</span>
+          <button class="edit-section-btn" onclick="openEditModal('plan')">
+            <i class="ri-edit-line"></i> Edit
+          </button>
+        </div>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <div class="detail-label">Plan Status</div>
+            <div class="detail-value" id="detailPlan">-</div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Email Verified</div>
+            <div class="detail-value" id="detailEmailVerified">-</div>
+          </div>
+          <div class="detail-item full-width">
+            <div class="detail-label">Quick Actions</div>
+            <div class="detail-value">
+              <div class="inline-actions" id="planActions">
+                <button class="inline-btn silver" onclick="quickUpdatePlan('silver')">
+                  <i class="ri-vip-crown-line"></i> Set Silver
+                </button>
+                <button class="inline-btn none" onclick="quickUpdatePlan('none')">
+                  <i class="ri-close-circle-line"></i> Set None
+                </button>
+                <button class="inline-btn verify" onclick="quickUpdateEmailVerified(true)">
+                  <i class="ri-mail-check-line"></i> Verify Email
+                </button>
+                <button class="inline-btn unverify" onclick="quickUpdateEmailVerified(false)">
+                  <i class="ri-mail-close-line"></i> Unverify Email
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -1137,6 +1250,7 @@
     const total = allUsers.length;
     const pending = allUsers.filter(u => u.kycStatus === 'pending').length;
     const verified = allUsers.filter(u => u.kycStatus === 'verified').length;
+    const silver = allUsers.filter(u => u.plan === 'silver').length;
     const active = allUsers.filter(u => {
       const lastActive = u.lastLogin?.toDate?.() || u.updatedAt?.toDate?.();
       if (!lastActive) return false;
@@ -1146,7 +1260,7 @@
     document.getElementById('statTotal').textContent = total;
     document.getElementById('statActive').textContent = active;
     document.getElementById('statPending').textContent = pending;
-    document.getElementById('statVerified').textContent = verified;
+    document.getElementById('statSilver').textContent = silver;
   }
 
   function renderUsers() {
@@ -1201,6 +1315,14 @@
       const statusClass = `status-${kycStatus}`;
       const statusText = kycStatus.charAt(0).toUpperCase() + kycStatus.slice(1);
       
+      const plan = user.plan || 'none';
+      const planClass = plan === 'silver' ? 'status-silver' : 'status-none';
+      const planText = plan === 'silver' ? 'Silver' : 'None';
+      
+      const emailVerified = user.emailVerified === true;
+      const emailClass = emailVerified ? 'status-email-verified' : 'status-email-unverified';
+      const emailText = emailVerified ? 'Verified' : 'Unverified';
+      
       const date = user.createdAt?.toDate ? user.createdAt.toDate() : new Date(user.createdAt || Date.now());
       const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
       
@@ -1219,10 +1341,21 @@
             </div>
           </td>
           <td>${escapeHtml(user.username || '-')}</td>
-          <td><span class="uid-cell">${user.uid.substring(0, 12)}...</span></td>
+          <td><span class="status-badge ${planClass}"><i class="ri-${plan === 'silver' ? 'vip-crown' : 'close-circle'}-line"></i> ${planText}</span></td>
+          <td><span class="status-badge ${emailClass}"><i class="ri-${emailVerified ? 'mail-check' : 'mail-close'}-line"></i> ${emailText}</span></td>
           <td class="balance-cell">$${(user.balance || 0).toFixed(2)}</td>
           <td><span class="status-badge ${statusClass}"><i class="ri-${kycStatus === 'verified' ? 'checkbox-circle' : kycStatus === 'pending' ? 'time' : 'close-circle'}-line"></i> ${statusText}</span></td>
           <td class="date-cell">${dateStr}</td>
+          <td>
+            <div class="inline-actions" onclick="event.stopPropagation()">
+              <button class="inline-btn ${plan === 'silver' ? 'none' : 'silver'}" onclick="quickUpdatePlanFromTable('${user.uid}', '${plan === 'silver' ? 'none' : 'silver'}')">
+                <i class="ri-vip-crown-line"></i> ${plan === 'silver' ? 'Remove' : 'Silver'}
+              </button>
+              <button class="inline-btn ${emailVerified ? 'unverify' : 'verify'}" onclick="quickUpdateEmailFromTable('${user.uid}', ${!emailVerified})">
+                <i class="ri-${emailVerified ? 'mail-close' : 'mail-check'}-line"></i> ${emailVerified ? 'Unverify' : 'Verify'}
+              </button>
+            </div>
+          </td>
         </tr>
       `;
     });
@@ -1268,6 +1401,17 @@
     document.getElementById('detailReferral').textContent = user.referral || 'None';
     document.getElementById('detailStatus').textContent = (user.accountStatus || 'active').charAt(0).toUpperCase() + (user.accountStatus || 'active').slice(1);
     
+    // Populate Plan & Verification Status
+    const plan = user.plan || 'none';
+    const planEl = document.getElementById('detailPlan');
+    planEl.textContent = plan === 'silver' ? 'Silver' : 'None';
+    planEl.className = 'detail-value ' + (plan === 'silver' ? 'silver' : '');
+    
+    const emailVerified = user.emailVerified === true;
+    const emailEl = document.getElementById('detailEmailVerified');
+    emailEl.textContent = emailVerified ? 'Verified' : 'Unverified';
+    emailEl.className = 'detail-value ' + (emailVerified ? 'positive' : 'negative');
+    
     // Populate Financial Details
     document.getElementById('detailBalance').textContent = '$' + (user.balance || 0).toFixed(2);
     document.getElementById('detailDeposited').textContent = '$' + (user.totalDeposited || 0).toFixed(2);
@@ -1303,6 +1447,58 @@
     selectedUser = null;
   };
 
+  // Quick update functions for Plan
+  window.quickUpdatePlan = async function(planValue) {
+    if (!selectedUser) return;
+    await updateUserField(selectedUser.uid, 'plan', planValue);
+  };
+
+  window.quickUpdatePlanFromTable = async function(uid, planValue) {
+    await updateUserField(uid, 'plan', planValue);
+  };
+
+  // Quick update functions for Email Verified
+  window.quickUpdateEmailVerified = async function(verified) {
+    if (!selectedUser) return;
+    await updateUserField(selectedUser.uid, 'emailVerified', verified);
+  };
+
+  window.quickUpdateEmailFromTable = async function(uid, verified) {
+    await updateUserField(uid, 'emailVerified', verified);
+  };
+
+  async function updateUserField(uid, field, value) {
+    try {
+      const updates = {
+        [field]: value,
+        updatedAt: serverTimestamp(),
+        updatedBy: currentUser.email
+      };
+      
+      await updateDoc(doc(db, 'users', uid), updates);
+      
+      // Update local data
+      const user = allUsers.find(u => u.uid === uid);
+      if (user) {
+        user[field] = value;
+        user.updatedAt = new Date();
+        user.updatedBy = currentUser.email;
+      }
+      
+      // Refresh UI
+      renderUsers();
+      if (selectedUser && selectedUser.uid === uid) {
+        openUserDetail(uid);
+      }
+      
+      const fieldName = field === 'plan' ? 'Plan' : 'Email verification';
+      showToast(`${fieldName} updated successfully`, 'success');
+    } catch (err) {
+      console.error('Update error:', err);
+      showToast('Failed to update: ' + err.message, 'error');
+    }
+  }
+
   // Edit Modal Functions
   window.openEditModal = function(section = 'all') {
     if (!selectedUser) return;
@@ -1320,6 +1516,13 @@
         { label: 'Country', key: 'country', type: 'select', value: selectedUser.country || '', options: ['NG','CM','GH','PH','CN','GA','US','GB','CA','HU','ZA','AU','DE','FR','IN','JP','BR'] },
         { label: 'Referral Code', key: 'referral', type: 'text', value: selectedUser.referral || '' },
         { label: 'Account Status', key: 'accountStatus', type: 'select', value: selectedUser.accountStatus || 'active', options: ['active', 'suspended', 'banned'] }
+      );
+    }
+    
+    if (section === 'all' || section === 'plan') {
+      fields.push(
+        { label: 'Plan Status', key: 'plan', type: 'select', value: selectedUser.plan || 'none', options: ['none', 'silver'] },
+        { label: 'Email Verified', key: 'emailVerified', type: 'select', value: selectedUser.emailVerified === true ? 'true' : 'false', options: ['true', 'false'] }
       );
     }
     
@@ -1349,13 +1552,24 @@
     fields.forEach(field => {
       if (field.type === 'select') {
         const optionLabels = field.key === 'country' ? countryNames : null;
+        const isBoolean = field.key === 'emailVerified';
         html += `
           <div class="form-group">
             <label>${field.label}</label>
-            <select id="edit-${field.key}" data-key="${field.key}">
+            <select id="edit-${field.key}" data-key="${field.key}" data-type="${isBoolean ? 'boolean' : 'string'}">
               ${field.options.map(opt => {
-                const label = optionLabels ? optionLabels[opt] || opt : opt.charAt(0).toUpperCase() + opt.slice(1);
-                return `<option value="${opt}" ${field.value === opt ? 'selected' : ''}>${label}</option>`;
+                let label, val;
+                if (isBoolean) {
+                  label = opt === 'true' ? 'Yes (Verified)' : 'No (Unverified)';
+                  val = opt;
+                } else if (optionLabels) {
+                  label = optionLabels[opt] || opt;
+                  val = opt;
+                } else {
+                  label = opt.charAt(0).toUpperCase() + opt.slice(1);
+                  val = opt;
+                }
+                return `<option value="${val}" ${field.value === val ? 'selected' : ''}>${label}</option>`;
               }).join('')}
             </select>
           </div>
@@ -1393,7 +1607,9 @@
         const key = input.dataset.key;
         let value = input.value;
         
-        if (input.type === 'number') {
+        if (input.dataset.type === 'boolean') {
+          value = value === 'true';
+        } else if (input.type === 'number') {
           value = parseFloat(value) || 0;
         }
         
