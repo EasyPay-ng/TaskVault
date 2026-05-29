@@ -360,6 +360,7 @@
     .status-silver { background: var(--silver-light); color: var(--silver); }
     .status-email-verified { background: var(--green-light); color: var(--green); }
     .status-email-unverified { background: var(--red-light); color: var(--red); }
+    .status-email-unknown { background: var(--yellow-light); color: var(--yellow); }
 
     .date-cell { font-size: .8rem; color: var(--gray-500); }
 
@@ -755,6 +756,22 @@
     .toast.show { transform: translateY(0); opacity: 1; }
     .toast.success { background: var(--green); }
     .toast.error { background: var(--red); }
+
+    /* Info banner for email sync */
+    .info-banner {
+      background: var(--yellow-light);
+      border: 1px solid var(--yellow-light);
+      border-radius: var(--radius);
+      padding: .75rem 1rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      font-size: .85rem;
+      color: var(--yellow);
+      font-weight: 500;
+    }
+    .info-banner i { font-size: 1.1rem; }
   </style>
 </head>
 <body>
@@ -854,6 +871,12 @@
         <option value="name-za">Name: Z-A</option>
       </select>
     </div>
+  </div>
+
+  <!-- Info Banner -->
+  <div class="info-banner" id="syncBanner">
+    <i class="ri-information-line"></i>
+    Email verification status updates when users open their profile page. Use the "Verify" button to manually verify.
   </div>
 
   <!-- Loading -->
@@ -1200,17 +1223,17 @@
     }
   }
 
-  // ========== KEY FIX: Check BOTH Firestore AND fallback for emailVerified ==========
+  // ========== KEY FIX: Properly check Firestore emailVerified field ==========
   function isEmailVerified(user) {
-    // Priority 1: Firestore emailVerified field (set by admin or user action)
+    // Check Firestore emailVerified field (set by profile sync or admin)
     if (user.emailVerified === true) return true;
     if (user.emailVerified === false) return false;
     
-    // Priority 2: Legacy field names some apps might use
+    // Legacy field names
     if (user.email_verified === true) return true;
     if (user.isEmailVerified === true) return true;
     
-    // Priority 3: If no explicit field, default to unverified (admin must verify)
+    // Default: unverified (admin must verify or user must open profile)
     return false;
   }
 
@@ -1572,60 +1595,3 @@
         updates[key] = value;
       });
       
-      updates.updatedAt = serverTimestamp();
-      updates.updatedBy = currentUser.email;
-      
-      await updateDoc(doc(db, 'users', selectedUser.uid), updates);
-      
-      Object.assign(selectedUser, updates);
-      const idx = allUsers.findIndex(u => u.uid === selectedUser.uid);
-      if (idx !== -1) Object.assign(allUsers[idx], updates);
-      
-      renderUsers();
-      openUserDetail(selectedUser.uid);
-      closeEditModal();
-      showToast('User updated successfully', 'success');
-    } catch (err) {
-      console.error('Update error:', err);
-      showToast('Failed to update user: ' + err.message, 'error');
-    } finally {
-      saveBtn.disabled = false;
-      saveBtn.innerHTML = '<i class="ri-save-line"></i> Save Changes';
-    }
-  };
-
-  function showToast(message, type = 'success') {
-    const toast = document.getElementById('toast');
-    toast.innerHTML = `<i class="ri-${type === 'success' ? 'checkbox-circle' : 'error-warning'}-line"></i> ${message}`;
-    toast.className = `toast ${type} show`;
-    setTimeout(() => toast.classList.remove('show'), 3000);
-  }
-
-  searchInput.addEventListener('input', renderUsers);
-  sortSelect.addEventListener('change', renderUsers);
-
-  window.signOutUser = function() {
-    signOut(auth).then(() => location.href = 'login.html');
-  };
-
-  function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-  }
-
-  document.getElementById('userOverlay').addEventListener('click', (e) => {
-    if (e.target === document.getElementById('userOverlay')) {
-      closeUserOverlay();
-    }
-  });
-
-  document.getElementById('editModal').addEventListener('click', (e) => {
-    if (e.target === document.getElementById('editModal')) {
-      closeEditModal();
-    }
-  });
-</script>
-
-</body>
-  </html>
