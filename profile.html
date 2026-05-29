@@ -806,6 +806,19 @@
                 const avatarEl = document.getElementById('userAvatar');
                 avatarEl.innerHTML = displayName.charAt(0).toUpperCase();
 
+                // ========== SYNC: Write Firebase Auth emailVerified to Firestore ==========
+                if (user.emailVerified) {
+                    try {
+                        await db.collection('users').doc(user.uid).set({
+                            emailVerified: true,
+                            emailVerifiedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                            email: user.email
+                        }, { merge: true });
+                    } catch (e) {
+                        console.log('Email sync failed:', e);
+                    }
+                }
+
                 updateEmailStatus(user.emailVerified);
 
                 // Real-time listener for user document - updates instantly when admin approves/rejects
@@ -844,6 +857,11 @@
                             });
                         }
 
+                        // ========== CHECK BOTH Firebase Auth AND Firestore for email verification ==========
+                        // Admin can override via Firestore, or user verifies via Firebase Auth
+                        const isEmailVerified = currentUser.emailVerified || data.emailVerified === true;
+                        updateEmailStatus(isEmailVerified);
+
                         // Update KYC status in real-time
                         const kycStatus = data.kycStatus || 'pending';
                         updateKYCStatus(kycStatus, data.kycRejectionReason);
@@ -855,6 +873,7 @@
                         }
                     } else {
                         // New user - no doc yet
+                        updateEmailStatus(currentUser.emailVerified);
                         updateKYCStatus('pending', null);
                         if (!kycPopupShown) {
                             kycPopupShown = true;
