@@ -43,134 +43,12 @@
             overflow-x: hidden;
         }
 
-        /* ==================== SIDEBAR ==================== */
-        .sidebar {
-            position: fixed;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 260px;
-            background: var(--white);
-            box-shadow: 4px 0 20px rgba(0,0,0,0.06);
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .sidebar-header {
-            padding: 24px 20px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            border-bottom: 1px solid #f1f5f9;
-        }
-
-        .sidebar-logo {
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
-            object-fit: cover;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .sidebar-brand h2 {
-            font-size: 16px;
-            font-weight: 800;
-            color: var(--text-dark);
-        }
-
-        .sidebar-brand span {
-            font-size: 11px;
-            color: var(--orange-main);
-            font-weight: 600;
-        }
-
-        .sidebar-nav {
-            flex: 1;
-            padding: 16px 12px;
-            overflow-y: auto;
-        }
-
-        .nav-section {
-            font-size: 10px;
-            font-weight: 700;
-            color: var(--text-light);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            padding: 12px 12px 8px;
-        }
-
-        .nav-link {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 16px;
-            border-radius: 12px;
-            color: var(--text-light);
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            margin-bottom: 4px;
-        }
-
-        .nav-link:hover {
-            background: var(--orange-light);
-            color: var(--orange-main);
-        }
-
-        .nav-link.active {
-            background: var(--gradient-orange);
-            color: white;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .nav-link i {
-            font-size: 16px;
-            width: 20px;
-            text-align: center;
-        }
-
-        .sidebar-footer {
-            padding: 16px;
-            border-top: 1px solid #f1f5f9;
-        }
-
-        .admin-user {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .admin-avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
-            background: var(--gradient-orange);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 13px;
-            font-weight: 700;
-            color: white;
-        }
-
-        .admin-info h4 {
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--text-dark);
-        }
-
-        .admin-info p {
-            font-size: 10px;
-            color: var(--text-light);
-        }
-
         /* ==================== MAIN CONTENT ==================== */
         .main-content {
-            margin-left: 260px;
             min-height: 100vh;
             padding: 24px 32px;
+            max-width: 1400px;
+            margin: 0 auto;
         }
 
         /* ==================== TOP BAR ==================== */
@@ -215,6 +93,27 @@
         }
 
         .refresh-btn:hover {
+            background: var(--orange-light);
+            border-color: var(--orange-main);
+        }
+
+        .back-btn {
+            background: var(--white);
+            border: 1px solid rgba(255, 140, 66, 0.15);
+            border-radius: 10px;
+            padding: 10px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--orange-main);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .back-btn:hover {
             background: var(--orange-light);
             border-color: var(--orange-main);
         }
@@ -831,53 +730,6 @@
         <span id="toastMsg">Message</span>
     </div>
 
-    <!-- SIDEBAR -->
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" alt="TaskVault" class="sidebar-logo">
-            <div class="sidebar-brand">
-                <h2>TaskVault</h2>
-                <span>Admin Panel</span>
-            </div>
-        </div>
-
-        <nav class="sidebar-nav">
-            <div class="nav-section">Management</div>
-            <a href="admin.html" class="nav-link active">
-                <i class="fa-solid fa-wallet"></i>
-                Deposits
-            </a>
-            <a href="admin-withdrawals.html" class="nav-link">
-                <i class="fa-solid fa-arrow-up-from-bracket"></i>
-                Withdrawals
-            </a>
-            <a href="admin-users.html" class="nav-link">
-                <i class="fa-solid fa-users"></i>
-                Users
-            </a>
-            <a href="admin-games.html" class="nav-link">
-                <i class="fa-solid fa-gamepad"></i>
-                Games
-            </a>
-
-            <div class="nav-section">System</div>
-            <a href="dashboard.html" class="nav-link">
-                <i class="fa-solid fa-arrow-left"></i>
-                Back to App
-            </a>
-        </nav>
-
-        <div class="sidebar-footer">
-            <div class="admin-user">
-                <div class="admin-avatar" id="adminAvatar">A</div>
-                <div class="admin-info">
-                    <h4 id="adminName">Admin</h4>
-                    <p>Administrator</p>
-                </div>
-            </div>
-        </div>
-    </aside>
-
     <!-- MAIN CONTENT -->
     <main class="main-content">
         <!-- TOP BAR -->
@@ -887,6 +739,10 @@
                 <p>View and manage all user deposit requests</p>
             </div>
             <div class="top-actions">
+                <a href="admin.html" class="back-btn">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    Back
+                </a>
                 <button class="refresh-btn" onclick="refreshDeposits()">
                     <i class="fa-solid fa-rotate-right"></i>
                     Refresh
@@ -1023,11 +879,6 @@
                     return;
                 }
 
-                // Set admin info
-                const name = email.split('@')[0];
-                document.getElementById('adminName').textContent = name;
-                document.getElementById('adminAvatar').textContent = name.charAt(0).toUpperCase();
-                
                 startDepositsListener();
             } catch (error) {
                 console.error("Admin check error:", error);
@@ -1428,4 +1279,4 @@
         });
     </script>
 </body>
-</html>
+    </html>
