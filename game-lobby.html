@@ -846,91 +846,64 @@
     }
   }
 
-  // ========== WORLD CLOCK ROUND SYSTEM ==========
-  // Rounds start at fixed intervals based on world clock (every 24 hours)
-  // Round N starts at midnight UTC of day N, ends 24h later
-  function getCurrentRoundPeriod() {
-    const now = new Date();
-    const utcNow = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds());
-    
-    // Round duration: 24 hours (86400000 ms)
-    const ROUND_DURATION = 24 * 60 * 60 * 1000;
-    
-    // Calculate which round we're in
-    const roundIndex = Math.floor(utcNow / ROUND_DURATION);
-    const roundStart = roundIndex * ROUND_DURATION;
-    const roundEnd = roundStart + ROUND_DURATION;
-    
-    return {
-      roundIndex,
-      roundStart: new Date(roundStart),
-      roundEnd: new Date(roundEnd),
-      timeRemaining: roundEnd - utcNow,
-      isActive: true
-    };
-  }
-
-  function getRoundNumberFromIndex(roundIndex) {
-    // Round numbering starts from 1
-    return roundIndex + 1;
-  }
-
+  // NO COMPOSITE INDEX NEEDED - Simple query by status only, then sort client-side
   async function getOrCreateRound() {
-    const period = getCurrentRoundPeriod();
-    const roundIndex = period.roundIndex;
-    const roundNumber = getRoundNumberFromIndex(roundIndex);
-    
-    // Try to find existing round for this period
     const roundsQuery = query(
       collection(db, 'gameRounds'),
-      where('roundIndex', '==', roundIndex)
+      where('status', '==', 'active')
     );
-    
+
     const roundsSnap = await getDocs(roundsQuery);
-    
-    if (!roundsSnap.empty) {
-      // Round exists - use it
-      const roundDoc = roundsSnap.docs[0];
-      currentRound = { id: roundDoc.id, ...roundDoc.data() };
-      
-      // Check if round should be ended (time expired)
+
+    let activeRounds = [];
+    roundsSnap.forEach(d => activeRounds.push({ id: d.id, ...d.data() }));
+
+    activeRounds.sort((a, b) => {
+      const aTime = a.createdAt?.toDate?.() || new Date(0);
+      const bTime = b.createdAt?.toDate?.() || new Date(0);
+      return bTime - aTime;
+    });
+
+    if (activeRounds.length > 0) {
+      currentRound = activeRounds[0];
+
       const now = new Date();
-      const roundEnd = currentRound.roundEnd?.toDate?.() || new Date(period.roundEnd);
-      
-      if (now >= roundEnd && currentRound.status === 'active') {
+      const createdAt = currentRound.createdAt?.toDate?.() || new Date();
+      const hoursPassed = (now - createdAt) / (1000 * 60 * 60);
+      const entryCount = currentRound.entryCount || 0;
+
+      if (entryCount >= 20 || hoursPassed >= 24) {
         await endRound(currentRound.id);
-        // Create next round
-        await createNewRoundForPeriod(roundIndex + 1);
+        await createNewRound();
       }
     } else {
-      // No round for this period - create one
-      await createNewRoundForPeriod(roundIndex);
+      await createNewRound();
     }
-    
+
     updateRoundUI();
   }
 
-  async function createNewRoundForPeriod(roundIndex) {
-    const ROUND_DURATION = 24 * 60 * 60 * 1000;
-    const roundStart = new Date(roundIndex * ROUND_DURATION);
-    const roundEnd = new Date(roundStart.getTime() + ROUND_DURATION);
-    
+  async function createNewRound() {
+    const allRoundsSnap = await getDocs(collection(db, 'gameRounds'));
+    let maxRound = 0;
+    allRoundsSnap.forEach(d => {
+      const num = d.data().roundNumber || 0;
+      if (num > maxRound) maxRound = num;
+    });
+
     const roundRef = doc(collection(db, 'gameRounds'));
     const roundData = {
-      roundIndex: roundIndex,
-      roundNumber: getRoundNumberFromIndex(roundIndex),
+      roundNumber: maxRound + 1,
       status: 'active',
       entryCount: 0,
       prizePool: 0,
       createdAt: serverTimestamp(),
-      roundStart: serverTimestamp(), // Will be approximately correct
-      roundEnd: new Date(roundEnd), // Store the fixed end time
       endsAt: null,
       winners: null
     };
 
     await setDoc(roundRef, roundData);
-    currentRound = { id: roundRef.id, ...roundData, roundEnd: roundEnd };
+    currentRound = { id: roundRef.id, ...roundData };
   }
 
   async function endRound(roundId) {
@@ -1043,25 +1016,19 @@
       if (!currentRound) return;
 
       const now = new Date();
-      const period = getCurrentRoundPeriod();
-      const timeRemaining = period.timeRemaining;
+      const createdAt = currentRound.createdAt?.toDate?.() || new Date();
+      const elapsed = now - createdAt;
+      const remaining = Math.max(0, (24 * 60 * 60 * 1000) - elapsed);
 
-      const hours = Math.floor(timeRemaining / (1000 * 60 * 60));
-      const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+      const hours = Math.floor(remaining / (1000 * 60 * 60));
+      const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
 
       countdownTime.textContent = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 
-      // Check if round should end (time expired)
-      if (timeRemaining <= 0 && currentRound.status === 'active') {
+      if (remaining <= 0 && currentRound.status === 'active') {
         clearInterval(countdownInterval);
-        // End current round and create new one
-        (async () => {
-          await endRound(currentRound.id);
-          await getOrCreateRound();
-          startCountdown();
-          subscribeLeaderboard();
-        })();
+        getOrCreateRound();
       }
     };
 
