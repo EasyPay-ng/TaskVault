@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TaskVault - Offers</title>
+    
+    <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" type="image/jpeg">
+    <link rel="manifest" href="manifest.json">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --orange-main: #FF8C42;
+            --orange-dark: #E67A35;
+            --orange-light: #FFF0E6;
+            --silk-bg: #FDFBF7;
+            --white: #FFFFFF;
+            --text-dark: #333333;
+            --text-light: #888888;
+            --shadow-sm: 0 2px 6px rgba(255, 140, 66, 0.06);
+            --shadow-md: 0 4px 12px rgba(255, 140, 66, 0.1);
+            --shadow-lg: 0 8px 24px rgba(255, 140, 66, 0.15);
+            --gradient-orange: linear-gradient(135deg, #FF8C42 0%, #FF6B35 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            background-color: #e9ecef;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .app-container {
+            width: 100%;
+            height: 100dvh;
+            max-width: 430px;
+            background-color: var(--silk-bg);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (min-width: 768px) {
+            .app-container {
+                height: 92dvh;
+                max-height: 850px;
+                border-radius: 24px;
+                box-shadow: 0 0 40px rgba(0,0,0,0.12);
+            }
+        }
+
+        /* ==================== HEADER ==================== */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 20px 10px;
+            background: var(--white);
+            flex-shrink: 0;
+            z-index: 100;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .back-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: var(--orange-light);
+            color: var(--orange-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .back-btn:hover {
+            background: var(--orange-main);
+            color: white;
+        }
+
+        .header-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .header-subtitle {
+            font-size: 10px;
+            color: var(--text-light);
+            font-weight: 400;
+        }
+
+        .header-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .balance-pill {
+            background: var(--gradient-orange);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* ==================== OFFERWALL CONTAINER ==================== */
+        .offerwall-wrapper {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            background: var(--white);
+        }
+
+        .offerwall-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+
+        /* ==================== LOADING ==================== */
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--white);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+            gap: 12px;
+            transition: opacity 0.3s ease;
+        }
+
+        .loading-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .spinner {
+            width: 36px;
+            height: 36px;
+            border: 3px solid var(--orange-light);
+            border-top: 3px solid var(--orange-main);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .loader-text {
+            font-size: 11px;
+            color: var(--text-light);
+            font-weight: 600;
+            letter-spacing: 2px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ==================== ERROR STATE ==================== */
+        .error-state {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--white);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 16px;
+            padding: 40px;
+            text-align: center;
+            z-index: 60;
+        }
+
+        .error-state.show {
+            display: flex;
+        }
+
+        .error-icon {
+            width: 64px;
+            height: 64px;
+            background: var(--orange-light);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: var(--orange-main);
+        }
+
+        .error-state h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .error-state p {
+            font-size: 12px;
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+
+        .btn-retry {
+            background: var(--gradient-orange);
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+            margin-top: 8px;
+        }
+
+        .btn-retry:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* ==================== BOTTOM NAV ==================== */
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--white);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 8px 16px 16px;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.04);
+            border-top-left-radius: 24px;
+            border-top-right-radius: 24px;
+            z-index: 1000;
+            flex-shrink: 0;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-light);
+            text-decoration: none;
+            font-size: 9px;
+            gap: 3px;
+            transition: all 0.3s ease;
+            padding: 6px 14px;
+            border-radius: 14px;
+            font-weight: 500;
+            position: relative;
+        }
+
+        .nav-item i {
+            font-size: 20px;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .nav-item.active {
+            color: var(--orange-main);
+            background: var(--orange-light);
+        }
+
+        .nav-item.active i {
+            transform: translateY(-2px) scale(1.1);
+        }
+
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            width: 16px;
+            height: 3px;
+            background: var(--orange-main);
+            border-radius: 2px;
+            opacity: 0;
+            animation: dotIn 0.3s ease forwards;
+        }
+
+        @keyframes dotIn {
+            to { opacity: 1; top: 2px; }
+        }
+
+        /* ==================== TOAST ==================== */
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: var(--white);
+            color: var(--text-dark);
+            padding: 10px 18px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            z-index: 2000;
+            text-align: center;
+            max-width: 90%;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+            border: 1px solid rgba(255, 140, 66, 0.08);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toast.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+            top: 22px;
+        }
+
+        .toast.success { border-left: 3px solid #10B981; }
+        .toast.error { border-left: 3px solid #EF4444; }
+        .toast.info { border-left: 3px solid var(--orange-main); }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- HEADER -->
+        <header class="header">
+            <div class="header-left">
+                <a href="index.html" class="back-btn">
+                    <i class="ri-arrow-left-line"></i>
+                </a>
+                <div class="header-info">
+                    <span class="header-title">Offer Wall</span>
+                    <span class="header-subtitle">Complete offers & earn rewards</span>
+                </div>
+            </div>
+            <div class="balance-pill" id="balancePill">
+                <i class="ri-wallet-3-line"></i>
+                <span id="balanceDisplay">$0.00</span>
+            </div>
+        </header>
+
+        <!-- OFFERWALL -->
+        <div class="offerwall-wrapper">
+            <div class="loading-overlay" id="loadingOverlay">
+                <div class="spinner"></div>
+                <div class="loader-text">Loading Offers...</div>
+            </div>
+
+            <div class="error-state" id="errorState">
+                <div class="error-icon">
+                    <i class="ri-shopping-bag-3-line"></i>
+                </div>
+                <h3>Offers Unavailable</h3>
+                <p>We couldn't load the offer wall. Please check your connection and try again.</p>
+                <button class="btn-retry" onclick="reloadOfferwall()">
+                    <i class="ri-refresh-line"></i> Try Again
+                </button>
+            </div>
+
+            <iframe 
+                class="offerwall-iframe" 
+                id="offerwallFrame"
+                scrolling="yes" 
+                frameborder="0"
+                sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"
+            ></iframe>
+        </div>
+
+        <!-- BOTTOM NAV -->
+        <nav class="bottom-nav">
+            <a href="menu.html" class="nav-item">
+                <i class="ri-apps-line"></i>
+                <span>Menu</span>
+            </a>
+            <a href="deposit.html" class="nav-item">
+                <i class="ri-wallet-3-line"></i>
+                <span>Deposit</span>
+            </a>
+            <a href="withdraw.html" class="nav-item">
+                <i class="ri-upload-2-line"></i>
+                <span>Withdraw</span>
+            </a>
+            <a href="profile.html" class="nav-item">
+                <i class="ri-user-3-line"></i>
+                <span>Profile</span>
+            </a>
+        </nav>
+    </div>
+
+    <div id="toast" class="toast">Message</div>
+
+    <!-- FIREBASE SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAv6QCpopa0Q77AVTyjU5cqJEIKIE9OVTs",
+            authDomain: "taskvault-412a0.firebaseapp.com",
+            databaseURL: "https://taskvault-412a0-default-rtdb.firebaseio.com",
+            projectId: "taskvault-412a0",
+            storageBucket: "taskvault-412a0.firebasestorage.app",
+            messagingSenderId: "420716701831",
+            appId: "1:420716701831:web:c987d91f7f4c8684eb7022",
+            measurementId: "G-93JG3LB08B"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        let currentUser = null;
+        let userData = null;
+
+        // BitcoTask config
+        const BITCOTASK_PUBLISHER_ID = 'tbu29ve20maefttxlnv0938gl5syyt';
+        const BITCOTASK_BASE_URL = 'https://bitcotasks.com/offerwall';
+
+        // ==================== AUTH & DATA ====================
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                currentUser = user;
+                fetchUserData(user.uid);
+            } else {
+                auth.signInAnonymously().catch((error) => {
+                    showToast("Authentication Failed", "error");
+                    showError();
+                });
+            }
+        });
+
+        async function fetchUserData(uid) {
+            try {
+                const doc = await db.collection('users').doc(uid).get();
+                if (doc.exists) {
+                    userData = doc.data();
+                    updateBalanceDisplay(userData.balance || 0);
+                    loadOfferwall(uid);
+                } else {
+                    // Create new user profile
+                    const newProfile = {
+                        balance: 0.00,
+                        plan: null,
+                        lastClaimDate: null,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    };
+                    await db.collection('users').doc(uid).set(newProfile);
+                    userData = newProfile;
+                    updateBalanceDisplay(0);
+                    loadOfferwall(uid);
+                }
+            } catch (error) {
+                console.error("Error fetching user data:", error);
+                showError();
+            }
+        }
+
+        function updateBalanceDisplay(balance) {
+            document.getElementById('balanceDisplay').textContent = `$${parseFloat(balance).toFixed(3)}`;
+        }
+
+        // ==================== OFFERWALL ====================
+        function loadOfferwall(userId) {
+            const iframe = document.getElementById('offerwallFrame');
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            const errorState = document.getElementById('errorState');
+
+            // Build offerwall URL with user ID
+            const offerwallUrl = `${BITCOTASK_BASE_URL}/${BITCOTASK_PUBLISHER_ID}/${userId}`;
+
+            // Set iframe source
+            iframe.src = offerwallUrl;
+
+            // Handle iframe load
+            iframe.onload = function() {
+                loadingOverlay.classList.add('hidden');
+                errorState.classList.remove('show');
+            };
+
+            // Handle iframe error (timeout fallback)
+            setTimeout(() => {
+                if (!iframe.contentWindow || iframe.contentWindow.length === 0) {
+                    // If still loading after 10s, show error
+                    if (!loadingOverlay.classList.contains('hidden')) {
+                        showError();
+                    }
+                }
+            }, 10000);
+        }
+
+        function reloadOfferwall() {
+            const iframe = document.getElementById('offerwallFrame');
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            const errorState = document.getElementById('errorState');
+
+            errorState.classList.remove('show');
+            loadingOverlay.classList.remove('hidden');
+
+            if (currentUser) {
+                loadOfferwall(currentUser.uid);
+            } else {
+                showToast("Please wait, authenticating...", "info");
+            }
+        }
+
+        function showError() {
+            document.getElementById('loadingOverlay').classList.add('hidden');
+            document.getElementById('errorState').classList.add('show');
+        }
+
+        // ==================== REAL-TIME BALANCE SYNC ====================
+        // Listen for balance updates (from postback credits)
+        function startBalanceListener(uid) {
+            db.collection('users').doc(uid).onSnapshot((doc) => {
+                if (doc.exists) {
+                    const data = doc.data();
+                    const newBalance = data.balance || 0;
+                    updateBalanceDisplay(newBalance);
+                    
+                    // If balance increased, show toast
+                    if (userData && newBalance > (userData.balance || 0)) {
+                        const earned = newBalance - (userData.balance || 0);
+                        showToast(`+$${earned.toFixed(3)} from offer!`, 'success');
+                    }
+                    
+                    userData = data;
+                }
+            }, (error) => {
+                console.error("Balance listener error:", error);
+            });
+        }
+
+        // Start listener once user is loaded
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                startBalanceListener(user.uid);
+            }
+        });
+
+        // ==================== TOAST ====================
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.className = 'toast ' + type;
+            let icon = 'ri-information-line';
+            if (type === 'success') icon = 'ri-checkbox-circle-line';
+            if (type === 'error') icon = 'ri-close-circle-line';
+            toast.innerHTML = `<i class="ri-${icon}"></i> ${message}`;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // ==================== NAV ACTIVE STATE ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentPage = window.location.pathname.split('/').pop();
+            document.querySelectorAll('.nav-item').forEach(item => {
+                const href = item.getAttribute('href');
+                if (href === currentPage) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
