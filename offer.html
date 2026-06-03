@@ -374,7 +374,7 @@
             </div>
             <div class="balance-pill" id="balancePill">
                 <i class="ri-wallet-3-line"></i>
-                <span id="balanceDisplay">$0.00</span>
+                <span id="balanceDisplay">$0.000000</span>
             </div>
         </header>
 
@@ -496,7 +496,7 @@
         }
 
         function updateBalanceDisplay(balance) {
-            document.getElementById('balanceDisplay').textContent = `$${parseFloat(balance).toFixed(3)}`;
+            document.getElementById('balanceDisplay').textContent = `$${parseFloat(balance).toFixed(6)}`;
         }
 
         // ==================== OFFERWALL ====================
@@ -560,7 +560,7 @@
                     // If balance increased, show toast
                     if (userData && newBalance > (userData.balance || 0)) {
                         const earned = newBalance - (userData.balance || 0);
-                        showToast(`+$${earned.toFixed(3)} from offer!`, 'success');
+                        showToast(`+$${earned.toFixed(6)} from offer!`, 'success');
                     }
                     
                     userData = data;
