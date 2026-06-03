@@ -540,8 +540,8 @@
         .action-icon.transfer {
             background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
         }
-        .action-icon.stake {
-            background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+        .action-icon.offers {
+            background: linear-gradient(135deg, #FF8C42 0%, #FF6B35 100%);
         }
 
         .action-btn span {
@@ -762,6 +762,10 @@
         .activity-icon.activation {
             background: #F3E8FF;
             color: #8B5CF6;
+        }
+        .activity-icon.offer {
+            background: var(--orange-light);
+            color: var(--orange-main);
         }
 
         .activity-details {
@@ -1062,11 +1066,11 @@
                     </div>
                     <span>Transfer</span>
                 </a>
-                <a href="stake.html" class="action-btn">
-                    <div class="action-icon stake">
-                        <i class="ri-bar-chart-grouped-line"></i>
+                <a href="offers.html" class="action-btn">
+                    <div class="action-icon offers">
+                        <i class="ri-shopping-bag-3-line"></i>
                     </div>
-                    <span>Stake</span>
+                    <span>Offers</span>
                 </a>
             </section>
 
@@ -1496,6 +1500,7 @@
                 referral: { icon: 'user-add-line', class: 'referral' },
                 bonus: { icon: 'star-line', class: 'claim' },
                 activation: { icon: 'vip-crown-line', class: 'activation' },
+                offer: { icon: 'shopping-bag-3-line', class: 'offer' },
                 default: { icon: 'checkbox-circle-line', class: 'claim' }
             };
             return icons[type] || icons.default;
@@ -1675,4 +1680,4 @@
         });
     </script>
 </body>
-</html>
+    </html>
