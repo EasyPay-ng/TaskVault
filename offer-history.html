@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TaskVault - Offer History</title>
+    
+    <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" type="image/jpeg">
+    <link rel="manifest" href="manifest.json">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --orange-main: #FF8C42;
+            --orange-dark: #E67A35;
+            --orange-light: #FFF0E6;
+            --silk-bg: #FDFBF7;
+            --white: #FFFFFF;
+            --text-dark: #333333;
+            --text-light: #888888;
+            --shadow-sm: 0 2px 6px rgba(255, 140, 66, 0.06);
+            --shadow-md: 0 4px 12px rgba(255, 140, 66, 0.1);
+            --shadow-lg: 0 8px 24px rgba(255, 140, 66, 0.15);
+            --gradient-orange: linear-gradient(135deg, #FF8C42 0%, #FF6B35 100%);
+            --success: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+            --info: #3B82F6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            background-color: #e9ecef;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .app-container {
+            width: 100%;
+            height: 100dvh;
+            max-width: 430px;
+            background-color: var(--silk-bg);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (min-width: 768px) {
+            .app-container {
+                height: 92dvh;
+                max-height: 850px;
+                border-radius: 24px;
+                box-shadow: 0 0 40px rgba(0,0,0,0.12);
+            }
+        }
+
+        .scroll-content {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-bottom: 80px;
+        }
+
+        .scroll-content::-webkit-scrollbar {
+            width: 2px;
+        }
+        .scroll-content::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .scroll-content::-webkit-scrollbar-thumb {
+            background: var(--orange-light);
+            border-radius: 2px;
+        }
+
+        /* ==================== HEADER ==================== */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 20px 10px;
+            background: var(--white);
+            flex-shrink: 0;
+            z-index: 100;
+            position: sticky;
+            top: 0;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .back-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: var(--orange-light);
+            color: var(--orange-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .back-btn:hover {
+            background: var(--orange-main);
+            color: white;
+        }
+
+        .header-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .header-subtitle {
+            font-size: 10px;
+            color: var(--text-light);
+            font-weight: 400;
+        }
+
+        .header-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: var(--orange-light);
+            color: var(--orange-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn:hover {
+            background: var(--orange-main);
+            color: white;
+        }
+
+        .filter-btn.active {
+            background: var(--orange-main);
+            color: white;
+        }
+
+        /* ==================== STATS CARDS ==================== */
+        .stats-section {
+            padding: 10px 20px 14px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .stat-card {
+            background: var(--white);
+            border-radius: 14px;
+            padding: 14px 10px;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(255, 140, 66, 0.06);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .stat-card .icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            margin: 0 auto 8px;
+        }
+
+        .stat-card.total .icon {
+            background: var(--orange-light);
+            color: var(--orange-main);
+        }
+
+        .stat-card.earned .icon {
+            background: #D1FAE5;
+            color: var(--success);
+        }
+
+        .stat-card.pending .icon {
+            background: #FEF3C7;
+            color: var(--warning);
+        }
+
+        .stat-card .value {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--text-dark);
+        }
+
+        .stat-card .label {
+            font-size: 9px;
+            color: var(--text-light);
+            font-weight: 500;
+            margin-top: 2px;
+        }
+
+        /* ==================== FILTER BAR ==================== */
+        .filter-bar {
+            padding: 0 20px 10px;
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .filter-bar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .filter-chip {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            border: 1.5px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            background: var(--white);
+            color: var(--text-light);
+            border-color: rgba(255, 140, 66, 0.1);
+        }
+
+        .filter-chip:hover {
+            border-color: var(--orange-main);
+            color: var(--orange-main);
+        }
+
+        .filter-chip.active {
+            background: var(--gradient-orange);
+            color: white;
+            border-color: transparent;
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* ==================== OFFER LIST ==================== */
+        .offers-section {
+            padding: 0 20px 12px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .section-title i {
+            color: var(--orange-main);
+            font-size: 12px;
+        }
+
+        .offer-count {
+            font-size: 11px;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .offer-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .offer-item {
+            background: var(--white);
+            border-radius: 14px;
+            padding: 14px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 1px solid rgba(255, 140, 66, 0.04);
+            box-shadow: var(--shadow-sm);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .offer-item:hover {
+            transform: translateX(2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .offer-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            border-radius: 14px 0 0 14px;
+        }
+
+        .offer-item.completed::before {
+            background: var(--success);
+        }
+
+        .offer-item.pending::before {
+            background: var(--warning);
+        }
+
+        .offer-item.rejected::before {
+            background: var(--danger);
+        }
+
+        .offer-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .offer-icon.completed {
+            background: #D1FAE5;
+            color: var(--success);
+        }
+
+        .offer-icon.pending {
+            background: #FEF3C7;
+            color: var(--warning);
+        }
+
+        .offer-icon.rejected {
+            background: #FEE2E2;
+            color: var(--danger);
+        }
+
+        .offer-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .offer-details h4 {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-dark);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .offer-details .offer-id {
+            font-size: 9px;
+            color: var(--text-light);
+            margin-top: 2px;
+            font-family: monospace;
+        }
+
+        .offer-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 6px;
+        }
+
+        .offer-meta .time {
+            font-size: 9px;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .status-badge {
+            font-size: 8px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-badge.completed {
+            background: #D1FAE5;
+            color: #065F46;
+        }
+
+        .status-badge.pending {
+            background: #FEF3C7;
+            color: #92400E;
+        }
+
+        .status-badge.rejected {
+            background: #FEE2E2;
+            color: #991B1B;
+        }
+
+        .offer-amount {
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        .offer-amount .value {
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--success);
+        }
+
+        .offer-amount .value.pending {
+            color: var(--warning);
+        }
+
+        .offer-amount .value.rejected {
+            color: var(--danger);
+            text-decoration: line-through;
+        }
+
+        .offer-amount .currency {
+            font-size: 10px;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        /* ==================== EMPTY STATE ==================== */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-light);
+        }
+
+        .empty-state .icon-box {
+            width: 80px;
+            height: 80px;
+            background: var(--orange-light);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            color: var(--orange-main);
+            margin: 0 auto 16px;
+        }
+
+        .empty-state h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 6px;
+        }
+
+        .empty-state p {
+            font-size: 12px;
+            line-height: 1.6;
+            max-width: 240px;
+            margin: 0 auto;
+        }
+
+        .btn-primary {
+            background: var(--gradient-orange);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            margin-top: 16px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* ==================== LOADING ==================== */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--silk-bg);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+            gap: 12px;
+        }
+
+        .spinner {
+            width: 36px;
+            height: 36px;
+            border: 3px solid var(--orange-light);
+            border-top: 3px solid var(--orange-main);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .loader-text {
+            font-size: 11px;
+            color: var(--text-light);
+            font-weight: 600;
+            letter-spacing: 2px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ==================== BOTTOM NAV ==================== */
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--white);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 8px 16px 16px;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.04);
+            border-top-left-radius: 24px;
+            border-top-right-radius: 24px;
+            z-index: 1000;
+            flex-shrink: 0;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-light);
+            text-decoration: none;
+            font-size: 9px;
+            gap: 3px;
+            transition: all 0.3s ease;
+            padding: 6px 14px;
+            border-radius: 14px;
+            font-weight: 500;
+            position: relative;
+        }
+
+        .nav-item i {
+            font-size: 20px;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .nav-item.active {
+            color: var(--orange-main);
+            background: var(--orange-light);
+        }
+
+        .nav-item.active i {
+            transform: translateY(-2px) scale(1.1);
+        }
+
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            width: 16px;
+            height: 3px;
+            background: var(--orange-main);
+            border-radius: 2px;
+            opacity: 0;
+            animation: dotIn 0.3s ease forwards;
+        }
+
+        @keyframes dotIn {
+            to { opacity: 1; top: 2px; }
+        }
+
+        .nav-item:hover {
+            color: var(--orange-dark);
+        }
+
+        /* ==================== TOAST ==================== */
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: var(--white);
+            color: var(--text-dark);
+            padding: 10px 18px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            z-index: 2000;
+            text-align: center;
+            max-width: 90%;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+            border: 1px solid rgba(255, 140, 66, 0.08);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toast.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+            top: 22px;
+        }
+
+        .toast.success { border-left: 3px solid #10B981; }
+        .toast.error { border-left: 3px solid #EF4444; }
+        .toast.info { border-left: 3px solid var(--orange-main); }
+
+        /* ==================== ANIMATIONS ==================== */
+        .fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+            opacity: 0;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .delay-1 { animation-delay: 0.08s; }
+        .delay-2 { animation-delay: 0.16s; }
+    </style>
+</head>
+<body>
+
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <div class="loader-text">Loading</div>
+    </div>
+
+    <div class="app-container">
+        <!-- HEADER -->
+        <header class="header fade-in">
+            <div class="header-left">
+                <a href="index.html" class="back-btn">
+                    <i class="ri-arrow-left-line"></i>
+                </a>
+                <div class="header-info">
+                    <span class="header-title">Offer History</span>
+                    <span class="header-subtitle">Track your offer completions</span>
+                </div>
+            </div>
+            <button class="filter-btn" id="filterBtn" onclick="toggleFilterDropdown()">
+                <i class="ri-filter-3-line"></i>
+            </button>
+        </header>
+
+        <!-- SCROLLABLE CONTENT -->
+        <div class="scroll-content">
+            <!-- STATS -->
+            <section class="stats-section fade-in delay-1">
+                <div class="stat-card total">
+                    <div class="icon"><i class="ri-shopping-bag-3-line"></i></div>
+                    <div class="value" id="totalOffers">0</div>
+                    <div class="label">Total Offers</div>
+                </div>
+                <div class="stat-card earned">
+                    <div class="icon"><i class="ri-coins-line"></i></div>
+                    <div class="value" id="totalEarned">$0</div>
+                    <div class="label">Total Earned</div>
+                </div>
+                <div class="stat-card pending">
+                    <div class="icon"><i class="ri-time-line"></i></div>
+                    <div class="value" id="pendingCount">0</div>
+                    <div class="label">Pending</div>
+                </div>
+            </section>
+
+            <!-- FILTERS -->
+            <div class="filter-bar fade-in delay-1" id="filterBar">
+                <button class="filter-chip active" data-filter="all" onclick="setFilter('all')">All</button>
+                <button class="filter-chip" data-filter="completed" onclick="setFilter('completed')">Completed</button>
+                <button class="filter-chip" data-filter="pending" onclick="setFilter('pending')">Pending</button>
+                <button class="filter-chip" data-filter="rejected" onclick="setFilter('rejected')">Rejected</button>
+            </div>
+
+            <!-- OFFER LIST -->
+            <section class="offers-section fade-in delay-2">
+                <div class="section-header">
+                    <h3 class="section-title">
+                        <i class="ri-history-line"></i>
+                        Transactions
+                    </h3>
+                    <span class="offer-count" id="offerCount">0 offers</span>
+                </div>
+                <div class="offer-list" id="offerList"></div>
+            </section>
+        </div>
+
+        <!-- BOTTOM NAV -->
+        <nav class="bottom-nav">
+            <a href="menu.html" class="nav-item">
+                <i class="ri-apps-line"></i>
+                <span>Menu</span>
+            </a>
+            <a href="deposit.html" class="nav-item">
+                <i class="ri-wallet-3-line"></i>
+                <span>Deposit</span>
+            </a>
+            <a href="offers.html" class="nav-item active">
+                <i class="ri-shopping-bag-3-line"></i>
+                <span>Offers</span>
+            </a>
+            <a href="profile.html" class="nav-item">
+                <i class="ri-user-3-line"></i>
+                <span>Profile</span>
+            </a>
+        </nav>
+    </div>
+
+    <div id="toast" class="toast">Message</div>
+
+    <!-- FIREBASE SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAv6QCpopa0Q77AVTyjU5cqJEIKIE9OVTs",
+            authDomain: "taskvault-412a0.firebaseapp.com",
+            databaseURL: "https://taskvault-412a0-default-rtdb.firebaseio.com",
+            projectId: "taskvault-412a0",
+            storageBucket: "taskvault-412a0.firebasestorage.app",
+            messagingSenderId: "420716701831",
+            appId: "1:420716701831:web:c987d91f7f4c8684eb7022",
+            measurementId: "G-93JG3LB08B"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        let currentUser = null;
+        let allOffers = [];
+        let currentFilter = 'all';
+
+        // ==================== AUTH ====================
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                currentUser = user;
+                fetchOfferHistory(user.uid);
+            } else {
+                auth.signInAnonymously().catch((error) => {
+                    showToast("Authentication Failed", "error");
+                    hideLoading();
+                });
+            }
+        });
+
+        // ==================== FETCH OFFER HISTORY ====================
+        async function fetchOfferHistory(uid) {
+            try {
+                // Fetch from dedicated 'offers' subcollection (recommended)
+                // OR from activities with type='offer'
+                const [offersSnap, activitiesSnap] = await Promise.all([
+                    db.collection('users').doc(uid).collection('offers')
+                        .orderBy('timestamp', 'desc')
+                        .limit(50)
+                        .get()
+                        .catch(() => ({ empty: true, docs: [] })),
+                    
+                    db.collection('users').doc(uid).collection('activities')
+                        .where('type', '==', 'offer')
+                        .orderBy('timestamp', 'desc')
+                        .limit(50)
+                        .get()
+                        .catch(() => ({ empty: true, docs: [] }))
+                ]);
+
+                const offers = [];
+
+                // Process dedicated offers collection
+                if (!offersSnap.empty) {
+                    offersSnap.forEach(doc => {
+                        const data = doc.data();
+                        offers.push({
+                            id: doc.id,
+                            title: data.title || data.offerName || 'Offer Completed',
+                            offerId: data.offerId || data.subId || '—',
+                            amount: parseFloat(data.amount || data.reward || 0),
+                            status: data.status || 'completed',
+                            timestamp: data.timestamp,
+                            source: 'offers'
+                        });
+                    });
+                }
+
+                // Process activities (fallback / additional)
+                if (!activitiesSnap.empty) {
+                    activitiesSnap.forEach(doc => {
+                        const data = doc.data();
+                        // Avoid duplicates if same data exists in both collections
+                        const exists = offers.some(o => o.offerId === (data.offerId || doc.id));
+                        if (!exists) {
+                            offers.push({
+                                id: doc.id,
+                                title: data.title || 'Offer Completed',
+                                offerId: data.offerId || '—',
+                                amount: parseFloat(data.amount || 0),
+                                status: data.status || 'completed',
+                                timestamp: data.timestamp,
+                                source: 'activities'
+                            });
+                        }
+                    });
+                }
+
+                // Sort by timestamp desc
+                offers.sort((a, b) => {
+                    const ta = a.timestamp?.toDate ? a.timestamp.toDate() : new Date(a.timestamp || 0);
+                    const tb = b.timestamp?.toDate ? b.timestamp.toDate() : new Date(b.timestamp || 0);
+                    return tb - ta;
+                });
+
+                allOffers = offers;
+                updateStats();
+                renderOffers();
+                hideLoading();
+
+            } catch (error) {
+                console.error("Error fetching offers:", error);
+                renderEmptyState();
+                hideLoading();
+            }
+        }
+
+        // ==================== STATS ====================
+        function updateStats() {
+            const total = allOffers.length;
+            const earned = allOffers
+                .filter(o => o.status === 'completed')
+                .reduce((sum, o) => sum + o.amount, 0);
+            const pending = allOffers.filter(o => o.status === 'pending').length;
+
+            document.getElementById('totalOffers').textContent = total;
+            document.getElementById('totalEarned').textContent = `$${earned.toFixed(6)}`;
+            document.getElementById('pendingCount').textContent = pending;
+        }
+
+        // ==================== RENDER OFFERS ====================
+        function renderOffers() {
+            const container = document.getElementById('offerList');
+            const filtered = currentFilter === 'all' 
+                ? allOffers 
+                : allOffers.filter(o => o.status === currentFilter);
+
+            document.getElementById('offerCount').textContent = `${filtered.length} offer${filtered.length !== 1 ? 's' : ''}`;
+
+            if (filtered.length === 0) {
+                renderEmptyState(container);
+                return;
+            }
+
+            container.innerHTML = '';
+            filtered.forEach(offer => {
+                const item = document.createElement('div');
+                item.className = `offer-item ${offer.status}`;
+                
+                const iconConfig = {
+                    completed: { icon: 'checkbox-circle-line', class: 'completed' },
+                    pending: { icon: 'time-line', class: 'pending' },
+                    rejected: { icon: 'close-circle-line', class: 'rejected' }
+                }[offer.status] || { icon: 'checkbox-circle-line', class: 'completed' };
+
+                const timeAgo = formatTimeAgo(offer.timestamp);
+
+                item.innerHTML = `
+                    <div class="offer-icon ${iconConfig.class}">
+                        <i class="ri-${iconConfig.icon}"></i>
+                    </div>
+                    <div class="offer-details">
+                        <h4>${escapeHtml(offer.title)}</h4>
+                        <div class="offer-id">ID: ${escapeHtml(offer.offerId)}</div>
+                        <div class="offer-meta">
+                            <span class="status-badge ${offer.status}">${offer.status}</span>
+                            <span class="time"><i class="ri-time-line"></i> ${timeAgo}</span>
+                        </div>
+                    </div>
+                    <div class="offer-amount">
+                        <div class="value ${offer.status}">+$${offer.amount.toFixed(6)}</div>
+                        <div class="currency">USD</div>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function renderEmptyState(container) {
+            const target = container || document.getElementById('offerList');
+            target.innerHTML = `
+                <div class="empty-state">
+                    <div class="icon-box">
+                        <i class="ri-shopping-bag-3-line"></i>
+                    </div>
+                    <h3>No Offers Yet</h3>
+                    <p>Complete offers from the offer wall and track your earnings here.</p>
+                    <a href="offers.html" class="btn-primary">
+                        <i class="ri-shopping-bag-3-line"></i> Browse Offers
+                    </a>
+                </div>
+            `;
+        }
+
+        // ==================== FILTER ====================
+        function setFilter(filter) {
+            currentFilter = filter;
+            
+            document.querySelectorAll('.filter-chip').forEach(chip => {
+                chip.classList.toggle('active', chip.dataset.filter === filter);
+            });
+            
+            renderOffers();
+        }
+
+        function toggleFilterDropdown() {
+            const btn = document.getElementById('filterBtn');
+            btn.classList.toggle('active');
+            // Could expand to a dropdown in future
+        }
+
+        // ==================== UTILITIES ====================
+        function formatTimeAgo(timestamp) {
+            if (!timestamp) return 'Recently';
+            const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+
+            if (diffMins < 1) return 'Just now';
+            if (diffMins < 60) return `${diffMins}m ago`;
+            if (diffHours < 24) return `${diffHours}h ago`;
+            if (diffDays < 7) return `${diffDays}d ago`;
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ==================== TOAST ====================
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.className = 'toast ' + type;
+            let icon = 'ri-information-line';
+            if (type === 'success') icon = 'ri-checkbox-circle-line';
+            if (type === 'error') icon = 'ri-close-circle-line';
+            toast.innerHTML = `<i class="ri-${icon}"></i> ${message}`;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
+
+        // ==================== NAV ACTIVE STATE ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentPage = window.location.pathname.split('/').pop();
+            document.querySelectorAll('.nav-item').forEach(item => {
+                const href = item.getAttribute('href');
+                if (href === currentPage) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+                                                </html>
