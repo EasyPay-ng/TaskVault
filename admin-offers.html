@@ -75,17 +75,6 @@
             padding-bottom: 80px;
         }
 
-        .scroll-content::-webkit-scrollbar {
-            width: 2px;
-        }
-        .scroll-content::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        .scroll-content::-webkit-scrollbar-thumb {
-            background: var(--orange-light);
-            border-radius: 2px;
-        }
-
         /* ==================== ACCESS DENIED ==================== */
         .access-denied {
             position: fixed;
@@ -177,11 +166,6 @@
             cursor: pointer;
         }
 
-        .back-btn:hover {
-            background: var(--orange-main);
-            color: white;
-        }
-
         .header-info {
             display: flex;
             flex-direction: column;
@@ -196,7 +180,6 @@
         .header-subtitle {
             font-size: 10px;
             color: var(--text-light);
-            font-weight: 400;
         }
 
         .admin-badge {
@@ -207,7 +190,6 @@
             font-size: 10px;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
 
         /* ==================== STATS ==================== */
@@ -223,7 +205,6 @@
             border-radius: 14px;
             padding: 16px;
             box-shadow: var(--shadow-sm);
-            border: 1px solid rgba(255, 140, 66, 0.06);
         }
 
         .stat-card.full-width {
@@ -235,12 +216,11 @@
             color: var(--text-light);
             font-weight: 500;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
             margin-bottom: 4px;
         }
 
         .stat-card .value {
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 800;
             color: var(--text-dark);
         }
@@ -253,121 +233,33 @@
             font-size: 10px;
             color: var(--text-light);
             margin-top: 4px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
         }
 
         /* ==================== SEARCH & FILTER ==================== */
-        .search-bar {
-            padding: 0 20px 10px;
-        }
-
-        .search-input-wrapper {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-
-        .search-input-wrapper i {
-            position: absolute;
-            left: 14px;
-            color: var(--text-light);
-            font-size: 16px;
-        }
-
+        .search-bar { padding: 0 20px 10px; }
+        .search-input-wrapper { position: relative; display: flex; align-items: center; }
+        .search-input-wrapper i { position: absolute; left: 14px; color: var(--text-light); }
+        
         .search-input {
             width: 100%;
             padding: 10px 14px 10px 40px;
             border: 1.5px solid rgba(255, 140, 66, 0.15);
             border-radius: 12px;
             font-size: 12px;
-            font-weight: 500;
             color: var(--text-dark);
-            background: var(--white);
             outline: none;
-            transition: all 0.3s ease;
         }
 
-        .search-input:focus {
-            border-color: var(--orange-main);
-            box-shadow: 0 0 0 3px rgba(255, 140, 66, 0.1);
-        }
-
-        .search-input::placeholder {
-            color: var(--text-light);
-        }
-
-        .filter-bar {
-            padding: 0 20px 10px;
-            display: flex;
-            gap: 8px;
-            overflow-x: auto;
-            scrollbar-width: none;
-        }
-
-        .filter-bar::-webkit-scrollbar {
-            display: none;
-        }
-
-        .filter-chip {
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 600;
-            border: 1.5px solid transparent;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            white-space: nowrap;
-            background: var(--white);
-            color: var(--text-light);
-            border-color: rgba(255, 140, 66, 0.1);
-        }
-
-        .filter-chip.active {
-            background: var(--gradient-orange);
-            color: white;
-            border-color: transparent;
-            box-shadow: var(--shadow-sm);
-        }
+        .filter-bar { padding: 0 20px 10px; display: flex; gap: 8px; overflow-x: auto; }
+        .filter-chip { padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 600; border: 1.5px solid rgba(255, 140, 66, 0.1); background: var(--white); color: var(--text-light); cursor: pointer; }
+        .filter-chip.active { background: var(--gradient-orange); color: white; border-color: transparent; }
 
         /* ==================== TRANSACTION LIST ==================== */
-        .transactions-section {
-            padding: 0 20px 12px;
-        }
-
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .section-title {
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--text-dark);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .section-title i {
-            color: var(--orange-main);
-            font-size: 12px;
-        }
-
-        .tx-count {
-            font-size: 11px;
-            color: var(--text-light);
-            font-weight: 500;
-        }
-
-        .transaction-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
+        .transactions-section { padding: 0 20px 12px; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .section-title { font-size: 14px; font-weight: 700; color: var(--text-dark); }
+        .tx-count { font-size: 11px; color: var(--text-light); }
+        .transaction-list { display: flex; flex-direction: column; gap: 8px; }
 
         .transaction-item {
             background: var(--white);
@@ -375,28 +267,11 @@
             padding: 14px;
             box-shadow: var(--shadow-sm);
             border: 1px solid rgba(255, 140, 66, 0.04);
-            transition: all 0.3s ease;
-            cursor: pointer;
         }
 
-        .transaction-item:hover {
-            transform: translateX(2px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .tx-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 10px;
-        }
-
-        .tx-user {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
+        .tx-header { display: flex; justify-content: space-between; align-items: flex-start; }
+        .tx-user { display: flex; align-items: center; gap: 10px; }
+        
         .tx-avatar {
             width: 36px;
             height: 36px;
@@ -408,345 +283,61 @@
             font-size: 14px;
             font-weight: 700;
             color: white;
-            flex-shrink: 0;
         }
 
-        .tx-user-info h4 {
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--text-dark);
-        }
+        .tx-user-info h4 { font-size: 12px; font-weight: 700; color: var(--text-dark); }
+        .tx-user-info .user-id { font-size: 9px; color: var(--text-light); font-family: monospace; }
+        .tx-amount { text-align: right; }
+        .tx-amount .value { font-size: 13px; font-weight: 800; color: var(--success); }
+        .tx-amount .value.negative { color: var(--danger); }
+        .tx-amount .currency { font-size: 9px; color: var(--text-light); }
 
-        .tx-user-info .user-id {
-            font-size: 9px;
-            color: var(--text-light);
-            font-family: monospace;
-            margin-top: 1px;
-        }
+        .tx-details { background: #F8F9FA; border-radius: 10px; padding: 10px 12px; margin-top: 8px; }
+        .tx-detail-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; font-size: 10px; }
+        .tx-detail-row .label { color: var(--text-light); }
+        .tx-detail-row .value { color: var(--text-dark); font-weight: 600; font-family: monospace; }
+        .tx-detail-row .value.ip { background: var(--orange-light); color: var(--orange-main); padding: 2px 6px; border-radius: 6px; }
 
-        .tx-amount {
-            text-align: right;
-        }
-
-        .tx-amount .value {
-            font-size: 14px;
-            font-weight: 800;
-            color: var(--success);
-        }
-
-        .tx-amount .value.negative {
-            color: var(--danger);
-        }
-
-        .tx-amount .currency {
-            font-size: 9px;
-            color: var(--text-light);
-            font-weight: 500;
-        }
-
-        .tx-details {
-            background: #F8F9FA;
-            border-radius: 10px;
-            padding: 10px 12px;
-            margin-top: 8px;
-        }
-
-        .tx-detail-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 4px 0;
-            font-size: 10px;
-        }
-
-        .tx-detail-row .label {
-            color: var(--text-light);
-            font-weight: 500;
-        }
-
-        .tx-detail-row .value {
-            color: var(--text-dark);
-            font-weight: 600;
-            font-family: monospace;
-        }
-
-        .tx-detail-row .value.ip {
-            font-size: 9px;
-            background: var(--orange-light);
-            color: var(--orange-main);
-            padding: 2px 8px;
-            border-radius: 6px;
-        }
-
-        .tx-detail-row .value.offer-id {
-            font-size: 9px;
-            background: #E0F2FE;
-            color: var(--info);
-            padding: 2px 8px;
-            border-radius: 6px;
-        }
-
-        .tx-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 10px;
-            padding-top: 10px;
-            border-top: 1px solid rgba(0,0,0,0.04);
-        }
-
-        .tx-status {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .status-dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-        }
-
+        .tx-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(0,0,0,0.04); }
+        .tx-status { display: flex; align-items: center; gap: 6px; }
+        .status-dot { width: 6px; height: 6px; border-radius: 50%; }
         .status-dot.completed { background: var(--success); }
         .status-dot.pending { background: var(--warning); }
         .status-dot.rejected { background: var(--danger); }
-
-        .status-text {
-            font-size: 10px;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
+        
+        .status-text { font-size: 10px; font-weight: 600; text-transform: uppercase; }
         .status-text.completed { color: var(--success); }
         .status-text.pending { color: var(--warning); }
         .status-text.rejected { color: var(--danger); }
+        .tx-time { font-size: 9px; color: var(--text-light); }
 
-        .tx-time {
-            font-size: 9px;
-            color: var(--text-light);
-            display: flex;
-            align-items: center;
-            gap: 3px;
-        }
+        /* ==================== EMPTY STATE / OVERLAYS ==================== */
+        .empty-state { text-align: center; padding: 40px 20px; color: var(--text-light); }
+        .empty-state .icon-box { width: 60px; height: 60px; background: var(--orange-light); border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: var(--orange-main); margin: 0 auto 16px; }
+        
+        .load-more { text-align: center; padding: 16px; }
+        .btn-load-more { background: var(--white); color: var(--orange-main); border: 1.5px solid rgba(255, 140, 66, 0.2); padding: 8px 20px; border-radius: 12px; font-size: 12px; font-weight: 700; cursor: pointer; }
 
-        /* ==================== EMPTY STATE ==================== */
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: var(--text-light);
-        }
+        .bottom-nav { position: absolute; bottom: 0; left: 0; right: 0; background: var(--white); display: flex; justify-content: space-around; align-items: center; padding: 8px 16px 16px; border-top-left-radius: 24px; border-top-right-radius: 24px; box-shadow: 0 -4px 20px rgba(0,0,0,0.04); z-index: 1000; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-light); text-decoration: none; font-size: 9px; gap: 3px; padding: 6px 14px; }
+        .nav-item i { font-size: 20px; }
+        .nav-item.active { color: var(--orange-main); background: var(--orange-light); border-radius: 14px; }
 
-        .empty-state .icon-box {
-            width: 80px;
-            height: 80px;
-            background: var(--orange-light);
-            border-radius: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 36px;
-            color: var(--orange-main);
-            margin: 0 auto 16px;
-        }
+        .toast { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 10px 20px; border-radius: 10px; font-size: 12px; z-index: 9999; transition: top 0.3s ease; }
+        .toast.show { top: 20px; }
 
-        .empty-state h3 {
-            font-size: 16px;
-            font-weight: 700;
-            color: var(--text-dark);
-            margin-bottom: 6px;
-        }
-
-        .empty-state p {
-            font-size: 12px;
-            line-height: 1.6;
-        }
-
-        /* ==================== LOAD MORE ==================== */
-        .load-more {
-            text-align: center;
-            padding: 16px;
-        }
-
-        .btn-load-more {
-            background: var(--white);
-            color: var(--orange-main);
-            border: 1.5px solid rgba(255, 140, 66, 0.2);
-            padding: 10px 24px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .btn-load-more:hover {
-            background: var(--orange-light);
-            border-color: var(--orange-main);
-        }
-
-        /* ==================== BOTTOM NAV ==================== */
-        .bottom-nav {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: var(--white);
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            padding: 8px 16px 16px;
-            box-shadow: 0 -4px 20px rgba(0,0,0,0.04);
-            border-top-left-radius: 24px;
-            border-top-right-radius: 24px;
-            z-index: 1000;
-            flex-shrink: 0;
-        }
-
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-light);
-            text-decoration: none;
-            font-size: 9px;
-            gap: 3px;
-            transition: all 0.3s ease;
-            padding: 6px 14px;
-            border-radius: 14px;
-            font-weight: 500;
-            position: relative;
-        }
-
-        .nav-item i {
-            font-size: 20px;
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        .nav-item.active {
-            color: var(--orange-main);
-            background: var(--orange-light);
-        }
-
-        .nav-item.active i {
-            transform: translateY(-2px) scale(1.1);
-        }
-
-        .nav-item.active::before {
-            content: '';
-            position: absolute;
-            top: -2px;
-            width: 16px;
-            height: 3px;
-            background: var(--orange-main);
-            border-radius: 2px;
-            opacity: 0;
-            animation: dotIn 0.3s ease forwards;
-        }
-
-        @keyframes dotIn {
-            to { opacity: 1; top: 2px; }
-        }
-
-        /* ==================== TOAST ==================== */
-        .toast {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%) translateY(-100px);
-            background: var(--white);
-            color: var(--text-dark);
-            padding: 10px 18px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            z-index: 2000;
-            text-align: center;
-            max-width: 90%;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
-            border: 1px solid rgba(255, 140, 66, 0.08);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .toast.show {
-            opacity: 1;
-            visibility: visible;
-            transform: translateX(-50%) translateY(0);
-            top: 22px;
-        }
-
-        .toast.success { border-left: 3px solid #10B981; }
-        .toast.error { border-left: 3px solid #EF4444; }
-        .toast.info { border-left: 3px solid var(--orange-main); }
-
-        /* ==================== LOADING ==================== */
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--silk-bg);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 3000;
-            gap: 12px;
-        }
-
-        .spinner {
-            width: 36px;
-            height: 36px;
-            border: 3px solid var(--orange-light);
-            border-top: 3px solid var(--orange-main);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-
-        .loader-text {
-            font-size: 11px;
-            color: var(--text-light);
-            font-weight: 600;
-            letter-spacing: 2px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* ==================== ANIMATIONS ==================== */
-        .fade-in {
-            animation: fadeIn 0.5s ease-out forwards;
-            opacity: 0;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .delay-1 { animation-delay: 0.08s; }
-        .delay-2 { animation-delay: 0.16s; }
+        .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--silk-bg); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 3000; gap: 12px; }
+        .spinner { width: 36px; height: 36px; border: 3px solid var(--orange-light); border-top: 3px solid var(--orange-main); border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-    <!-- ACCESS DENIED SCREEN -->
     <div class="access-denied" id="accessDenied">
         <div class="icon"><i class="ri-shield-close-line"></i></div>
         <h2>Access Denied</h2>
         <p>This page is restricted to administrators only.</p>
         <div class="user-email" id="deniedEmail">Not logged in</div>
-        <p style="margin-top: 10px; font-size: 11px;">If you believe this is an error, please contact support.</p>
     </div>
 
     <div class="loading-overlay" id="loadingOverlay">
@@ -755,8 +346,7 @@
     </div>
 
     <div class="app-container" id="adminContainer" style="display: none;">
-        <!-- HEADER -->
-        <header class="header fade-in">
+        <header class="header">
             <div class="header-left">
                 <a href="admin-dashboard.html" class="back-btn">
                     <i class="ri-arrow-left-line"></i>
@@ -769,17 +359,15 @@
             <span class="admin-badge">Admin</span>
         </header>
 
-        <!-- SCROLLABLE CONTENT -->
         <div class="scroll-content">
-            <!-- STATS -->
-            <section class="stats-section fade-in delay-1">
+            <section class="stats-section">
                 <div class="stat-card">
                     <div class="label">Total Transactions</div>
                     <div class="value" id="statTotalTx">0</div>
                 </div>
                 <div class="stat-card">
-                    <div class="label">Total Paid Out</div>
-                    <div class="value success" id="statTotalPaid">$0</div>
+                    <div class="label">Total Coins Credited</div>
+                    <div class="value success" id="statTotalPaid">0.00</div>
                 </div>
                 <div class="stat-card">
                     <div class="label">Pending</div>
@@ -790,47 +378,38 @@
                     <div class="value danger" id="statRejected">0</div>
                 </div>
                 <div class="stat-card full-width">
-                    <div class="label">Today's Volume</div>
-                    <div class="value" id="statToday">$0</div>
-                    <div class="trend"><i class="ri-arrow-up-line"></i> <span id="statTodayCount">0</span> transactions today</div>
+                    <div class="label">Today's Coin Volume</div>
+                    <div class="value" id="statToday">0.00</div>
+                    <div class="trend"><span id="statTodayCount">0</span> tasks verified today</div>
                 </div>
             </section>
 
-            <!-- SEARCH -->
-            <div class="search-bar fade-in delay-1">
+            <div class="search-bar">
                 <div class="search-input-wrapper">
                     <i class="ri-search-line"></i>
-                    <input type="text" class="search-input" id="searchInput" placeholder="Search by user ID, offer ID, or IP..." oninput="handleSearch()">
+                    <input type="text" class="search-input" id="searchInput" placeholder="Search by UID, offer ID, or username..." oninput="handleSearch()">
                 </div>
             </div>
 
-            <!-- FILTERS -->
-            <div class="filter-bar fade-in delay-1">
+            <div class="filter-bar">
                 <button class="filter-chip active" data-filter="all" onclick="setFilter('all')">All</button>
                 <button class="filter-chip" data-filter="completed" onclick="setFilter('completed')">Completed</button>
                 <button class="filter-chip" data-filter="pending" onclick="setFilter('pending')">Pending</button>
                 <button class="filter-chip" data-filter="rejected" onclick="setFilter('rejected')">Rejected</button>
             </div>
 
-            <!-- TRANSACTIONS -->
-            <section class="transactions-section fade-in delay-2">
+            <section class="transactions-section">
                 <div class="section-header">
-                    <h3 class="section-title">
-                        <i class="ri-file-list-3-line"></i>
-                        Transactions
-                    </h3>
+                    <h3 class="section-title">Transactions</h3>
                     <span class="tx-count" id="txCount">0 records</span>
                 </div>
                 <div class="transaction-list" id="transactionList"></div>
                 <div class="load-more" id="loadMoreContainer" style="display: none;">
-                    <button class="btn-load-more" onclick="loadMore()">
-                        <i class="ri-refresh-line"></i> Load More
-                    </button>
+                    <button class="btn-load-more" onclick="loadMore()">Load More</button>
                 </div>
             </section>
         </div>
 
-        <!-- BOTTOM NAV -->
         <nav class="bottom-nav">
             <a href="admin-dashboard.html" class="nav-item">
                 <i class="ri-dashboard-line"></i>
@@ -853,10 +432,9 @@
 
     <div id="toast" class="toast">Message</div>
 
-    <!-- FIREBASE SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.11.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.11.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore-compat.js"></script>
 
     <script>
         const firebaseConfig = {
@@ -866,104 +444,83 @@
             projectId: "taskvault-412a0",
             storageBucket: "taskvault-412a0.firebasestorage.app",
             messagingSenderId: "420716701831",
-            appId: "1:420716701831:web:c987d91f7f4c8684eb7022",
-            measurementId: "G-93JG3LB08B"
+            appId: "1:420716701831:web:c987d91f7f4c8684eb7022"
         };
 
+        // Initialize globally via compat script scope
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
 
         const ADMIN_EMAIL = 'beniwealth70@gmail.com';
 
-        let currentUser = null;
-        let isAdmin = false;
         let allTransactions = [];
         let currentFilter = 'all';
         let searchQuery = '';
         let lastDoc = null;
         let isLoading = false;
 
-        // ==================== AUTH & ADMIN CHECK ====================
+        // Auth state monitor
         auth.onAuthStateChanged((user) => {
             if (user) {
-                currentUser = user;
-                checkAdminAccess(user);
+                if (user.email === ADMIN_EMAIL) {
+                    document.getElementById('adminContainer').style.display = 'flex';
+                    hideLoading();
+                    fetchTransactions();
+                } else {
+                    showAccessDenied(user.email);
+                    hideLoading();
+                }
             } else {
                 showAccessDenied('Not logged in');
                 hideLoading();
             }
         });
 
-        async function checkAdminAccess(user) {
-            const userEmail = user.email || user.uid;
-            
-            if (userEmail !== ADMIN_EMAIL) {
-                document.getElementById('deniedEmail').textContent = userEmail;
-                showAccessDenied();
-                hideLoading();
-                return;
-            }
-
-            isAdmin = true;
-            document.getElementById('adminContainer').style.display = 'flex';
-            hideLoading();
-            fetchTransactions();
-        }
-
-        function showAccessDenied(email) {
-            if (email) document.getElementById('deniedEmail').textContent = email;
-            document.getElementById('accessDenied').classList.add('show');
-        }
-
-        // ==================== FETCH TRANSACTIONS ====================
-        async function fetchTransactions(loadMore = false) {
+        async function fetchTransactions(isLoadMore = false) {
             if (isLoading) return;
             isLoading = true;
 
             try {
-                // Fetch from a global offerwallTransactions collection
-                // Structure: /offerwallTransactions/{txId}
                 let query = db.collection('offerwallTransactions')
                     .orderBy('timestamp', 'desc')
                     .limit(25);
 
-                if (loadMore && lastDoc) {
+                if (isLoadMore && lastDoc) {
                     query = query.startAfter(lastDoc);
                 }
 
                 const snapshot = await query.get();
 
-                if (snapshot.empty && !loadMore) {
+                if (snapshot.empty && !isLoadMore) {
                     renderEmptyState();
                     isLoading = false;
                     return;
                 }
 
-                const newTxs = [];
+                const fetchedRows = [];
                 snapshot.forEach(doc => {
                     const data = doc.data();
-                    newTxs.push({
+                    fetchedRows.push({
                         id: doc.id,
                         userId: data.userId || 'Unknown',
+                        username: data.username || 'user',
                         userEmail: data.userEmail || '—',
-                        offerId: data.offerId || data.subId || '—',
-                        offerName: data.offerName || data.title || 'Offer Completed',
-                        amount: parseFloat(data.amount || data.reward || 0),
+                        offerId: data.offerId || '—',
+                        offerName: data.offerName || 'Offerwall Task',
+                        amount: parseFloat(data.amount || 0),
                         status: data.status || 'completed',
-                        ipAddress: data.ipAddress || data.ip || '—',
-                        userAgent: data.userAgent || '—',
-                        country: data.country || '—',
+                        ipAddress: data.ipAddress || '—',
+                        country: data.country || 'NG',
                         timestamp: data.timestamp,
-                        payout: data.payout || data.amount || 0,
-                        rawData: data
+                        payout: parseFloat(data.amount || 0)
                     });
                 });
 
-                if (loadMore) {
-                    allTransactions = [...allTransactions, ...newTxs];
+                if (isLoadMore) {
+                    allTransactions = [...allTransactions, ...fetchedRows];
                 } else {
-                    allTransactions = newTxs;
+                    allTransactions = fetchedRows;
                 }
 
                 lastDoc = snapshot.docs[snapshot.docs.length - 1] || null;
@@ -975,14 +532,13 @@
                     snapshot.docs.length === 25 ? 'block' : 'none';
 
             } catch (error) {
-                console.error("Error fetching transactions:", error);
-                showToast("Error loading transactions", "error");
+                console.error("Firestore loading failure:", error);
+                showToast("Failed to load audit entries", "error");
             } finally {
                 isLoading = false;
             }
         }
 
-        // ==================== STATS ====================
         function updateStats() {
             const totalTx = allTransactions.length;
             const totalPaid = allTransactions
@@ -991,7 +547,6 @@
             const pending = allTransactions.filter(t => t.status === 'pending').length;
             const rejected = allTransactions.filter(t => t.status === 'rejected').length;
 
-            // Today's stats
             const now = new Date();
             const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
             const todayTxs = allTransactions.filter(t => {
@@ -1001,86 +556,74 @@
             const todayVolume = todayTxs.reduce((sum, t) => sum + t.amount, 0);
 
             document.getElementById('statTotalTx').textContent = totalTx;
-            document.getElementById('statTotalPaid').textContent = `$${totalPaid.toFixed(6)}`;
+            document.getElementById('statTotalPaid').textContent = totalPaid.toFixed(5);
             document.getElementById('statPending').textContent = pending;
             document.getElementById('statRejected').textContent = rejected;
-            document.getElementById('statToday').textContent = `$${todayVolume.toFixed(6)}`;
+            document.getElementById('statToday').textContent = todayVolume.toFixed(5);
             document.getElementById('statTodayCount').textContent = todayTxs.length;
         }
 
-        // ==================== RENDER TRANSACTIONS ====================
         function renderTransactions() {
             const container = document.getElementById('transactionList');
             let filtered = allTransactions;
 
-            // Apply status filter
             if (currentFilter !== 'all') {
                 filtered = filtered.filter(t => t.status === currentFilter);
             }
 
-            // Apply search
             if (searchQuery) {
                 const q = searchQuery.toLowerCase();
                 filtered = filtered.filter(t => 
-                    (t.userId && t.userId.toLowerCase().includes(q)) ||
-                    (t.offerId && t.offerId.toLowerCase().includes(q)) ||
-                    (t.ipAddress && t.ipAddress.toLowerCase().includes(q)) ||
-                    (t.userEmail && t.userEmail.toLowerCase().includes(q)) ||
-                    (t.offerName && t.offerName.toLowerCase().includes(q))
+                    t.userId.toLowerCase().includes(q) ||
+                    t.offerId.toLowerCase().includes(q) ||
+                    t.username.toLowerCase().includes(q) ||
+                    t.offerName.toLowerCase().includes(q)
                 );
             }
 
             document.getElementById('txCount').textContent = `${filtered.length} record${filtered.length !== 1 ? 's' : ''}`;
 
             if (filtered.length === 0) {
-                renderEmptyState(container);
+                renderEmptyState();
                 return;
             }
 
             container.innerHTML = '';
             filtered.forEach(tx => {
                 const item = document.createElement('div');
-                item.className = 'transaction-item fade-in';
+                item.className = 'transaction-item';
                 
-                const timeAgo = formatTimeAgo(tx.timestamp);
-                const userInitial = (tx.userEmail !== '—' ? tx.userEmail[0] : tx.userId[0] || 'U').toUpperCase();
+                const timeStr = tx.timestamp?.toDate ? formatTimeAgo(tx.timestamp) : "Recently";
+                const avatarChar = (tx.username ? tx.username[0] : 'U').toUpperCase();
 
                 item.innerHTML = `
                     <div class="tx-header">
                         <div class="tx-user">
-                            <div class="tx-avatar">${userInitial}</div>
+                            <div class="tx-avatar">${avatarChar}</div>
                             <div class="tx-user-info">
-                                <h4>${escapeHtml(tx.userEmail !== '—' ? tx.userEmail : 'User ' + tx.userId.substring(0, 8))}</h4>
-                                <div class="user-id">UID: ${escapeHtml(tx.userId.substring(0, 16))}...</div>
+                                <h4>@${escapeHtml(tx.username)}</h4>
+                                <div class="user-id">UID: ${escapeHtml(tx.userId.substring(0, 12))}...</div>
                             </div>
                         </div>
                         <div class="tx-amount">
                             <div class="value ${tx.status === 'rejected' ? 'negative' : ''}">
-                                ${tx.status === 'rejected' ? '-' : '+'}$${tx.amount.toFixed(6)}
+                                ${tx.status === 'rejected' ? '-' : '+'}${tx.amount.toFixed(5)}
                             </div>
-                            <div class="currency">USD</div>
+                            <div class="currency">COINS</div>
                         </div>
                     </div>
                     <div class="tx-details">
                         <div class="tx-detail-row">
-                            <span class="label">Offer ID</span>
-                            <span class="value offer-id">${escapeHtml(tx.offerId)}</span>
+                            <span class="label">Task ID</span>
+                            <span class="value">${escapeHtml(tx.offerId)}</span>
                         </div>
                         <div class="tx-detail-row">
-                            <span class="label">Offer Name</span>
+                            <span class="label">Campaign</span>
                             <span class="value">${escapeHtml(tx.offerName)}</span>
                         </div>
                         <div class="tx-detail-row">
-                            <span class="label">IP Address</span>
-                            <span class="value ip">${escapeHtml(tx.ipAddress)}</span>
-                        </div>
-                        <div class="tx-detail-row">
-                            <span class="label">Country</span>
-                            <span class="value">${escapeHtml(tx.country)}</span>
-                        </div>
-                        <div class="tx-detail-row">
-                            <span class="label">Payout</span>
-                            <span class="value">$${tx.payout.toFixed(6)}</span>
+                            <span class="label">IP Network</span>
+                            <span class="value ip">${escapeHtml(tx.ipAddress)} (${escapeHtml(tx.country)})</span>
                         </div>
                     </div>
                     <div class="tx-footer">
@@ -1088,29 +631,23 @@
                             <div class="status-dot ${tx.status}"></div>
                             <span class="status-text ${tx.status}">${tx.status}</span>
                         </div>
-                        <div class="tx-time">
-                            <i class="ri-time-line"></i> ${timeAgo}
-                        </div>
+                        <div class="tx-time">${timeStr}</div>
                     </div>
                 `;
                 container.appendChild(item);
             });
         }
 
-        function renderEmptyState(container) {
-            const target = container || document.getElementById('transactionList');
-            target.innerHTML = `
+        function renderEmptyState() {
+            document.getElementById('transactionList').innerHTML = `
                 <div class="empty-state">
-                    <div class="icon-box">
-                        <i class="ri-shopping-bag-3-line"></i>
-                    </div>
-                    <h3>No Transactions</h3>
-                    <p>No offerwall transactions found matching your criteria.</p>
+                    <div class="icon-box"><i class="ri-shopping-bag-3-line"></i></div>
+                    <h3>No Transactions Found</h3>
+                    <p>No offer records match your current view configuration filter.</p>
                 </div>
             `;
         }
 
-        // ==================== SEARCH & FILTER ====================
         function handleSearch() {
             searchQuery = document.getElementById('searchInput').value.trim();
             renderTransactions();
@@ -1128,44 +665,40 @@
             fetchTransactions(true);
         }
 
-        // ==================== UTILITIES ====================
         function formatTimeAgo(timestamp) {
-            if (!timestamp) return 'Recently';
-            const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-            const now = new Date();
-            const diffMs = now - date;
+            if (!timestamp) return 'Just now';
+            const date = timestamp.toDate();
+            const diffMs = new Date() - date;
             const diffMins = Math.floor(diffMs / 60000);
-            const diffHours = Math.floor(diffMs / 3600000);
-            const diffDays = Math.floor(diffMs / 86400000);
-
             if (diffMins < 1) return 'Just now';
             if (diffMins < 60) return `${diffMins}m ago`;
+            const diffHours = Math.floor(diffMins / 60);
             if (diffHours < 24) return `${diffHours}h ago`;
-            if (diffDays < 7) return `${diffDays}d ago`;
             return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
         }
 
         function escapeHtml(text) {
             const div = document.createElement('div');
-            div.textContent = text;
+            div.textContent = text || '';
             return div.innerHTML;
         }
 
-        // ==================== TOAST ====================
-        function showToast(message, type = 'info') {
-            const toast = document.getElementById('toast');
-            toast.className = 'toast ' + type;
-            let icon = 'ri-information-line';
-            if (type === 'success') icon = 'ri-checkbox-circle-line';
-            if (type === 'error') icon = 'ri-close-circle-line';
-            toast.innerHTML = `<i class="ri-${icon}"></i> ${message}`;
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 3000);
+        function showAccessDenied(email) {
+            document.getElementById('deniedEmail').textContent = email || 'Unknown profile';
+            document.getElementById('accessDenied').classList.add('show');
         }
 
         function hideLoading() {
             document.getElementById('loadingOverlay').style.display = 'none';
         }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
     </script>
 </body>
-  </html>
+</html>
+
