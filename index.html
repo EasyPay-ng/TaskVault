@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>TaskVault - #1 Gaming Platform in Africa</title>
+<title>TaskVault - #1 Earning Platform in Africa</title>
 
 <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -80,9 +80,42 @@ header img{height:50px;}
   color:#666;font-size:16px;line-height:1.7;
 }
 
+/* EARNING HIGHLIGHT */
+.earning-highlight{
+  background:linear-gradient(135deg,#ff7a00,#ff5500);
+  color:#fff;
+  text-align:center;
+  padding:50px 20px;
+}
+.earning-highlight h2{
+  font-size:32px;
+  margin-bottom:15px;
+}
+.earning-highlight p{
+  font-size:18px;
+  max-width:700px;
+  margin:0 auto 20px;
+  line-height:1.7;
+}
+.earning-highlight .price-tag{
+  display:inline-block;
+  background:#fff;
+  color:#ff7a00;
+  padding:12px 30px;
+  border-radius:50px;
+  font-weight:700;
+  font-size:20px;
+  margin-top:10px;
+}
+
 /* FEATURES */
 .features{
   padding:70px 8%;
+}
+.features h2{
+  text-align:center;
+  font-size:28px;
+  margin-bottom:40px;
 }
 .feature-grid{
   display:grid;
@@ -107,10 +140,50 @@ header img{height:50px;}
   color:#666;font-size:15px;line-height:1.7;
 }
 
+/* REFERRAL SECTION */
+.referral-section{
+  padding:70px 8%;
+  background:#fff5ec;
+}
+.referral-section h2{
+  text-align:center;
+  font-size:28px;
+  margin-bottom:40px;
+}
+.referral-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:20px;
+  max-width:900px;
+  margin:auto;
+}
+.ref-card{
+  background:#fff;
+  padding:25px;
+  border-radius:12px;
+  text-align:center;
+  box-shadow:0 4px 15px rgba(0,0,0,0.05);
+}
+.ref-card .percent{
+  font-size:36px;
+  font-weight:700;
+  color:#ff7a00;
+  display:block;
+  margin-bottom:8px;
+}
+.ref-card h4{
+  margin-bottom:8px;
+  font-size:16px;
+}
+.ref-card p{
+  color:#666;
+  font-size:14px;
+}
+
 /* FAQ */
 .faq{
   padding:70px 20px;
-  background:#fff5ec;
+  background:#fff;
 }
 .faq h2{text-align:center;margin-bottom:30px;font-size:28px;}
 
@@ -125,6 +198,17 @@ header img{height:50px;}
 
 .faq-question{
   padding:18px;font-weight:600;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.faq-question::after{
+  content:"+";
+  font-size:20px;
+  color:#ff7a00;
+}
+.faq-item.active .faq-question::after{
+  content:"−";
 }
 
 .faq-answer{
@@ -136,7 +220,7 @@ header img{height:50px;}
 }
 
 .faq-item.active .faq-answer{
-  max-height:200px;
+  max-height:300px;
   padding:10px 18px 18px;
 }
 
@@ -183,7 +267,7 @@ footer{
 
 <body>
 
-<header>
+<<header>
   <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg">
   <div class="auth-buttons">
     <a href="login.html" class="login">Login</a>
@@ -193,10 +277,9 @@ footer{
 
 <section class="hero">
   <div class="hero-text">
-    <h1>TaskVault <br><span>#1 Gaming Platform in Africa</span></h1>
+    <h1>TaskVault <br><span>#1 Earning Platform in Africa</span></h1>
     <p>
-      TaskVault is a powerful earning platform built for gamers and digital earners across Africa. 
-      Earn daily through referrals, competitive leaderboards, and smart reward systems — all backed by fast payouts and a reliable infrastructure.
+      TaskVault is Africa's most rewarding earning platform. Get paid for completing surveys, reading articles, viewing ads, claiming faucet rewards, and playing games. Unlimited earning opportunities with fast payouts and a reliable infrastructure.
     </p>
 
     <div class="hero-buttons">
@@ -210,6 +293,14 @@ footer{
   </div>
 </section>
 
+<section class="earning-highlight">
+  <h2>Earn At Least $0.70 Per Day</h2>
+  <p>
+    Start earning immediately with unlimited daily tasks. Complete surveys, read articles, view PTC ads, claim faucet rewards, and play games — all with just a one-time activation fee.
+  </p>
+  <div class="price-tag">One-Time Payment: $1.00</div>
+</section>
+
 <section class="trust">
   <h2>Built for Trust, Speed & Consistency</h2>
   <p>
@@ -220,7 +311,44 @@ footer{
 </section>
 
 <section class="features">
+  <h2>Multiple Ways to Earn</h2>
   <div class="feature-grid">
+
+    <div class="card">
+      <i class="fas fa-poll"></i>
+      <h3>Complete Surveys</h3>
+      <p>Share your opinion and get paid for every survey you complete. New surveys available daily from top providers.</p>
+    </div>
+
+    <div class="card">
+      <i class="fas fa-newspaper"></i>
+      <h3>Read Articles</h3>
+      <p>Earn by reading trending articles and blog posts. Get credited instantly for every article you finish.</p>
+    </div>
+
+    <div class="card">
+      <i class="fas fa-eye"></i>
+      <h3>View PTC Ads</h3>
+      <p>Get paid to view advertisements. Simple, fast, and available around the clock with no limits.</p>
+    </div>
+
+    <div class="card">
+      <i class="fas fa-faucet"></i>
+      <h3>Claim Faucet</h3>
+      <p>Claim free rewards from our faucet every few minutes. Stack up small earnings into big payouts over time.</p>
+    </div>
+
+    <div class="card">
+      <i class="fas fa-gamepad"></i>
+      <h3>Play Games</h3>
+      <p>Compete in games, climb leaderboards, and win cash prizes. Gaming meets real earning on TaskVault.</p>
+    </div>
+
+    <div class="card">
+      <i class="fas fa-tasks"></i>
+      <h3>Micro Tasks & Offers</h3>
+      <p>Complete simple micro tasks and offer wall challenges from trusted partners for instant rewards.</p>
+    </div>
 
     <div class="card">
       <i class="fas fa-money-bill-wave"></i>
@@ -234,18 +362,27 @@ footer{
       <p>Fund your account instantly using crypto or bank transfer and start earning immediately.</p>
     </div>
 
-    <div class="card">
-      <i class="fas fa-users"></i>
-      <h3>Referral System</h3>
-      <p>Build a network and earn commissions continuously as your referrals stay active.</p>
-    </div>
+  </div>
+</section>
 
-    <div class="card">
-      <i class="fas fa-trophy"></i>
-      <h3>Leaderboard Rewards</h3>
-      <p>Top performers receive additional bonuses and exclusive rewards for staying active.</p>
+<section class="referral-section">
+  <h2>Referral Commission Structure</h2>
+  <div class="referral-grid">
+    <div class="ref-card">
+      <span class="percent">30%</span>
+      <h4>Level 1 Referrals</h4>
+      <p>Earn 30% commission from every earning your direct referrals make.</p>
     </div>
-
+    <div class="ref-card">
+      <span class="percent">10%</span>
+      <h4>Level 2 Referrals</h4>
+      <p>Earn 10% commission from the earnings of your referrals' referrals.</p>
+    </div>
+    <div class="ref-card">
+      <span class="percent">5%</span>
+      <h4>Level 3 Referrals</h4>
+      <p>Earn 5% commission from your third-level referral network earnings.</p>
+    </div>
   </div>
 </section>
 
@@ -253,28 +390,47 @@ footer{
   <h2>Frequently Asked Questions</h2>
 
   <div class="faq-item" onclick="toggleFAQ(this)">
+    <div class="faq-question">How much does it cost to join TaskVault?</div>
+    <div class="faq-answer">TaskVault requires a one-time activation fee of just $1.00. There are no monthly or hidden charges — pay once and earn forever.</div>
+  </div>
+
+  <div class="faq-item" onclick="toggleFAQ(this)">
+    <div class="faq-question">How much can I earn per day?</div>
+    <div class="faq-answer">Users can earn at least $0.70 per day by completing surveys, reading articles, viewing PTC ads, claiming faucet rewards, and playing games. The more active you are, the more you earn — there is no earning cap.</div>
+  </div>
+
+  <div class="faq-item" onclick="toggleFAQ(this)">
+    <div class="faq-question">How do I earn on TaskVault?</div>
+    <div class="faq-answer">You earn by completing surveys, reading articles, viewing PTC advertisements, claiming faucet rewards, playing games, completing micro tasks, and through our multi-level referral commission system.</div>
+  </div>
+
+  <div class="faq-item" onclick="toggleFAQ(this)">
+    <div class="faq-question">How does the referral system work?</div>
+    <div class="faq-answer">You earn 30% commission from your direct referrals, 10% from Level 2, and 5% from Level 3. Build a network and earn passive income continuously as your referrals stay active.</div>
+  </div>
+
+  <div class="faq-item" onclick="toggleFAQ(this)">
     <div class="faq-question">How long do withdrawals take?</div>
     <div class="faq-answer">All withdrawals are processed within 24 hours to ensure fast access to your earnings.</div>
   </div>
 
   <div class="faq-item" onclick="toggleFAQ(this)">
-    <div class="faq-question">How do I earn on TaskVault?</div>
-    <div class="faq-answer">You earn through referrals, leaderboard rewards, and platform activities.</div>
-  </div>
-
-  <div class="faq-item" onclick="toggleFAQ(this)">
     <div class="faq-question">What payment methods are supported?</div>
-    <div class="faq-answer">We support both cryptocurrency and local bank transfers.</div>
+    <div class="faq-answer">We support both cryptocurrency and local bank transfers for deposits and withdrawals.</div>
   </div>
 
 </section>
 
-<footer>
+<<footer>
   © 2026 TaskVault | <a href="terms.html">Terms</a>
 </footer>
 
 <script>
 function toggleFAQ(el){
+  // Close others
+  document.querySelectorAll('.faq-item').forEach(item => {
+    if(item !== el) item.classList.remove('active');
+  });
   el.classList.toggle("active");
 }
 </script>
