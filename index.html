@@ -61,13 +61,87 @@ header img{height:50px;}
 .secondary{border:1px solid #ff7a00;color:#ff7a00;}
 .secondary:hover{background:#ff7a00;color:#fff;}
 
-/* HERO IMAGE */
+/* HERO IMAGE WITH FLOATING OBJECTS */
 .hero-image{
-  flex:1;text-align:center;
+  flex:1;
+  text-align:center;
+  position:relative;
+  min-height:400px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
 }
+
 .hero-image img{
-  width:350px;max-width:100%;
+  width:280px;
+  max-width:100%;
+  position:relative;
+  z-index:2;
   animation:float 4s ease-in-out infinite;
+}
+
+/* Floating decorative objects */
+.float-obj{
+  position:absolute;
+  z-index:1;
+  font-size:28px;
+  color:#ff7a00;
+  opacity:0.8;
+}
+
+.float-obj.coin{
+  animation:orbit1 8s linear infinite;
+}
+.float-obj.dollar{
+  animation:orbit2 10s linear infinite;
+  color:#22c55e;
+  font-size:24px;
+}
+.float-obj.star{
+  animation:orbit3 7s linear infinite;
+  color:#fbbf24;
+  font-size:22px;
+}
+.float-obj.gift{
+  animation:orbit4 9s linear infinite;
+  color:#ef4444;
+  font-size:26px;
+}
+.float-obj.gem{
+  animation:orbit5 11s linear infinite;
+  color:#8b5cf6;
+  font-size:20px;
+}
+.float-obj.bolt{
+  animation:orbit6 6s linear infinite;
+  color:#f59e0b;
+  font-size:24px;
+}
+
+/* Orbit animations */
+@keyframes orbit1{
+  0%{top:10%;left:20%;transform:rotate(0deg) translateX(120px) rotate(0deg);}
+  100%{top:10%;left:20%;transform:rotate(360deg) translateX(120px) rotate(-360deg);}
+}
+@keyframes orbit2{
+  0%{top:60%;left:70%;transform:rotate(0deg) translateX(100px) rotate(0deg);}
+  100%{top:60%;left:70%;transform:rotate(-360deg) translateX(100px) rotate(360deg);}
+}
+@keyframes orbit3{
+  0%{top:80%;left:30%;transform:rotate(0deg) translateX(140px) rotate(0deg);}
+  100%{top:80%;left:30%;transform:rotate(360deg) translateX(140px) rotate(-360deg);}
+}
+@keyframes orbit4{
+  0%{top:30%;left:80%;transform:rotate(0deg) translateX(90px) rotate(0deg);}
+  100%{top:30%;left:80%;transform:rotate(-360deg) translateX(90px) rotate(360deg);}
+}
+@keyframes orbit5{
+  0%{top:50%;left:10%;transform:rotate(0deg) translateX(110px) rotate(0deg);}
+  100%{top:50%;left:10%;transform:rotate(360deg) translateX(110px) rotate(-360deg);}
+}
+@keyframes orbit6{
+  0%{top:15%;left:55%;transform:rotate(0deg) translateX(130px) rotate(0deg);}
+  100%{top:15%;left:55%;transform:rotate(-360deg) translateX(130px) rotate(360deg);}
 }
 
 /* TRUST */
@@ -254,7 +328,34 @@ footer{
   .hero-text h1{font-size:30px;}
   .hero-text p{font-size:16px;}
 
-  .hero-image img{width:260px;}
+  .hero-image{min-height:350px;}
+  .hero-image img{width:220px;}
+
+  .float-obj{font-size:20px !important;}
+  @keyframes orbit1{
+    0%{top:10%;left:20%;transform:rotate(0deg) translateX(80px) rotate(0deg);}
+    100%{top:10%;left:20%;transform:rotate(360deg) translateX(80px) rotate(-360deg);}
+  }
+  @keyframes orbit2{
+    0%{top:60%;left:70%;transform:rotate(0deg) translateX(70px) rotate(0deg);}
+    100%{top:60%;left:70%;transform:rotate(-360deg) translateX(70px) rotate(360deg);}
+  }
+  @keyframes orbit3{
+    0%{top:80%;left:30%;transform:rotate(0deg) translateX(90px) rotate(0deg);}
+    100%{top:80%;left:30%;transform:rotate(360deg) translateX(90px) rotate(-360deg);}
+  }
+  @keyframes orbit4{
+    0%{top:30%;left:80%;transform:rotate(0deg) translateX(60px) rotate(0deg);}
+    100%{top:30%;left:80%;transform:rotate(-360deg) translateX(60px) rotate(360deg);}
+  }
+  @keyframes orbit5{
+    0%{top:50%;left:10%;transform:rotate(0deg) translateX(75px) rotate(0deg);}
+    100%{top:50%;left:10%;transform:rotate(360deg) translateX(75px) rotate(-360deg);}
+  }
+  @keyframes orbit6{
+    0%{top:15%;left:55%;transform:rotate(0deg) translateX(85px) rotate(0deg);}
+    100%{top:15%;left:55%;transform:rotate(-360deg) translateX(85px) rotate(360deg);}
+  }
 
   .hero-buttons a{
     display:block;
@@ -267,7 +368,7 @@ footer{
 
 <body>
 
-<<header>
+<header>
   <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg">
   <div class="auth-buttons">
     <a href="login.html" class="login">Login</a>
@@ -290,6 +391,12 @@ footer{
 
   <div class="hero-image">
     <img src="https://cdn-icons-png.flaticon.com/512/1055/1055687.png">
+    <i class="fas fa-coins float-obj coin"></i>
+    <i class="fas fa-dollar-sign float-obj dollar"></i>
+    <i class="fas fa-star float-obj star"></i>
+    <i class="fas fa-gift float-obj gift"></i>
+    <i class="fas fa-gem float-obj gem"></i>
+    <i class="fas fa-bolt float-obj bolt"></i>
   </div>
 </section>
 
@@ -406,7 +513,7 @@ footer{
 
   <div class="faq-item" onclick="toggleFAQ(this)">
     <div class="faq-question">How does the referral system work?</div>
-    <div class="faq-answer">You earn 5% commission from your direct referrals, 2.5% from Level 2, and 1.25% from Level 3. Build a network and earn passive income continuously as your referrals stay active.</div>
+    <div class="faq-answer">You earn $0.50 when your direct referral activates their account, plus 5% commission from your direct referrals' withdrawals, 2.5% from Level 2, and 1.25% from Level 3. Build a network and earn passive income continuously as your referrals stay active.</div>
   </div>
 
   <div class="faq-item" onclick="toggleFAQ(this)">
@@ -421,13 +528,12 @@ footer{
 
 </section>
 
-<<footer>
+<footer>
   © 2026 TaskVault | <a href="terms.html">Terms</a>
 </footer>
 
 <script>
 function toggleFAQ(el){
-  // Close others
   document.querySelectorAll('.faq-item').forEach(item => {
     if(item !== el) item.classList.remove('active');
   });
@@ -436,4 +542,4 @@ function toggleFAQ(el){
 </script>
 
 </body>
-</html>
+  </html>
