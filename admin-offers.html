@@ -161,7 +161,6 @@
             justify-content: center;
             font-size: 18px;
             text-decoration: none;
-            transition: all 0.3s ease;
             border: none;
             cursor: pointer;
         }
@@ -447,7 +446,6 @@
             appId: "1:420716701831:web:c987d91f7f4c8684eb7022"
         };
 
-        // Initialize globally via compat script scope
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
@@ -460,7 +458,7 @@
         let lastDoc = null;
         let isLoading = false;
 
-        // Auth state monitor
+        // Verify authentication state
         auth.onAuthStateChanged((user) => {
             if (user) {
                 if (user.email === ADMIN_EMAIL) {
@@ -477,12 +475,14 @@
             }
         });
 
+        // FETCH USING THE COLLECTION GROUP SHORTCUT
         async function fetchTransactions(isLoadMore = false) {
             if (isLoading) return;
             isLoading = true;
 
             try {
-                let query = db.collection('offerwallTransactions')
+                // Scans every 'offers' subcollection across your Firestore setup automatically
+                let query = db.collectionGroup('offers')
                     .orderBy('timestamp', 'desc')
                     .limit(25);
 
@@ -501,19 +501,22 @@
                 const fetchedRows = [];
                 snapshot.forEach(doc => {
                     const data = doc.data();
+                    
+                    // Fallback to identify UID using parent folders if subId isn't loaded
+                    const generatedUid = doc.ref.parent.parent ? doc.ref.parent.parent.id : 'Unknown';
+
+                    // PARSE REAL FIELDS: subId, offer_name, userIp, reward, status
                     fetchedRows.push({
-                        id: doc.id,
-                        userId: data.userId || 'Unknown',
+                        id: doc.id, 
+                        userId: data.subId || generatedUid,
                         username: data.username || 'user',
-                        userEmail: data.userEmail || '—',
-                        offerId: data.offerId || '—',
-                        offerName: data.offerName || 'Offerwall Task',
-                        amount: parseFloat(data.amount || 0),
-                        status: data.status || 'completed',
-                        ipAddress: data.ipAddress || '—',
+                        offerId: doc.id,
+                        offerName: data.offer_name || 'Offerwall Task',
+                        amount: parseFloat(data.reward || 0), 
+                        status: data.status == "1" ? "completed" : "rejected",
+                        ipAddress: data.userIp || '—',
                         country: data.country || 'NG',
-                        timestamp: data.timestamp,
-                        payout: parseFloat(data.amount || 0)
+                        timestamp: data.timestamp
                     });
                 });
 
@@ -533,7 +536,7 @@
 
             } catch (error) {
                 console.error("Firestore loading failure:", error);
-                showToast("Failed to load audit entries", "error");
+                showToast("Missing Index! Click link in browser console logs.", "error");
             } finally {
                 isLoading = false;
             }
@@ -609,7 +612,7 @@
                             <div class="value ${tx.status === 'rejected' ? 'negative' : ''}">
                                 ${tx.status === 'rejected' ? '-' : '+'}${tx.amount.toFixed(5)}
                             </div>
-                            <div class="currency">COINS</div>
+                            <div class="currency">POINTS</div>
                         </div>
                     </div>
                     <div class="tx-details">
@@ -622,7 +625,7 @@
                             <span class="value">${escapeHtml(tx.offerName)}</span>
                         </div>
                         <div class="tx-detail-row">
-                            <span class="label">IP Network</span>
+                            <span class="label">IP Address</span>
                             <span class="value ip">${escapeHtml(tx.ipAddress)} (${escapeHtml(tx.country)})</span>
                         </div>
                     </div>
@@ -701,4 +704,6 @@
     </script>
 </body>
 </html>
+
+```
 
