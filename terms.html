@@ -159,6 +159,38 @@
             margin-bottom: 0;
         }
 
+        .success-banner {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            border: 2px solid #059669;
+            border-radius: var(--radius);
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.875rem;
+            animation: fadeInUp .6s ease forwards;
+            animation-delay: 0.1s;
+            opacity: 0;
+        }
+        .success-banner i {
+            color: #059669;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+            margin-top: 0.15rem;
+        }
+        .success-banner h3 {
+            font-size: 1.1rem;
+            color: #065f46;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+        .success-banner p {
+            color: #065f46;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 0;
+        }
+
         .danger-banner {
             background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
             border: 2px solid #dc2626;
@@ -169,7 +201,7 @@
             align-items: flex-start;
             gap: 0.875rem;
             animation: fadeInUp .6s ease forwards;
-            animation-delay: 0.1s;
+            animation-delay: 0.15s;
             opacity: 0;
         }
         .danger-banner i {
@@ -209,6 +241,7 @@
         .terms-section:nth-child(10){animation-delay:1.05s;}
         .terms-section:nth-child(11){animation-delay:1.15s;}
         .terms-section:nth-child(12){animation-delay:1.25s;}
+        .terms-section:nth-child(13){animation-delay:1.35s;}
 
         @keyframes fadeInUp{
             to{
@@ -264,7 +297,17 @@
             color: #92400e;
         }
 
-        .no-refund-box {
+        .success-box {
+            background: #d1fae5;
+            border-left: 4px solid #059669;
+            padding: 1rem 1.25rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+            font-weight: 600;
+            color: #065f46;
+        }
+
+        .danger-box {
             background: #fee2e2;
             border-left: 4px solid #dc2626;
             padding: 1rem 1.25rem;
@@ -319,21 +362,30 @@
             <p>Please read the following terms carefully before using TaskVault.</p>
         </div>
 
-        <!-- FINANCIAL DISCLOSURE BANNER -->
-        <div class="alert-banner">
-            <i class="ph ph-currency-dollar"></i>
+        <!-- FREE EARNING BANNER -->
+        <div class="success-banner">
+            <i class="ph ph-gift"></i>
             <div>
-                <h3>Financial Participation Required</h3>
-                <p><strong>TaskVault is not a free platform.</strong> Most features, including gameplay, staking, and earning opportunities, require an initial deposit or capital commitment. By creating an account and using our services, you acknowledge that earning on TaskVault requires financial investment and that you are solely responsible for any funds you choose to deposit.</p>
+                <h3>Free to Earn</h3>
+                <p><strong>TaskVault is free to use.</strong> You can complete tasks, offers, and other activities to earn without any upfront deposit. However, you must activate your account before you can withdraw earnings.</p>
             </div>
         </div>
 
-        <!-- NO REFUND BANNER -->
-        <div class="danger-banner">
-            <i class="ph ph-prohibit"></i>
+        <!-- ACTIVATION REQUIRED BANNER -->
+        <div class="alert-banner">
+            <i class="ph ph-lock-key"></i>
             <div>
-                <h3>Strict No-Refund Policy</h3>
-                <p><strong>All deposits are final and non-refundable.</strong> Once you activate your account or make any deposit, you expressly waive any right to a refund. This policy applies regardless of account activity, usage, or personal circumstances. By proceeding, you confirm that you have read, understood, and accepted this no-refund condition.</p>
+                <h3>Account Activation Required for Withdrawals</h3>
+                <p><strong>Activation is mandatory before withdrawals.</strong> While you can earn for free, your account must be activated before any withdrawal requests can be processed. Activation details and fees are displayed in your account settings.</p>
+            </div>
+        </div>
+
+        <!-- ONE ACCOUNT BANNER -->
+        <div class="danger-banner">
+            <i class="ph ph-device-mobile"></i>
+            <div>
+                <h3>One Account Per Device</h3>
+                <p><strong>Multiple accounts are strictly prohibited.</strong> Each user is limited to one account per device. Creating multiple accounts will result in permanent suspension and forfeiture of all earnings.</p>
             </div>
         </div>
 
@@ -341,50 +393,107 @@
         <section class="terms-section">
             <h2><i class="ph ph-check-circle"></i> Acceptance of Terms</h2>
             <p>By accessing or using the TaskVault website, mobile application, or any related services ("Service"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, please do not use the Service.</p>
-            <p>By clicking "I Agree" or otherwise using the Service, you confirm that you are at least 18 years of age, legally capable of entering into binding contracts, and fully understand that <strong>TaskVault requires financial deposits to access most earning features</strong>.</p>
+            <p>By clicking "I Agree" or otherwise using the Service, you confirm that you are at least 18 years of age, legally capable of entering into binding contracts, and understand that <strong>account activation is required before withdrawals can be made</strong>.</p>
         </section>
 
         <!-- SECTION 2 -->
         <section class="terms-section">
-            <h2><i class="ph ph-currency-dollar"></i> Financial Requirements & Deposits</h2>
-            <p>TaskVault operates on a pay-to-participate model. The following applies to all users:</p>
+            <h2><i class="ph ph-gift"></i> Free Earning Model</h2>
+            <p>TaskVault allows users to earn without any initial deposit. You can participate in the following free earning activities:</p>
             <ul>
-                <li><strong>Activation Deposit Required:</strong> Account activation and access to core earning features require a minimum deposit. The exact amount is displayed during registration.</li>
-                <li><strong>Additional Deposits:</strong> Many features, including but not limited to staking, gameplay entry fees, and premium tasks, require additional deposits beyond the initial activation fee.</li>
-                <li><strong>No Earnings Without Investment:</strong> You cannot earn on TaskVault without first depositing funds into your account. Free-tier features are limited and do not generate monetary rewards.</li>
-                <li><strong>Capital at Risk:</strong> All deposited funds are subject to the risks inherent in gameplay, market predictions, and staking outcomes. You may lose part or all of your deposited capital.</li>
+                <li><strong>Task Completion:</strong> Complete various tasks and micro-jobs to earn rewards.</li>
+                <li><strong>Offer Wall:</strong> Complete third-party offers and surveys to earn.</li>
+                <li><strong>Daily Claims:</strong> Claim free daily rewards every 24 hours.</li>
+                <li><strong>Referral Program:</strong> Earn commissions by referring new users to the platform.</li>
+                <li><strong>Games & Competitions:</strong> Participate in platform games and competitions to win prizes.</li>
             </ul>
-            <div class="highlight-box">
-                <i class="ph ph-warning" style="margin-right:0.5rem;"></i>
-                You acknowledge that TaskVault is a platform for financial participation, not a source of guaranteed or free income.
+            <div class="success-box">
+                <i class="ph ph-currency-dollar" style="margin-right:0.5rem;"></i>
+                You earn 100% of the rewards from tasks, offers, and all platform features. No earnings are deducted at the point of completion.
             </div>
         </section>
 
         <!-- SECTION 3 -->
         <section class="terms-section">
-            <h2><i class="ph ph-prohibit"></i> No-Refund Policy</h2>
-            <p>TaskVault maintains a strict, unconditional no-refund policy. By making any deposit, you agree to the following:</p>
+            <h2><i class="ph ph-lock-key"></i> Account Activation</h2>
+            <p>While earning is free, <strong>account activation is mandatory before any withdrawals</strong>. The following applies:</p>
             <ul>
-                <li><strong>All Deposits Are Final:</strong> Once a deposit is made, it cannot be reversed, refunded, or transferred under any circumstances.</li>
-                <li><strong>No Exceptions:</strong> This policy applies regardless of whether you have used the Service, changed your mind, experienced technical issues, or were unaware of the financial requirements prior to depositing.</li>
-                <li><strong>Account Inactivity:</strong> Deposits are not refunded for inactive accounts, suspended accounts, or accounts closed by the user.</li>
-                <li><strong>Disputed Charges:</strong> Initiating a chargeback or payment dispute with your bank or payment provider constitutes a breach of these Terms and may result in immediate account termination and legal action.</li>
+                <li><strong>Activation Fee:</strong> A one-time activation fee is required to unlock withdrawal capabilities. The exact amount is displayed in your account settings.</li>
+                <li><strong>Activation Benefits:</strong> Activated accounts gain access to higher earning rates, premium tasks, and full platform features.</li>
+                <li><strong>Non-Activated Accounts:</strong> Can continue earning but cannot withdraw funds until activation is completed.</li>
+                <li><strong>No Refunds:</strong> Activation fees are non-refundable once processed.</li>
             </ul>
-            <div class="no-refund-box">
-                <i class="ph ph-seal-warning" style="margin-right:0.5rem;"></i>
-                YOU EXPRESSLY WAIVE ANY RIGHT TO A REFUND OF ANY KIND. THIS IS A BINDING CONDITION OF YOUR USE OF TASKVAULT.
-            </div>
-            <p>It is your sole responsibility to review these Terms and understand the financial obligations before making any deposit. Claims of "not knowing" or "not reading" the Terms will not be honored.</p>
         </section>
 
         <!-- SECTION 4 -->
         <section class="terms-section">
-            <h2><i class="ph ph-user-plus"></i> Account Registration</h2>
-            <p>To use certain features of the Service you must create an account. You agree to provide accurate, current, and complete information during the registration process and to update such information to keep it accurate, current and complete.</p>
-            <p>Registration does not grant immediate access to earning features. Your account must be activated through a qualifying deposit before you can participate in paid activities.</p>
+            <h2><i class="ph ph-device-mobile"></i> One Account Per Device</h2>
+            <p>TaskVault strictly enforces a <strong>one account per device</strong> policy:</p>
+            <ul>
+                <li><strong>Device Binding:</strong> Your account is linked to your device upon registration. Attempting to create additional accounts on the same device will be blocked.</li>
+                <li><strong>No Multiple Accounts:</strong> Each user may only maintain one active account. Creating multiple accounts to exploit referral bonuses or other features is prohibited.</li>
+                <li><strong>Account Sharing:</strong> Sharing your account credentials or allowing others to use your account is strictly forbidden.</li>
+                <li><strong>Enforcement:</strong> Violations will result in immediate suspension of all associated accounts and forfeiture of all earnings.</li>
+            </ul>
+            <div class="danger-box">
+                <i class="ph ph-warning" style="margin-right:0.5rem;"></i>
+                MULTIPLE ACCOUNTS WILL RESULT IN PERMANENT BAN AND LOSS OF ALL EARNINGS.
+            </div>
         </section>
 
         <!-- SECTION 5 -->
+        <section class="terms-section">
+            <h2><i class="ph ph-cash"></i> Withdrawal Policy</h2>
+            <p>TaskVault processes withdrawals with the following terms:</p>
+            <ul>
+                <li><strong>No Withdrawal Limits:</strong> There are no limits on the number or frequency of withdrawals you can make.</li>
+                <li><strong>10% Platform Fee:</strong> TaskVault retains 10% of every withdrawal amount to support platform sustainability, maintenance, and development.</li>
+                <li><strong>Example:</strong> If you withdraw $100, you will receive $90, and $10 goes to the platform.</li>
+                <li><strong>Minimum Threshold:</strong> A minimum withdrawal threshold may apply. Check your account settings for current limits.</li>
+                <li><strong>Processing Time:</strong> Withdrawals are typically processed within 24-72 hours, subject to verification.</li>
+            </ul>
+            <div class="highlight-box">
+                <i class="ph ph-info" style="margin-right:0.5rem;"></i>
+                The 10% fee ensures the long-term sustainability and continuous improvement of the TaskVault platform.
+            </div>
+        </section>
+
+        <!-- SECTION 6 -->
+        <section class="terms-section">
+            <h2><i class="ph ph-users"></i> Automated Referral System</h2>
+            <p>TaskVault features a fully automated referral system with the following structure:</p>
+            <ul>
+                <li><strong>Activation Commission:</strong> When your direct referral activates their account, you receive an instant commission automatically credited to your balance.</li>
+                <li><strong>Lifetime Earnings Commission:</strong> You earn a percentage of all earnings your referrals generate from tasks, offers, games, and other platform activities — for life.</li>
+                <li><strong>Real-Time Payouts:</strong> All referral commissions are processed and credited in real-time without manual intervention.</li>
+                <li><strong>Referral Tracking:</strong> Each user receives a unique referral code to share with others.</li>
+            </ul>
+            <div class="success-box">
+                <i class="ph ph-trend-up" style="margin-right:0.5rem;"></i>
+                Build a passive income stream through our automated lifetime referral commission system.
+            </div>
+        </section>
+
+        <!-- SECTION 7 -->
+        <section class="terms-section">
+            <h2><i class="ph ph-game-controller"></i> Automated Deposits</h2>
+            <p>Certain platform features require automated deposits:</p>
+            <ul>
+                <li><strong>Advertising:</strong> Deposits for advertising placements are processed automatically upon confirmation.</li>
+                <li><strong>Premium Games:</strong> Entry fees for premium games and competitions are deducted automatically from your balance.</li>
+                <li><strong>In-App Purchases:</strong> Any purchases made within the platform are processed instantly and automatically.</li>
+                <li><strong>No Manual Approval:</strong> All automated deposits are final and cannot be reversed or refunded.</li>
+            </ul>
+        </section>
+
+        <!-- SECTION 8 -->
+        <section class="terms-section">
+            <h2><i class="ph ph-user-plus"></i> Account Registration</h2>
+            <p>To use certain features of the Service you must create an account. You agree to provide accurate, current, and complete information during the registration process and to update such information to keep it accurate, current and complete.</p>
+            <p>Registration is free and grants access to basic earning features. Account activation is required for withdrawals and premium features.</p>
+        </section>
+
+        <!-- SECTION 9 -->
         <section class="terms-section">
             <h2><i class="ph ph-shield-check"></i> User Conduct</h2>
             <p>You agree not to:</p>
@@ -394,56 +503,47 @@
                 <li><i class="ph ph-zap-off"></i> Interfere with or disrupt the Service or servers or networks connected to the Service.</li>
                 <li><i class="ph ph-key"></i> Attempt to gain unauthorized access to the Service, other accounts, computer systems or networks connected to the Service.</li>
                 <li><i class="ph ph-eye-slash"></i> Harvest or collect information about other users without their consent.</li>
-                <li><i class="ph ph-credit-card"></i> Initiate chargebacks, payment disputes, or fraudulent refund claims against deposits made to TaskVault.</li>
+                <li><i class="ph ph-device-mobile"></i> Create multiple accounts or attempt to bypass the one-account-per-device policy.</li>
+                <li><i class="ph ph-robot"></i> Use bots, scripts, or automated tools to manipulate earnings or exploit platform features.</li>
             </ul>
         </section>
 
-        <!-- SECTION 6 -->
-        <section class="terms-section">
-            <h2><i class="ph ph-cash"></i> Earnings and Payouts</h2>
-            <p>Earnings are accrued based on gameplay performance, staking outcomes, and task completion as described in the Service. All payouts are subject to verification, applicable fees, and minimum withdrawal thresholds.</p>
-            <p><strong>Important:</strong> Earnings are not guaranteed. Your ability to earn depends on your performance, market conditions, and the outcomes of events you stake on. TaskVault does not promise any specific return on investment.</p>
-            <p>TaskVault reserves the right to modify earning rates, payout methods, minimum thresholds, and eligibility criteria at any time without prior notice.</p>
-        </section>
-
-        <!-- SECTION 7 -->
+        <!-- SECTION 10 -->
         <section class="terms-section">
             <h2><i class="ph ph-copyright"></i> Intellectual Property</h2>
             <p>All content, trademarks, logos, and software provided by TaskVault are the property of TaskVault or its licensors and are protected by copyright, trademark, and other intellectual property laws.</p>
         </section>
 
-        <!-- SECTION 8 -->
+        <!-- SECTION 11 -->
         <section class="terms-section">
             <h2><i class="ph ph-alert-triangle"></i> Disclaimer of Warranties</h2>
             <p>THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR NON-INFRINGEMENT.</p>
-            <p>TaskVault does not guarantee that you will earn money, recover your deposits, or achieve any specific financial outcome by using the Service.</p>
+            <p>TaskVault does not guarantee specific earning amounts. Your earnings depend on your activity level, task availability, and platform participation.</p>
         </section>
 
-        <!-- SECTION 9 -->
+        <!-- SECTION 12 -->
         <section class="terms-section">
             <h2><i class="ph ph-gavel"></i> Limitation of Liability</h2>
             <p>TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, IN NO EVENT SHALL TASKVAULT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL OR PUNITIVE DAMAGES, OR ANY LOSS OF PROFITS OR REVENUES, WHETHER INCURRED DIRECTLY OR INDIRECTLY, OR ANY LOSS OF DATA, USE, GOOD‑WILL, OR OTHER INTANGIBLE LOSSES.</p>
-            <p>This includes, but is not limited to, losses arising from deposit decisions, staking outcomes, gameplay results, or any financial transactions conducted through the platform.</p>
         </section>
 
-        <!-- SECTION 10 -->
+        <!-- SECTION 13 -->
         <section class="terms-section">
             <h2><i class="ph ph-law"></i> Governing Law</h2>
             <p>These Terms shall be governed by and construed in accordance with the laws of the Federal Republic of Nigeria, without regard to its conflict of law principles.</p>
         </section>
 
-        <!-- SECTION 11 -->
+        <!-- SECTION 14 -->
         <section class="terms-section">
             <h2><i class="ph ph-repeat"></i> Changes to Terms</h2>
             <p>TaskVault reserves the right, at its sole discretion, to modify or replace these Terms at any time. Continued use of the Service after any such changes constitutes your acceptance of the new Terms.</p>
-            <p>It is your responsibility to review these Terms periodically. Material changes regarding financial obligations or refund policies will be communicated via email or platform notification.</p>
+            <p>Material changes regarding earning models, withdrawal policies, or fees will be communicated via email or platform notification.</p>
         </section>
 
-        <!-- SECTION 12 -->
+        <!-- SECTION 15 -->
         <section class="terms-section">
             <h2><i class="ph ph-message-circle"></i> Contact Us</h2>
             <p>If you have any questions about these Terms, please contact us at <a href="mailto:support@taskvault.com">support@taskvault.com</a>.</p>
-            <p>For disputes related to deposits, refunds, or financial transactions, all inquiries must be submitted in writing. Verbal claims or informal complaints will not be processed.</p>
         </section>
 
         <a href="register.html" class="back-link">
@@ -477,8 +577,7 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // Optional: log a page‑view event to Firestore under a "pageViews" collection
-    // (remove this block if you don't want any tracking)
+    // Optional: log a page-view event to Firestore under a "pageViews" collection
     onAuthStateChanged(auth, (user) => {
         const uid = user ? user.uid : 'anonymous';
         setDoc(doc(db, "pageViews", `${uid}_${Date.now()}`), {
