@@ -120,6 +120,51 @@
             flex-direction: column;
         }
 
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .history-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: var(--orange-light);
+            color: var(--orange-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .history-btn:hover {
+            background: var(--orange-main);
+            color: white;
+        }
+
+        .history-btn .badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 14px;
+            height: 14px;
+            background: var(--danger);
+            color: white;
+            border-radius: 50%;
+            font-size: 8px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--white);
+        }
+
         .balance-pill {
             background: var(--gradient-orange);
             color: white;
@@ -372,9 +417,14 @@
                     <span class="header-subtitle">Complete offers & earn rewards</span>
                 </div>
             </div>
-            <div class="balance-pill" id="balancePill">
-                <i class="ri-wallet-3-line"></i>
-                <span id="balanceDisplay">$0.000000</span>
+            <div class="header-right">
+                <a href="offer-history.html" class="history-btn" title="Offer History">
+                    <i class="ri-history-line"></i>
+                </a>
+                <div class="balance-pill" id="balancePill">
+                    <i class="ri-wallet-3-line"></i>
+                    <span id="balanceDisplay">$0.00000</span>
+                </div>
             </div>
         </header>
 
