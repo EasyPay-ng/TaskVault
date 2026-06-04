@@ -302,70 +302,6 @@
             box-shadow: var(--shadow-md);
         }
 
-        /* ==================== BOTTOM NAV ==================== */
-        .bottom-nav {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: var(--white);
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            padding: 8px 16px 16px;
-            box-shadow: 0 -4px 20px rgba(0,0,0,0.04);
-            border-top-left-radius: 24px;
-            border-top-right-radius: 24px;
-            z-index: 1000;
-            flex-shrink: 0;
-        }
-
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-light);
-            text-decoration: none;
-            font-size: 9px;
-            gap: 3px;
-            transition: all 0.3s ease;
-            padding: 6px 14px;
-            border-radius: 14px;
-            font-weight: 500;
-            position: relative;
-        }
-
-        .nav-item i {
-            font-size: 20px;
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        .nav-item.active {
-            color: var(--orange-main);
-            background: var(--orange-light);
-        }
-
-        .nav-item.active i {
-            transform: translateY(-2px) scale(1.1);
-        }
-
-        .nav-item.active::before {
-            content: '';
-            position: absolute;
-            top: -2px;
-            width: 16px;
-            height: 3px;
-            background: var(--orange-main);
-            border-radius: 2px;
-            opacity: 0;
-            animation: dotIn 0.3s ease forwards;
-        }
-
-        @keyframes dotIn {
-            to { opacity: 1; top: 2px; }
-        }
-
         /* ==================== TOAST ==================== */
         .toast {
             position: fixed;
@@ -423,7 +359,7 @@
                 </a>
                 <div class="balance-pill" id="balancePill">
                     <i class="ri-wallet-3-line"></i>
-                    <span id="balanceDisplay">$0.00000</span>
+                    <span id="balanceDisplay">$0.000000</span>
                 </div>
             </div>
         </header>
@@ -454,26 +390,6 @@
                 sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"
             ></iframe>
         </div>
-
-        <!-- BOTTOM NAV -->
-        <nav class="bottom-nav">
-            <a href="menu.html" class="nav-item">
-                <i class="ri-apps-line"></i>
-                <span>Menu</span>
-            </a>
-            <a href="deposit.html" class="nav-item">
-                <i class="ri-wallet-3-line"></i>
-                <span>Deposit</span>
-            </a>
-            <a href="withdraw.html" class="nav-item">
-                <i class="ri-upload-2-line"></i>
-                <span>Withdraw</span>
-            </a>
-            <a href="profile.html" class="nav-item">
-                <i class="ri-user-3-line"></i>
-                <span>Profile</span>
-            </a>
-        </nav>
     </div>
 
     <div id="toast" class="toast">Message</div>
@@ -638,19 +554,6 @@
             toast.classList.add('show');
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
-
-        // ==================== NAV ACTIVE STATE ====================
-        document.addEventListener('DOMContentLoaded', () => {
-            const currentPage = window.location.pathname.split('/').pop();
-            document.querySelectorAll('.nav-item').forEach(item => {
-                const href = item.getAttribute('href');
-                if (href === currentPage) {
-                    item.classList.add('active');
-                } else {
-                    item.classList.remove('active');
-                }
-            });
-        });
     </script>
 </body>
 </html>
