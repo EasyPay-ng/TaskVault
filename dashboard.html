@@ -496,11 +496,11 @@
         .stat-pill.up { color: #86efac; }
         .stat-pill.down { color: #fca5a5; }
 
-        /* ==================== QUICK ACTIONS ==================== */
+        /* ==================== QUICK ACTIONS (3 COLUMNS) ==================== */
         .quick-actions {
             padding: 0 20px 12px;
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 8px;
         }
 
@@ -536,9 +536,6 @@
         }
         .action-icon.withdraw {
             background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
-        }
-        .action-icon.transfer {
-            background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
         }
         .action-icon.offers {
             background: linear-gradient(135deg, #FF8C42 0%, #FF6B35 100%);
@@ -1046,7 +1043,7 @@
                 </div>
             </section>
 
-            <!-- QUICK ACTIONS -->
+            <!-- QUICK ACTIONS (3 items: Deposit, Withdraw, Offers) -->
             <section class="quick-actions fade-in delay-2">
                 <a href="deposit.html" class="action-btn">
                     <div class="action-icon deposit">
@@ -1059,12 +1056,6 @@
                         <i class="ri-upload-2-line"></i>
                     </div>
                     <span>Withdraw</span>
-                </a>
-                <a href="transfer.html" class="action-btn">
-                    <div class="action-icon transfer">
-                        <i class="ri-send-plane-line"></i>
-                    </div>
-                    <span>Transfer</span>
                 </a>
                 <a href="offers.html" class="action-btn">
                     <div class="action-icon offers">
@@ -1680,4 +1671,4 @@
         });
     </script>
 </body>
-    </html>
+</html>
