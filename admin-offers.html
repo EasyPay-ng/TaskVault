@@ -475,14 +475,15 @@
             }
         });
 
-        // FETCH USING THE COLLECTION GROUP SHORTCUT
+        // FETCH USING THE 2-FIELD COLLECTION GROUP INDEX MATCH
         async function fetchTransactions(isLoadMore = false) {
             if (isLoading) return;
             isLoading = true;
 
             try {
-                // Scans every 'offers' subcollection across your Firestore setup automatically
+                // Matches your Firestore compound index settings exactly: status + timestamp
                 let query = db.collectionGroup('offers')
+                    .where('status', 'in', ['1', '0', 'completed', 'rejected'])
                     .orderBy('timestamp', 'desc')
                     .limit(25);
 
@@ -502,10 +503,10 @@
                 snapshot.forEach(doc => {
                     const data = doc.data();
                     
-                    // Fallback to identify UID using parent folders if subId isn't loaded
+                    // Fallback to identify UID using parent path structures if subId isn't accessible
                     const generatedUid = doc.ref.parent.parent ? doc.ref.parent.parent.id : 'Unknown';
 
-                    // PARSE REAL FIELDS: subId, offer_name, userIp, reward, status
+                    // MAP RAW PARAMS: subId, offer_name, userIp, reward, status
                     fetchedRows.push({
                         id: doc.id, 
                         userId: data.subId || generatedUid,
@@ -535,8 +536,8 @@
                     snapshot.docs.length === 25 ? 'block' : 'none';
 
             } catch (error) {
-                console.error("Firestore loading failure:", error);
-                showToast("Missing Index! Click link in browser console logs.", "error");
+                console.error("Firestore composite loading failure:", error);
+                showToast("Index syncing or query mismatch issue.", "error");
             } finally {
                 isLoading = false;
             }
@@ -704,6 +705,3 @@
     </script>
 </body>
 </html>
-
-```
-
