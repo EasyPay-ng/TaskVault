@@ -506,10 +506,7 @@
                     const data = doc.data();
                     const generatedUid = doc.ref.parent.parent ? doc.ref.parent.parent.id : 'Unknown';
 
-                    // ================= HARDCORE REWARD KEY PARSER =================
-                    // Check every single key variant that could contain the transaction points value
                     let finalAmount = 0;
-                    
                     const possibleKeys = [
                         data.reward, data.amount, data.payout, data.points, 
                         data.reward_amount, data.coin, data.coins, data.value
@@ -517,7 +514,6 @@
 
                     for (let val of possibleKeys) {
                         if (val !== undefined && val !== null && val !== '') {
-                            // Convert to absolute string, strip out negative dashes or currency symbols
                             let cleanStr = String(val).replace(/[-+$]/g, '').trim();
                             let parsed = parseFloat(cleanStr);
                             if (!isNaN(parsed) && parsed !== 0) {
@@ -527,7 +523,6 @@
                         }
                     }
 
-                    // Strict database structural mapping logic
                     let rawStatus = String(data.status || 'pending').toLowerCase();
                     let cleanStatus = 'pending';
                     if (rawStatus === '1' || rawStatus === 'completed' || rawStatus === 'approved') {
@@ -558,6 +553,7 @@
 
                 lastDoc = snapshot.docs[snapshot.docs.length - 1] || null;
                 
+                // updateStats logic called directly to handle rendering live data
                 updateStats();
                 renderTransactions();
                 
@@ -573,24 +569,40 @@
             }
         }
 
+        // DYNAMIC MATH: Figures calculate on whatever matches current search queries and chip filters!
         function updateStats() {
-            const totalTx = allTransactions.length;
-            
-            // Total coins handles calculations correctly even if status fields are marked raw rejected
-            const totalPaid = allTransactions
-                .reduce((sum, t) => sum + t.amount, 0);
-                
-            const pending = allTransactions.filter(t => t.status === 'pending').length;
-            const rejected = allTransactions.filter(t => t.status === 'rejected').length;
+            // Apply chip filter first
+            let activeDataset = allTransactions;
+            if (currentFilter !== 'all') {
+                activeDataset = activeDataset.filter(t => t.status === currentFilter);
+            }
+
+            // Apply text query matching criteria instantly
+            if (searchQuery) {
+                const q = searchQuery.toLowerCase();
+                activeDataset = activeDataset.filter(t => 
+                    t.userId.toLowerCase().includes(q) ||
+                    t.offerId.toLowerCase().includes(q) ||
+                    t.username.toLowerCase().includes(q) ||
+                    t.offerName.toLowerCase().includes(q)
+                );
+            }
+
+            // Recalculate stats based on filtered selection profile
+            const totalTx = activeDataset.length;
+            const totalPaid = activeDataset.reduce((sum, t) => sum + t.amount, 0);
+            const pending = activeDataset.filter(t => t.status === 'pending').length;
+            const rejected = activeDataset.filter(t => t.status === 'rejected').length;
 
             const now = new Date();
             const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-            const todayTxs = allTransactions.filter(t => {
+            const todayTxs = activeDataset.filter(t => {
                 const txDate = t.timestamp?.toDate ? t.timestamp.toDate() : new Date(t.timestamp || 0);
                 return txDate >= startOfDay;
             });
             const todayVolume = todayTxs.reduce((sum, t) => sum + t.amount, 0);
 
+            // Print figures live to UI
             document.getElementById('statTotalTx').textContent = totalTx;
             document.getElementById('statTotalPaid').textContent = totalPaid.toFixed(4);
             document.getElementById('statPending').textContent = pending;
@@ -691,6 +703,7 @@
 
         function handleSearch() {
             searchQuery = document.getElementById('searchInput').value.trim();
+            updateStats(); // Force figures to instantly update
             renderTransactions();
         }
 
@@ -699,6 +712,7 @@
             document.querySelectorAll('.filter-chip').forEach(chip => {
                 chip.classList.toggle('active', chip.dataset.filter === filter);
             });
+            updateStats(); // Force figures to instantly update
             renderTransactions();
         }
 
@@ -742,4 +756,3 @@
     </script>
 </body>
 </html>
-
