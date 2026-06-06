@@ -126,7 +126,7 @@
             gap: 8px;
         }
 
-        .history-btn {
+        .icon-btn {
             width: 36px;
             height: 36px;
             border-radius: 10px;
@@ -143,18 +143,18 @@
             position: relative;
         }
 
-        .history-btn:hover {
+        .icon-btn:hover {
             background: var(--orange-main);
             color: white;
         }
 
-        .history-btn .badge {
+        .icon-btn .badge {
             position: absolute;
             top: -2px;
             right: -2px;
             width: 14px;
             height: 14px;
-            background: var(--danger);
+            background: #EF4444;
             color: white;
             border-radius: 50%;
             font-size: 8px;
@@ -354,7 +354,10 @@
                 </div>
             </div>
             <div class="header-right">
-                <a href="offer-history.html" class="history-btn" title="Offer History">
+                <button class="icon-btn" id="openFullBtn" title="Open Full Screen" onclick="openFullOfferwall()">
+                    <i class="ri-external-link-line"></i>
+                </button>
+                <a href="offer-history.html" class="icon-btn" title="Offer History">
                     <i class="ri-history-line"></i>
                 </a>
                 <div class="balance-pill" id="balancePill">
@@ -417,6 +420,7 @@
 
         let currentUser = null;
         let userData = null;
+        let offerwallUrl = '';
 
         // BitcoTask config
         const BITCOTASK_PUBLISHER_ID = 'tbu29ve20maefttxlnv0938gl5syyt';
@@ -443,7 +447,6 @@
                     updateBalanceDisplay(userData.balance || 0);
                     loadOfferwall(uid);
                 } else {
-                    // Create new user profile
                     const newProfile = {
                         balance: 0.00,
                         plan: null,
@@ -471,22 +474,18 @@
             const loadingOverlay = document.getElementById('loadingOverlay');
             const errorState = document.getElementById('errorState');
 
-            // Build offerwall URL with user ID
-            const offerwallUrl = `${BITCOTASK_BASE_URL}/${BITCOTASK_PUBLISHER_ID}/${userId}`;
+            // Build and store offerwall URL
+            offerwallUrl = `${BITCOTASK_BASE_URL}/${BITCOTASK_PUBLISHER_ID}/${userId}`;
 
-            // Set iframe source
             iframe.src = offerwallUrl;
 
-            // Handle iframe load
             iframe.onload = function() {
                 loadingOverlay.classList.add('hidden');
                 errorState.classList.remove('show');
             };
 
-            // Handle iframe error (timeout fallback)
             setTimeout(() => {
                 if (!iframe.contentWindow || iframe.contentWindow.length === 0) {
-                    // If still loading after 10s, show error
                     if (!loadingOverlay.classList.contains('hidden')) {
                         showError();
                     }
@@ -514,8 +513,16 @@
             document.getElementById('errorState').classList.add('show');
         }
 
+        // ==================== OPEN FULL OFFERWALL ====================
+        function openFullOfferwall() {
+            if (!offerwallUrl) {
+                showToast("Offers still loading, please wait...", "info");
+                return;
+            }
+            window.open(offerwallUrl, '_blank');
+        }
+
         // ==================== REAL-TIME BALANCE SYNC ====================
-        // Listen for balance updates (from postback credits)
         function startBalanceListener(uid) {
             db.collection('users').doc(uid).onSnapshot((doc) => {
                 if (doc.exists) {
@@ -523,7 +530,6 @@
                     const newBalance = data.balance || 0;
                     updateBalanceDisplay(newBalance);
                     
-                    // If balance increased, show toast
                     if (userData && newBalance > (userData.balance || 0)) {
                         const earned = newBalance - (userData.balance || 0);
                         showToast(`+$${earned.toFixed(6)} from offer!`, 'success');
@@ -536,7 +542,6 @@
             });
         }
 
-        // Start listener once user is loaded
         auth.onAuthStateChanged((user) => {
             if (user) {
                 startBalanceListener(user.uid);
@@ -550,7 +555,7 @@
             let icon = 'ri-information-line';
             if (type === 'success') icon = 'ri-checkbox-circle-line';
             if (type === 'error') icon = 'ri-close-circle-line';
-            toast.innerHTML = `<i class="ri-${icon}"></i> ${message}`;
+            toast.innerHTML = `<i class="${icon}"></i> ${message}`;
             toast.classList.add('show');
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
