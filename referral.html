@@ -47,6 +47,9 @@
       max-width:1200px;
       margin:0 auto;
       width:95%;
+      display:flex;
+      align-items:center;
+      gap:12px;
     }
     .btn-back{
       background:var(--card);
@@ -70,6 +73,281 @@
       border-color:var(--orange);
       transform:translateY(-1px);
       box-shadow:var(--shadow);
+    }
+
+    /* Help Button */
+    .btn-help{
+      background:var(--card);
+      border:2px solid #fed7aa;
+      color:var(--orange-dark);
+      width:42px;
+      height:42px;
+      border-radius:50%;
+      cursor:pointer;
+      font-weight:700;
+      font-size:1.1rem;
+      transition:all .2s ease;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      box-shadow:var(--shadow-sm);
+      flex-shrink:0;
+    }
+    .btn-help:hover{
+      background:var(--orange);
+      color:#fff;
+      border-color:var(--orange);
+      transform:translateY(-1px) scale(1.05);
+      box-shadow:var(--shadow);
+    }
+    .btn-help i{
+      font-size:1rem;
+    }
+
+    /* Overlay Backdrop */
+    .overlay-backdrop{
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      height:100%;
+      background:rgba(0,0,0,0.5);
+      backdrop-filter:blur(4px);
+      z-index:4000;
+      opacity:0;
+      visibility:hidden;
+      transition:all .3s ease;
+    }
+    .overlay-backdrop.active{
+      opacity:1;
+      visibility:visible;
+    }
+
+    /* Overlay Panel */
+    .overlay-panel{
+      position:fixed;
+      top:50%;
+      left:50%;
+      transform:translate(-50%, -50%) scale(0.85);
+      background:var(--card);
+      border-radius:var(--radius-xl);
+      padding:0;
+      max-width:520px;
+      width:90%;
+      max-height:85vh;
+      overflow-y:auto;
+      z-index:4001;
+      box-shadow:var(--shadow-xl), 0 0 0 1px rgba(249,115,22,0.1);
+      opacity:0;
+      visibility:hidden;
+      transition:all .4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .overlay-panel.active{
+      opacity:1;
+      visibility:visible;
+      transform:translate(-50%, -50%) scale(1);
+    }
+
+    /* Overlay Header */
+    .overlay-header{
+      background:linear-gradient(135deg, var(--orange) 0%, var(--orange-dark) 100%);
+      color:#fff;
+      padding:24px 28px;
+      position:relative;
+      border-radius:var(--radius-xl) var(--radius-xl) 0 0;
+    }
+    .overlay-header h2{
+      font-size:1.35rem;
+      font-weight:800;
+      margin:0;
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .overlay-header h2 i{
+      font-size:1.1rem;
+    }
+    .overlay-header p{
+      margin:6px 0 0;
+      font-size:.85rem;
+      opacity:0.9;
+      font-weight:500;
+    }
+
+    /* Close Button */
+    .btn-close-overlay{
+      position:absolute;
+      top:16px;
+      right:16px;
+      background:rgba(255,255,255,0.2);
+      border:none;
+      color:#fff;
+      width:36px;
+      height:36px;
+      border-radius:50%;
+      cursor:pointer;
+      font-size:1rem;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      transition:all .2s ease;
+      backdrop-filter:blur(4px);
+    }
+    .btn-close-overlay:hover{
+      background:rgba(255,255,255,0.35);
+      transform:rotate(90deg);
+    }
+
+    /* Overlay Body */
+    .overlay-body{
+      padding:24px 28px;
+    }
+
+    /* Reward Card */
+    .reward-card{
+      background:var(--orange-light);
+      border:2px solid #fed7aa;
+      border-radius:var(--radius);
+      padding:20px;
+      margin-bottom:20px;
+      position:relative;
+      overflow:hidden;
+      transition:all .2s ease;
+    }
+    .reward-card:hover{
+      transform:translateY(-2px);
+      box-shadow:var(--shadow);
+    }
+    .reward-card::before{
+      content:'';
+      position:absolute;
+      top:0;
+      left:0;
+      width:4px;
+      height:100%;
+      background:var(--orange);
+      border-radius:var(--radius) 0 0 var(--radius);
+    }
+    .reward-card-header{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      margin-bottom:12px;
+    }
+    .reward-icon{
+      width:40px;
+      height:40px;
+      border-radius:var(--radius-sm);
+      background:linear-gradient(135deg, var(--orange) 0%, var(--orange-dark) 100%);
+      color:#fff;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:1.1rem;
+      flex-shrink:0;
+      box-shadow:0 4px 12px rgba(249,115,22,0.3);
+    }
+    .reward-card-header h3{
+      font-size:1.05rem;
+      font-weight:700;
+      color:#1f2937;
+      margin:0;
+    }
+    .reward-card-header .amount{
+      margin-left:auto;
+      font-size:1.3rem;
+      font-weight:800;
+      color:var(--orange-dark);
+    }
+    .reward-desc{
+      color:var(--muted);
+      font-size:.9rem;
+      line-height:1.6;
+      margin:0;
+    }
+    .reward-desc strong{
+      color:#1f2937;
+    }
+
+    /* Example Box */
+    .example-box{
+      background:#fefce8;
+      border:2px solid #fde047;
+      border-radius:var(--radius);
+      padding:20px;
+      margin-top:20px;
+      position:relative;
+    }
+    .example-box::before{
+      content:'💡';
+      position:absolute;
+      top:-14px;
+      left:20px;
+      background:#fefce8;
+      padding:0 8px;
+      font-size:1.2rem;
+    }
+    .example-box h4{
+      font-size:1rem;
+      font-weight:700;
+      color:#854d0e;
+      margin-bottom:12px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .example-item{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding:10px 0;
+      border-bottom:1px dashed #fde047;
+    }
+    .example-item:last-child{
+      border-bottom:none;
+    }
+    .example-icon{
+      width:32px;
+      height:32px;
+      border-radius:50%;
+      background:#fde047;
+      color:#854d0e;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:.85rem;
+      font-weight:700;
+      flex-shrink:0;
+    }
+    .example-text{
+      flex:1;
+      font-size:.9rem;
+      color:#713f12;
+      line-height:1.5;
+    }
+    .example-result{
+      font-weight:800;
+      color:var(--orange-dark);
+      font-size:1.1rem;
+      white-space:nowrap;
+    }
+
+    /* Footer Note */
+    .overlay-footer{
+      margin-top:20px;
+      padding-top:16px;
+      border-top:2px dashed #e5e7eb;
+      text-align:center;
+    }
+    .overlay-footer p{
+      color:var(--muted);
+      font-size:.85rem;
+      font-weight:500;
+      margin:0;
+    }
+    .overlay-footer .highlight{
+      color:var(--orange-dark);
+      font-weight:700;
     }
 
     /* Header */
@@ -149,6 +427,8 @@
       display:flex;
       align-items:center;
       gap:.4rem;
+      position:relative;
+      z-index:10;
     }
     .btn-copy:hover{
       background:rgba(255,255,255,0.3);
@@ -441,6 +721,8 @@
       .ref-box{flex-direction:column;align-items:flex-end;gap:8px}
       header{flex-direction:column;gap:12px;align-items:flex-start}
       .brand{font-size:1rem}
+      .overlay-panel{width:95%;max-height:90vh}
+      .top-btn-container{gap:8px}
     }
   </style>
 </head>
@@ -465,11 +747,87 @@
     </div>
   </header>
 
-  <!-- Back Button (now below header) -->
+  <!-- Back Button + Help Button -->
   <div class="top-btn-container">
     <button id="backBtn" class="btn-back">
       <i class="fas fa-arrow-left"></i> Back to Dashboard
     </button>
+    <button id="helpBtn" class="btn-help" title="How Referral Rewards Work">
+      <i class="fas fa-question"></i>
+    </button>
+  </div>
+
+  <!-- Referral Rewards Overlay -->
+  <div id="overlayBackdrop" class="overlay-backdrop"></div>
+  <div id="overlayPanel" class="overlay-panel">
+    <div class="overlay-header">
+      <button id="closeOverlayBtn" class="btn-close-overlay">
+        <i class="fas fa-times"></i>
+      </button>
+      <h2><i class="fas fa-gift"></i> Referral Rewards Breakdown</h2>
+      <p>Here's how you earn from every referral you bring to TaskVault</p>
+    </div>
+    <div class="overlay-body">
+      <!-- Activation Bonus -->
+      <div class="reward-card">
+        <div class="reward-card-header">
+          <div class="reward-icon">
+            <i class="fas fa-bolt"></i>
+          </div>
+          <h3>Activation Bonus</h3>
+          <div class="amount">$0.50</div>
+        </div>
+        <p class="reward-desc">
+          When your referral <strong>activates their account</strong> (upgrades to Silver plan or higher), 
+          you instantly receive a <strong>$0.50 commission</strong> credited to your referral balance.
+        </p>
+      </div>
+
+      <!-- Lifetime Earnings -->
+      <div class="reward-card">
+        <div class="reward-card-header">
+          <div class="reward-icon">
+            <i class="fas fa-infinity"></i>
+          </div>
+          <h3>Lifetime Earnings</h3>
+          <div class="amount">5%</div>
+        </div>
+        <p class="reward-desc">
+          You earn <strong>5% of your referral's total earnings withdrawn</strong> for life. 
+          Every time they withdraw earnings from tasks, games, or activities, you get a 5% cut.
+        </p>
+      </div>
+
+      <!-- Example Calculation -->
+      <div class="example-box">
+        <h4><i class="fas fa-calculator"></i> Real Example</h4>
+        <div class="example-item">
+          <div class="example-icon">1</div>
+          <div class="example-text">Each referral earns <strong>$10 per week</strong></div>
+        </div>
+        <div class="example-item">
+          <div class="example-icon">2</div>
+          <div class="example-text">You have <strong>20 active referrals</strong></div>
+        </div>
+        <div class="example-item">
+          <div class="example-icon">%</div>
+          <div class="example-text">5% of $10 = <strong>$0.50 per referral/week</strong></div>
+        </div>
+        <div class="example-item">
+          <div class="example-icon">=</div>
+          <div class="example-text">20 referrals × $0.50</div>
+          <div class="example-result">$10/week</div>
+        </div>
+      </div>
+
+      <!-- Footer Note -->
+      <div class="overlay-footer">
+        <p>
+          <i class="fas fa-lightbulb" style="color:var(--orange);margin-right:4px;"></i>
+          The more active referrals you have, the more you earn — <span class="highlight">passive income for life!</span>
+        </p>
+      </div>
+    </div>
   </div>
 
   <!-- Stats Row -->
@@ -590,6 +948,10 @@
     const refreshBtn = document.getElementById('refreshBtn');
     const withdrawBtn = document.getElementById('withdrawBtn');
     const backBtn = document.getElementById('backBtn');
+    const helpBtn = document.getElementById('helpBtn');
+    const overlayBackdrop = document.getElementById('overlayBackdrop');
+    const overlayPanel = document.getElementById('overlayPanel');
+    const closeOverlayBtn = document.getElementById('closeOverlayBtn');
 
     let allRefs = [];
     let activatedRefs = [];
@@ -611,7 +973,7 @@
     }
 
     function escapeHtml(str){
-      return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]);
+      return String(str).replace(/[&<<>"']/g, m => ({'&':'&amp;','<<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]);
     }
 
     function renderRows(list, container){
@@ -656,16 +1018,86 @@
 
     searchInput.addEventListener('input', applyFilter);
 
-    // Copy referral link
+    // Overlay functions
+    function openOverlay() {
+      overlayBackdrop.classList.add('active');
+      overlayPanel.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeOverlay() {
+      overlayBackdrop.classList.remove('active');
+      overlayPanel.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    helpBtn.addEventListener('click', openOverlay);
+    closeOverlayBtn.addEventListener('click', closeOverlay);
+    overlayBackdrop.addEventListener('click', closeOverlay);
+
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && overlayBackdrop.classList.contains('active')) {
+        closeOverlay();
+      }
+    });
+
+    // Fallback copy function for HTTP/non-secure contexts
+    function fallbackCopy(text) {
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-9999px';
+      textArea.style.top = '0';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      
+      try {
+        const successful = document.execCommand('copy');
+        document.body.removeChild(textArea);
+        return successful;
+      } catch (err) {
+        document.body.removeChild(textArea);
+        return false;
+      }
+    }
+
+    // Copy referral link with fallback
     copyBtn.addEventListener('click', async ()=>{
+      console.log('Copy button clicked');
       const code = refCodeEl.textContent || '';
-      if(code === 'Loading...') return;
+      console.log('Code:', code);
+      
+      if(code === 'Loading...') {
+        showToast('Please wait for data to load', 'error');
+        return;
+      }
       
       const encoded = encodeURIComponent(code);
       const url = `https://taskvault.name.ng/register?ref=${encoded}`;
+      console.log('URL to copy:', url);
       
-      try{
-        await navigator.clipboard.writeText(url);
+      let copied = false;
+      
+      // Try modern clipboard API first
+      if (navigator.clipboard && window.isSecureContext) {
+        try {
+          await navigator.clipboard.writeText(url);
+          copied = true;
+          console.log('Copied via navigator.clipboard');
+        } catch (err) {
+          console.log('navigator.clipboard failed:', err);
+        }
+      }
+      
+      // Fallback to execCommand
+      if (!copied) {
+        copied = fallbackCopy(url);
+        console.log('Fallback copy result:', copied);
+      }
+      
+      if (copied) {
         copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied';
         copyBtn.classList.add('copied');
         showToast('Referral link copied to clipboard!');
@@ -674,8 +1106,8 @@
           copyBtn.innerHTML = '<i class="fas fa-link"></i> Copy Link';
           copyBtn.classList.remove('copied');
         }, 2000);
-      }catch(err){
-        showToast('Failed to copy link', 'error');
+      } else {
+        showToast('Unable to copy. Please copy manually: ' + url, 'error');
       }
     });
 
