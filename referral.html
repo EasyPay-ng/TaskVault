@@ -961,7 +961,7 @@
     let unsubscribeSnapshot = null;
 
     const SILVER_PLANS = ['silver', 'gold', 'premium', 'elite', 'diamond', 'platinum'];
-    const REFERRAL_COMMISSION = 1.0; // Changed from 0.5 to 1.0
+    const REFERRAL_COMMISSION = 1.0;
 
     function fmtDate(ts){
       try{
@@ -1018,7 +1018,6 @@
 
     searchInput.addEventListener('input', applyFilter);
 
-    // Overlay functions
     function openOverlay() {
       overlayBackdrop.classList.add('active');
       overlayPanel.classList.add('active');
@@ -1035,14 +1034,12 @@
     closeOverlayBtn.addEventListener('click', closeOverlay);
     overlayBackdrop.addEventListener('click', closeOverlay);
 
-    // Close on Escape key
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && overlayBackdrop.classList.contains('active')) {
         closeOverlay();
       }
     });
 
-    // Fallback copy function for HTTP/non-secure contexts
     function fallbackCopy(text) {
       const textArea = document.createElement('textarea');
       textArea.value = text;
@@ -1063,12 +1060,8 @@
       }
     }
 
-    // Copy referral link with fallback
     copyBtn.addEventListener('click', async ()=>{
-      console.log('Copy button clicked');
       const code = refCodeEl.textContent || '';
-      console.log('Code:', code);
-      
       if(code === 'Loading...') {
         showToast('Please wait for data to load', 'error');
         return;
@@ -1076,25 +1069,18 @@
       
       const encoded = encodeURIComponent(code);
       const url = `https://taskvault.name.ng/register?ref=${encoded}`;
-      console.log('URL to copy:', url);
       
       let copied = false;
       
-      // Try modern clipboard API first
       if (navigator.clipboard && window.isSecureContext) {
         try {
           await navigator.clipboard.writeText(url);
           copied = true;
-          console.log('Copied via navigator.clipboard');
-        } catch (err) {
-          console.log('navigator.clipboard failed:', err);
-        }
+        } catch (err) {}
       }
       
-      // Fallback to execCommand
       if (!copied) {
         copied = fallbackCopy(url);
-        console.log('Fallback copy result:', copied);
       }
       
       if (copied) {
@@ -1121,7 +1107,6 @@
 
     backBtn.addEventListener('click', ()=> location.href='dashboard.html');
 
-    // Withdraw referral balance to main balance
     withdrawBtn.addEventListener('click', async ()=>{
       if(!currentUser) return;
       if(referralBalance <= 0){
@@ -1157,7 +1142,6 @@
       }
     });
 
-    // Tab switching
     document.querySelectorAll('.tab').forEach(t => {
       t.addEventListener('click', e => {
         document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
@@ -1187,7 +1171,6 @@
       }, 3000);
     }
 
-    // Real-time listener for referral activations
     function setupRealtimeListener(myCode){
       if(unsubscribeSnapshot) unsubscribeSnapshot();
       
@@ -1198,22 +1181,18 @@
           const d = change.doc.data();
           const docId = change.doc.id;
           
-          // Skip if it's the current user
           if(docId === currentUser.uid) return;
           if(!d.username) return;
           
           const plan = (d.plan || '').toLowerCase();
           const alreadyCredited = d.referralCredited === true;
           
-          // If plan is silver+ and not yet credited
           if(SILVER_PLANS.includes(plan) && !alreadyCredited){
             try{
-              // Credit the referrer
               await updateDoc(currentUserRef, {
                 referralBalance: increment(REFERRAL_COMMISSION)
               });
               
-              // Mark as credited
               await updateDoc(change.doc.ref, {
                 referralCredited: true,
                 referralCreditedAt: new Date()
@@ -1224,7 +1203,6 @@
               
               showToast(`+$${REFERRAL_COMMISSION.toFixed(2)} from ${d.username || 'a referral'}!`);
               
-              // Refresh table data
               await loadData(myCode);
             }catch(err){
               console.error('Auto-credit failed:', err);
@@ -1247,7 +1225,6 @@
       referralBalance = Number(myData.referralBalance || 0);
       referralBalanceEl.textContent = `$${referralBalance.toFixed(2)}`;
       
-      // Setup real-time listener for new activations
       setupRealtimeListener(myCode);
       
       await loadData(myCode);
@@ -1266,7 +1243,6 @@
 
         snap.forEach(docSnap => {
           const d = docSnap.data() || {};
-          // Skip current user
           if(docSnap.id === currentUser?.uid) return;
           
           const user = {
@@ -1302,4 +1278,4 @@
     }
   </script>
 </body>
-        </html>
+</html>
