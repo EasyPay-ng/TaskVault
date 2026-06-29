@@ -722,7 +722,7 @@
                 <p>One-time activation unlocks your full TaskVault experience — games, tasks, rewards & more forever.</p>
                 <div class="price-badge">
                     <i class="fa-solid fa-bolt"></i>
-                    $1.00 <span class="once">one-time only</span>
+                    $2.00 <span class="once">one-time only</span>
                 </div>
             </div>
 
@@ -734,7 +734,7 @@
                 </div>
                 <div style="text-align: right;">
                     <div class="label">Required</div>
-                    <div class="value">$1.00</div>
+                    <div class="value">$2.00</div>
                 </div>
             </div>
 
@@ -828,7 +828,7 @@
             <div class="promo-banner fade-in delay-3">
                 <div class="promo-emoji">🎯</div>
                 <div class="promo-text">
-                    <h4>Limited Time — Only $1!</h4>
+                    <h4>Limited Time — Only $2!</h4>
                     <p>This offer won't last forever. Join thousands of members already earning on TaskVault.</p>
                 </div>
             </div>
@@ -842,16 +842,16 @@
                 <div class="activation-card">
                     <div class="notice">
                         <i class="fa-solid fa-circle-info"></i>
-                        <strong>Important:</strong> $1.00 will be deducted from your TaskVault balance. Make sure you have sufficient funds.
+                        <strong>Important:</strong> $2.00 will be deducted from your TaskVault balance. Make sure you have sufficient funds.
                     </div>
 
                     <div class="total-row">
                         <span class="total-label">Activation Fee</span>
-                        <span class="total-amount">$1.00</span>
+                        <span class="total-amount">$2.00</span>
                     </div>
 
                     <button class="btn-activate-main" id="activateBtn" onclick="activateAccount()">
-                        <i class="fa-solid fa-crown"></i> Activate Now — $1.00
+                        <i class="fa-solid fa-crown"></i> Activate Now — $2.00
                     </button>
 
                     <p class="secure-note">
@@ -886,7 +886,7 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        const ACTIVATION_FEE = 1.00;
+        const ACTIVATION_FEE = 2.00;
         let currentUser = null;
         let userBalance = 0;
 
@@ -969,7 +969,7 @@
             btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Activating...';
 
             try {
-                // Deduct $1 from balance
+                // Deduct from balance
                 const userRef = db.collection('users').doc(currentUser.uid);
                 await userRef.update({
                     balance: firebase.firestore.FieldValue.increment(-ACTIVATION_FEE),
@@ -1011,7 +1011,7 @@
                 console.error('Activation error:', error);
                 showToast('Activation failed. Please try again.', 'error');
                 btn.disabled = false;
-                btn.innerHTML = '<i class="fa-solid fa-crown"></i> Activate Now — $1.00';
+                btn.innerHTML = '<i class="fa-solid fa-crown"></i> Activate Now — $2.00';
             }
         }
 
