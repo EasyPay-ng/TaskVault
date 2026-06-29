@@ -302,6 +302,114 @@
             box-shadow: var(--shadow-md);
         }
 
+        /* ==================== UPGRADE PROMPT (Silver Plan Gate) ==================== */
+        .upgrade-prompt {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--white);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 16px;
+            padding: 40px;
+            text-align: center;
+            z-index: 70;
+        }
+
+        .upgrade-prompt.show {
+            display: flex;
+        }
+
+        .upgrade-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--orange-light);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            color: var(--orange-main);
+            margin-bottom: 8px;
+        }
+
+        .upgrade-prompt h3 {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .upgrade-prompt p {
+            font-size: 13px;
+            color: var(--text-light);
+            line-height: 1.6;
+            max-width: 280px;
+        }
+
+        .upgrade-features {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+            max-width: 280px;
+            margin: 8px 0;
+        }
+
+        .upgrade-feature {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--orange-light);
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 12px;
+            color: var(--text-dark);
+            font-weight: 500;
+        }
+
+        .upgrade-feature i {
+            color: var(--orange-main);
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .btn-upgrade {
+            background: var(--gradient-orange);
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 14px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            margin-top: 8px;
+            text-decoration: none;
+        }
+
+        .btn-upgrade:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .current-plan-badge {
+            background: #f3f4f6;
+            color: var(--text-light);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
         /* ==================== TOAST ==================== */
         .toast {
             position: fixed;
@@ -385,6 +493,33 @@
                 </button>
             </div>
 
+            <!-- UPGRADE PROMPT (shown when not on Silver plan) -->
+            <div class="upgrade-prompt" id="upgradePrompt">
+                <div class="upgrade-icon">
+                    <i class="ri-vip-crown-line"></i>
+                </div>
+                <span class="current-plan-badge" id="currentPlanBadge">Free Plan</span>
+                <h3>Silver Plan Required</h3>
+                <p>The Offer Wall is exclusively available to Silver plan members. Upgrade now to unlock high-paying offers and boost your earnings.</p>
+                <div class="upgrade-features">
+                    <div class="upgrade-feature">
+                        <i class="ri-checkbox-circle-line"></i>
+                        <span>Access to all offer walls</span>
+                    </div>
+                    <div class="upgrade-feature">
+                        <i class="ri-checkbox-circle-line"></i>
+                        <span>Higher payout rates</span>
+                    </div>
+                    <div class="upgrade-feature">
+                        <i class="ri-checkbox-circle-line"></i>
+                        <span>Priority support</span>
+                    </div>
+                </div>
+                <a href="plans.html" class="btn-upgrade">
+                    <i class="ri-vip-crown-fill"></i> Upgrade to Silver
+                </a>
+            </div>
+
             <iframe 
                 class="offerwall-iframe" 
                 id="offerwallFrame"
@@ -445,7 +580,7 @@
                 if (doc.exists) {
                     userData = doc.data();
                     updateBalanceDisplay(userData.balance || 0);
-                    loadOfferwall(uid);
+                    checkPlanAccess();
                 } else {
                     const newProfile = {
                         balance: 0.00,
@@ -456,7 +591,7 @@
                     await db.collection('users').doc(uid).set(newProfile);
                     userData = newProfile;
                     updateBalanceDisplay(0);
-                    loadOfferwall(uid);
+                    checkPlanAccess();
                 }
             } catch (error) {
                 console.error("Error fetching user data:", error);
@@ -466,6 +601,32 @@
 
         function updateBalanceDisplay(balance) {
             document.getElementById('balanceDisplay').textContent = `$${parseFloat(balance).toFixed(6)}`;
+        }
+
+        // ==================== PLAN ACCESS CONTROL ====================
+        function checkPlanAccess() {
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            const upgradePrompt = document.getElementById('upgradePrompt');
+            const currentPlanBadge = document.getElementById('currentPlanBadge');
+            const openFullBtn = document.getElementById('openFullBtn');
+
+            // Determine plan name for display
+            const plan = userData?.plan;
+            const planName = plan ? plan.charAt(0).toUpperCase() + plan.slice(1) : 'Free';
+            currentPlanBadge.textContent = `${planName} Plan`;
+
+            if (plan === 'silver') {
+                // Silver plan: show offerwall
+                loadOfferwall(currentUser.uid);
+                startBalanceListener(currentUser.uid);
+            } else {
+                // Not Silver: hide loader, show upgrade prompt
+                loadingOverlay.classList.add('hidden');
+                upgradePrompt.classList.add('show');
+                // Disable full-screen button since there's nothing to open
+                openFullBtn.style.opacity = '0.5';
+                openFullBtn.style.pointerEvents = 'none';
+            }
         }
 
         // ==================== OFFERWALL ====================
@@ -515,6 +676,10 @@
 
         // ==================== OPEN FULL OFFERWALL ====================
         function openFullOfferwall() {
+            if (userData?.plan !== 'silver') {
+                showToast("Upgrade to Silver to access offers", "error");
+                return;
+            }
             if (!offerwallUrl) {
                 showToast("Offers still loading, please wait...", "info");
                 return;
@@ -541,12 +706,6 @@
                 console.error("Balance listener error:", error);
             });
         }
-
-        auth.onAuthStateChanged((user) => {
-            if (user) {
-                startBalanceListener(user.uid);
-            }
-        });
 
         // ==================== TOAST ====================
         function showToast(message, type = 'info') {
