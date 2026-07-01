@@ -254,6 +254,88 @@ header img{height:50px;}
   font-size:14px;
 }
 
+/* PARTNERS SECTION */
+.partners-section {
+  padding: 70px 8%;
+  background: #fff;
+  text-align: center;
+}
+.partners-section h2 {
+  font-size: 28px;
+  margin-bottom: 10px;
+}
+.partners-section h2 span {
+  color: #ff7a00;
+}
+.partners-subtitle {
+  color: #666;
+  font-size: 16px;
+  margin-bottom: 40px;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.partners-grid {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 25px;
+  flex-wrap: wrap;
+}
+.partner-card {
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 14px;
+  padding: 30px;
+  max-width: 500px;
+  text-align: left;
+  text-decoration: none;
+  color: inherit;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.03);
+  transition: .3s;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+.partner-card:hover {
+  transform: translateY(-5px);
+  border-color: #ff7a00;
+  box-shadow: 0 8px 25px rgba(255,122,0,0.1);
+}
+.partner-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+.partner-logo {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #ff7a00;
+}
+.partner-info h3 {
+  font-size: 18px;
+  margin: 0;
+}
+.partner-tag {
+  font-size: 12px;
+  color: #ff7a00;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.partner-desc {
+  color: #666;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.partner-link {
+  font-size: 14px;
+  color: #ff7a00;
+  font-weight: 600;
+  margin-top: auto;
+}
+
 /* FAQ */
 .faq{
   padding:70px 20px;
@@ -364,7 +446,7 @@ footer{
   }
 }
 </style>
-</head>
+</head> head closing tag and start of body -->
 
 <body>
 
@@ -493,6 +575,28 @@ footer{
   </div>
 </section>
 
+<!-- NEW PARTNERS SECTION -->
+<section class="partners-section">
+  <h2>Our Strategic <span>Partners</span></h2>
+  <p class="partners-subtitle">Collaborating with industry-leading platforms to expand your web ecosystem.</p>
+  
+  <div class="partners-grid">
+    <a href="https://genesisvault.xyz" target="_blank" class="partner-card">
+      <div class="partner-header">
+        <img src="109008.jpg" alt="GenesisVault Logo" class="partner-logo">
+        <div class="partner-info">
+          <h3>GenesisVault</h3>
+          <span class="partner-tag">Cybersecurity Hub</span>
+        </div>
+      </div>
+      <p class="partner-desc">
+        GenesisVault is an elite cybersecurity platform designed to bridge the gap between theoretical knowledge and real-world defense. It serves as an educational hub to learn ethical hacking, offers an exclusive marketplace for security tools, and hosts advanced interactive labs to practice threat neutralization.
+      </p>
+      <div class="partner-link">Explore Platform <i class="fas fa-arrow-right"></i></div>
+    </a>
+  </div>
+</section>
+
 <section class="faq">
   <h2>Frequently Asked Questions</h2>
 
@@ -542,4 +646,5 @@ function toggleFAQ(el){
 </script>
 
 </body>
-  </html>
+</html>
+
