@@ -844,6 +844,12 @@
     <a href="admin-offers.html" class="quick-action stakes">
       <i class="ri-coins-line"></i> Offers
     </a>
+    <a href="kyc.html" class="quick-action" style="border-color:var(--purple-light);">
+      <i class="ri-shield-check-line" style="color:var(--purple);"></i> KYC
+    </a>
+    <a href="admin-stakes.html" class="quick-action stakes">
+      <i class="ri-bar-chart-box-line"></i> Stakes
+    </a>
     <a href="adverts.html" class="quick-action ads">
       <i class="ri-advertisement-line"></i> View Ads
     </a>
@@ -1152,6 +1158,14 @@
     getDocs, where, updateDoc, serverTimestamp
   } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 
+  /*
+   * Firebase Web configuration is not a secret and cannot be hidden in a
+   * browser-delivered HTML file. Do NOT put service-account private keys,
+   * Admin SDK credentials, or other secrets here.
+   *
+   * For production security, move privileged Firestore operations to a
+   * trusted backend/Cloud Function and enforce admin:true in Firestore Rules.
+   */
   const firebaseConfig = {
     apiKey: "AIzaSyAv6QCpopa0Q77AVTyjU5cqJEIKIE9OVTs",
     authDomain: "taskvault-412a0.firebaseapp.com",
@@ -1164,7 +1178,12 @@
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
-  const ADMIN_EMAIL = "beniwealth70@gmail.com";
+  // Client-side allowlist is only a UI gate. Real protection must also be
+  // enforced with Firebase Auth custom claims + Firestore Security Rules.
+  const ADMIN_EMAILS = new Set([
+    "beniwealth70@gmmail.com",
+    "baasituoppor01@gmail.com"
+  ]);
 
   let currentUser = null;
   let allUsers = [];
@@ -1186,12 +1205,35 @@
   };
 
   onAuthStateChanged(auth, async (user) => {
-    if (!user) { location.href = 'login.html'; return; }
-    if (user.email?.toLowerCase() !== ADMIN_EMAIL) {
-      alert('Unauthorized access');
-      signOut(auth).then(() => location.href = 'login.html');
+    if (!user) {
+      location.href = 'login.html';
       return;
     }
+
+    const signedInEmail = (user.email || '').trim().toLowerCase();
+
+    if (!ADMIN_EMAILS.has(signedInEmail)) {
+      alert('Unauthorized access');
+      await signOut(auth);
+      location.href = 'login.html';
+      return;
+    }
+
+    // Optional stronger gate: if you assign an "admin" custom claim,
+    // require it here as well. This prevents the allowlist from being
+    // the only security boundary.
+    try {
+      const tokenResult = await user.getIdTokenResult();
+      if (tokenResult.claims.admin !== true) {
+        console.warn('Admin custom claim is missing for this account.');
+        // Keep the email allowlist gate active for compatibility.
+        // For production, change this to a hard deny after assigning
+        // admin:true to both approved accounts server-side.
+      }
+    } catch (claimError) {
+      console.warn('Could not read admin claim:', claimError);
+    }
+
     currentUser = user;
     await loadUsers();
   });
