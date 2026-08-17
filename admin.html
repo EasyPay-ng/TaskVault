@@ -1129,7 +1129,7 @@
   // Client-side allowlist is only a UI gate. Real protection must also be
   // enforced with Firebase Auth custom claims + Firestore Security Rules.
   const ADMIN_EMAILS = new Set([
-    "beniwealth70@gmmail.com",
+    "beniwealth70@gmail.com",
     "baasituoppor01@gmail.com"
   ]);
 
@@ -1163,8 +1163,23 @@
     if (!ADMIN_EMAILS.has(signedInEmail)) {
       alert('Unauthorized access');
       await signOut(auth);
-      location.href = 'admin.html';
+      location.href = 'login.html';
       return;
+    }
+
+    // Optional stronger gate: if you assign an "admin" custom claim,
+    // require it here as well. This prevents the allowlist from being
+    // the only security boundary.
+    try {
+      const tokenResult = await user.getIdTokenResult();
+      if (tokenResult.claims.admin !== true) {
+        console.warn('Admin custom claim is missing for this account.');
+        // Keep the email allowlist gate active for compatibility.
+        // For production, change this to a hard deny after assigning
+        // admin:true to both approved accounts server-side.
+      }
+    } catch (claimError) {
+      console.warn('Could not read admin claim:', claimError);
     }
 
     currentUser = user;
