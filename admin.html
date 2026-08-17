@@ -1157,15 +1157,6 @@
     getFirestore, doc, getDoc, collection, query, orderBy,
     getDocs, where, updateDoc, serverTimestamp
   } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
-
-  /*
-   * Firebase Web configuration is not a secret and cannot be hidden in a
-   * browser-delivered HTML file. Do NOT put service-account private keys,
-   * Admin SDK credentials, or other secrets here.
-   *
-   * For production security, move privileged Firestore operations to a
-   * trusted backend/Cloud Function and enforce admin:true in Firestore Rules.
-   */
   const firebaseConfig = {
     apiKey: "AIzaSyAv6QCpopa0Q77AVTyjU5cqJEIKIE9OVTs",
     authDomain: "taskvault-412a0.firebaseapp.com",
@@ -1178,10 +1169,8 @@
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
-  // Client-side allowlist is only a UI gate. Real protection must also be
-  // enforced with Firebase Auth custom claims + Firestore Security Rules.
   const ADMIN_EMAILS = new Set([
-    "beniwealth70@gmmail.com",
+    "beniwealth70@gmail.com",
     "baasituoppor01@gmail.com"
   ]);
 
