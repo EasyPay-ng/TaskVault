@@ -129,7 +129,6 @@
     .stat-card.pending::before { background: var(--yellow); }
     .stat-card.verified::before { background: var(--purple); }
     .stat-card.silver::before { background: var(--silver); }
-    .stat-card.email-verified::before { background: var(--green); }
     
     .stat-header {
       display: flex;
@@ -151,7 +150,6 @@
     .stat-card.pending .stat-icon { background: var(--yellow-light); color: var(--yellow); }
     .stat-card.verified .stat-icon { background: var(--purple-light); color: var(--purple); }
     .stat-card.silver .stat-icon { background: var(--silver-light); color: var(--silver); }
-    .stat-card.email-verified .stat-icon { background: var(--green-light); color: var(--green); }
     
     .stat-trend {
       font-size: .75rem;
@@ -358,9 +356,6 @@
     .status-rejected { background: var(--red-light); color: var(--red); }
     .status-none { background: var(--gray-100); color: var(--gray-500); }
     .status-silver { background: var(--silver-light); color: var(--silver); }
-    .status-email-verified { background: var(--green-light); color: var(--green); }
-    .status-email-unverified { background: var(--red-light); color: var(--red); }
-    .status-email-unknown { background: var(--yellow-light); color: var(--yellow); }
 
     .date-cell { font-size: .8rem; color: var(--gray-500); }
 
@@ -720,10 +715,6 @@
     .inline-btn.silver:hover { background: var(--silver); color: var(--white); }
     .inline-btn.none { background: var(--gray-100); color: var(--gray-500); border-color: var(--gray-200); }
     .inline-btn.none:hover { background: var(--gray-500); color: var(--white); }
-    .inline-btn.verify { background: var(--green-light); color: var(--green); border-color: var(--green-light); }
-    .inline-btn.verify:hover { background: var(--green); color: var(--white); }
-    .inline-btn.unverify { background: var(--red-light); color: var(--red); border-color: var(--red-light); }
-    .inline-btn.unverify:hover { background: var(--red); color: var(--white); }
 
     .skeleton-row { height: 64px; background: linear-gradient(90deg, var(--gray-100) 25%, var(--gray-200) 50%, var(--gray-100) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; margin-bottom: 1px; }
     @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
@@ -756,22 +747,6 @@
     .toast.show { transform: translateY(0); opacity: 1; }
     .toast.success { background: var(--green); }
     .toast.error { background: var(--red); }
-
-    /* Info banner for email sync */
-    .info-banner {
-      background: var(--yellow-light);
-      border: 1px solid var(--yellow-light);
-      border-radius: var(--radius);
-      padding: .75rem 1rem;
-      margin-bottom: 1rem;
-      display: flex;
-      align-items: center;
-      gap: .5rem;
-      font-size: .85rem;
-      color: var(--yellow);
-      font-weight: 500;
-    }
-    .info-banner i { font-size: 1.1rem; }
   </style>
 </head>
 <body>
@@ -821,16 +796,6 @@
         <div class="stat-value" id="statPending">0</div>
       </div>
     </div>
-    <div class="stat-card email-verified">
-      <div class="stat-header">
-        <div class="stat-icon"><i class="ri-mail-check-line"></i></div>
-        <span class="stat-trend trend-up"><i class="ri-arrow-up-line"></i> 5%</span>
-      </div>
-      <div class="stat-info">
-        <h3>Email Verified</h3>
-        <div class="stat-value" id="statEmailVerified">0</div>
-      </div>
-    </div>
   </div>
 
   <!-- Quick Actions -->
@@ -844,7 +809,7 @@
     <a href="admin-offers.html" class="quick-action stakes">
       <i class="ri-coins-line"></i> Offers
     </a>
-    <a href="kyc.html" class="quick-action" style="border-color:var(--purple-light);">
+    <a href="admin-kyc.html" class="quick-action" style="border-color:var(--purple-light);">
       <i class="ri-shield-check-line" style="color:var(--purple);"></i> KYC
     </a>
     <a href="admin-stakes.html" class="quick-action stakes">
@@ -879,12 +844,6 @@
     </div>
   </div>
 
-  <!-- Info Banner -->
-  <div class="info-banner" id="syncBanner">
-    <i class="ri-information-line"></i>
-    Email verification status updates when users open their profile page. Use the "Verify" button to manually verify.
-  </div>
-
   <!-- Loading -->
   <div id="loadingState">
     <div class="table-wrap">
@@ -904,7 +863,6 @@
           <th>User</th>
           <th>Username</th>
           <th>Plan</th>
-          <th>Email Verified</th>
           <th>Balance</th>
           <th>KYC Status</th>
           <th>Joined</th>
@@ -1020,10 +978,6 @@
             <div class="detail-label">Plan Status</div>
             <div class="detail-value" id="detailPlan">-</div>
           </div>
-          <div class="detail-item">
-            <div class="detail-label">Email Verified</div>
-            <div class="detail-value" id="detailEmailVerified">-</div>
-          </div>
           <div class="detail-item full-width">
             <div class="detail-label">Quick Actions</div>
             <div class="detail-value">
@@ -1033,12 +987,6 @@
                 </button>
                 <button class="inline-btn none" onclick="quickUpdatePlan('none')">
                   <i class="ri-close-circle-line"></i> Set None
-                </button>
-                <button class="inline-btn verify" onclick="quickUpdateEmailVerified(true)">
-                  <i class="ri-mail-check-line"></i> Verify Email
-                </button>
-                <button class="inline-btn unverify" onclick="quickUpdateEmailVerified(false)">
-                  <i class="ri-mail-close-line"></i> Unverify Email
                 </button>
               </div>
             </div>
@@ -1157,6 +1105,15 @@
     getFirestore, doc, getDoc, collection, query, orderBy,
     getDocs, where, updateDoc, serverTimestamp
   } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+
+  /*
+   * Firebase Web configuration is not a secret and cannot be hidden in a
+   * browser-delivered HTML file. Do NOT put service-account private keys,
+   * Admin SDK credentials, or other secrets here.
+   *
+   * For production security, move privileged Firestore operations to a
+   * trusted backend/Cloud Function and enforce admin:true in Firestore Rules.
+   */
   const firebaseConfig = {
     apiKey: "AIzaSyAv6QCpopa0Q77AVTyjU5cqJEIKIE9OVTs",
     authDomain: "taskvault-412a0.firebaseapp.com",
@@ -1169,8 +1126,10 @@
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
+  // Client-side allowlist is only a UI gate. Real protection must also be
+  // enforced with Firebase Auth custom claims + Firestore Security Rules.
   const ADMIN_EMAILS = new Set([
-    "beniwealth70@gmail.com",
+    "beniwealth70@gmmail.com",
     "baasituoppor01@gmail.com"
   ]);
 
@@ -1254,25 +1213,10 @@
     }
   }
 
-  // ========== KEY FIX: Properly check Firestore emailVerified field ==========
-  function isEmailVerified(user) {
-    // Check Firestore emailVerified field (set by profile sync or admin)
-    if (user.emailVerified === true) return true;
-    if (user.emailVerified === false) return false;
-    
-    // Legacy field names
-    if (user.email_verified === true) return true;
-    if (user.isEmailVerified === true) return true;
-    
-    // Default: unverified (admin must verify or user must open profile)
-    return false;
-  }
-
   function updateStats() {
     const total = allUsers.length;
     const pending = allUsers.filter(u => u.kycStatus === 'pending').length;
     const verified = allUsers.filter(u => u.kycStatus === 'verified').length;
-    const emailVerified = allUsers.filter(u => isEmailVerified(u)).length;
     const active = allUsers.filter(u => {
       const lastActive = u.lastLogin?.toDate?.() || u.updatedAt?.toDate?.();
       if (!lastActive) return false;
@@ -1282,7 +1226,6 @@
     document.getElementById('statTotal').textContent = total;
     document.getElementById('statActive').textContent = active;
     document.getElementById('statPending').textContent = pending;
-    document.getElementById('statEmailVerified').textContent = emailVerified;
   }
 
   function renderUsers() {
@@ -1339,11 +1282,6 @@
       const planClass = plan === 'silver' ? 'status-silver' : 'status-none';
       const planText = plan === 'silver' ? 'Silver' : 'None';
       
-      // ========== KEY FIX: Use isEmailVerified() helper ==========
-      const emailVerified = isEmailVerified(user);
-      const emailClass = emailVerified ? 'status-email-verified' : 'status-email-unverified';
-      const emailText = emailVerified ? 'Verified' : 'Unverified';
-      
       const date = user.createdAt?.toDate ? user.createdAt.toDate() : new Date(user.createdAt || Date.now());
       const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
       
@@ -1363,7 +1301,6 @@
           </td>
           <td>${escapeHtml(user.username || '-')}</td>
           <td><span class="status-badge ${planClass}"><i class="ri-${plan === 'silver' ? 'vip-crown' : 'close-circle'}-line"></i> ${planText}</span></td>
-          <td><span class="status-badge ${emailClass}"><i class="ri-${emailVerified ? 'mail-check' : 'mail-close'}-line"></i> ${emailText}</span></td>
           <td class="balance-cell">$${(user.balance || 0).toFixed(2)}</td>
           <td><span class="status-badge ${statusClass}"><i class="ri-${kycStatus === 'verified' ? 'checkbox-circle' : kycStatus === 'pending' ? 'time' : 'close-circle'}-line"></i> ${statusText}</span></td>
           <td class="date-cell">${dateStr}</td>
@@ -1371,9 +1308,6 @@
             <div class="inline-actions" onclick="event.stopPropagation()">
               <button class="inline-btn ${plan === 'silver' ? 'none' : 'silver'}" onclick="quickUpdatePlanFromTable('${user.uid}', '${plan === 'silver' ? 'none' : 'silver'}')">
                 <i class="ri-vip-crown-line"></i> ${plan === 'silver' ? 'Remove' : 'Silver'}
-              </button>
-              <button class="inline-btn ${emailVerified ? 'unverify' : 'verify'}" onclick="quickUpdateEmailFromTable('${user.uid}', ${!emailVerified})">
-                <i class="ri-${emailVerified ? 'mail-close' : 'mail-check'}-line"></i> ${emailVerified ? 'Unverify' : 'Verify'}
               </button>
             </div>
           </td>
@@ -1418,18 +1352,11 @@
     document.getElementById('detailCountry').textContent = countryNames[user.country] || user.country || '-';
     document.getElementById('detailReferral').textContent = user.referral || 'None';
     document.getElementById('detailStatus').textContent = (user.accountStatus || 'active').charAt(0).toUpperCase() + (user.accountStatus || 'active').slice(1);
-    
-    // Plan & Email Verification
+    // Plan
     const plan = user.plan || 'none';
     const planEl = document.getElementById('detailPlan');
     planEl.textContent = plan === 'silver' ? 'Silver' : 'None';
     planEl.className = 'detail-value ' + (plan === 'silver' ? 'silver' : '');
-    
-    // ========== KEY FIX: Use isEmailVerified() helper ==========
-    const emailVerified = isEmailVerified(user);
-    const emailEl = document.getElementById('detailEmailVerified');
-    emailEl.textContent = emailVerified ? 'Verified' : 'Unverified';
-    emailEl.className = 'detail-value ' + (emailVerified ? 'positive' : 'negative');
     
     document.getElementById('detailBalance').textContent = '$' + (user.balance || 0).toFixed(2);
     document.getElementById('detailDeposited').textContent = '$' + (user.totalDeposited || 0).toFixed(2);
@@ -1471,15 +1398,6 @@
     await updateUserField(uid, 'plan', planValue);
   };
 
-  window.quickUpdateEmailVerified = async function(verified) {
-    if (!selectedUser) return;
-    await updateUserField(selectedUser.uid, 'emailVerified', verified);
-  };
-
-  window.quickUpdateEmailFromTable = async function(uid, verified) {
-    await updateUserField(uid, 'emailVerified', verified);
-  };
-
   async function updateUserField(uid, field, value) {
     try {
       const updates = {
@@ -1502,7 +1420,7 @@
         openUserDetail(uid);
       }
       
-      const fieldName = field === 'plan' ? 'Plan' : 'Email verification';
+      const fieldName = field === 'plan' ? 'Plan' : field;
       showToast(`${fieldName} updated successfully`, 'success');
     } catch (err) {
       console.error('Update error:', err);
@@ -1532,7 +1450,6 @@
     if (section === 'all' || section === 'plan') {
       fields.push(
         { label: 'Plan Status', key: 'plan', type: 'select', value: selectedUser.plan || 'none', options: ['none', 'silver'] },
-        { label: 'Email Verified', key: 'emailVerified', type: 'select', value: isEmailVerified(selectedUser) ? 'true' : 'false', options: ['true', 'false'] }
       );
     }
     
@@ -1562,17 +1479,14 @@
     fields.forEach(field => {
       if (field.type === 'select') {
         const optionLabels = field.key === 'country' ? countryNames : null;
-        const isBoolean = field.key === 'emailVerified';
+        const isBoolean = false;
         html += `
           <div class="form-group">
             <label>${field.label}</label>
             <select id="edit-${field.key}" data-key="${field.key}" data-type="${isBoolean ? 'boolean' : 'string'}">
               ${field.options.map(opt => {
                 let label, val;
-                if (isBoolean) {
-                  label = opt === 'true' ? 'Yes (Verified)' : 'No (Unverified)';
-                  val = opt;
-                } else if (optionLabels) {
+                if (optionLabels) {
                   label = optionLabels[opt] || opt;
                   val = opt;
                 } else {
