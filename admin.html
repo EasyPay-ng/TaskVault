@@ -1163,23 +1163,8 @@
     if (!ADMIN_EMAILS.has(signedInEmail)) {
       alert('Unauthorized access');
       await signOut(auth);
-      location.href = 'login.html';
+      location.href = 'admin.html';
       return;
-    }
-
-    // Optional stronger gate: if you assign an "admin" custom claim,
-    // require it here as well. This prevents the allowlist from being
-    // the only security boundary.
-    try {
-      const tokenResult = await user.getIdTokenResult();
-      if (tokenResult.claims.admin !== true) {
-        console.warn('Admin custom claim is missing for this account.');
-        // Keep the email allowlist gate active for compatibility.
-        // For production, change this to a hard deny after assigning
-        // admin:true to both approved accounts server-side.
-      }
-    } catch (claimError) {
-      console.warn('Could not read admin claim:', claimError);
     }
 
     currentUser = user;
