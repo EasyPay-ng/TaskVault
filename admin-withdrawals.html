@@ -3,1255 +3,913 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin | Withdrawal Requests</title>
-
-    <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" type="image/jpeg">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <title>Withdrawal Management - Admin Dashboard</title>
+    <!-- FontAwesome & Google Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
     <style>
         :root {
-            --orange-main: #FF8C42;
-            --orange-dark: #E67A35;
-            --orange-light: #FFF0E6;
-            --silk-bg: #FDFBF7;
-            --white: #FFFFFF;
-            --text-dark: #333333;
-            --text-light: #888888;
-            --shadow-sm: 0 2px 6px rgba(255, 140, 66, 0.06);
-            --shadow-md: 0 4px 12px rgba(255, 140, 66, 0.1);
-            --shadow-lg: 0 8px 24px rgba(255, 140, 66, 0.15);
-            --gradient-orange: linear-gradient(135deg, #FF8C42 0%, #FF6B35 100%);
-            --danger: #EF4444;
-            --danger-light: #FEF2F2;
-            --success: #10B981;
-            --success-light: #ECFDF5;
-            --warning: #F59E0B;
-            --warning-light: #FFFBEB;
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --primary-light: #e0e7ff;
+            --bg-body: #f3f4f6;
+            --bg-card: #ffffff;
+            --text-dark: #1f2937;
+            --text-muted: #6b7280;
+            --border-color: #e5e7eb;
+            --success: #10b981;
+            --success-light: #d1fae5;
+            --warning: #f59e0b;
+            --warning-light: #fef3c7;
+            --danger: #ef4444;
+            --danger-light: #fee2e2;
+            --purple: #8b5cf6;
+            --purple-light: #ede9fe;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --radius: 12px;
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        html, body {
-            height: 100%;
+            font-family: 'Inter', sans-serif;
         }
 
         body {
-            background-color: #e9ecef;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
+            background-color: var(--bg-body);
+            color: var(--text-dark);
+            padding: 20px;
             min-height: 100vh;
+        }
+
+        /* Auth Gate Overlay */
+        #authGate {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--bg-body);
+            z-index: 5000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             padding: 20px;
         }
 
-        .app-container {
+        .auth-card {
+            background: var(--bg-card);
+            padding: 32px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
             width: 100%;
-            max-width: 900px;
-            background-color: var(--silk-bg);
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            border-radius: 24px;
-            box-shadow: 0 0 40px rgba(0,0,0,0.12);
-            min-height: calc(100vh - 40px);
+            max-width: 400px;
+            text-align: center;
         }
 
-        .scroll-content {
-            flex: 1;
-            overflow-y: auto;
-            overflow-x: hidden;
-            padding: 0 20px;
-            padding-bottom: 20px;
+        .auth-card h2 {
+            font-size: 1.5rem;
+            color: var(--text-dark);
+            margin-bottom: 8px;
         }
 
-        .scroll-content::-webkit-scrollbar {
-            width: 6px;
-        }
-        .scroll-content::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        .scroll-content::-webkit-scrollbar-thumb {
-            background: var(--orange-light);
-            border-radius: 3px;
+        .auth-card p {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            margin-bottom: 24px;
         }
 
-        /* ==================== TOP NAV ==================== */
-        .top-nav {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 14px 20px 10px;
-            background: var(--white);
-            flex-shrink: 0;
+        .auth-card input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            outline: none;
+            font-size: 0.9rem;
         }
 
-        .nav-back-btn {
-            background: var(--orange-light);
+        .auth-card input:focus {
+            border-color: var(--primary);
+        }
+
+        .auth-card button {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary);
+            color: white;
             border: none;
-            border-radius: 12px;
-            padding: 10px 16px;
-            font-size: 13px;
+            border-radius: 8px;
             font-weight: 600;
-            color: var(--orange-main);
             cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .auth-card button:hover {
+            background: var(--primary-dark);
+        }
+
+        .auth-error {
+            color: var(--danger);
+            font-size: 0.82rem;
+            margin-top: 12px;
+            display: none;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: none; /* Hidden until authenticated */
+        }
+
+        header {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 8px;
-            transition: all 0.3s ease;
-            text-decoration: none;
+            margin-bottom: 24px;
+            background: var(--bg-card);
+            padding: 20px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
         }
 
-        .nav-back-btn:hover {
-            background: var(--orange-main);
-            color: white;
-        }
-
-        .admin-badge {
-            background: var(--gradient-orange);
-            color: white;
-            padding: 6px 14px;
-            border-radius: 99px;
-            font-size: 11px;
+        header h1 {
+            font-size: 1.5rem;
             font-weight: 700;
             display: flex;
             align-items: center;
-            gap: 6px;
-        }
-
-        /* ==================== HEADER ==================== */
-        .header-content {
-            text-align: center;
-            padding: 10px 20px 20px;
-        }
-
-        .header-content h2 {
-            font-size: 20px;
-            font-weight: 800;
-            color: var(--text-dark);
-            margin-bottom: 6px;
-        }
-
-        .header-content p.sub {
-            font-size: 12px;
-            color: var(--text-light);
-            font-weight: 400;
-        }
-
-        /* ==================== STATS BAR ==================== */
-        .stats-bar {
-            display: flex;
             gap: 10px;
-            margin-bottom: 16px;
+            color: var(--primary);
         }
 
-        .stat-card {
-            flex: 1;
-            background: var(--white);
-            border-radius: 14px;
-            padding: 14px;
-            text-align: center;
-            box-shadow: var(--shadow-sm);
-            border: 1px solid rgba(255, 140, 66, 0.06);
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
         }
 
-        .stat-card .stat-num {
-            font-size: 22px;
-            font-weight: 800;
-            color: var(--text-dark);
-        }
-
-        .stat-card .stat-label {
-            font-size: 10px;
+        .admin-badge {
+            font-size: 0.8rem;
+            background: var(--primary-light);
+            color: var(--primary);
+            padding: 6px 12px;
+            border-radius: 20px;
             font-weight: 600;
-            color: var(--text-light);
-            margin-top: 2px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
 
-        .stat-card.pending .stat-num { color: var(--warning); }
-        .stat-card.approved .stat-num { color: var(--success); }
-        .stat-card.rejected .stat-num { color: var(--danger); }
+        .btn-logout {
+            background: var(--danger-light);
+            color: var(--danger);
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+        }
 
-        /* ==================== FILTER TABS ==================== */
-        .filter-tabs {
+        .btn-logout:hover {
+            background: #fca5a5;
+        }
+
+        /* Controls */
+        .controls-card {
+            background: var(--bg-card);
+            padding: 16px 20px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 24px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .search-box {
+            position: relative;
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 12px 10px 36px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            outline: none;
+            font-size: 0.9rem;
+        }
+
+        .search-box input:focus {
+            border-color: var(--primary);
+        }
+
+        .filter-group {
             display: flex;
             gap: 8px;
-            margin-bottom: 16px;
             overflow-x: auto;
             padding-bottom: 4px;
         }
 
-        .filter-tabs::-webkit-scrollbar {
-            display: none;
-        }
-
-        .filter-tab {
-            flex-shrink: 0;
+        .filter-btn {
+            background: transparent;
+            border: 1px solid var(--border-color);
             padding: 8px 16px;
-            border-radius: 99px;
-            border: none;
-            font-size: 12px;
-            font-weight: 600;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-muted);
             cursor: pointer;
-            transition: all 0.3s ease;
-            background: var(--white);
-            color: var(--text-light);
-            box-shadow: var(--shadow-sm);
+            transition: all 0.2s;
+            white-space: nowrap;
         }
 
-        .filter-tab.active {
-            background: var(--gradient-orange);
+        .filter-btn:hover, .filter-btn.active {
+            background: var(--primary);
             color: white;
+            border-color: var(--primary);
         }
 
-        /* ==================== WITHDRAWAL CARD ==================== */
+        /* Grid & Cards */
+        .withdrawals-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 20px;
+        }
+
         .withdrawal-card {
-            background: var(--white);
-            border-radius: 16px;
-            padding: 16px;
-            margin-bottom: 12px;
-            box-shadow: var(--shadow-sm);
-            border: 1px solid rgba(255, 140, 66, 0.06);
-            transition: all 0.3s ease;
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border: 1px solid var(--border-color);
+            transition: transform 0.2s;
         }
 
         .withdrawal-card:hover {
-            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
         }
 
         .withdrawal-header {
             display: flex;
             align-items: center;
             gap: 12px;
-            margin-bottom: 12px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
         }
 
-        .withdrawal-avatar {
+        .user-avatar {
             width: 44px;
             height: 44px;
             border-radius: 50%;
-            background: var(--orange-light);
+            background: var(--primary-light);
+            color: var(--primary);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
-            color: var(--orange-main);
             font-weight: 700;
-            flex-shrink: 0;
+            font-size: 1.1rem;
         }
 
         .withdrawal-info {
             flex: 1;
-            min-width: 0;
+            overflow: hidden;
         }
 
         .withdrawal-name {
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--text-dark);
+            font-weight: 600;
+            font-size: 0.95rem;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
         .withdrawal-email {
-            font-size: 11px;
-            color: var(--text-light);
+            font-size: 0.8rem;
+            color: var(--text-muted);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
         .withdrawal-status {
+            font-size: 0.75rem;
             padding: 4px 10px;
-            border-radius: 99px;
-            font-size: 10px;
-            font-weight: 700;
-            text-transform: uppercase;
-            flex-shrink: 0;
+            border-radius: 12px;
+            font-weight: 600;
+            text-transform: capitalize;
         }
 
-        .status-badge-pending {
-            background: var(--warning-light);
-            color: var(--warning);
-        }
-
-        .status-badge-approved {
-            background: var(--success-light);
-            color: var(--success);
-        }
-
-        .status-badge-rejected {
-            background: var(--danger-light);
-            color: var(--danger);
-        }
-
-        .status-badge-refunded {
-            background: #E0E7FF;
-            color: #6366F1;
-        }
+        .status-badge-pending { background: var(--warning-light); color: var(--warning); }
+        .status-badge-approved { background: var(--success-light); color: var(--success); }
+        .status-badge-rejected { background: var(--danger-light); color: var(--danger); }
+        .status-badge-refunded { background: var(--purple-light); color: var(--purple); }
 
         .withdrawal-details {
-            background: var(--silk-bg);
-            border-radius: 12px;
-            padding: 12px;
-            margin-bottom: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 16px;
+            font-size: 0.88rem;
         }
 
         .detail-row {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            padding: 6px 0;
-            font-size: 12px;
-        }
-
-        .detail-row:not(:last-child) {
-            border-bottom: 1px solid #eee;
         }
 
         .detail-label {
-            color: var(--text-light);
-            font-weight: 500;
+            color: var(--text-muted);
         }
 
         .detail-value {
-            color: var(--text-dark);
-            font-weight: 700;
+            font-weight: 500;
+            text-align: right;
         }
 
         .detail-value.amount {
-            color: var(--danger);
-            font-size: 14px;
-        }
-
-        .detail-value.receive {
-            color: var(--success);
-            font-size: 14px;
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 1.05rem;
         }
 
         .bank-info {
-            background: var(--orange-light);
-            border-radius: 10px;
-            padding: 10px 12px;
+            background: var(--bg-body);
+            padding: 10px;
+            border-radius: 8px;
             margin-top: 8px;
-            font-size: 12px;
+            font-size: 0.8rem;
+            word-break: break-word;
         }
 
         .bank-info strong {
-            color: var(--orange-dark);
             display: block;
-            margin-bottom: 4px;
-        }
-
-        .bank-info span {
-            color: var(--text-light);
+            margin-bottom: 2px;
+            color: var(--text-dark);
         }
 
         .withdrawal-actions {
             display: flex;
             gap: 8px;
+            margin-top: auto;
+            padding-top: 12px;
         }
 
-        .btn-approve {
-            flex: 1;
-            background: var(--success);
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 12px;
-            font-size: 13px;
-            font-weight: 700;
+        button {
             cursor: pointer;
+            border: none;
+            outline: none;
+            padding: 9px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 6px;
-            transition: all 0.3s ease;
-        }
-
-        .btn-approve:hover {
-            background: #059669;
-            transform: translateY(-1px);
-        }
-
-        .btn-reject {
+            transition: background 0.2s;
             flex: 1;
-            background: var(--danger);
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 12px;
-            font-size: 13px;
-            font-weight: 700;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            transition: all 0.3s ease;
         }
 
-        .btn-reject:hover {
-            background: #DC2626;
-            transform: translateY(-1px);
-        }
+        .btn-approve { background: var(--success); color: white; }
+        .btn-approve:hover { background: #059669; }
 
-        .btn-refund {
-            flex: 1;
-            background: #6366F1;
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 12px;
-            font-size: 13px;
-            font-weight: 700;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            transition: all 0.3s ease;
-        }
+        .btn-reject { background: var(--danger); color: white; }
+        .btn-reject:hover { background: #dc2626; }
 
-        .btn-refund:hover {
-            background: #4F46E5;
-            transform: translateY(-1px);
-        }
+        .btn-refund { background: var(--purple); color: white; }
+        .btn-refund:hover { background: #7c3aed; }
 
-        .btn-disabled {
-            opacity: 0.5;
-            pointer-events: none;
-        }
-
-        .btn-hidden {
-            display: none !important;
-        }
-
-        /* ==================== EMPTY STATE ==================== */
-        .empty-state {
+        /* Loader & Empty States */
+        .state-container {
             text-align: center;
             padding: 60px 20px;
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            grid-column: 1 / -1;
         }
 
-        .empty-state i {
-            font-size: 48px;
-            color: #e2e8f0;
-            margin-bottom: 16px;
-        }
-
-        .empty-state h3 {
-            font-size: 16px;
-            font-weight: 700;
-            color: var(--text-dark);
-            margin-bottom: 6px;
-        }
-
-        .empty-state p {
-            font-size: 12px;
-            color: var(--text-light);
-        }
-
-        /* ==================== ACCESS DENIED ==================== */
-        .access-denied {
-            position: fixed;
-            inset: 0;
-            background: var(--silk-bg);
-            z-index: 10000;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 40px;
-            text-align: center;
-        }
-
-        .access-denied.active {
-            display: flex;
-        }
-
-        .access-denied i {
-            font-size: 64px;
-            color: var(--danger);
-            margin-bottom: 20px;
-        }
-
-        .access-denied h2 {
-            font-size: 20px;
-            font-weight: 800;
-            color: var(--text-dark);
-            margin-bottom: 8px;
-        }
-
-        .access-denied p {
-            font-size: 13px;
-            color: var(--text-light);
-            margin-bottom: 24px;
-        }
-
-        /* ==================== REJECT MODAL ==================== */
-        .reject-modal {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 10002;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            backdrop-filter: blur(4px);
-        }
-
-        .reject-modal.active {
-            display: flex;
-        }
-
-        .reject-box {
-            background: var(--white);
-            padding: 24px;
-            border-radius: 20px;
-            width: 100%;
-            max-width: 340px;
-        }
-
-        .reject-box h3 {
-            font-size: 18px;
-            font-weight: 800;
-            color: var(--text-dark);
-            margin-bottom: 4px;
-        }
-
-        .reject-box p {
-            font-size: 12px;
-            color: var(--text-light);
-            margin-bottom: 16px;
-        }
-
-        .reject-textarea {
-            width: 100%;
-            padding: 14px;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            font-size: 13px;
-            font-family: 'Poppins', sans-serif;
-            resize: none;
-            outline: none;
-            transition: all 0.3s ease;
-            margin-bottom: 16px;
-        }
-
-        .reject-textarea:focus {
-            border-color: var(--danger);
-            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
-        }
-
-        .reject-actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .reject-actions button {
-            flex: 1;
-            padding: 12px;
-            border-radius: 12px;
-            font-size: 13px;
-            font-weight: 700;
-            cursor: pointer;
-            border: none;
-            transition: all 0.3s ease;
-        }
-
-        .btn-cancel {
-            background: #f1f5f9;
-            color: var(--text-dark);
-        }
-
-        .btn-confirm-reject {
-            background: var(--danger);
-            color: white;
-        }
-
-        /* ==================== REFUND MODAL ==================== */
-        .refund-modal {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 10002;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            backdrop-filter: blur(4px);
-        }
-
-        .refund-modal.active {
-            display: flex;
-        }
-
-        .refund-box {
-            background: var(--white);
-            padding: 24px;
-            border-radius: 20px;
-            width: 100%;
-            max-width: 340px;
-            text-align: center;
-        }
-
-        .refund-box h3 {
-            font-size: 18px;
-            font-weight: 800;
-            color: var(--text-dark);
-            margin-bottom: 8px;
-        }
-
-        .refund-box p {
-            font-size: 12px;
-            color: var(--text-light);
-            margin-bottom: 20px;
-            line-height: 1.6;
-        }
-
-        .refund-amount {
-            font-size: 24px;
-            font-weight: 800;
-            color: #6366F1;
-            margin-bottom: 20px;
-        }
-
-        .refund-actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .refund-actions button {
-            flex: 1;
-            padding: 12px;
-            border-radius: 12px;
-            font-size: 13px;
-            font-weight: 700;
-            cursor: pointer;
-            border: none;
-            transition: all 0.3s ease;
-        }
-
-        /* ==================== LOADER ==================== */
-        .loader-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(253, 251, 247, 0.95);
-            z-index: 9999;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(5px);
-        }
-
-        .loader-overlay.active {
-            display: flex;
-        }
-
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid var(--orange-light);
-            border-top: 3px solid var(--orange-main);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
+        .state-container i {
+            font-size: 2.5rem;
+            color: var(--text-muted);
             margin-bottom: 12px;
         }
 
-        .loader-text {
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-dark);
-            letter-spacing: 1px;
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: var(--primary);
+            animation: spin 1s linear infinite;
+            margin: 0 auto 12px auto;
         }
 
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
-        /* ==================== TOAST ==================== */
-        .toast {
+        /* Modals */
+        .modal-overlay {
             position: fixed;
-            bottom: -100px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--text-dark);
-            color: white;
-            padding: 12px 20px;
-            border-radius: 99px;
-            font-size: 12px;
-            font-weight: 600;
-            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            z-index: 10003;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
             display: flex;
             align-items: center;
-            gap: 8px;
-            white-space: nowrap;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+            justify-content: center;
+            z-index: 6000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal {
+            background: var(--bg-card);
+            width: 90%;
+            max-width: 420px;
+            padding: 24px;
+            border-radius: var(--radius);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+        }
+
+        .modal-body textarea {
+            width: 100%;
+            height: 90px;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            outline: none;
+            resize: none;
+            font-size: 0.9rem;
+        }
+
+        .modal-body textarea:focus {
+            border-color: var(--primary);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .btn-cancel {
+            background: var(--bg-body);
+            color: var(--text-dark);
+            flex: 0 0 auto;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #333;
+            color: #fff;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            box-shadow: var(--shadow);
+            z-index: 7000;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: transform 0.3s, opacity 0.3s;
         }
 
         .toast.show {
-            bottom: 30px;
+            transform: translateY(0);
+            opacity: 1;
         }
-
-        /* ==================== ANIMATIONS ==================== */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .fade-in {
-            animation: fadeIn 0.4s ease-out forwards;
-        }
-
-        .delay-1 { animation-delay: 0.1s; opacity: 0; }
-        .delay-2 { animation-delay: 0.2s; opacity: 0; }
     </style>
 </head>
 <body>
 
-    <!-- ACCESS DENIED SCREEN -->
-    <div class="access-denied" id="accessDenied">
-        <i class="fa-solid fa-shield-halved"></i>
-        <h2>Access Denied</h2>
-        <p>You do not have permission to view this page. This area is restricted to administrators only.</p>
-        <button class="nav-back-btn" onclick="window.location.href='admin.html'">
-            <i class="fa-solid fa-arrow-left"></i> Go Back
-        </button>
+    <!-- Authentication Gate -->
+    <div id="authGate">
+        <div class="auth-card">
+            <h2>Admin Portal</h2>
+            <p>Please authenticate to access withdrawal management controls.</p>
+            <input type="email" id="adminEmail" placeholder="Admin Email">
+            <input type="password" id="adminPassword" placeholder="Password">
+            <button onclick="handleLogin()"><i class="fa-solid fa-lock"></i> Authorize Access</button>
+            <div id="authError" class="auth-error">Invalid admin credentials or access restricted.</div>
+        </div>
     </div>
 
-    <!-- LOADER -->
-    <div class="loader-overlay" id="mainLoader">
-        <div class="spinner"></div>
-        <p class="loader-text" id="loaderText">Loading...</p>
-    </div>
+    <!-- Protected Main Interface -->
+    <div id="mainContent" class="container">
+        <header>
+            <h1><i class="fa-solid fa-shield-halved"></i> Withdrawal Management</h1>
+            <div class="header-actions">
+                <span id="adminDisplayEmail" class="admin-badge">Admin</span>
+                <button onclick="loadWithdrawals()" style="background: var(--primary-light); color: var(--primary);">
+                    <i class="fa-solid fa-arrows-rotate"></i> Refresh
+                </button>
+                <button class="btn-logout" onclick="handleLogout()">Logout</button>
+            </div>
+        </header>
 
-    <!-- REJECT MODAL -->
-    <div class="reject-modal" id="rejectModal">
-        <div class="reject-box">
-            <h3>Reject Withdrawal</h3>
-            <p>Please provide a reason for rejecting this withdrawal request.</p>
-            <textarea class="reject-textarea" id="rejectReason" rows="3" placeholder="Enter rejection reason..."></textarea>
-            <div class="reject-actions">
-                <button class="btn-cancel" onclick="closeRejectModal()">Cancel</button>
-                <button class="btn-confirm-reject" onclick="confirmReject()">Reject</button>
+        <div class="controls-card">
+            <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="searchInput" placeholder="Search by name, email, or account..." oninput="handleSearch()">
+            </div>
+            <div class="filter-group">
+                <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
+                <button class="filter-btn" onclick="setFilter('pending', this)">Pending</button>
+                <button class="filter-btn" onclick="setFilter('approved', this)">Approved</button>
+                <button class="filter-btn" onclick="setFilter('rejected', this)">Rejected</button>
+                <button class="filter-btn" onclick="setFilter('refunded', this)">Refunded</button>
+            </div>
+        </div>
+
+        <div id="withdrawalsGrid" class="withdrawals-grid">
+            <div class="state-container">
+                <div class="spinner"></div>
+                <p>Loading records...</p>
             </div>
         </div>
     </div>
 
-    <!-- REFUND MODAL -->
-    <div class="refund-modal" id="refundModal">
-        <div class="refund-box">
-            <h3>Refund Withdrawal</h3>
-            <p>This will return the full amount back to the user's balance.</p>
-            <div class="refund-amount" id="refundAmountDisplay">$0.00</div>
-            <div class="refund-actions">
+    <!-- Reject Reason Modal -->
+    <div id="rejectModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-title">Reject Withdrawal Request</div>
+            <div class="modal-body">
+                <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:10px;">Reason for rejecting this payout request:</p>
+                <textarea id="rejectReason" placeholder="e.g., Incorrect banking details provided."></textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeRejectModal()">Cancel</button>
+                <button class="btn-reject" onclick="confirmReject()">Confirm Rejection</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Refund Modal -->
+    <div id="refundModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-title">Refund to Balance</div>
+            <div class="modal-body">
+                <p style="font-size:0.9rem; color:var(--text-dark);">Are you sure you want to refund this amount back to the user's account balance?</p>
+                <div id="refundAmountDisplay" style="margin-top:10px; font-weight:700; font-size:1.1rem; color:var(--purple);"></div>
+            </div>
+            <div class="modal-actions">
                 <button class="btn-cancel" onclick="closeRefundModal()">Cancel</button>
                 <button class="btn-refund" onclick="confirmRefund()">Confirm Refund</button>
             </div>
         </div>
     </div>
 
-    <!-- TOAST -->
-    <div class="toast" id="toastBox">
-        <i class="fa-solid fa-circle-info"></i>
-        <span id="toastMsg">Message</span>
-    </div>
+    <div id="toast" class="toast">Action completed successfully</div>
 
-    <div class="app-container" id="appContainer">
-        <!-- TOP NAV -->
-        <div class="top-nav">
-            <button class="nav-back-btn" onclick="window.location.href='admin.html'">
-                <i class="fa-solid fa-arrow-left"></i> Back
-            </button>
-            <div class="admin-badge">
-                <i class="fa-solid fa-lock"></i> Admin
-            </div>
-        </div>
-
-        <!-- SCROLLABLE CONTENT -->
-        <div class="scroll-content">
-            <!-- HEADER -->
-            <div class="header-content fade-in">
-                <h2>Withdrawal Requests</h2>
-                <p class="sub">Review and manage withdrawal submissions</p>
-            </div>
-
-            <!-- STATS -->
-            <div class="stats-bar fade-in delay-1">
-                <div class="stat-card pending">
-                    <div class="stat-num" id="statPending">0</div>
-                    <div class="stat-label">Pending</div>
-                </div>
-                <div class="stat-card approved">
-                    <div class="stat-num" id="statApproved">0</div>
-                    <div class="stat-label">Approved</div>
-                </div>
-                <div class="stat-card rejected">
-                    <div class="stat-num" id="statRejected">0</div>
-                    <div class="stat-label">Rejected</div>
-                </div>
-            </div>
-
-            <!-- FILTERS -->
-            <div class="filter-tabs fade-in delay-1">
-                <button class="filter-tab active" onclick="filterRequests('all')">All</button>
-                <button class="filter-tab" onclick="filterRequests('pending')">Pending</button>
-                <button class="filter-tab" onclick="filterRequests('approved')">Approved</button>
-                <button class="filter-tab" onclick="filterRequests('rejected')">Rejected</button>
-                <button class="filter-tab" onclick="filterRequests('refunded')">Refunded</button>
-            </div>
-
-            <!-- REQUESTS LIST -->
-            <div id="withdrawalsList"></div>
-        </div>
-    </div>
-
-    <!-- FIREBASE SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
     <script>
-        // ==================== TASKVAULT FIREBASE CONFIG ====================
+        // Firebase Configuration
         const firebaseConfig = {
-            apiKey: "AIzaSyAv6QCpopa0Q77AVTyjU5cqJEIKIE9OVTs",
-            authDomain: "taskvault-412a0.firebaseapp.com",
-            databaseURL: "https://taskvault-412a0-default-rtdb.firebaseio.com",
-            projectId: "taskvault-412a0",
-            storageBucket: "taskvault-412a0.firebasestorage.app",
-            messagingSenderId: "420716701831",
-            appId: "1:420716701831:web:c987d91f7f4c8684eb7022",
-            measurementId: "G-93JG3LB08B"
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
         };
 
-        firebase.initializeApp(firebaseConfig);
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        const ADMIN_EMAIL = "beniwealth70@gmail.com";
-        let currentUser = null;
-        let isAdmin = false;
-        let allWithdrawals = [];
+        // Allowed Admin Email List (Optional Client Verification Layer)
+        const ADMIN_EMAILS = ["admin@taskvault.name.ng", "owner@taskvault.name.ng"];
+
+        let withdrawalsData = [];
         let currentFilter = 'all';
+        let searchQuery = '';
         let actionDocId = null;
         let actionData = null;
 
-        // ==================== AUTH & ACCESS CONTROL ====================
-        auth.onAuthStateChanged((user) => {
+        // Authentication State Listener
+        auth.onAuthStateChanged(user => {
+            const authGate = document.getElementById('authGate');
+            const mainContent = document.getElementById('mainContent');
+
             if (user) {
-                currentUser = user;
-                checkAdminAccess();
+                // Verify admin privileges
+                if (ADMIN_EMAILS.length === 0 || ADMIN_EMAILS.includes(user.email)) {
+                    authGate.style.display = 'none';
+                    mainContent.style.display = 'block';
+                    document.getElementById('adminDisplayEmail').textContent = user.email;
+                    loadWithdrawals();
+                } else {
+                    document.getElementById('authError').textContent = 'Unauthorized access: Account lacks admin permissions.';
+                    document.getElementById('authError').style.display = 'block';
+                    auth.signOut();
+                }
             } else {
-                auth.signInAnonymously().catch((error) => {
-                    console.error("Auth Error:", error);
-                    showToast("Authentication Failed");
-                    showAccessDenied();
-                });
+                authGate.style.display = 'flex';
+                mainContent.style.display = 'none';
             }
         });
 
-        function checkAdminAccess() {
-            if (!currentUser || currentUser.email !== ADMIN_EMAIL) {
-                showAccessDenied();
+        async function handleLogin() {
+            const email = document.getElementById('adminEmail').value.trim();
+            const password = document.getElementById('adminPassword').value.trim();
+            const errorEl = document.getElementById('authError');
+
+            errorEl.style.display = 'none';
+
+            if (!email || !password) {
+                errorEl.textContent = 'Please enter both email and password.';
+                errorEl.style.display = 'block';
                 return;
             }
-            isAdmin = true;
-            loadWithdrawals();
+
+            try {
+                await auth.signInWithEmailAndPassword(email, password);
+            } catch (err) {
+                errorEl.textContent = err.message || 'Authentication failed.';
+                errorEl.style.display = 'block';
+            }
         }
 
-        function showAccessDenied() {
-            document.getElementById('accessDenied').classList.add('active');
-            document.getElementById('appContainer').style.display = 'none';
+        function handleLogout() {
+            auth.signOut();
         }
 
-        // ==================== UI HELPERS ====================
-        function showLoader(text) {
-            document.getElementById('loaderText').textContent = text;
-            document.getElementById('mainLoader').classList.add('active');
-        }
-
-        function hideLoader() {
-            document.getElementById('mainLoader').classList.remove('active');
-        }
-
-        function showToast(msg) {
-            const toast = document.getElementById('toastBox');
-            document.getElementById('toastMsg').textContent = msg;
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
             toast.classList.add('show');
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
-        // ==================== LOAD WITHDRAWALS ====================
+        function showLoader(message = 'Loading records...') {
+            const grid = document.getElementById('withdrawalsGrid');
+            grid.innerHTML = `
+                <div class="state-container">
+                    <div class="spinner"></div>
+                    <p>${message}</p>
+                </div>
+            `;
+        }
+
         async function loadWithdrawals() {
-            showLoader("Loading withdrawals...");
+            showLoader();
             try {
                 const snapshot = await db.collection('withdrawals')
                     .orderBy('timestamp', 'desc')
                     .get();
 
-                allWithdrawals = [];
+                withdrawalsData = [];
                 snapshot.forEach(doc => {
-                    allWithdrawals.push({
-                        id: doc.id,
-                        ...doc.data()
-                    });
+                    withdrawalsData.push({ id: doc.id, ...doc.data() });
                 });
 
-                updateStats();
                 renderWithdrawals();
-                hideLoader();
             } catch (error) {
-                console.error("Error loading withdrawals:", error);
-                hideLoader();
-                showToast("Failed to load withdrawals");
+                console.error("Error fetching data:", error);
+                document.getElementById('withdrawalsGrid').innerHTML = `
+                    <div class="state-container">
+                        <i class="fa-solid fa-triangle-exclamation" style="color:var(--danger)"></i>
+                        <p>Error loading records. Check Firestore Security Rules or configuration.</p>
+                    </div>
+                `;
             }
         }
 
-        function updateStats() {
-            const pending = allWithdrawals.filter(w => w.status === 'pending').length;
-            const approved = allWithdrawals.filter(w => w.status === 'approved' || w.status === 'completed').length;
-            const rejected = allWithdrawals.filter(w => w.status === 'rejected').length;
-            const refunded = allWithdrawals.filter(w => w.status === 'refunded').length;
-
-            document.getElementById('statPending').textContent = pending;
-            document.getElementById('statApproved').textContent = approved;
-            document.getElementById('statRejected').textContent = rejected + refunded;
+        function setFilter(filter, element) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            element.classList.add('active');
+            renderWithdrawals();
         }
 
-        // ==================== FILTER ====================
-        function filterRequests(status) {
-            currentFilter = status;
-
-            document.querySelectorAll('.filter-tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            event.target.classList.add('active');
-
+        function handleSearch() {
+            searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
             renderWithdrawals();
         }
 
         function renderWithdrawals() {
-            const container = document.getElementById('withdrawalsList');
-            let filtered = allWithdrawals;
+            const grid = document.getElementById('withdrawalsGrid');
 
-            if (currentFilter !== 'all') {
-                if (currentFilter === 'approved') {
-                    filtered = allWithdrawals.filter(w => w.status === 'approved' || w.status === 'completed');
-                } else {
-                    filtered = allWithdrawals.filter(w => w.status === currentFilter);
-                }
-            }
+            let filtered = withdrawalsData.filter(item => {
+                const matchesFilter = (currentFilter === 'all') || (item.status === currentFilter);
+                const searchStr = `${item.userName || ''} ${item.userEmail || ''} ${item.accountDetails || ''} ${item.method || ''}`.toLowerCase();
+                const matchesSearch = searchStr.includes(searchQuery);
+                return matchesFilter && matchesSearch;
+            });
 
             if (filtered.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state fade-in">
-                        <i class="fa-solid fa-inbox"></i>
-                        <h3>No withdrawals found</h3>
-                        <p>There are no withdrawal requests in this category.</p>
+                grid.innerHTML = `
+                    <div class="state-container">
+                        <i class="fa-solid fa-folder-open"></i>
+                        <p>No matching withdrawal requests found.</p>
                     </div>
                 `;
                 return;
             }
 
-            container.innerHTML = filtered.map((w, index) => {
+            grid.innerHTML = filtered.map(w => {
                 const status = w.status || 'pending';
                 return `
-                <div class="withdrawal-card fade-in" style="animation-delay: ${index * 0.05}s">
+                <div class="withdrawal-card">
                     <div class="withdrawal-header">
-                        <div class="withdrawal-avatar">
-                            ${w.accountName ? w.accountName.charAt(0).toUpperCase() : 'U'}
+                        <div class="user-avatar">
+                            ${(w.userName || w.userEmail || 'U').charAt(0).toUpperCase()}
                         </div>
                         <div class="withdrawal-info">
-                            <div class="withdrawal-name">${escapeHtml(w.accountName || 'Unknown')}</div>
-                            <div class="withdrawal-email">${escapeHtml(w.email || 'No email')}</div>
+                            <div class="withdrawal-name">${escapeHtml(w.userName || 'User')}</div>
+                            <div class="withdrawal-email">${escapeHtml(w.userEmail || w.userId || 'N/A')}</div>
                         </div>
                         <span class="withdrawal-status status-badge-${status}">${status}</span>
                     </div>
-                    
+
                     <div class="withdrawal-details">
                         <div class="detail-row">
-                            <span class="detail-label">Amount (USD)</span>
-                            <span class="detail-value amount">-$${w.amountUSD?.toFixed(2) || '0.00'}</span>
+                            <span class="detail-label">Amount:</span>
+                            <span class="detail-value amount">$${parseFloat(w.amount || 0).toFixed(2)}</span>
                         </div>
                         <div class="detail-row">
-                            <span class="detail-label">Fee (10%)</span>
-                            <span class="detail-value">-$${w.feeUSD?.toFixed(2) || '0.00'}</span>
+                            <span class="detail-label">Method:</span>
+                            <span class="detail-value">${escapeHtml(w.method || 'N/A')}</span>
                         </div>
                         <div class="detail-row">
-                            <span class="detail-label">Net Amount</span>
-                            <span class="detail-value">$${w.netUSD?.toFixed(2) || '0.00'}</span>
-                        </div>
-                        <div class="detail-row">
-                            <span class="detail-label">User Receives</span>
-                            <span class="detail-value receive">₦${w.amountNGN?.toLocaleString() || '0'}</span>
-                        </div>
-                        <div class="detail-row">
-                            <span class="detail-label">Rate</span>
-                            <span class="detail-value">₦${w.rate || 1000}/$1</span>
-                        </div>
-                        <div class="detail-row">
-                            <span class="detail-label">Date</span>
+                            <span class="detail-label">Requested:</span>
                             <span class="detail-value">${formatDate(w.timestamp)}</span>
                         </div>
-                        <div class="bank-info">
-                            <strong><i class="fa-solid fa-building-columns"></i> ${escapeHtml(w.bankName || 'Bank')}</strong>
-                            <span>${escapeHtml(w.accountName || '')} • ${escapeHtml(w.accountNumber || '')}</span>
-                        </div>
-                        ${w.rejectionReason ? `<div style="margin-top:8px;padding:8px 10px;background:var(--danger-light);border-radius:8px;font-size:11px;color:var(--danger);"><strong>Rejection:</strong> ${escapeHtml(w.rejectionReason)}</div>` : ''}
+
+                        ${w.accountDetails ? `
+                            <div class="bank-info">
+                                <strong>Account Info:</strong>
+                                <span>${escapeHtml(w.accountDetails)}</span>
+                            </div>
+                        ` : ''}
+
+                        ${w.rejectionReason ? `
+                            <div class="bank-info" style="background: var(--danger-light);">
+                                <strong style="color: var(--danger);">Rejection Reason:</strong>
+                                <span style="color: var(--text-dark);">${escapeHtml(w.rejectionReason)}</span>
+                            </div>
+                        ` : ''}
                     </div>
 
-                    ${getActionButtons(w)}
+                    <div class="withdrawal-actions">
+                        ${status === 'pending' ? `
+                            <button class="btn-approve" onclick="approveWithdrawal('${w.id}')">
+                                <i class="fa-solid fa-check"></i> Approve
+                            </button>
+                            <button class="btn-reject" onclick="openRejectModal('${w.id}')">
+                                <i class="fa-solid fa-xmark"></i> Reject
+                            </button>
+                        ` : ''}
+
+                        ${status === 'rejected' ? `
+                            <button class="btn-refund" onclick="openRefundModal('${w.id}', ${w.amount}, '${w.userId}')">
+                                <i class="fa-solid fa-rotate-left"></i> Refund
+                            </button>
+                        ` : ''}
+                    </div>
                 </div>
-            `}).join('');
+                `;
+            }).join('');
         }
 
-        function getActionButtons(w) {
-            const status = w.status || 'pending';
-
-            // APPROVED: cannot be rejected or refunded
-            if (status === 'approved' || status === 'completed') {
-                return `
-                    <div class="withdrawal-actions">
-                        <button class="btn-approve btn-disabled">
-                            <i class="fa-solid fa-check"></i> Approved
-                        </button>
-                    </div>
-                `;
-            }
-
-            // REJECTED: cannot be approved or refunded
-            if (status === 'rejected') {
-                return `
-                    <div class="withdrawal-actions">
-                        <button class="btn-reject btn-disabled">
-                            <i class="fa-solid fa-xmark"></i> Rejected
-                        </button>
-                    </div>
-                `;
-            }
-
-            // REFUNDED: final state, no actions
-            if (status === 'refunded') {
-                return `
-                    <div class="withdrawal-actions">
-                        <button class="btn-refund btn-disabled">
-                            <i class="fa-solid fa-rotate-left"></i> Refunded
-                        </button>
-                    </div>
-                `;
-            }
-
-            // PENDING: can approve or reject
-            return `
-                <div class="withdrawal-actions">
-                    <button class="btn-approve" onclick="approveWithdrawal('${w.id}')">
-                        <i class="fa-solid fa-check"></i> Approve
-                    </button>
-                    <button class="btn-reject" onclick="openRejectModal('${w.id}')">
-                        <i class="fa-solid fa-xmark"></i> Reject
-                    </button>
-                </div>
-            `;
-        }
-
-        // ==================== APPROVE ====================
         async function approveWithdrawal(docId) {
-            if (!isAdmin) return;
-
-            // Check if already approved/rejected/refunded
-            const withdrawal = allWithdrawals.find(w => w.id === docId);
-            if (!withdrawal) {
-                showToast("Withdrawal not found");
-                return;
-            }
-            const status = withdrawal.status || 'pending';
-            if (status !== 'pending') {
-                showToast("This withdrawal can no longer be approved");
-                return;
-            }
-
-            showLoader("Approving...");
+            if (!confirm("Approve this withdrawal payment?")) return;
+            showLoader("Approving payout...");
             try {
                 await db.collection('withdrawals').doc(docId).update({
                     status: 'approved',
-                    reviewedAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    reviewedBy: currentUser.uid,
-                    rejectionReason: null
+                    processedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
-
-                hideLoader();
                 showToast("Withdrawal approved");
                 await loadWithdrawals();
             } catch (error) {
-                console.error("Approve error:", error);
-                hideLoader();
-                showToast("Failed to approve");
+                console.error(error);
+                showToast("Failed to approve transaction");
             }
         }
 
-        // ==================== REJECT ====================
         function openRejectModal(docId) {
-            // Check if already approved/rejected/refunded
-            const withdrawal = allWithdrawals.find(w => w.id === docId);
-            if (!withdrawal) {
-                showToast("Withdrawal not found");
-                return;
-            }
-            const status = withdrawal.status || 'pending';
-            if (status !== 'pending') {
-                showToast("This withdrawal can no longer be rejected");
-                return;
-            }
-
             actionDocId = docId;
             document.getElementById('rejectReason').value = '';
             document.getElementById('rejectModal').classList.add('active');
         }
 
         function closeRejectModal() {
-            document.getElementById('rejectModal').classList.remove('active');
             actionDocId = null;
+            document.getElementById('rejectModal').classList.remove('active');
         }
 
         async function confirmReject() {
-            if (!isAdmin || !actionDocId) return;
-
             const reason = document.getElementById('rejectReason').value.trim();
             if (!reason) {
-                showToast("Please enter a rejection reason");
+                showToast("Please provide a reason for rejection");
                 return;
             }
+            const docId = actionDocId;
+            closeRejectModal();
+            showLoader("Updating request status...");
 
-            // Double-check status before rejecting
-            const withdrawal = allWithdrawals.find(w => w.id === actionDocId);
-            if (!withdrawal || (withdrawal.status && withdrawal.status !== 'pending')) {
-                showToast("This withdrawal can no longer be rejected");
-                closeRejectModal();
-                return;
-            }
-
-            showLoader("Rejecting...");
             try {
-                await db.collection('withdrawals').doc(actionDocId).update({
+                await db.collection('withdrawals').doc(docId).update({
                     status: 'rejected',
-                    reviewedAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    reviewedBy: currentUser.uid,
-                    rejectionReason: reason
+                    rejectionReason: reason,
+                    processedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
-
-                closeRejectModal();
-                hideLoader();
                 showToast("Withdrawal rejected");
                 await loadWithdrawals();
             } catch (error) {
-                console.error("Reject error:", error);
-                hideLoader();
-                showToast("Failed to reject");
+                console.error(error);
+                showToast("Action failed");
             }
         }
 
-        // ==================== REFUND ====================
-        function openRefundModal(docId) {
-            const withdrawal = allWithdrawals.find(w => w.id === docId);
-            if (!withdrawal) return;
-
-            // Check if already refunded
-            if (withdrawal.status === 'refunded') {
-                showToast("This withdrawal has already been refunded");
-                return;
-            }
-            // Only approved can be refunded
-            if (withdrawal.status !== 'approved' && withdrawal.status !== 'completed') {
-                showToast("Only approved withdrawals can be refunded");
-                return;
-            }
-
+        function openRefundModal(docId, amount, userId) {
             actionDocId = docId;
-            actionData = withdrawal;
-            document.getElementById('refundAmountDisplay').textContent = `$${withdrawal.amountUSD?.toFixed(2) || '0.00'}`;
+            actionData = { amount, userId };
+            document.getElementById('refundAmountDisplay').textContent = `$${parseFloat(amount || 0).toFixed(2)}`;
             document.getElementById('refundModal').classList.add('active');
         }
 
         function closeRefundModal() {
-            document.getElementById('refundModal').classList.remove('active');
             actionDocId = null;
             actionData = null;
+            document.getElementById('refundModal').classList.remove('active');
         }
 
         async function confirmRefund() {
-            if (!isAdmin || !actionDocId || !actionData) return;
+            if (!actionDocId || !actionData) return;
+            const { amount, userId } = actionData;
+            const docId = actionDocId;
+            closeRefundModal();
+            showLoader("Processing credit refund...");
 
-            // Double-check status
-            const withdrawal = allWithdrawals.find(w => w.id === actionDocId);
-            if (!withdrawal || withdrawal.status === 'refunded') {
-                showToast("This withdrawal has already been refunded");
-                closeRefundModal();
-                return;
-            }
-            if (withdrawal.status !== 'approved' && withdrawal.status !== 'completed') {
-                showToast("Only approved withdrawals can be refunded");
-                closeRefundModal();
-                return;
-            }
-
-            showLoader("Processing refund...");
             try {
-                const userRef = db.collection('users').doc(actionData.userId);
-
-                // Atomically increment user balance back
-                await userRef.update({
-                    balance: firebase.firestore.FieldValue.increment(actionData.amountUSD)
-                });
-
-                await db.collection('withdrawals').doc(actionDocId).update({
+                const batch = db.batch();
+                batch.update(db.collection('withdrawals').doc(docId), {
                     status: 'refunded',
-                    refundedAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    refundedBy: currentUser.uid,
-                    refundAmount: actionData.amountUSD
+                    refundedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
 
-                closeRefundModal();
-                hideLoader();
-                showToast("Refund processed successfully");
+                if (userId) {
+                    batch.update(db.collection('users').doc(userId), {
+                        balance: firebase.firestore.FieldValue.increment(parseFloat(amount))
+                    });
+                }
+
+                await batch.commit();
+                showToast("Balance refunded to user");
                 await loadWithdrawals();
             } catch (error) {
-                console.error("Refund error:", error);
-                hideLoader();
-                showToast("Failed to process refund");
+                console.error(error);
+                showToast("Failed to refund balance");
             }
         }
 
-        // ==================== UTILS ====================
         function formatDate(timestamp) {
-            if (!timestamp) return 'Unknown date';
+            if (!timestamp) return 'N/A';
             const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-            return date.toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
         }
 
-        function escapeHtml(text) {
-            if (!text) return '';
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
+        function escapeHtml(str) {
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
         }
     </script>
 </body>
-    </html>
+</html>
