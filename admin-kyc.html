@@ -751,7 +751,10 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        const ADMIN_EMAIL = "beniwealth70@gmail.com";
+        const ADMIN_EMAILS = [
+            "beniwealth70@gmail.com",
+            "baasituoppor01@gmail.com"
+        ];
         let currentUser = null;
         let isAdmin = false;
         let allRequests = [];
@@ -773,7 +776,7 @@
         });
 
         function checkAdminAccess() {
-            if (!currentUser || currentUser.email !== ADMIN_EMAIL) {
+            if (!currentUser || !ADMIN_EMAILS.includes(currentUser.email?.toLowerCase())) {
                 showAccessDenied();
                 return;
             }
