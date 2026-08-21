@@ -75,9 +75,11 @@
         .scroll-content::-webkit-scrollbar {
             width: 6px;
         }
+
         .scroll-content::-webkit-scrollbar-track {
             background: transparent;
         }
+
         .scroll-content::-webkit-scrollbar-thumb {
             background: var(--orange-light);
             border-radius: 3px;
@@ -177,9 +179,17 @@
             letter-spacing: 0.5px;
         }
 
-        .stat-card.pending .stat-num { color: var(--warning); }
-        .stat-card.approved .stat-num { color: var(--success); }
-        .stat-card.rejected .stat-num { color: var(--danger); }
+        .stat-card.pending .stat-num {
+            color: var(--warning);
+        }
+
+        .stat-card.approved .stat-num {
+            color: var(--success);
+        }
+
+        .stat-card.rejected .stat-num {
+            color: var(--danger);
+        }
 
         /* ==================== FILTER TABS ==================== */
         .filter-tabs {
@@ -678,7 +688,9 @@
         }
 
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         /* ==================== TOAST ==================== */
@@ -708,18 +720,77 @@
 
         /* ==================== ANIMATIONS ==================== */
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .fade-in {
             animation: fadeIn 0.4s ease-out forwards;
         }
 
-        .delay-1 { animation-delay: 0.1s; opacity: 0; }
-        .delay-2 { animation-delay: 0.2s; opacity: 0; }
+        .delay-1 {
+            animation-delay: 0.1s;
+            opacity: 0;
+        }
+
+        .delay-2 {
+            animation-delay: 0.2s;
+            opacity: 0;
+        }
+
+        /* ==================== MOBILE ==================== */
+        @media (max-width: 600px) {
+            body {
+                padding: 0;
+            }
+
+            .app-container {
+                max-width: 100%;
+                min-height: 100vh;
+                border-radius: 0;
+            }
+
+            .scroll-content {
+                padding-left: 14px;
+                padding-right: 14px;
+            }
+
+            .top-nav {
+                padding-left: 14px;
+                padding-right: 14px;
+            }
+
+            .stats-bar {
+                gap: 6px;
+            }
+
+            .stat-card {
+                padding: 12px 8px;
+            }
+
+            .stat-card .stat-num {
+                font-size: 19px;
+            }
+
+            .withdrawal-header {
+                gap: 8px;
+            }
+
+            .withdrawal-status {
+                font-size: 9px;
+                padding: 4px 8px;
+            }
+        }
     </style>
 </head>
+
 <body>
 
     <!-- ACCESS DENIED SCREEN -->
@@ -727,8 +798,10 @@
         <i class="fa-solid fa-shield-halved"></i>
         <h2>Access Denied</h2>
         <p>You do not have permission to view this page. This area is restricted to administrators only.</p>
+
         <button class="nav-back-btn" onclick="window.location.href='admin.html'">
-            <i class="fa-solid fa-arrow-left"></i> Go Back
+            <i class="fa-solid fa-arrow-left"></i>
+            Go Back
         </button>
     </div>
 
@@ -743,10 +816,22 @@
         <div class="reject-box">
             <h3>Reject Withdrawal</h3>
             <p>Please provide a reason for rejecting this withdrawal request.</p>
-            <textarea class="reject-textarea" id="rejectReason" rows="3" placeholder="Enter rejection reason..."></textarea>
+
+            <textarea
+                class="reject-textarea"
+                id="rejectReason"
+                rows="3"
+                placeholder="Enter rejection reason..."
+            ></textarea>
+
             <div class="reject-actions">
-                <button class="btn-cancel" onclick="closeRejectModal()">Cancel</button>
-                <button class="btn-confirm-reject" onclick="confirmReject()">Reject</button>
+                <button class="btn-cancel" onclick="closeRejectModal()">
+                    Cancel
+                </button>
+
+                <button class="btn-confirm-reject" onclick="confirmReject()">
+                    Reject
+                </button>
             </div>
         </div>
     </div>
@@ -755,11 +840,23 @@
     <div class="refund-modal" id="refundModal">
         <div class="refund-box">
             <h3>Refund Withdrawal</h3>
-            <p>This will return the full amount back to the user's balance.</p>
-            <div class="refund-amount" id="refundAmountDisplay">$0.00</div>
+
+            <p>
+                This will return the full amount back to the user's balance.
+            </p>
+
+            <div class="refund-amount" id="refundAmountDisplay">
+                $0.00
+            </div>
+
             <div class="refund-actions">
-                <button class="btn-cancel" onclick="closeRefundModal()">Cancel</button>
-                <button class="btn-refund" onclick="confirmRefund()">Confirm Refund</button>
+                <button class="btn-cancel" onclick="closeRefundModal()">
+                    Cancel
+                </button>
+
+                <button class="btn-refund" onclick="confirmRefund()">
+                    Confirm Refund
+                </button>
             </div>
         </div>
     </div>
@@ -770,52 +867,98 @@
         <span id="toastMsg">Message</span>
     </div>
 
+    <!-- MAIN APP -->
     <div class="app-container" id="appContainer">
+
         <!-- TOP NAV -->
         <div class="top-nav">
+
             <button class="nav-back-btn" onclick="window.location.href='admin.html'">
-                <i class="fa-solid fa-arrow-left"></i> Back
+                <i class="fa-solid fa-arrow-left"></i>
+                Back
             </button>
+
             <div class="admin-badge">
-                <i class="fa-solid fa-lock"></i> Admin
+                <i class="fa-solid fa-lock"></i>
+                Admin
             </div>
+
         </div>
 
         <!-- SCROLLABLE CONTENT -->
         <div class="scroll-content">
+
             <!-- HEADER -->
             <div class="header-content fade-in">
                 <h2>Withdrawal Requests</h2>
-                <p class="sub">Review and manage withdrawal submissions</p>
+                <p class="sub">
+                    Review and manage withdrawal submissions
+                </p>
             </div>
 
             <!-- STATS -->
             <div class="stats-bar fade-in delay-1">
+
                 <div class="stat-card pending">
                     <div class="stat-num" id="statPending">0</div>
                     <div class="stat-label">Pending</div>
                 </div>
+
                 <div class="stat-card approved">
                     <div class="stat-num" id="statApproved">0</div>
                     <div class="stat-label">Approved</div>
                 </div>
+
                 <div class="stat-card rejected">
                     <div class="stat-num" id="statRejected">0</div>
                     <div class="stat-label">Rejected</div>
                 </div>
+
             </div>
 
             <!-- FILTERS -->
             <div class="filter-tabs fade-in delay-1">
-                <button class="filter-tab active" onclick="filterRequests('all')">All</button>
-                <button class="filter-tab" onclick="filterRequests('pending')">Pending</button>
-                <button class="filter-tab" onclick="filterRequests('approved')">Approved</button>
-                <button class="filter-tab" onclick="filterRequests('rejected')">Rejected</button>
-                <button class="filter-tab" onclick="filterRequests('refunded')">Refunded</button>
+
+                <button
+                    class="filter-tab active"
+                    onclick="filterRequests('all', this)"
+                >
+                    All
+                </button>
+
+                <button
+                    class="filter-tab"
+                    onclick="filterRequests('pending', this)"
+                >
+                    Pending
+                </button>
+
+                <button
+                    class="filter-tab"
+                    onclick="filterRequests('approved', this)"
+                >
+                    Approved
+                </button>
+
+                <button
+                    class="filter-tab"
+                    onclick="filterRequests('rejected', this)"
+                >
+                    Rejected
+                </button>
+
+                <button
+                    class="filter-tab"
+                    onclick="filterRequests('refunded', this)"
+                >
+                    Refunded
+                </button>
+
             </div>
 
             <!-- REQUESTS LIST -->
             <div id="withdrawalsList"></div>
+
         </div>
     </div>
 
@@ -823,8 +966,13 @@
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
+
     <script>
-        // ==================== TASKVAULT FIREBASE CONFIG ====================
+
+        // =========================================================
+        // TASKVAULT FIREBASE CONFIG
+        // =========================================================
+
         const firebaseConfig = {
             apiKey: "AIzaSyAv6QCpopa0Q77AVTyjU5cqJEIKIE9OVTs",
             authDomain: "taskvault-412a0.firebaseapp.com",
@@ -837,421 +985,1194 @@
         };
 
         firebase.initializeApp(firebaseConfig);
+
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        const ADMIN_EMAIL = "beniwealth70@gmail.com, baasituoppor01@gmail.com";
+
+        // =========================================================
+        // ADMIN ACCESS
+        // BOTH EMAILS ARE NOW ADMINISTRATORS
+        // =========================================================
+
+        const ADMIN_EMAILS = [
+            "beniwealth70@gmail.com",
+            "baasituoppor01@gmail.com"
+        ];
+
+
         let currentUser = null;
         let isAdmin = false;
+
         let allWithdrawals = [];
-        let currentFilter = 'all';
+        let currentFilter = "all";
+
         let actionDocId = null;
         let actionData = null;
 
-        // ==================== AUTH & ACCESS CONTROL ====================
+
+        // =========================================================
+        // AUTH & ACCESS CONTROL
+        // =========================================================
+
         auth.onAuthStateChanged((user) => {
+
             if (user) {
+
                 currentUser = user;
+
                 checkAdminAccess();
+
             } else {
-                auth.signInAnonymously().catch((error) => {
-                    console.error("Auth Error:", error);
-                    showToast("Authentication Failed");
-                    showAccessDenied();
-                });
+
+                auth.signInAnonymously()
+                    .catch((error) => {
+
+                        console.error("Auth Error:", error);
+
+                        showToast("Authentication Failed");
+
+                        showAccessDenied();
+
+                    });
+
             }
+
         });
 
+
         function checkAdminAccess() {
-            if (!currentUser || currentUser.email !== ADMIN_EMAIL) {
+
+            if (!currentUser) {
+
                 showAccessDenied();
+
                 return;
+
             }
+
+
+            const userEmail = (currentUser.email || "")
+                .trim()
+                .toLowerCase();
+
+
+            const allowedAdmin = ADMIN_EMAILS.some(
+                email => email.toLowerCase() === userEmail
+            );
+
+
+            if (!allowedAdmin) {
+
+                showAccessDenied();
+
+                return;
+
+            }
+
+
+            // User is an authorized administrator
             isAdmin = true;
+
             loadWithdrawals();
+
         }
+
 
         function showAccessDenied() {
-            document.getElementById('accessDenied').classList.add('active');
-            document.getElementById('appContainer').style.display = 'none';
+
+            document
+                .getElementById("accessDenied")
+                .classList
+                .add("active");
+
+            document
+                .getElementById("appContainer")
+                .style
+                .display = "none";
+
         }
 
-        // ==================== UI HELPERS ====================
+
+        // =========================================================
+        // UI HELPERS
+        // =========================================================
+
         function showLoader(text) {
-            document.getElementById('loaderText').textContent = text;
-            document.getElementById('mainLoader').classList.add('active');
+
+            document.getElementById("loaderText").textContent = text;
+
+            document
+                .getElementById("mainLoader")
+                .classList
+                .add("active");
+
         }
+
 
         function hideLoader() {
-            document.getElementById('mainLoader').classList.remove('active');
+
+            document
+                .getElementById("mainLoader")
+                .classList
+                .remove("active");
+
         }
+
 
         function showToast(msg) {
-            const toast = document.getElementById('toastBox');
-            document.getElementById('toastMsg').textContent = msg;
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 3000);
+
+            const toast = document.getElementById("toastBox");
+
+            document.getElementById("toastMsg").textContent = msg;
+
+            toast.classList.add("show");
+
+            setTimeout(() => {
+
+                toast.classList.remove("show");
+
+            }, 3000);
+
         }
 
-        // ==================== LOAD WITHDRAWALS ====================
+
+        // =========================================================
+        // LOAD WITHDRAWALS
+        // =========================================================
+
         async function loadWithdrawals() {
+
+            if (!isAdmin) return;
+
             showLoader("Loading withdrawals...");
+
+
             try {
-                const snapshot = await db.collection('withdrawals')
-                    .orderBy('timestamp', 'desc')
+
+                const snapshot = await db
+                    .collection("withdrawals")
+                    .orderBy("timestamp", "desc")
                     .get();
 
+
                 allWithdrawals = [];
+
+
                 snapshot.forEach(doc => {
+
                     allWithdrawals.push({
                         id: doc.id,
                         ...doc.data()
                     });
+
                 });
+
 
                 updateStats();
+
                 renderWithdrawals();
+
                 hideLoader();
+
             } catch (error) {
-                console.error("Error loading withdrawals:", error);
+
+                console.error(
+                    "Error loading withdrawals:",
+                    error
+                );
+
                 hideLoader();
+
                 showToast("Failed to load withdrawals");
+
             }
+
         }
+
+
+        // =========================================================
+        // UPDATE STATS
+        // =========================================================
 
         function updateStats() {
-            const pending = allWithdrawals.filter(w => w.status === 'pending').length;
-            const approved = allWithdrawals.filter(w => w.status === 'approved' || w.status === 'completed').length;
-            const rejected = allWithdrawals.filter(w => w.status === 'rejected').length;
-            const refunded = allWithdrawals.filter(w => w.status === 'refunded').length;
 
-            document.getElementById('statPending').textContent = pending;
-            document.getElementById('statApproved').textContent = approved;
-            document.getElementById('statRejected').textContent = rejected + refunded;
+            const pending =
+                allWithdrawals.filter(
+                    w => w.status === "pending"
+                ).length;
+
+
+            const approved =
+                allWithdrawals.filter(
+                    w =>
+                        w.status === "approved" ||
+                        w.status === "completed"
+                ).length;
+
+
+            const rejected =
+                allWithdrawals.filter(
+                    w => w.status === "rejected"
+                ).length;
+
+
+            const refunded =
+                allWithdrawals.filter(
+                    w => w.status === "refunded"
+                ).length;
+
+
+            document.getElementById("statPending").textContent =
+                pending;
+
+
+            document.getElementById("statApproved").textContent =
+                approved;
+
+
+            document.getElementById("statRejected").textContent =
+                rejected + refunded;
+
         }
 
-        // ==================== FILTER ====================
-        function filterRequests(status) {
+
+        // =========================================================
+        // FILTER
+        // =========================================================
+
+        function filterRequests(status, button) {
+
             currentFilter = status;
 
-            document.querySelectorAll('.filter-tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            event.target.classList.add('active');
+
+            document
+                .querySelectorAll(".filter-tab")
+                .forEach(tab => {
+
+                    tab.classList.remove("active");
+
+                });
+
+
+            if (button) {
+
+                button.classList.add("active");
+
+            }
+
 
             renderWithdrawals();
+
         }
+
+
+        // =========================================================
+        // RENDER WITHDRAWALS
+        // =========================================================
 
         function renderWithdrawals() {
-            const container = document.getElementById('withdrawalsList');
+
+            const container =
+                document.getElementById("withdrawalsList");
+
+
             let filtered = allWithdrawals;
 
-            if (currentFilter !== 'all') {
-                if (currentFilter === 'approved') {
-                    filtered = allWithdrawals.filter(w => w.status === 'approved' || w.status === 'completed');
+
+            if (currentFilter !== "all") {
+
+                if (currentFilter === "approved") {
+
+                    filtered =
+                        allWithdrawals.filter(
+                            w =>
+                                w.status === "approved" ||
+                                w.status === "completed"
+                        );
+
                 } else {
-                    filtered = allWithdrawals.filter(w => w.status === currentFilter);
+
+                    filtered =
+                        allWithdrawals.filter(
+                            w => w.status === currentFilter
+                        );
+
                 }
+
             }
+
 
             if (filtered.length === 0) {
+
                 container.innerHTML = `
+
                     <div class="empty-state fade-in">
+
                         <i class="fa-solid fa-inbox"></i>
+
                         <h3>No withdrawals found</h3>
-                        <p>There are no withdrawal requests in this category.</p>
+
+                        <p>
+                            There are no withdrawal requests
+                            in this category.
+                        </p>
+
                     </div>
+
                 `;
+
                 return;
+
             }
 
-            container.innerHTML = filtered.map((w, index) => {
-                const status = w.status || 'pending';
-                return `
-                <div class="withdrawal-card fade-in" style="animation-delay: ${index * 0.05}s">
-                    <div class="withdrawal-header">
-                        <div class="withdrawal-avatar">
-                            ${w.accountName ? w.accountName.charAt(0).toUpperCase() : 'U'}
-                        </div>
-                        <div class="withdrawal-info">
-                            <div class="withdrawal-name">${escapeHtml(w.accountName || 'Unknown')}</div>
-                            <div class="withdrawal-email">${escapeHtml(w.email || 'No email')}</div>
-                        </div>
-                        <span class="withdrawal-status status-badge-${status}">${status}</span>
-                    </div>
-                    
-                    <div class="withdrawal-details">
-                        <div class="detail-row">
-                            <span class="detail-label">Amount (USD)</span>
-                            <span class="detail-value amount">-$${w.amountUSD?.toFixed(2) || '0.00'}</span>
-                        </div>
-                        <div class="detail-row">
-                            <span class="detail-label">Fee (10%)</span>
-                            <span class="detail-value">-$${w.feeUSD?.toFixed(2) || '0.00'}</span>
-                        </div>
-                        <div class="detail-row">
-                            <span class="detail-label">Net Amount</span>
-                            <span class="detail-value">$${w.netUSD?.toFixed(2) || '0.00'}</span>
-                        </div>
-                        <div class="detail-row">
-                            <span class="detail-label">User Receives</span>
-                            <span class="detail-value receive">₦${w.amountNGN?.toLocaleString() || '0'}</span>
-                        </div>
-                        <div class="detail-row">
-                            <span class="detail-label">Rate</span>
-                            <span class="detail-value">₦${w.rate || 1000}/$1</span>
-                        </div>
-                        <div class="detail-row">
-                            <span class="detail-label">Date</span>
-                            <span class="detail-value">${formatDate(w.timestamp)}</span>
-                        </div>
-                        <div class="bank-info">
-                            <strong><i class="fa-solid fa-building-columns"></i> ${escapeHtml(w.bankName || 'Bank')}</strong>
-                            <span>${escapeHtml(w.accountName || '')} • ${escapeHtml(w.accountNumber || '')}</span>
-                        </div>
-                        ${w.rejectionReason ? `<div style="margin-top:8px;padding:8px 10px;background:var(--danger-light);border-radius:8px;font-size:11px;color:var(--danger);"><strong>Rejection:</strong> ${escapeHtml(w.rejectionReason)}</div>` : ''}
-                    </div>
 
-                    ${getActionButtons(w)}
-                </div>
-            `}).join('');
+            container.innerHTML =
+                filtered.map((w, index) => {
+
+                    const status =
+                        w.status || "pending";
+
+
+                    return `
+
+                        <div
+                            class="withdrawal-card fade-in"
+                            style="animation-delay:${index * 0.05}s"
+                        >
+
+                            <div class="withdrawal-header">
+
+                                <div class="withdrawal-avatar">
+                                    ${
+                                        w.accountName
+                                            ? escapeHtml(
+                                                w.accountName
+                                                    .charAt(0)
+                                                    .toUpperCase()
+                                              )
+                                            : "U"
+                                    }
+                                </div>
+
+
+                                <div class="withdrawal-info">
+
+                                    <div class="withdrawal-name">
+                                        ${
+                                            escapeHtml(
+                                                w.accountName ||
+                                                "Unknown"
+                                            )
+                                        }
+                                    </div>
+
+                                    <div class="withdrawal-email">
+                                        ${
+                                            escapeHtml(
+                                                w.email ||
+                                                "No email"
+                                            )
+                                        }
+                                    </div>
+
+                                </div>
+
+
+                                <span
+                                    class="withdrawal-status status-badge-${status}"
+                                >
+                                    ${escapeHtml(status)}
+                                </span>
+
+                            </div>
+
+
+                            <div class="withdrawal-details">
+
+                                <div class="detail-row">
+
+                                    <span class="detail-label">
+                                        Amount (USD)
+                                    </span>
+
+                                    <span class="detail-value amount">
+                                        -$${Number(
+                                            w.amountUSD || 0
+                                        ).toFixed(2)}
+                                    </span>
+
+                                </div>
+
+
+                                <div class="detail-row">
+
+                                    <span class="detail-label">
+                                        Fee (10%)
+                                    </span>
+
+                                    <span class="detail-value">
+                                        -$${Number(
+                                            w.feeUSD || 0
+                                        ).toFixed(2)}
+                                    </span>
+
+                                </div>
+
+
+                                <div class="detail-row">
+
+                                    <span class="detail-label">
+                                        Net Amount
+                                    </span>
+
+                                    <span class="detail-value">
+                                        $${Number(
+                                            w.netUSD || 0
+                                        ).toFixed(2)}
+                                    </span>
+
+                                </div>
+
+
+                                <div class="detail-row">
+
+                                    <span class="detail-label">
+                                        User Receives
+                                    </span>
+
+                                    <span class="detail-value receive">
+                                        ₦${Number(
+                                            w.amountNGN || 0
+                                        ).toLocaleString()}
+                                    </span>
+
+                                </div>
+
+
+                                <div class="detail-row">
+
+                                    <span class="detail-label">
+                                        Rate
+                                    </span>
+
+                                    <span class="detail-value">
+                                        ₦${Number(
+                                            w.rate || 1000
+                                        ).toLocaleString()}/$1
+                                    </span>
+
+                                </div>
+
+
+                                <div class="detail-row">
+
+                                    <span class="detail-label">
+                                        Date
+                                    </span>
+
+                                    <span class="detail-value">
+                                        ${formatDate(w.timestamp)}
+                                    </span>
+
+                                </div>
+
+
+                                <div class="bank-info">
+
+                                    <strong>
+                                        <i class="fa-solid fa-building-columns"></i>
+                                        ${
+                                            escapeHtml(
+                                                w.bankName ||
+                                                "Bank"
+                                            )
+                                        }
+                                    </strong>
+
+                                    <span>
+                                        ${
+                                            escapeHtml(
+                                                w.accountName ||
+                                                ""
+                                            )
+                                        }
+                                        •
+                                        ${
+                                            escapeHtml(
+                                                w.accountNumber ||
+                                                ""
+                                            )
+                                        }
+                                    </span>
+
+                                </div>
+
+
+                                ${
+                                    w.rejectionReason
+                                        ? `
+                                            <div
+                                                style="
+                                                    margin-top:8px;
+                                                    padding:8px 10px;
+                                                    background:var(--danger-light);
+                                                    border-radius:8px;
+                                                    font-size:11px;
+                                                    color:var(--danger);
+                                                "
+                                            >
+                                                <strong>
+                                                    Rejection:
+                                                </strong>
+                                                ${
+                                                    escapeHtml(
+                                                        w.rejectionReason
+                                                    )
+                                                }
+                                            </div>
+                                        `
+                                        : ""
+                                }
+
+                            </div>
+
+
+                            ${getActionButtons(w)}
+
+                        </div>
+
+                    `;
+
+                }).join("");
+
         }
+
+
+        // =========================================================
+        // ACTION BUTTONS
+        // =========================================================
 
         function getActionButtons(w) {
-            const status = w.status || 'pending';
 
-            // APPROVED: cannot be rejected or refunded
-            if (status === 'approved' || status === 'completed') {
+            const status =
+                w.status || "pending";
+
+
+            // APPROVED
+            if (
+                status === "approved" ||
+                status === "completed"
+            ) {
+
                 return `
+
                     <div class="withdrawal-actions">
-                        <button class="btn-approve btn-disabled">
-                            <i class="fa-solid fa-check"></i> Approved
+
+                        <button
+                            class="btn-approve btn-disabled"
+                        >
+                            <i class="fa-solid fa-check"></i>
+                            Approved
                         </button>
+
                     </div>
+
                 `;
+
             }
 
-            // REJECTED: cannot be approved or refunded
-            if (status === 'rejected') {
+
+            // REJECTED
+            if (status === "rejected") {
+
                 return `
+
                     <div class="withdrawal-actions">
-                        <button class="btn-reject btn-disabled">
-                            <i class="fa-solid fa-xmark"></i> Rejected
+
+                        <button
+                            class="btn-reject btn-disabled"
+                        >
+                            <i class="fa-solid fa-xmark"></i>
+                            Rejected
                         </button>
+
                     </div>
+
                 `;
+
             }
 
-            // REFUNDED: final state, no actions
-            if (status === 'refunded') {
+
+            // REFUNDED
+            if (status === "refunded") {
+
                 return `
+
                     <div class="withdrawal-actions">
-                        <button class="btn-refund btn-disabled">
-                            <i class="fa-solid fa-rotate-left"></i> Refunded
+
+                        <button
+                            class="btn-refund btn-disabled"
+                        >
+                            <i class="fa-solid fa-rotate-left"></i>
+                            Refunded
                         </button>
+
                     </div>
+
                 `;
+
             }
 
-            // PENDING: can approve or reject
+
+            // PENDING
             return `
+
                 <div class="withdrawal-actions">
-                    <button class="btn-approve" onclick="approveWithdrawal('${w.id}')">
-                        <i class="fa-solid fa-check"></i> Approve
+
+                    <button
+                        class="btn-approve"
+                        onclick="approveWithdrawal('${w.id}')"
+                    >
+                        <i class="fa-solid fa-check"></i>
+                        Approve
                     </button>
-                    <button class="btn-reject" onclick="openRejectModal('${w.id}')">
-                        <i class="fa-solid fa-xmark"></i> Reject
+
+
+                    <button
+                        class="btn-reject"
+                        onclick="openRejectModal('${w.id}')"
+                    >
+                        <i class="fa-solid fa-xmark"></i>
+                        Reject
                     </button>
+
                 </div>
+
             `;
+
         }
 
-        // ==================== APPROVE ====================
+
+        // =========================================================
+        // APPROVE WITHDRAWAL
+        // =========================================================
+
         async function approveWithdrawal(docId) {
+
             if (!isAdmin) return;
 
-            // Check if already approved/rejected/refunded
-            const withdrawal = allWithdrawals.find(w => w.id === docId);
+
+            const withdrawal =
+                allWithdrawals.find(
+                    w => w.id === docId
+                );
+
+
             if (!withdrawal) {
+
                 showToast("Withdrawal not found");
+
                 return;
+
             }
-            const status = withdrawal.status || 'pending';
-            if (status !== 'pending') {
-                showToast("This withdrawal can no longer be approved");
+
+
+            const status =
+                withdrawal.status || "pending";
+
+
+            if (status !== "pending") {
+
+                showToast(
+                    "This withdrawal can no longer be approved"
+                );
+
                 return;
+
             }
+
 
             showLoader("Approving...");
+
+
             try {
-                await db.collection('withdrawals').doc(docId).update({
-                    status: 'approved',
-                    reviewedAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    reviewedBy: currentUser.uid,
-                    rejectionReason: null
-                });
+
+                await db
+                    .collection("withdrawals")
+                    .doc(docId)
+                    .update({
+
+                        status: "approved",
+
+                        reviewedAt:
+                            firebase.firestore
+                                .FieldValue
+                                .serverTimestamp(),
+
+                        reviewedBy:
+                            currentUser.uid,
+
+                        rejectionReason: null
+
+                    });
+
 
                 hideLoader();
-                showToast("Withdrawal approved");
+
+                showToast(
+                    "Withdrawal approved"
+                );
+
                 await loadWithdrawals();
+
+
             } catch (error) {
-                console.error("Approve error:", error);
+
+                console.error(
+                    "Approve error:",
+                    error
+                );
+
                 hideLoader();
-                showToast("Failed to approve");
+
+                showToast(
+                    "Failed to approve"
+                );
+
             }
+
         }
 
-        // ==================== REJECT ====================
+
+        // =========================================================
+        // REJECT WITHDRAWAL
+        // =========================================================
+
         function openRejectModal(docId) {
-            // Check if already approved/rejected/refunded
-            const withdrawal = allWithdrawals.find(w => w.id === docId);
+
+            const withdrawal =
+                allWithdrawals.find(
+                    w => w.id === docId
+                );
+
+
             if (!withdrawal) {
-                showToast("Withdrawal not found");
+
+                showToast(
+                    "Withdrawal not found"
+                );
+
                 return;
+
             }
-            const status = withdrawal.status || 'pending';
-            if (status !== 'pending') {
-                showToast("This withdrawal can no longer be rejected");
+
+
+            const status =
+                withdrawal.status || "pending";
+
+
+            if (status !== "pending") {
+
+                showToast(
+                    "This withdrawal can no longer be rejected"
+                );
+
                 return;
+
             }
+
 
             actionDocId = docId;
-            document.getElementById('rejectReason').value = '';
-            document.getElementById('rejectModal').classList.add('active');
+
+
+            document.getElementById(
+                "rejectReason"
+            ).value = "";
+
+
+            document.getElementById(
+                "rejectModal"
+            ).classList.add("active");
+
         }
+
 
         function closeRejectModal() {
-            document.getElementById('rejectModal').classList.remove('active');
+
+            document
+                .getElementById("rejectModal")
+                .classList
+                .remove("active");
+
+
             actionDocId = null;
+
         }
+
 
         async function confirmReject() {
-            if (!isAdmin || !actionDocId) return;
 
-            const reason = document.getElementById('rejectReason').value.trim();
+            if (
+                !isAdmin ||
+                !actionDocId
+            ) {
+                return;
+            }
+
+
+            const reason =
+                document
+                    .getElementById("rejectReason")
+                    .value
+                    .trim();
+
+
             if (!reason) {
-                showToast("Please enter a rejection reason");
+
+                showToast(
+                    "Please enter a rejection reason"
+                );
+
                 return;
+
             }
 
-            // Double-check status before rejecting
-            const withdrawal = allWithdrawals.find(w => w.id === actionDocId);
-            if (!withdrawal || (withdrawal.status && withdrawal.status !== 'pending')) {
-                showToast("This withdrawal can no longer be rejected");
+
+            const withdrawal =
+                allWithdrawals.find(
+                    w => w.id === actionDocId
+                );
+
+
+            if (
+                !withdrawal ||
+                (
+                    withdrawal.status &&
+                    withdrawal.status !== "pending"
+                )
+            ) {
+
+                showToast(
+                    "This withdrawal can no longer be rejected"
+                );
+
                 closeRejectModal();
+
                 return;
+
             }
+
 
             showLoader("Rejecting...");
+
+
             try {
-                await db.collection('withdrawals').doc(actionDocId).update({
-                    status: 'rejected',
-                    reviewedAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    reviewedBy: currentUser.uid,
-                    rejectionReason: reason
-                });
+
+                await db
+                    .collection("withdrawals")
+                    .doc(actionDocId)
+                    .update({
+
+                        status: "rejected",
+
+                        reviewedAt:
+                            firebase.firestore
+                                .FieldValue
+                                .serverTimestamp(),
+
+                        reviewedBy:
+                            currentUser.uid,
+
+                        rejectionReason: reason
+
+                    });
+
 
                 closeRejectModal();
+
                 hideLoader();
-                showToast("Withdrawal rejected");
+
+                showToast(
+                    "Withdrawal rejected"
+                );
+
                 await loadWithdrawals();
+
+
             } catch (error) {
-                console.error("Reject error:", error);
+
+                console.error(
+                    "Reject error:",
+                    error
+                );
+
                 hideLoader();
-                showToast("Failed to reject");
+
+                showToast(
+                    "Failed to reject"
+                );
+
             }
+
         }
 
-        // ==================== REFUND ====================
+
+        // =========================================================
+        // REFUND
+        // =========================================================
+
         function openRefundModal(docId) {
-            const withdrawal = allWithdrawals.find(w => w.id === docId);
+
+            const withdrawal =
+                allWithdrawals.find(
+                    w => w.id === docId
+                );
+
+
             if (!withdrawal) return;
 
-            // Check if already refunded
-            if (withdrawal.status === 'refunded') {
-                showToast("This withdrawal has already been refunded");
+
+            if (
+                withdrawal.status === "refunded"
+            ) {
+
+                showToast(
+                    "This withdrawal has already been refunded"
+                );
+
                 return;
+
             }
-            // Only approved can be refunded
-            if (withdrawal.status !== 'approved' && withdrawal.status !== 'completed') {
-                showToast("Only approved withdrawals can be refunded");
+
+
+            if (
+                withdrawal.status !== "approved" &&
+                withdrawal.status !== "completed"
+            ) {
+
+                showToast(
+                    "Only approved withdrawals can be refunded"
+                );
+
                 return;
+
             }
+
 
             actionDocId = docId;
+
             actionData = withdrawal;
-            document.getElementById('refundAmountDisplay').textContent = `$${withdrawal.amountUSD?.toFixed(2) || '0.00'}`;
-            document.getElementById('refundModal').classList.add('active');
+
+
+            document.getElementById(
+                "refundAmountDisplay"
+            ).textContent =
+                `$${Number(
+                    withdrawal.amountUSD || 0
+                ).toFixed(2)}`;
+
+
+            document.getElementById(
+                "refundModal"
+            ).classList.add("active");
+
         }
+
 
         function closeRefundModal() {
-            document.getElementById('refundModal').classList.remove('active');
+
+            document
+                .getElementById("refundModal")
+                .classList
+                .remove("active");
+
+
             actionDocId = null;
+
             actionData = null;
+
         }
+
 
         async function confirmRefund() {
-            if (!isAdmin || !actionDocId || !actionData) return;
 
-            // Double-check status
-            const withdrawal = allWithdrawals.find(w => w.id === actionDocId);
-            if (!withdrawal || withdrawal.status === 'refunded') {
-                showToast("This withdrawal has already been refunded");
-                closeRefundModal();
-                return;
-            }
-            if (withdrawal.status !== 'approved' && withdrawal.status !== 'completed') {
-                showToast("Only approved withdrawals can be refunded");
-                closeRefundModal();
+            if (
+                !isAdmin ||
+                !actionDocId ||
+                !actionData
+            ) {
                 return;
             }
 
-            showLoader("Processing refund...");
+
+            const withdrawal =
+                allWithdrawals.find(
+                    w => w.id === actionDocId
+                );
+
+
+            if (
+                !withdrawal ||
+                withdrawal.status === "refunded"
+            ) {
+
+                showToast(
+                    "This withdrawal has already been refunded"
+                );
+
+                closeRefundModal();
+
+                return;
+
+            }
+
+
+            if (
+                withdrawal.status !== "approved" &&
+                withdrawal.status !== "completed"
+            ) {
+
+                showToast(
+                    "Only approved withdrawals can be refunded"
+                );
+
+                closeRefundModal();
+
+                return;
+
+            }
+
+
+            showLoader(
+                "Processing refund..."
+            );
+
+
             try {
-                const userRef = db.collection('users').doc(actionData.userId);
 
-                // Atomically increment user balance back
+                const userRef =
+                    db
+                        .collection("users")
+                        .doc(actionData.userId);
+
+
+                // Return the original USD amount
+                // to the user's balance.
                 await userRef.update({
-                    balance: firebase.firestore.FieldValue.increment(actionData.amountUSD)
+
+                    balance:
+                        firebase.firestore
+                            .FieldValue
+                            .increment(
+                                Number(
+                                    actionData.amountUSD || 0
+                                )
+                            )
+
                 });
 
-                await db.collection('withdrawals').doc(actionDocId).update({
-                    status: 'refunded',
-                    refundedAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    refundedBy: currentUser.uid,
-                    refundAmount: actionData.amountUSD
-                });
+
+                await db
+                    .collection("withdrawals")
+                    .doc(actionDocId)
+                    .update({
+
+                        status: "refunded",
+
+                        refundedAt:
+                            firebase.firestore
+                                .FieldValue
+                                .serverTimestamp(),
+
+                        refundedBy:
+                            currentUser.uid,
+
+                        refundAmount:
+                            Number(
+                                actionData.amountUSD || 0
+                            )
+
+                    });
+
 
                 closeRefundModal();
+
                 hideLoader();
-                showToast("Refund processed successfully");
+
+                showToast(
+                    "Refund processed successfully"
+                );
+
                 await loadWithdrawals();
+
+
             } catch (error) {
-                console.error("Refund error:", error);
+
+                console.error(
+                    "Refund error:",
+                    error
+                );
+
                 hideLoader();
-                showToast("Failed to process refund");
+
+                showToast(
+                    "Failed to process refund"
+                );
+
             }
+
         }
 
-        // ==================== UTILS ====================
+
+        // =========================================================
+        // UTILS
+        // =========================================================
+
         function formatDate(timestamp) {
-            if (!timestamp) return 'Unknown date';
-            const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-            return date.toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
+
+            if (!timestamp) {
+                return "Unknown date";
+            }
+
+
+            const date =
+                timestamp.toDate
+                    ? timestamp.toDate()
+                    : new Date(timestamp);
+
+
+            return date.toLocaleDateString(
+                "en-US",
+                {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit"
+                }
+            );
+
         }
+
 
         function escapeHtml(text) {
-            if (!text) return '';
-            const div = document.createElement('div');
+
+            if (!text) return "";
+
+
+            const div =
+                document.createElement("div");
+
+
             div.textContent = text;
+
+
             return div.innerHTML;
+
         }
+
     </script>
+
 </body>
-    </html>
+</html>
