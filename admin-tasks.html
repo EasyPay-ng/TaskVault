@@ -10,8 +10,6 @@
         href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg"
         type="image/jpeg">
 
-  <link rel="manifest" href="manifest.json">
-
   <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
 
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
@@ -22,24 +20,30 @@
       --orange-main: #FF8C42;
       --orange-dark: #E67A35;
       --orange-light: #FFF0E6;
-
       --silk-bg: #FDFBF7;
       --white: #FFFFFF;
 
       --text-dark: #333333;
       --text-light: #888888;
 
-      --shadow-sm: 0 2px 6px rgba(255,140,66,.06);
-      --shadow-md: 0 4px 12px rgba(255,140,66,.10);
-      --shadow-lg: 0 8px 24px rgba(255,140,66,.15);
+      --success: #10B981;
+      --success-light: #D1FAE5;
+
+      --danger: #EF4444;
+      --danger-light: #FEE2E2;
+
+      --warning: #F59E0B;
+      --warning-light: #FEF3C7;
+
+      --info: #3B82F6;
+      --info-light: #DBEAFE;
+
+      --shadow-sm: 0 2px 6px rgba(255, 140, 66, 0.06);
+      --shadow-md: 0 4px 12px rgba(255, 140, 66, 0.10);
+      --shadow-lg: 0 8px 24px rgba(255, 140, 66, 0.15);
 
       --gradient-orange:
-        linear-gradient(135deg,#FF8C42 0%,#FF6B35 100%);
-
-      --success: #10B981;
-      --danger: #EF4444;
-      --warning: #F59E0B;
-      --info: #3B82F6;
+        linear-gradient(135deg, #FF8C42 0%, #FF6B35 100%);
     }
 
     * {
@@ -52,6 +56,7 @@
 
     html,
     body {
+      width: 100%;
       height: 100%;
       overflow: hidden;
     }
@@ -61,6 +66,11 @@
       display: flex;
       justify-content: center;
       align-items: center;
+    }
+
+    button,
+    input {
+      font-family: 'Poppins', sans-serif;
     }
 
     .app-container {
@@ -74,25 +84,27 @@
       flex-direction: column;
     }
 
-    @media(min-width:768px) {
+    @media (min-width: 768px) {
       .app-container {
         height: 92dvh;
         max-height: 850px;
         border-radius: 24px;
-        box-shadow: 0 0 40px rgba(0,0,0,.12);
+        box-shadow: 0 0 40px rgba(0,0,0,0.12);
       }
     }
 
     /* ================= HEADER ================= */
 
     .header {
+      background: var(--white);
+      padding: 14px 18px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 14px 20px 12px;
-      background: var(--white);
+      gap: 10px;
       flex-shrink: 0;
-      z-index: 10;
+      box-shadow: var(--shadow-sm);
+      z-index: 20;
     }
 
     .header-left {
@@ -125,27 +137,32 @@
     .header-subtitle {
       font-size: 9px;
       color: var(--text-light);
-      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 220px;
     }
 
     .admin-badge {
-      background: #FFF0E6;
+      background: var(--orange-light);
       color: var(--orange-dark);
-      border-radius: 20px;
       padding: 5px 9px;
-      font-size: 8px;
+      border-radius: 20px;
+      font-size: 9px;
       font-weight: 800;
-      text-transform: uppercase;
-      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
     }
 
-    /* ================= SCROLL ================= */
+    /* ================= CONTENT ================= */
 
     .scroll-content {
       flex: 1;
       overflow-y: auto;
       overflow-x: hidden;
-      padding-bottom: 85px;
+      padding-bottom: 80px;
     }
 
     .scroll-content::-webkit-scrollbar {
@@ -154,68 +171,98 @@
 
     .scroll-content::-webkit-scrollbar-thumb {
       background: var(--orange-light);
+      border-radius: 2px;
+    }
+
+    /* ================= ADMIN INFO ================= */
+
+    .admin-info {
+      margin: 14px 18px 10px;
+      padding: 12px 14px;
+      background: var(--white);
+      border-radius: 14px;
+      border: 1px solid rgba(255,140,66,.08);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .admin-info-label {
+      font-size: 9px;
+      color: var(--text-light);
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      font-weight: 600;
+      margin-bottom: 3px;
+    }
+
+    .admin-email {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-dark);
+      word-break: break-all;
+    }
+
+    .auth-status {
+      margin-top: 5px;
+      font-size: 9px;
+      color: var(--success);
+      font-weight: 600;
     }
 
     /* ================= STATS ================= */
 
     .stats-section {
-      padding: 12px 20px;
+      padding: 4px 18px 12px;
     }
 
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(2,1fr);
-      gap: 10px;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 7px;
     }
 
     .stat-card {
       background: var(--white);
-      border-radius: 14px;
-      padding: 14px 10px;
+      border-radius: 13px;
+      padding: 12px 6px;
       text-align: center;
-      border: 1px solid rgba(255,140,66,.06);
       box-shadow: var(--shadow-sm);
-    }
-
-    .stat-card.full {
-      grid-column: span 2;
+      border: 1px solid rgba(255,140,66,.06);
     }
 
     .stat-value {
-      font-size: 19px;
+      font-size: 17px;
       font-weight: 800;
-      line-height: 1;
       color: var(--orange-dark);
+      line-height: 1;
     }
 
     .stat-label {
-      font-size: 8px;
-      color: var(--text-light);
-      margin-top: 6px;
-      text-transform: uppercase;
-      letter-spacing: .04em;
+      margin-top: 5px;
+      font-size: 7px;
       font-weight: 600;
+      color: var(--text-light);
+      text-transform: uppercase;
     }
 
     /* ================= CONTROLS ================= */
 
     .controls-section {
-      padding: 0 20px 12px;
+      padding: 0 18px 12px;
     }
 
-    .search-row {
+    .controls-row {
       display: flex;
       gap: 8px;
     }
 
     .search-wrap {
-      flex: 1;
       position: relative;
+      flex: 1;
     }
 
     .search-wrap i {
       position: absolute;
-      left: 12px;
+      left: 11px;
       top: 50%;
       transform: translateY(-50%);
       color: var(--text-light);
@@ -224,13 +271,12 @@
 
     .search-input {
       width: 100%;
-      height: 40px;
-      border-radius: 10px;
       border: 1px solid rgba(255,140,66,.15);
-      background: white;
+      background: var(--white);
+      border-radius: 10px;
+      padding: 10px 10px 10px 34px;
       outline: none;
-      padding: 0 12px 0 36px;
-      font-size: 12px;
+      font-size: 11px;
       color: var(--text-dark);
     }
 
@@ -242,73 +288,34 @@
     .refresh-btn {
       width: 40px;
       height: 40px;
-      border-radius: 10px;
       border: 1px solid rgba(255,140,66,.15);
-      background: white;
+      border-radius: 10px;
+      background: var(--white);
       color: var(--orange-main);
       cursor: pointer;
-      font-size: 17px;
+      font-size: 16px;
       flex-shrink: 0;
     }
 
     .refresh-btn.spinning i {
-      animation: spin .8s linear infinite;
-    }
-
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
-    }
-
-    /* ================= FILTERS ================= */
-
-    .filter-row {
-      display: flex;
-      gap: 7px;
-      margin-top: 9px;
-      overflow-x: auto;
-      padding-bottom: 2px;
-    }
-
-    .filter-row::-webkit-scrollbar {
-      display: none;
-    }
-
-    .filter-btn {
-      border: none;
-      background: white;
-      color: var(--text-light);
-      border-radius: 20px;
-      padding: 7px 12px;
-      font-size: 9px;
-      font-weight: 700;
-      white-space: nowrap;
-      cursor: pointer;
-      border: 1px solid rgba(255,140,66,.08);
-    }
-
-    .filter-btn.active {
-      background: var(--orange-main);
-      color: white;
-      border-color: var(--orange-main);
+      animation: spin .7s linear infinite;
     }
 
     /* ================= SECTION ================= */
 
-    .list-section {
-      padding: 0 20px 20px;
+    .section {
+      padding: 0 18px 16px;
     }
 
     .section-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 10px;
+      margin-bottom: 9px;
     }
 
     .section-title {
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 800;
       color: var(--text-dark);
       display: flex;
@@ -320,26 +327,45 @@
       color: var(--orange-main);
     }
 
-    .count-text {
-      font-size: 10px;
+    .result-count {
+      font-size: 9px;
       color: var(--text-light);
+      font-weight: 600;
     }
 
     /* ================= TASK CARD ================= */
 
+    .task-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
     .task-card {
-      background: white;
+      background: var(--white);
       border-radius: 16px;
-      padding: 15px;
-      margin-bottom: 10px;
-      border: 1px solid rgba(255,140,66,.06);
+      padding: 14px;
       box-shadow: var(--shadow-sm);
+      border: 1px solid rgba(255,140,66,.06);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .task-card::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 3px;
+      height: 100%;
+      background: var(--orange-main);
     }
 
     .task-top {
       display: flex;
       justify-content: space-between;
-      gap: 10px;
+      align-items: flex-start;
+      gap: 8px;
     }
 
     .task-title {
@@ -347,38 +373,43 @@
       font-weight: 800;
       color: var(--text-dark);
       line-height: 1.35;
-      flex: 1;
     }
 
-    .task-status {
+    .task-owner {
+      font-size: 9px;
+      color: var(--text-light);
+      margin-top: 3px;
+      word-break: break-all;
+    }
+
+    .status {
+      padding: 4px 8px;
+      border-radius: 20px;
       font-size: 8px;
       font-weight: 800;
       text-transform: uppercase;
-      padding: 4px 8px;
-      border-radius: 20px;
-      height: fit-content;
-      white-space: nowrap;
+      flex-shrink: 0;
     }
 
-    .task-status.pending {
-      background: #FEF3C7;
+    .status.pending {
+      background: var(--warning-light);
       color: #92400E;
     }
 
-    .task-status.approved {
-      background: #D1FAE5;
+    .status.approved {
+      background: var(--success-light);
       color: #065F46;
     }
 
-    .task-status.rejected {
-      background: #FEE2E2;
+    .status.rejected {
+      background: var(--danger-light);
       color: #991B1B;
     }
 
     .task-meta {
       display: flex;
       flex-wrap: wrap;
-      gap: 9px;
+      gap: 8px;
       margin-top: 9px;
     }
 
@@ -386,97 +417,94 @@
       font-size: 9px;
       color: var(--text-light);
       display: flex;
-      gap: 4px;
       align-items: center;
+      gap: 3px;
     }
 
     .meta i {
       color: var(--orange-main);
-      font-size: 11px;
-    }
-
-    .task-owner {
-      margin-top: 9px;
-      padding-top: 9px;
-      border-top: 1px dashed #e5e7eb;
-      font-size: 9px;
-      color: var(--text-light);
-      word-break: break-word;
-    }
-
-    .task-owner strong {
-      color: var(--text-dark);
     }
 
     .task-stats {
-      display: grid;
-      grid-template-columns: repeat(3,1fr);
-      gap: 7px;
       margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed #e5e7eb;
+      display: grid;
+      grid-template-columns: repeat(4,1fr);
+      gap: 6px;
     }
 
-    .mini-stat {
-      background: #fafafa;
-      border-radius: 9px;
-      padding: 8px 4px;
+    .task-stat {
       text-align: center;
     }
 
-    .mini-value {
+    .task-stat-value {
       font-size: 12px;
       font-weight: 800;
       color: var(--text-dark);
     }
 
-    .mini-label {
+    .task-stat-label {
       font-size: 7px;
       color: var(--text-light);
-      margin-top: 2px;
       text-transform: uppercase;
     }
 
-    .view-submissions-btn {
+    .view-btn {
+      margin-top: 11px;
       width: 100%;
       border: none;
-      margin-top: 11px;
-      height: 38px;
-      border-radius: 10px;
+      border-radius: 9px;
+      padding: 9px;
       background: var(--gradient-orange);
       color: white;
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 800;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 5px;
     }
 
     /* ================= EMPTY ================= */
 
-    .empty-state {
-      background: white;
-      border-radius: 16px;
+    .empty-state,
+    .error-state,
+    .loading-state {
       text-align: center;
-      padding: 40px 20px;
-      color: var(--text-light);
+      padding: 45px 20px;
     }
 
-    .empty-state i {
-      font-size: 45px;
-      color: var(--orange-light);
+    .empty-state i,
+    .error-state i,
+    .loading-state i {
       display: block;
+      font-size: 42px;
       margin-bottom: 10px;
     }
 
-    .empty-state h3 {
+    .empty-state i {
+      color: var(--orange-light);
+    }
+
+    .error-state i {
+      color: var(--danger);
+    }
+
+    .loading-state i {
+      color: var(--orange-main);
+      animation: spin 1s linear infinite;
+    }
+
+    .empty-state h3,
+    .error-state h3 {
       font-size: 14px;
       color: var(--text-dark);
       margin-bottom: 5px;
     }
 
-    .empty-state p {
-      font-size: 11px;
+    .empty-state p,
+    .error-state p {
+      font-size: 10px;
+      color: var(--text-light);
+      line-height: 1.5;
     }
 
     /* ================= OVERLAY ================= */
@@ -484,12 +512,12 @@
     .overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,.62);
+      background: rgba(0,0,0,.6);
       backdrop-filter: blur(4px);
-      z-index: 2500;
       display: none;
-      justify-content: center;
       align-items: center;
+      justify-content: center;
+      z-index: 2500;
     }
 
     .overlay.show {
@@ -505,7 +533,7 @@
       flex-direction: column;
     }
 
-    @media(min-width:768px) {
+    @media (min-width:768px) {
       .panel {
         height: 92dvh;
         max-height: 850px;
@@ -517,15 +545,15 @@
     .panel-header {
       background: var(--gradient-orange);
       color: white;
-      padding: 15px 20px;
+      padding: 15px 18px;
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      justify-content: space-between;
       flex-shrink: 0;
     }
 
     .panel-header h3 {
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 800;
       display: flex;
       align-items: center;
@@ -535,57 +563,82 @@
     .close-btn {
       width: 32px;
       height: 32px;
-      border: none;
       border-radius: 50%;
+      border: none;
       background: rgba(255,255,255,.2);
       color: white;
-      font-size: 17px;
+      font-size: 16px;
       cursor: pointer;
     }
 
     .panel-body {
       flex: 1;
       overflow-y: auto;
-      padding: 15px 20px 80px;
+      padding: 15px 18px 70px;
     }
 
-    /* ================= SUMMARY ================= */
+    /* ================= TASK SUMMARY ================= */
 
-    .summary-card {
+    .summary {
       background: white;
+      padding: 13px;
       border-radius: 14px;
-      padding: 14px;
-      margin-bottom: 12px;
       box-shadow: var(--shadow-sm);
+      margin-bottom: 12px;
     }
 
     .summary-title {
       font-size: 13px;
       font-weight: 800;
       color: var(--text-dark);
+      margin-bottom: 6px;
     }
 
-    .summary-meta {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 8px;
-    }
-
-    .summary-meta span {
+    .summary-owner {
       font-size: 9px;
       color: var(--text-light);
+      word-break: break-all;
     }
 
-    /* ================= SUBMISSION ================= */
+    .summary-grid {
+      margin-top: 10px;
+      display: grid;
+      grid-template-columns: repeat(3,1fr);
+      gap: 7px;
+    }
 
-    .submission-card {
+    .summary-item {
+      text-align: center;
+      background: #fafafa;
+      border-radius: 8px;
+      padding: 8px 4px;
+    }
+
+    .summary-value {
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .summary-label {
+      font-size: 7px;
+      color: var(--text-light);
+      text-transform: uppercase;
+    }
+
+    /* ================= SUBMISSIONS ================= */
+
+    .submission-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .submission {
       background: white;
       border-radius: 14px;
-      padding: 14px;
-      margin-bottom: 10px;
-      border: 1px solid rgba(255,140,66,.06);
+      padding: 13px;
       box-shadow: var(--shadow-sm);
+      border: 1px solid rgba(255,140,66,.06);
     }
 
     .submission-top {
@@ -595,76 +648,59 @@
     }
 
     .worker-name {
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 800;
       color: var(--text-dark);
       word-break: break-word;
     }
 
-    .submission-status {
+    .worker-id {
       font-size: 8px;
-      font-weight: 800;
-      text-transform: uppercase;
-      padding: 4px 8px;
-      border-radius: 20px;
-      white-space: nowrap;
-    }
-
-    .submission-status.pending {
-      background: #FEF3C7;
-      color: #92400E;
-    }
-
-    .submission-status.approved {
-      background: #D1FAE5;
-      color: #065F46;
-    }
-
-    .submission-status.rejected {
-      background: #FEE2E2;
-      color: #991B1B;
+      color: var(--text-light);
+      margin-top: 2px;
+      word-break: break-all;
     }
 
     .submission-date {
-      font-size: 9px;
+      margin-top: 6px;
+      font-size: 8px;
       color: var(--text-light);
-      margin-top: 5px;
     }
 
     .proof {
-      margin-top: 10px;
+      margin-top: 9px;
+      padding: 9px;
       background: #fafafa;
       border-radius: 9px;
-      padding: 10px;
-      font-size: 11px;
-      line-height: 1.5;
+      font-size: 10px;
       color: var(--text-dark);
+      line-height: 1.5;
       white-space: pre-wrap;
       word-break: break-word;
     }
 
-    .proof-img {
+    .proof-image {
+      display: block;
       width: 100%;
       max-height: 220px;
       object-fit: cover;
-      border-radius: 10px;
+      border-radius: 9px;
       margin-top: 9px;
       cursor: pointer;
-      border: 1px solid rgba(255,140,66,.1);
     }
 
-    .submission-actions {
+    .actions {
       display: flex;
-      gap: 8px;
-      margin-top: 11px;
+      gap: 7px;
+      margin-top: 10px;
     }
 
     .action-btn {
       flex: 1;
-      height: 38px;
       border: none;
       border-radius: 9px;
-      font-size: 10px;
+      padding: 9px 5px;
+      font-size: 9px;
       font-weight: 800;
       cursor: pointer;
       display: flex;
@@ -674,75 +710,46 @@
     }
 
     .approve-btn {
-      background: #D1FAE5;
+      background: var(--success-light);
       color: #065F46;
     }
 
     .approve-btn:hover {
-      background: #10B981;
+      background: var(--success);
       color: white;
     }
 
     .reject-btn {
-      background: #FEE2E2;
+      background: var(--danger-light);
       color: #991B1B;
     }
 
     .reject-btn:hover {
-      background: #EF4444;
+      background: var(--danger);
       color: white;
     }
 
-    .credited {
+    .action-btn:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+
+    .reviewed-message {
       margin-top: 9px;
       padding: 8px;
-      background: #ECFDF5;
-      color: #047857;
       border-radius: 8px;
       font-size: 9px;
       font-weight: 700;
-      text-align: center;
     }
 
-    .rejected-note {
-      margin-top: 9px;
-      padding: 8px;
-      background: #FEF2F2;
-      color: #B91C1C;
-      border-radius: 8px;
-      font-size: 9px;
-      font-weight: 700;
-      text-align: center;
+    .reviewed-message.approved {
+      background: var(--success-light);
+      color: #065F46;
     }
 
-    /* ================= LOADING ================= */
-
-    .loading-overlay {
-      position: fixed;
-      inset: 0;
-      background: var(--silk-bg);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 4000;
-      gap: 12px;
-    }
-
-    .spinner {
-      width: 36px;
-      height: 36px;
-      border: 3px solid var(--orange-light);
-      border-top-color: var(--orange-main);
-      border-radius: 50%;
-      animation: spin .8s linear infinite;
-    }
-
-    .loader-text {
-      font-size: 10px;
-      color: var(--text-light);
-      font-weight: 700;
-      letter-spacing: 2px;
+    .reviewed-message.rejected {
+      background: var(--danger-light);
+      color: #991B1B;
     }
 
     /* ================= TOAST ================= */
@@ -751,25 +758,27 @@
       position: fixed;
       left: 50%;
       top: 20px;
-      transform: translate(-50%,-100px);
-      background: white;
-      color: var(--text-dark);
-      padding: 10px 16px;
-      border-radius: 11px;
-      font-size: 11px;
-      font-weight: 700;
+      transform: translateX(-50%) translateY(-100px);
       opacity: 0;
       visibility: hidden;
-      transition: .35s;
-      z-index: 5000;
-      max-width: 90%;
+      background: white;
+      border-radius: 12px;
+      padding: 10px 15px;
       box-shadow: 0 8px 30px rgba(0,0,0,.15);
+      z-index: 5000;
+      font-size: 10px;
+      font-weight: 700;
+      max-width: 90%;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: .35s ease;
     }
 
     .toast.show {
       opacity: 1;
       visibility: visible;
-      transform: translate(-50%,0);
+      transform: translateX(-50%) translateY(0);
     }
 
     .toast.success {
@@ -784,60 +793,79 @@
       border-left: 3px solid var(--orange-main);
     }
 
-    /* ================= BOTTOM NAV ================= */
+    /* ================= LOGIN / AUTH ERROR ================= */
 
-    .bottom-nav {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
+    .auth-screen {
+      position: fixed;
+      inset: 0;
+      background: var(--silk-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 4500;
+      padding: 20px;
+    }
+
+    .auth-box {
+      width: 100%;
+      max-width: 350px;
       background: white;
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      padding: 8px 16px 16px;
-      border-radius: 24px 24px 0 0;
-      box-shadow: 0 -4px 20px rgba(0,0,0,.04);
-      z-index: 1000;
+      border-radius: 20px;
+      padding: 28px 22px;
+      text-align: center;
+      box-shadow: var(--shadow-lg);
     }
 
-    .nav-item {
-      text-decoration: none;
-      color: var(--text-light);
-      font-size: 8px;
-      font-weight: 600;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 3px;
-      padding: 6px 14px;
-      border-radius: 13px;
-    }
-
-    .nav-item i {
-      font-size: 19px;
-    }
-
-    .nav-item.active {
-      color: var(--orange-main);
+    .auth-icon {
+      width: 60px;
+      height: 60px;
+      margin: 0 auto 15px;
+      border-radius: 18px;
       background: var(--orange-light);
+      color: var(--orange-main);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
     }
 
-    /* ================= FADE ================= */
-
-    .fade-in {
-      animation: fadeIn .4s ease forwards;
+    .auth-box h2 {
+      font-size: 17px;
+      color: var(--text-dark);
+      margin-bottom: 6px;
     }
 
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(8px);
-      }
+    .auth-box p {
+      font-size: 10px;
+      color: var(--text-light);
+      line-height: 1.6;
+    }
 
+    .auth-email {
+      margin-top: 10px;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--orange-dark);
+      word-break: break-all;
+    }
+
+    .login-btn {
+      display: inline-flex;
+      margin-top: 18px;
+      padding: 10px 18px;
+      background: var(--gradient-orange);
+      color: white;
+      border-radius: 10px;
+      text-decoration: none;
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    /* ================= ANIMATION ================= */
+
+    @keyframes spin {
       to {
-        opacity: 1;
-        transform: translateY(0);
+        transform: rotate(360deg);
       }
     }
   </style>
@@ -845,1605 +873,1044 @@
 
 <body>
 
-<!-- LOADING -->
-<div class="loading-overlay" id="loadingOverlay">
-  <div class="spinner"></div>
-  <div class="loader-text">LOADING ADMIN</div>
-</div>
+  <!-- AUTH SCREEN -->
+  <div class="auth-screen" id="authScreen">
+    <div class="auth-box">
+      <div class="auth-icon">
+        <i class="ri-shield-user-line"></i>
+      </div>
 
+      <h2 id="authTitle">Checking Authentication</h2>
 
-<div class="app-container">
+      <p id="authMessage">
+        Please wait while we verify your Firebase session...
+      </p>
 
-  <!-- HEADER -->
-  <header class="header">
+      <div id="authEmail" class="auth-email"></div>
 
-    <div class="header-left">
-
-      <a href="dashboard.html" class="back-btn">
-        <i class="ri-arrow-left-line"></i>
+      <a href="login.html" class="login-btn" id="loginButton" style="display:none;">
+        <i class="ri-login-box-line"></i>&nbsp; Sign In
       </a>
-
-      <div>
-        <div class="header-title">
-          Submission Manager
-        </div>
-
-        <div class="header-subtitle">
-          Review submissions from all advertised tasks
-        </div>
-      </div>
-
     </div>
+  </div>
 
-    <div class="admin-badge">
-      ADMIN
-    </div>
+  <!-- MAIN APP -->
+  <div class="app-container" id="app" style="display:none;">
 
-  </header>
+    <!-- HEADER -->
+    <header class="header">
 
+      <div class="header-left">
 
-  <!-- CONTENT -->
-  <div class="scroll-content">
+        <a href="dashboard.html" class="back-btn">
+          <i class="ri-arrow-left-line"></i>
+        </a>
 
-    <!-- STATS -->
-    <section class="stats-section">
-
-      <div class="stats-grid">
-
-        <div class="stat-card">
-          <div class="stat-value" id="statTasks">0</div>
-          <div class="stat-label">Total Tasks</div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-value" id="statSubmissions">
-            0
-          </div>
-          <div class="stat-label">Submissions</div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-value"
-               id="statPending"
-               style="color:var(--warning);">
-            0
-          </div>
-          <div class="stat-label">Pending Review</div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-value"
-               id="statApproved"
-               style="color:var(--success);">
-            0
-          </div>
-          <div class="stat-label">Approved</div>
-        </div>
-
-        <div class="stat-card full">
-          <div class="stat-value"
-               id="statPaid"
-               style="color:var(--orange-dark);">
-            $0.000
+        <div>
+          <div class="header-title">
+            Admin Submissions
           </div>
 
-          <div class="stat-label">
-            Total Rewards Approved
+          <div class="header-subtitle" id="headerAdminEmail">
+            Authenticating...
           </div>
         </div>
 
       </div>
 
-    </section>
+      <div class="admin-badge">
+        <i class="ri-shield-check-line"></i>
+        ADMIN
+      </div>
 
+    </header>
 
-    <!-- SEARCH / FILTER -->
-    <section class="controls-section">
+    <!-- SCROLL -->
+    <div class="scroll-content">
 
-      <div class="search-row">
+      <!-- ADMIN INFO -->
+      <div class="admin-info">
 
-        <div class="search-wrap">
+        <div class="admin-info-label">
+          Logged in administrator
+        </div>
 
-          <i class="ri-search-line"></i>
+        <div class="admin-email" id="adminEmail">
+          -
+        </div>
 
-          <input
-            id="searchInput"
-            class="search-input"
-            type="text"
-            placeholder="Search task, worker, platform..."
+        <div class="auth-status">
+          <i class="ri-checkbox-circle-line"></i>
+          Firebase authentication active
+        </div>
+
+      </div>
+
+      <!-- STATS -->
+      <section class="stats-section">
+
+        <div class="stats-grid">
+
+          <div class="stat-card">
+            <div class="stat-value" id="statTasks">
+              0
+            </div>
+            <div class="stat-label">
+              Tasks
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-value" id="statSubmissions">
+              0
+            </div>
+            <div class="stat-label">
+              Submissions
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-value" id="statPending"
+                 style="color:var(--warning);">
+              0
+            </div>
+            <div class="stat-label">
+              Pending
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-value" id="statApproved"
+                 style="color:var(--success);">
+              0
+            </div>
+            <div class="stat-label">
+              Approved
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- CONTROLS -->
+      <section class="controls-section">
+
+        <div class="controls-row">
+
+          <div class="search-wrap">
+
+            <i class="ri-search-line"></i>
+
+            <input
+              id="searchInput"
+              class="search-input"
+              type="text"
+              placeholder="Search task, owner, platform..."
+            >
+
+          </div>
+
+          <button
+            class="refresh-btn"
+            id="refreshBtn"
+            onclick="refreshAdminData()"
           >
+            <i class="ri-refresh-line"></i>
+          </button>
 
         </div>
 
-        <button
-          class="refresh-btn"
-          id="refreshBtn"
-          onclick="refreshData()"
-        >
-          <i class="ri-refresh-line"></i>
-        </button>
+      </section>
 
-      </div>
+      <!-- TASK LIST -->
+      <section class="section">
 
+        <div class="section-header">
 
-      <div class="filter-row">
+          <h3 class="section-title">
+            <i class="ri-file-list-3-line"></i>
+            All Advertised Tasks
+          </h3>
 
-        <button
-          class="filter-btn active"
-          data-filter="all"
-          onclick="setFilter('all',this)"
-        >
-          All
-        </button>
+          <span class="result-count" id="resultCount">
+            0 tasks
+          </span>
 
-        <button
-          class="filter-btn"
-          data-filter="pending"
-          onclick="setFilter('pending',this)"
-        >
-          Pending
-        </button>
+        </div>
 
-        <button
-          class="filter-btn"
-          data-filter="approved"
-          onclick="setFilter('approved',this)"
-        >
-          Approved
-        </button>
+        <div id="taskList" class="task-list">
 
-        <button
-          class="filter-btn"
-          data-filter="rejected"
-          onclick="setFilter('rejected',this)"
-        >
-          Rejected
-        </button>
+          <div class="loading-state">
 
-      </div>
+            <i class="ri-loader-4-line"></i>
 
-    </section>
+            <p>
+              Loading all tasks...
+            </p>
+
+          </div>
+
+        </div>
+
+      </section>
+
+    </div>
+
+  </div>
 
 
-    <!-- TASK LIST -->
-    <section class="list-section">
+  <!-- SUBMISSIONS PANEL -->
+  <div class="overlay" id="overlay">
 
-      <div class="section-header">
+    <div class="panel">
 
-        <div class="section-title">
+      <div class="panel-header">
+
+        <h3>
           <i class="ri-file-list-3-line"></i>
-          All Advertised Tasks
-        </div>
+          Task Submissions
+        </h3>
 
-        <div class="count-text" id="taskCount">
-          0 tasks
-        </div>
+        <button
+          class="close-btn"
+          onclick="closeOverlay()"
+        >
+          <i class="ri-close-line"></i>
+        </button>
 
       </div>
 
+      <div
+        class="panel-body"
+        id="panelBody"
+      ></div>
 
-      <div id="taskList">
+    </div>
 
-        <div class="empty-state">
+  </div>
+
+
+  <!-- TOAST -->
+  <div id="toast" class="toast">
+    Message
+  </div>
+
+
+  <!-- FIREBASE -->
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
+
+
+  <script>
+
+    /* =========================================================
+       FIREBASE CONFIG
+    ========================================================= */
+
+    const firebaseConfig = {
+
+      apiKey:
+        "AIzaSyAv6QCpopa0Q77AVTyjU5cqJEIKIE9OVTs",
+
+      authDomain:
+        "taskvault-412a0.firebaseapp.com",
+
+      databaseURL:
+        "https://taskvault-412a0-default-rtdb.firebaseio.com",
+
+      projectId:
+        "taskvault-412a0",
+
+      storageBucket:
+        "taskvault-412a0.firebasestorage.app",
+
+      messagingSenderId:
+        "420716701831",
+
+      appId:
+        "1:420716701831:web:c987d91f7f4c8684eb7022",
+
+      measurementId:
+        "G-93JG3LB08B"
+
+    };
+
+
+    /* =========================================================
+       INITIALIZE FIREBASE
+    ========================================================= */
+
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+
+    /* =========================================================
+       ADMIN EMAILS
+    ========================================================= */
+
+    const ADMIN_EMAILS = [
+
+      "beniwealth70@gmail.com",
+
+      "baasituoppor01@gmail.com"
+
+    ].map(email => email.toLowerCase());
+
+
+    /* =========================================================
+       GLOBAL VARIABLES
+    ========================================================= */
+
+    let currentUser = null;
+
+    let allTasks = [];
+
+    let allSubmissions = [];
+
+    let authResolved = false;
+
+    let tasksUnsubscribe = null;
+
+
+    /* =========================================================
+       HELPERS
+    ========================================================= */
+
+    function escapeHtml(value) {
+
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+    }
+
+
+    function fmtMoney(value) {
+
+      const amount = Number(value || 0);
+
+      return "$" + amount.toFixed(3);
+
+    }
+
+
+    function niceDate(timestamp) {
+
+      try {
+
+        if (!timestamp) {
+          return "-";
+        }
+
+        let date;
+
+        if (timestamp.toDate) {
+
+          date = timestamp.toDate();
+
+        } else {
+
+          date = new Date(timestamp);
+
+        }
+
+        if (isNaN(date.getTime())) {
+          return "-";
+        }
+
+        return date.toLocaleString(
+          "en-US",
+          {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit"
+          }
+        );
+
+      } catch (error) {
+
+        return "-";
+
+      }
+
+    }
+
+
+    function showToast(message, type = "info") {
+
+      const toast = document.getElementById("toast");
+
+      let icon = "ri-information-line";
+
+      if (type === "success") {
+        icon = "ri-checkbox-circle-line";
+      }
+
+      if (type === "error") {
+        icon = "ri-error-warning-line";
+      }
+
+      toast.className = "toast " + type;
+
+      toast.innerHTML =
+        `<i class="${icon}"></i>${escapeHtml(message)}`;
+
+      toast.classList.add("show");
+
+      clearTimeout(window.toastTimer);
+
+      window.toastTimer = setTimeout(() => {
+
+        toast.classList.remove("show");
+
+      }, 3000);
+
+    }
+
+
+    /* =========================================================
+       AUTH UI
+    ========================================================= */
+
+    function showAuthError(title, message, email = "") {
+
+      document.getElementById("authTitle").textContent = title;
+
+      document.getElementById("authMessage").textContent = message;
+
+      document.getElementById("authEmail").textContent = email;
+
+      document.getElementById("loginButton").style.display = "inline-flex";
+
+    }
+
+
+    function enterAdminApp(user) {
+
+      currentUser = user;
+
+      document.getElementById("authScreen").style.display = "none";
+
+      document.getElementById("app").style.display = "flex";
+
+      document.getElementById("adminEmail").textContent =
+        user.email || "No email";
+
+      document.getElementById("headerAdminEmail").textContent =
+        user.email || "Authenticated admin";
+
+      loadAllTasks();
+
+    }
+
+
+    /* =========================================================
+       AUTHENTICATION
+    ========================================================= */
+
+    auth.onAuthStateChanged(async function(user) {
+
+      console.log("Firebase Auth state changed:", user);
+
+      authResolved = true;
+
+      if (!user) {
+
+        currentUser = null;
+
+        document.getElementById("app").style.display = "none";
+
+        showAuthError(
+          "Not Signed In",
+          "No Firebase user is currently signed in. Please sign in and return to this page."
+        );
+
+        return;
+
+      }
+
+
+      console.log("Logged in user:", user);
+
+      console.log("Email:", user.email);
+
+      console.log("UID:", user.uid);
+
+
+      const email =
+        (user.email || "").toLowerCase().trim();
+
+
+      document.getElementById("authEmail").textContent =
+        email || "Authenticated user";
+
+
+      /*
+       * ADMIN CHECK
+       */
+
+      if (!ADMIN_EMAILS.includes(email)) {
+
+        document.getElementById("app").style.display = "none";
+
+        showAuthError(
+          "Access Denied",
+          "This account is authenticated, but it is not authorized to access the TaskVault admin panel.",
+          email
+        );
+
+        console.warn(
+          "Unauthorized admin attempt:",
+          email
+        );
+
+        return;
+
+      }
+
+
+      /*
+       * Authorized
+       */
+
+      enterAdminApp(user);
+
+    });
+
+
+    /* =========================================================
+       LOAD ALL TASKS
+    ========================================================= */
+
+    async function loadAllTasks() {
+
+      const list = document.getElementById("taskList");
+
+      list.innerHTML = `
+
+        <div class="loading-state">
 
           <i class="ri-loader-4-line"></i>
 
-          <h3>
-            Loading tasks...
-          </h3>
-
           <p>
-            Please wait.
-          </p>
-
-        </div>
-
-      </div>
-
-    </section>
-
-  </div>
-
-
-  <!-- BOTTOM NAV -->
-  <nav class="bottom-nav">
-
-    <a href="menu.html" class="nav-item">
-      <i class="ri-apps-line"></i>
-      <span>Menu</span>
-    </a>
-
-    <a href="deposit.html" class="nav-item">
-      <i class="ri-wallet-3-line"></i>
-      <span>Deposit</span>
-    </a>
-
-    <a href="withdraw.html" class="nav-item">
-      <i class="ri-upload-2-line"></i>
-      <span>Withdraw</span>
-    </a>
-
-    <a href="profile.html" class="nav-item">
-      <i class="ri-user-3-line"></i>
-      <span>Profile</span>
-    </a>
-
-  </nav>
-
-</div>
-
-
-<!-- SUBMISSIONS OVERLAY -->
-<div
-  class="overlay"
-  id="overlay"
-  role="dialog"
-  aria-modal="true"
->
-
-  <div class="panel">
-
-    <div class="panel-header">
-
-      <h3>
-        <i class="ri-file-list-3-line"></i>
-        Task Submissions
-      </h3>
-
-      <button
-        class="close-btn"
-        onclick="closeOverlay()"
-      >
-        <i class="ri-close-line"></i>
-      </button>
-
-    </div>
-
-
-    <div
-      class="panel-body"
-      id="overlayContent"
-    ></div>
-
-  </div>
-
-</div>
-
-
-<!-- TOAST -->
-<div id="toast" class="toast">
-  Message
-</div>
-
-
-<!-- FIREBASE -->
-<script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
-
-
-<script>
-
-  /* =========================================================
-     FIREBASE CONFIG
-  ========================================================= */
-
-  const firebaseConfig = {
-
-    apiKey:
-      "AIzaSyAv6QCpopa0Q77AVTyJ5cqJEIKIE9OVTs",
-
-    authDomain:
-      "taskvault-412a0.firebaseapp.com",
-
-    databaseURL:
-      "https://taskvault-412a0-default-rtdb.firebaseio.com",
-
-    projectId:
-      "taskvault-412a0",
-
-    storageBucket:
-      "taskvault-412a0.firebasestorage.app",
-
-    messagingSenderId:
-      "420716701831",
-
-    appId:
-      "1:420716701831:web:c987d91f7f4c8684eb7022",
-
-    measurementId:
-      "G-93JG3LB08B"
-
-  };
-
-
-  firebase.initializeApp(firebaseConfig);
-
-  const auth = firebase.auth();
-
-  const db = firebase.firestore();
-
-
-  /* =========================================================
-     ADMIN ACCESS
-  ========================================================= */
-
-  const ADMIN_EMAILS = [
-
-    "beniwealth70@gmail.com",
-
-    "baasituoppor01@gmail.com"
-
-  ];
-
-
-  /* =========================================================
-     GLOBAL VARIABLES
-  ========================================================= */
-
-  let currentUser = null;
-
-  let allTasks = [];
-
-  let allSubmissions = [];
-
-  let taskMap = {};
-
-  let activeFilter = "all";
-
-  let unsubscribeTasks = null;
-
-
-  /* =========================================================
-     HELPERS
-  ========================================================= */
-
-  function fmtMoney(value) {
-
-    return "$" + Number(value || 0).toFixed(3);
-
-  }
-
-
-  function escapeHtml(value) {
-
-    return String(value || "")
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
-
-  }
-
-
-  function niceDate(timestamp) {
-
-    try {
-
-      if (!timestamp) return "-";
-
-      if (timestamp.toDate) {
-        timestamp = timestamp.toDate();
-      }
-
-      return new Date(timestamp).toLocaleString(
-        "en-US",
-        {
-          month: "short",
-          day: "numeric",
-          year: "numeric",
-          hour: "2-digit",
-          minute: "2-digit"
-        }
-      );
-
-    } catch {
-
-      return "-";
-
-    }
-
-  }
-
-
-  function showToast(message, type = "info") {
-
-    const toast =
-      document.getElementById("toast");
-
-    toast.textContent = message;
-
-    toast.className =
-      "toast " + type;
-
-    toast.classList.add("show");
-
-    setTimeout(() => {
-
-      toast.classList.remove("show");
-
-    }, 3000);
-
-  }
-
-
-  /* =========================================================
-     AUTHENTICATION
-  ========================================================= */
-
-  auth.onAuthStateChanged(async user => {
-
-    if (!user) {
-
-      document.getElementById(
-        "loadingOverlay"
-      ).style.display = "none";
-
-      showToast(
-        "Please sign in first.",
-        "error"
-      );
-
-      setTimeout(() => {
-
-        window.location.href =
-          "login.html";
-
-      }, 1500);
-
-      return;
-
-    }
-
-
-    const email =
-      (user.email || "")
-      .trim()
-      .toLowerCase();
-
-
-    if (!ADMIN_EMAILS.includes(email)) {
-
-      document.getElementById(
-        "loadingOverlay"
-      ).style.display = "none";
-
-      document.getElementById(
-        "taskList"
-      ).innerHTML = `
-
-        <div class="empty-state">
-
-          <i class="ri-shield-cross-line"
-             style="color:#EF4444;"></i>
-
-          <h3>
-            Unauthorized Access
-          </h3>
-
-          <p>
-            Your account does not have administrator permission.
+            Loading all advertised tasks...
           </p>
 
         </div>
 
       `;
 
-      showToast(
-        "Unauthorized admin access.",
-        "error"
-      );
 
-      return;
+      try {
 
-    }
+        if (!currentUser) {
 
-
-    currentUser = user;
-
-    loadAdminData();
-
-  });
-
-
-  /* =========================================================
-     LOAD ALL TASKS
-  ========================================================= */
-
-  function loadAdminData() {
-
-    if (unsubscribeTasks) {
-
-      unsubscribeTasks();
-
-    }
-
-
-    unsubscribeTasks = db
-      .collection("advertise_tasks")
-      .onSnapshot(
-
-        async snapshot => {
-
-          allTasks = [];
-
-          taskMap = {};
-
-
-          snapshot.forEach(doc => {
-
-            const data = doc.data();
-
-            const task = {
-
-              id: doc.id,
-
-              ...data,
-
-              submissions: [],
-
-              submissionCount: 0,
-
-              pendingCount: 0,
-
-              approvedCount: 0,
-
-              rejectedCount: 0
-
-            };
-
-
-            allTasks.push(task);
-
-            taskMap[doc.id] = task;
-
-          });
-
-
-          allTasks.sort((a,b) => {
-
-            const at =
-              a.createdAt?.toDate
-                ? a.createdAt.toDate().getTime()
-                : 0;
-
-            const bt =
-              b.createdAt?.toDate
-                ? b.createdAt.toDate().getTime()
-                : 0;
-
-            return bt - at;
-
-          });
-
-
-          await loadAllSubmissions();
-
-
-          renderTasks();
-
-          updateStats();
-
-
-          document.getElementById(
-            "loadingOverlay"
-          ).style.display = "none";
-
-        },
-
-        error => {
-
-          console.error(error);
-
-          document.getElementById(
-            "loadingOverlay"
-          ).style.display = "none";
-
-
-          document.getElementById(
-            "taskList"
-          ).innerHTML = `
-
-            <div class="empty-state">
-
-              <i class="ri-error-warning-line"
-                 style="color:#EF4444;"></i>
-
-              <h3>
-                Failed to load data
-              </h3>
-
-              <p>
-                ${escapeHtml(error.message)}
-              </p>
-
-            </div>
-
-          `;
-
-          showToast(
-            "Failed to load admin data.",
-            "error"
+          throw new Error(
+            "Firebase authentication is not ready."
           );
 
         }
 
-      );
 
-  }
+        /*
+         * IMPORTANT:
+         *
+         * No "where owner == currentUser.uid"
+         *
+         * because this is an ADMIN page.
+         */
+
+        const taskSnapshot =
+          await db.collection("advertise_tasks")
+            .get();
 
 
-  /* =========================================================
-     LOAD ALL SUBMISSIONS
-  ========================================================= */
-
-  async function loadAllSubmissions() {
-
-    allSubmissions = [];
+        allTasks = [];
 
 
-    try {
+        taskSnapshot.forEach(doc => {
 
-      const snapshot = await db
-        .collection("advert_submissions")
-        .get();
+          const data = doc.data();
+
+          allTasks.push({
+
+            id: doc.id,
+
+            ...data,
+
+            submissions: [],
+
+            submissionCount: 0,
+
+            approvedCount: 0,
+
+            pendingCount: 0,
+
+            rejectedCount: 0
+
+          });
+
+        });
+
+
+        /*
+         * Sort newest first
+         */
+
+        allTasks.sort((a, b) => {
+
+          const aTime =
+            a.createdAt?.toDate
+              ? a.createdAt.toDate().getTime()
+              : 0;
+
+          const bTime =
+            b.createdAt?.toDate
+              ? b.createdAt.toDate().getTime()
+              : 0;
+
+          return bTime - aTime;
+
+        });
+
+
+        /*
+         * Load submissions
+         */
+
+        await loadAllSubmissions();
+
+
+        updateStats();
+
+        renderTasks();
+
+
+      } catch (error) {
+
+        console.error(
+          "Error loading admin tasks:",
+          error
+        );
+
+        list.innerHTML = `
+
+          <div class="error-state">
+
+            <i class="ri-error-warning-line"></i>
+
+            <h3>
+              Failed to load tasks
+            </h3>
+
+            <p>
+              ${escapeHtml(error.message || "Unknown Firestore error")}
+            </p>
+
+          </div>
+
+        `;
+
+        showToast(
+          error.message || "Failed to load tasks",
+          "error"
+        );
+
+      }
+
+    }
+
+
+    /* =========================================================
+       LOAD ALL SUBMISSIONS
+    ========================================================= */
+
+    async function loadAllSubmissions() {
+
+      allSubmissions = [];
+
+
+      /*
+       * Load every submission.
+       *
+       * This avoids requiring one Firestore query per task.
+       */
+
+      const snapshot =
+        await db.collection("advert_submissions")
+          .get();
 
 
       snapshot.forEach(doc => {
 
-        const submission = {
+        const data = doc.data();
+
+        allSubmissions.push({
 
           id: doc.id,
 
-          ...doc.data()
+          ...data
 
-        };
-
-
-        allSubmissions.push(
-          submission
-        );
-
-
-        const task =
-          taskMap[submission.advertId];
-
-
-        if (!task) return;
-
-
-        task.submissions.push(
-          submission
-        );
-
-        task.submissionCount++;
-
-
-        const status =
-          (submission.status || "pending")
-          .toLowerCase();
-
-
-        if (status === "pending") {
-
-          task.pendingCount++;
-
-        }
-
-        if (status === "approved") {
-
-          task.approvedCount++;
-
-        }
-
-        if (status === "rejected") {
-
-          task.rejectedCount++;
-
-        }
+        });
 
       });
 
+
+      /*
+       * Attach submissions to their tasks.
+       */
 
       allTasks.forEach(task => {
 
-        task.submissions.sort(
-          (a,b) => {
+        task.submissions = [];
 
-            const at =
-              a.createdAt?.toDate
-                ? a.createdAt.toDate().getTime()
-                : 0;
+        task.submissionCount = 0;
 
-            const bt =
-              b.createdAt?.toDate
-                ? b.createdAt.toDate().getTime()
-                : 0;
+        task.approvedCount = 0;
 
-            return bt - at;
+        task.pendingCount = 0;
+
+        task.rejectedCount = 0;
+
+
+        const taskSubs =
+          allSubmissions.filter(
+            sub => String(sub.advertId || "") === String(task.id)
+          );
+
+
+        task.submissions = taskSubs;
+
+        task.submissionCount = taskSubs.length;
+
+
+        taskSubs.forEach(sub => {
+
+          const status =
+            String(sub.status || "pending")
+              .toLowerCase();
+
+
+          if (status === "approved") {
+
+            task.approvedCount++;
+
+          } else if (status === "rejected") {
+
+            task.rejectedCount++;
+
+          } else {
+
+            task.pendingCount++;
 
           }
-        );
+
+        });
 
       });
 
+    }
 
-    } catch (error) {
 
-      console.error(
-        "Submission loading error:",
-        error
-      );
+    /* =========================================================
+       UPDATE STATS
+    ========================================================= */
 
-      showToast(
-        "Could not load submissions.",
-        "error"
-      );
+    function updateStats() {
+
+      const totalTasks = allTasks.length;
+
+      const totalSubmissions =
+        allSubmissions.length;
+
+      const pending =
+        allSubmissions.filter(
+          sub =>
+            String(sub.status || "pending")
+              .toLowerCase() === "pending"
+        ).length;
+
+
+      const approved =
+        allSubmissions.filter(
+          sub =>
+            String(sub.status || "")
+              .toLowerCase() === "approved"
+        ).length;
+
+
+      document.getElementById("statTasks")
+        .textContent = totalTasks;
+
+      document.getElementById("statSubmissions")
+        .textContent = totalSubmissions;
+
+      document.getElementById("statPending")
+        .textContent = pending;
+
+      document.getElementById("statApproved")
+        .textContent = approved;
 
     }
 
-  }
+
+    /* =========================================================
+       RENDER TASKS
+    ========================================================= */
+
+    function renderTasks() {
+
+      const list =
+        document.getElementById("taskList");
+
+      const search =
+        document.getElementById("searchInput")
+          .value
+          .toLowerCase()
+          .trim();
 
 
-  /* =========================================================
-     STATISTICS
-  ========================================================= */
-
-  function updateStats() {
-
-    const totalTasks =
-      allTasks.length;
+      let tasks = allTasks;
 
 
-    const totalSubmissions =
-      allSubmissions.length;
+      if (search) {
+
+        tasks = allTasks.filter(task => {
+
+          const title =
+            String(task.title || "")
+              .toLowerCase();
+
+          const platform =
+            String(task.platform || "")
+              .toLowerCase();
+
+          const owner =
+            String(task.owner || "")
+              .toLowerCase();
+
+          const status =
+            String(task.status || "")
+              .toLowerCase();
 
 
-    const pending =
-      allSubmissions.filter(
-        s =>
-          (s.status || "pending")
-          .toLowerCase() === "pending"
-      ).length;
-
-
-    const approved =
-      allSubmissions.filter(
-        s =>
-          (s.status || "")
-          .toLowerCase() === "approved"
-      ).length;
-
-
-    let paid = 0;
-
-
-    allSubmissions.forEach(s => {
-
-      if (
-        (s.status || "")
-        .toLowerCase() === "approved"
-      ) {
-
-        const task =
-          taskMap[s.advertId];
-
-        if (task) {
-
-          paid += Number(
-            task.unitPrice || 0
+          return (
+            title.includes(search) ||
+            platform.includes(search) ||
+            owner.includes(search) ||
+            status.includes(search)
           );
 
-        }
+        });
 
       }
 
-    });
 
+      document.getElementById("resultCount")
+        .textContent =
+          `${tasks.length} task${tasks.length !== 1 ? "s" : ""}`;
 
-    document.getElementById(
-      "statTasks"
-    ).textContent = totalTasks;
 
+      if (!tasks.length) {
 
-    document.getElementById(
-      "statSubmissions"
-    ).textContent = totalSubmissions;
+        list.innerHTML = `
 
+          <div class="empty-state">
 
-    document.getElementById(
-      "statPending"
-    ).textContent = pending;
+            <i class="ri-folder-open-line"></i>
 
+            <h3>
+              ${search ? "No matching tasks" : "No advertised tasks"}
+            </h3>
 
-    document.getElementById(
-      "statApproved"
-    ).textContent = approved;
-
-
-    document.getElementById(
-      "statPaid"
-    ).textContent = fmtMoney(paid);
-
-  }
-
-
-  /* =========================================================
-     FILTER
-  ========================================================= */
-
-  function setFilter(filter, button) {
-
-    activeFilter = filter;
-
-
-    document.querySelectorAll(
-      ".filter-btn"
-    ).forEach(btn => {
-
-      btn.classList.remove(
-        "active"
-      );
-
-    });
-
-
-    button.classList.add(
-      "active"
-    );
-
-
-    renderTasks();
-
-  }
-
-
-  /* =========================================================
-     SEARCH
-  ========================================================= */
-
-  document
-    .getElementById("searchInput")
-    .addEventListener(
-      "input",
-      renderTasks
-    );
-
-
-  /* =========================================================
-     RENDER TASKS
-  ========================================================= */
-
-  function renderTasks() {
-
-    const search =
-      (
-        document.getElementById(
-          "searchInput"
-        ).value || ""
-      )
-      .toLowerCase()
-      .trim();
-
-
-    const list =
-      document.getElementById(
-        "taskList"
-      );
-
-
-    let filtered =
-      allTasks.filter(task => {
-
-
-        let matchesSearch = true;
-
-
-        if (search) {
-
-          const taskText = (
-
-            (task.title || "") +
-            " " +
-            (task.platform || "") +
-            " " +
-            (task.subcategory || "") +
-            " " +
-            (task.owner || "")
-
-          ).toLowerCase();
-
-
-          const workerText =
-            task.submissions
-              .map(s =>
-                (
-                  s.username ||
-                  s.userName ||
-                  s.userId ||
-                  ""
-                ).toLowerCase()
-              )
-              .join(" ");
-
-
-          matchesSearch =
-            taskText.includes(search) ||
-            workerText.includes(search);
-
-        }
-
-
-        let matchesFilter = true;
-
-
-        if (activeFilter !== "all") {
-
-          matchesFilter =
-            task.submissions.some(
-              s =>
-                (s.status || "pending")
-                .toLowerCase() ===
-                activeFilter
-            );
-
-        }
-
-
-        return (
-          matchesSearch &&
-          matchesFilter
-        );
-
-      });
-
-
-    document.getElementById(
-      "taskCount"
-    ).textContent =
-      filtered.length +
-      " task" +
-      (filtered.length !== 1 ? "s" : "");
-
-
-    if (!filtered.length) {
-
-      list.innerHTML = `
-
-        <div class="empty-state">
-
-          <i class="ri-inbox-line"></i>
-
-          <h3>
-            No tasks found
-          </h3>
-
-          <p>
-            No advertised tasks match your search or filter.
-          </p>
-
-        </div>
-
-      `;
-
-      return;
-
-    }
-
-
-    list.innerHTML = "";
-
-
-    filtered.forEach(task => {
-
-      const card =
-        document.createElement("div");
-
-
-      card.className =
-        "task-card fade-in";
-
-
-      const status =
-        (task.status || "pending")
-        .toLowerCase();
-
-
-      card.innerHTML = `
-
-        <div class="task-top">
-
-          <div class="task-title">
-
-            ${escapeHtml(
-              task.title ||
-              "Untitled Task"
-            )}
+            <p>
+              ${search
+                ? "Try another search term."
+                : "There are currently no advertised tasks."}
+            </p>
 
           </div>
-
-          <div class="task-status ${status}">
-
-            ${escapeHtml(
-              task.status ||
-              "PENDING"
-            )}
-
-          </div>
-
-        </div>
-
-
-        <div class="task-meta">
-
-          <div class="meta">
-            <i class="ri-global-line"></i>
-            ${escapeHtml(
-              task.platform || "-"
-            )}
-          </div>
-
-          <div class="meta">
-            <i class="ri-price-tag-3-line"></i>
-            ${escapeHtml(
-              task.subcategory || "-"
-            )}
-          </div>
-
-          <div class="meta">
-            <i class="ri-calendar-line"></i>
-            ${niceDate(
-              task.createdAt
-            )}
-          </div>
-
-        </div>
-
-
-        <div class="task-owner">
-
-          <i class="ri-user-line"></i>
-
-          Advertiser:
-
-          <strong>
-            ${escapeHtml(
-              task.owner || "Unknown"
-            )}
-          </strong>
-
-        </div>
-
-
-        <div class="task-stats">
-
-          <div class="mini-stat">
-
-            <div class="mini-value">
-              ${task.submissionCount}
-            </div>
-
-            <div class="mini-label">
-              Submissions
-            </div>
-
-          </div>
-
-
-          <div class="mini-stat">
-
-            <div
-              class="mini-value"
-              style="color:var(--warning);"
-            >
-              ${task.pendingCount}
-            </div>
-
-            <div class="mini-label">
-              Pending
-            </div>
-
-          </div>
-
-
-          <div class="mini-stat">
-
-            <div
-              class="mini-value"
-              style="color:var(--success);"
-            >
-              ${task.approvedCount}
-            </div>
-
-            <div class="mini-label">
-              Approved
-            </div>
-
-          </div>
-
-        </div>
-
-
-        <button
-          class="view-submissions-btn"
-          onclick="openSubmissions('${task.id}')"
-        >
-
-          <i class="ri-file-list-3-line"></i>
-
-          View Submissions
-          (${task.submissionCount})
-
-        </button>
-
-      `;
-
-
-      list.appendChild(card);
-
-    });
-
-  }
-
-
-  /* =========================================================
-     OPEN SUBMISSIONS
-  ========================================================= */
-
-  function openSubmissions(taskId) {
-
-    const task =
-      taskMap[taskId];
-
-
-    if (!task) {
-
-      showToast(
-        "Task not found.",
-        "error"
-      );
-
-      return;
-
-    }
-
-
-    const content =
-      document.getElementById(
-        "overlayContent"
-      );
-
-
-    let submissions =
-      [...task.submissions];
-
-
-    if (activeFilter !== "all") {
-
-      submissions =
-        submissions.filter(
-          s =>
-            (s.status || "pending")
-            .toLowerCase() ===
-            activeFilter
-        );
-
-    }
-
-
-    const summary = `
-
-      <div class="summary-card">
-
-        <div class="summary-title">
-
-          ${escapeHtml(
-            task.title ||
-            "Untitled Task"
-          )}
-
-        </div>
-
-
-        <div class="summary-meta">
-
-          <span>
-            <i class="ri-global-line"></i>
-            ${escapeHtml(
-              task.platform || "-"
-            )}
-          </span>
-
-          <span>
-            <i class="ri-coins-line"></i>
-            ${fmtMoney(
-              task.unitPrice
-            )} / worker
-          </span>
-
-          <span>
-            <i class="ri-user-line"></i>
-            ${task.submissionCount}
-            submissions
-          </span>
-
-          <span>
-            <i class="ri-time-line"></i>
-            ${niceDate(
-              task.createdAt
-            )}
-          </span>
-
-        </div>
-
-      </div>
-
-    `;
-
-
-    if (!submissions.length) {
-
-      content.innerHTML =
-        summary +
-        `
-
-        <div class="empty-state">
-
-          <i class="ri-inbox-line"></i>
-
-          <h3>
-            No submissions
-          </h3>
-
-          <p>
-            There are no submissions matching the current filter.
-          </p>
-
-        </div>
 
         `;
 
-    } else {
+        return;
 
-      content.innerHTML =
-        summary +
-        submissions
-          .map(sub =>
-            renderSubmission(
-              task,
-              sub
-            )
-          )
-          .join("");
-
-    }
+      }
 
 
-    document
-      .getElementById("overlay")
-      .classList.add("show");
+      list.innerHTML = "";
 
 
-    document.body.style.overflow =
-      "hidden";
+      tasks.forEach(task => {
 
-  }
-
-
-  /* =========================================================
-     RENDER SUBMISSION
-  ========================================================= */
-
-  function renderSubmission(
-    task,
-    sub
-  ) {
-
-    const status =
-      (sub.status || "pending")
-      .toLowerCase();
+        const status =
+          String(task.status || "pending")
+            .toLowerCase();
 
 
-    const worker =
-      sub.username ||
-      sub.userName ||
-      sub.userId ||
-      "Unknown Worker";
+        const card =
+          document.createElement("div");
+
+        card.className = "task-card";
 
 
-    let html = `
+        card.innerHTML = `
 
-      <div
-        class="submission-card"
-        id="submission-${sub.id}"
-      >
+          <div class="task-top">
 
-        <div class="submission-top">
+            <div>
 
-          <div class="worker-name">
+              <div class="task-title">
+                ${escapeHtml(task.title || "Untitled Task")}
+              </div>
 
-            <i class="ri-user-3-line"></i>
+              <div class="task-owner">
+                Owner UID:
+                ${escapeHtml(task.owner || "Unknown")}
+              </div>
 
-            ${escapeHtml(worker)}
+            </div>
+
+            <div class="status ${status}">
+              ${escapeHtml(task.status || "PENDING")}
+            </div>
 
           </div>
 
-          <div class="submission-status ${status}">
 
-            ${escapeHtml(
-              sub.status ||
-              "PENDING"
-            )}
+          <div class="task-meta">
+
+            <span class="meta">
+              <i class="ri-global-line"></i>
+              ${escapeHtml(task.platform || "-")}
+            </span>
+
+            <span class="meta">
+              <i class="ri-price-tag-3-line"></i>
+              ${escapeHtml(task.subcategory || "-")}
+            </span>
+
+            <span class="meta">
+              <i class="ri-time-line"></i>
+              ${niceDate(task.createdAt)}
+            </span>
 
           </div>
 
-        </div>
+
+          <div class="task-stats">
+
+            <div class="task-stat">
+
+              <div class="task-stat-value">
+                ${fmtMoney(task.unitPrice)}
+              </div>
+
+              <div class="task-stat-label">
+                Reward
+              </div>
+
+            </div>
 
 
-        <div class="submission-date">
+            <div class="task-stat">
 
-          Submitted:
-          ${niceDate(
-            sub.createdAt
-          )}
+              <div class="task-stat-value">
+                ${task.workers || 0}
+              </div>
 
-        </div>
+              <div class="task-stat-label">
+                Workers
+              </div>
 
-    `;
-
-
-    if (sub.textProof) {
-
-      html += `
-
-        <div class="proof">
-
-          ${escapeHtml(
-            sub.textProof
-          )}
-
-        </div>
-
-      `;
-
-    }
+            </div>
 
 
-    if (sub.imageUrl) {
+            <div class="task-stat">
 
-      html += `
+              <div class="task-stat-value">
+                ${task.submissionCount}
+              </div>
 
-        <img
-          class="proof-img"
-          src="${escapeHtml(
-            sub.imageUrl
-          )}"
-          alt="Submission proof"
-          onclick="window.open(
-            '${escapeHtml(
-              sub.imageUrl
-            )}',
-            '_blank'
-          )"
-        >
+              <div class="task-stat-label">
+                Submitted
+              </div>
 
-      `;
-
-    }
+            </div>
 
 
-    if (status === "pending") {
+            <div class="task-stat">
 
-      html += `
+              <div class="task-stat-value"
+                   style="color:var(--warning);">
 
-        <div class="submission-actions">
+                ${task.pendingCount}
 
-          <button
-            class="action-btn approve-btn"
-            onclick="reviewSubmission(
-              '${task.id}',
-              '${sub.id}',
-              '${escapeJs(sub.userId || "")}',
-              'approved'
-            )"
-          >
+              </div>
 
-            <i class="ri-check-line"></i>
+              <div class="task-stat-label">
+                Pending
+              </div>
 
-            Approve & Pay
-            ${fmtMoney(
-              task.unitPrice
-            )}
+            </div>
+
+          </div>
+
+
+          <button class="view-btn">
+
+            <i class="ri-file-list-3-line"></i>
+
+            View Submissions
+            (${task.submissionCount})
 
           </button>
 
+        `;
 
-          <button
-            class="action-btn reject-btn"
-            onclick="reviewSubmission(
-              '${task.id}',
-              '${sub.id}',
-              '${escapeJs(sub.userId || "")}',
-              'rejected'
-            )"
-          >
 
-            <i class="ri-close-line"></i>
+        card
+          .querySelector(".view-btn")
+          .addEventListener(
+            "click",
+            () => openTask(task.id)
+          );
 
-            Reject
 
-          </button>
+        list.appendChild(card);
 
-        </div>
-
-      `;
+      });
 
     }
 
 
-    if (status === "approved") {
+    /* =========================================================
+       OPEN TASK
+    ========================================================= */
 
-      html += `
+    function openTask(taskId) {
 
-        <div class="credited">
-
-          <i class="ri-checkbox-circle-line"></i>
-
-          Approved and
-          ${fmtMoney(
-            task.unitPrice
-          )}
-          credited to worker
-
-        </div>
-
-      `;
-
-    }
-
-
-    if (status === "rejected") {
-
-      html += `
-
-        <div class="rejected-note">
-
-          <i class="ri-close-circle-line"></i>
-
-          Submission rejected
-
-        </div>
-
-      `;
-
-    }
-
-
-    html += `</div>`;
-
-
-    return html;
-
-  }
-
-
-  function escapeJs(value) {
-
-    return String(value || "")
-      .replace(/\\/g,"\\\\")
-      .replace(/'/g,"\\'")
-      .replace(/"/g,'\\"')
-      .replace(/\n/g,"\\n")
-      .replace(/\r/g,"\\r");
-
-  }
-
-
-  /* =========================================================
-     APPROVE / REJECT
-  ========================================================= */
-
-  async function reviewSubmission(
-    taskId,
-    submissionId,
-    userId,
-    newStatus
-  ) {
-
-    if (!currentUser) {
-
-      showToast(
-        "Admin session expired.",
-        "error"
-      );
-
-      return;
-
-    }
-
-
-    const task =
-      taskMap[taskId];
-
-
-    if (!task) {
-
-      showToast(
-        "Task not found.",
-        "error"
-      );
-
-      return;
-
-    }
-
-
-    const reward =
-      Number(
-        task.unitPrice || 0
-      );
-
-
-    if (
-      newStatus === "approved" &&
-      reward <= 0
-    ) {
-
-      showToast(
-        "This task has an invalid reward amount.",
-        "error"
-      );
-
-      return;
-
-    }
-
-
-    if (newStatus === "rejected") {
-
-      const confirmed =
-        confirm(
-          "Reject this submission?"
+      const task =
+        allTasks.find(
+          item => item.id === taskId
         );
 
-      if (!confirmed) return;
 
-    }
-
-
-    if (newStatus === "approved") {
-
-      const confirmed =
-        confirm(
-          "Approve this submission and credit " +
-          fmtMoney(reward) +
-          " to the worker?"
-        );
-
-      if (!confirmed) return;
-
-    }
-
-
-    try {
-
-      const subRef =
-        db
-          .collection(
-            "advert_submissions"
-          )
-          .doc(submissionId);
-
-
-      const subDoc =
-        await subRef.get();
-
-
-      if (!subDoc.exists) {
+      if (!task) {
 
         showToast(
-          "Submission no longer exists.",
+          "Task could not be found.",
           "error"
         );
 
@@ -2452,147 +1919,652 @@
       }
 
 
-      const subData =
-        subDoc.data();
+      const body =
+        document.getElementById("panelBody");
 
 
-      const currentStatus =
+      const submissions =
+        task.submissions || [];
+
+
+      let html = `
+
+        <div class="summary">
+
+          <div class="summary-title">
+            ${escapeHtml(task.title || "Untitled Task")}
+          </div>
+
+          <div class="summary-owner">
+            Owner UID:
+            ${escapeHtml(task.owner || "Unknown")}
+          </div>
+
+
+          <div class="summary-grid">
+
+            <div class="summary-item">
+
+              <div class="summary-value">
+                ${fmtMoney(task.unitPrice)}
+              </div>
+
+              <div class="summary-label">
+                Reward
+              </div>
+
+            </div>
+
+
+            <div class="summary-item">
+
+              <div class="summary-value">
+                ${task.submissionCount}
+              </div>
+
+              <div class="summary-label">
+                Submitted
+              </div>
+
+            </div>
+
+
+            <div class="summary-item">
+
+              <div class="summary-value"
+                   style="color:var(--warning);">
+
+                ${task.pendingCount}
+
+              </div>
+
+              <div class="summary-label">
+                Pending
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <div class="submission-list">
+      `;
+
+
+      if (!submissions.length) {
+
+        html += `
+
+          <div class="empty-state">
+
+            <i class="ri-inbox-line"></i>
+
+            <h3>
+              No submissions
+            </h3>
+
+            <p>
+              No worker has submitted proof for this task yet.
+            </p>
+
+          </div>
+
+        `;
+
+      } else {
+
+        /*
+         * Newest submissions first
+         */
+
+        const sorted =
+          [...submissions].sort((a,b) => {
+
+            const aTime =
+              a.createdAt?.toDate
+                ? a.createdAt.toDate().getTime()
+                : 0;
+
+            const bTime =
+              b.createdAt?.toDate
+                ? b.createdAt.toDate().getTime()
+                : 0;
+
+            return bTime - aTime;
+
+          });
+
+
+        sorted.forEach(sub => {
+
+          html += renderSubmission(
+            task,
+            sub
+          );
+
+        });
+
+      }
+
+
+      html += `</div>`;
+
+
+      body.innerHTML = html;
+
+
+      document
+        .getElementById("overlay")
+        .classList.add("show");
+
+
+      document.body.style.overflow = "hidden";
+
+    }
+
+
+    /* =========================================================
+       RENDER SUBMISSION
+    ========================================================= */
+
+    function renderSubmission(task, sub) {
+
+      const status =
+        String(sub.status || "pending")
+          .toLowerCase();
+
+
+      const username =
+        sub.username ||
+        sub.userName ||
+        sub.email ||
         (
-          subData.status ||
-          "pending"
-        ).toLowerCase();
-
-
-      /* Prevent duplicate processing */
-
-      if (
-        currentStatus === "approved" ||
-        currentStatus === "rejected"
-      ) {
-
-        showToast(
-          "This submission has already been reviewed.",
-          "info"
+          sub.userId
+            ? sub.userId.substring(0, 12)
+            : "Unknown worker"
         );
 
-        await loadAllSubmissions();
 
-        renderTasks();
+      let html = `
 
-        updateStats();
+        <div class="submission">
 
-        openSubmissions(taskId);
+          <div class="submission-top">
+
+            <div>
+
+              <div class="worker-name">
+                ${escapeHtml(username)}
+              </div>
+
+              <div class="worker-id">
+                User ID:
+                ${escapeHtml(sub.userId || "Unknown")}
+              </div>
+
+            </div>
+
+
+            <div class="status ${status}">
+              ${escapeHtml(sub.status || "PENDING")}
+            </div>
+
+          </div>
+
+
+          <div class="submission-date">
+
+            Submitted:
+            ${niceDate(sub.createdAt)}
+
+          </div>
+
+      `;
+
+
+      if (sub.textProof) {
+
+        html += `
+
+          <div class="proof">
+            ${escapeHtml(sub.textProof)}
+          </div>
+
+        `;
+
+      }
+
+
+      if (sub.imageUrl) {
+
+        html += `
+
+          <img
+            class="proof-image"
+            src="${escapeHtml(sub.imageUrl)}"
+            alt="Worker proof"
+            onclick="window.open(this.src, '_blank')"
+          >
+
+        `;
+
+      }
+
+
+      if (status === "pending") {
+
+        html += `
+
+          <div class="actions">
+
+            <button
+              class="action-btn approve-btn"
+              onclick="reviewSubmission(
+                '${escapeHtml(task.id)}',
+                '${escapeHtml(sub.id)}',
+                '${escapeHtml(sub.userId || "")}',
+                'approved'
+              )"
+            >
+
+              <i class="ri-check-line"></i>
+
+              Approve & Pay
+
+            </button>
+
+
+            <button
+              class="action-btn reject-btn"
+              onclick="reviewSubmission(
+                '${escapeHtml(task.id)}',
+                '${escapeHtml(sub.id)}',
+                '${escapeHtml(sub.userId || "")}',
+                'rejected'
+              )"
+            >
+
+              <i class="ri-close-line"></i>
+
+              Reject
+
+            </button>
+
+          </div>
+
+        `;
+
+      } else if (status === "approved") {
+
+        html += `
+
+          <div class="reviewed-message approved">
+
+            <i class="ri-checkbox-circle-line"></i>
+
+            Approved and reward credited:
+            ${fmtMoney(task.unitPrice)}
+
+          </div>
+
+        `;
+
+      } else if (status === "rejected") {
+
+        html += `
+
+          <div class="reviewed-message rejected">
+
+            <i class="ri-close-circle-line"></i>
+
+            This submission was rejected.
+
+          </div>
+
+        `;
+
+      }
+
+
+      html += `</div>`;
+
+
+      return html;
+
+    }
+
+
+    /* =========================================================
+       REVIEW SUBMISSION
+    ========================================================= */
+
+    async function reviewSubmission(
+      taskId,
+      submissionId,
+      userId,
+      newStatus
+    ) {
+
+      if (!currentUser) {
+
+        showToast(
+          "Your admin session has expired.",
+          "error"
+        );
 
         return;
 
       }
 
 
-      const now =
-        firebase.firestore
-          .FieldValue
-          .serverTimestamp();
+      const task =
+        allTasks.find(
+          item => item.id === taskId
+        );
 
 
-      const batch =
-        db.batch();
+      if (!task) {
+
+        showToast(
+          "Task not found.",
+          "error"
+        );
+
+        return;
+
+      }
 
 
-      /* ============================================
-         1. UPDATE SUBMISSION
-      ============================================ */
+      if (!submissionId) {
 
-      batch.update(
-        subRef,
-        {
+        showToast(
+          "Submission ID is missing.",
+          "error"
+        );
 
-          status:
-            newStatus,
+        return;
 
-          reviewedAt:
-            now,
+      }
 
-          reviewedBy:
-            currentUser.uid,
-
-          reviewedByEmail:
-            currentUser.email
-
-        }
-      );
-
-
-      /* ============================================
-         2. APPROVAL PAYMENT
-      ============================================ */
 
       if (
-        newStatus === "approved"
+        newStatus === "approved" &&
+        !userId
       ) {
 
-        if (!userId) {
+        showToast(
+          "This submission has no worker user ID, so payment cannot be credited.",
+          "error"
+        );
+
+        return;
+
+      }
+
+
+      const confirmed =
+        confirm(
+          newStatus === "approved"
+            ? `Approve this submission and credit ${fmtMoney(task.unitPrice)} to the worker?`
+            : "Reject this submission?"
+        );
+
+
+      if (!confirmed) {
+        return;
+      }
+
+
+      try {
+
+        showToast(
+          "Processing...",
+          "info"
+        );
+
+
+        /*
+         * Read the submission again.
+         *
+         * This protects against approving an already-reviewed
+         * submission from another browser/admin session.
+         */
+
+        const subRef =
+          db.collection("advert_submissions")
+            .doc(submissionId);
+
+
+        const subDoc =
+          await subRef.get();
+
+
+        if (!subDoc.exists) {
 
           throw new Error(
-            "Worker ID is missing. Cannot credit this submission."
+            "Submission no longer exists."
           );
 
         }
 
 
-        const userRef =
-          db
-            .collection("users")
-            .doc(userId);
+        const subData =
+          subDoc.data();
 
 
-        const userDoc =
-          await userRef.get();
+        const currentStatus =
+          String(
+            subData.status || "pending"
+          ).toLowerCase();
 
 
-        if (!userDoc.exists) {
+        /*
+         * Prevent double approval.
+         */
 
-          batch.set(
-            userRef,
-            {
+        if (
+          currentStatus === "approved"
+        ) {
 
-              balance:
-                reward,
-
-              totalEarned:
-                reward,
-
-              updatedAt:
-                now,
-
-              createdAt:
-                now
-
-            },
-            { merge: true }
+          showToast(
+            "This submission has already been approved and paid.",
+            "info"
           );
 
-        } else {
+          await loadAllTasks();
+
+          openTask(taskId);
+
+          return;
+
+        }
+
+
+        /*
+         * Prevent duplicate rejection.
+         */
+
+        if (
+          currentStatus === "rejected" &&
+          newStatus === "rejected"
+        ) {
+
+          showToast(
+            "This submission has already been rejected.",
+            "info"
+          );
+
+          return;
+
+        }
+
+
+        const batch =
+          db.batch();
+
+
+        const now =
+          firebase.firestore.FieldValue.serverTimestamp();
+
+
+        /*
+         * 1. Update submission
+         */
+
+        batch.update(
+          subRef,
+          {
+
+            status: newStatus,
+
+            reviewedAt: now,
+
+            reviewedBy:
+              currentUser.uid,
+
+            reviewedByEmail:
+              currentUser.email || ""
+
+          }
+        );
+
+
+        /*
+         * 2. APPROVE + PAY
+         */
+
+        if (
+          newStatus === "approved"
+        ) {
+
+          const reward =
+            Number(task.unitPrice || 0);
+
+
+          if (
+            !Number.isFinite(reward) ||
+            reward <= 0
+          ) {
+
+            throw new Error(
+              "Invalid task reward amount."
+            );
+
+          }
+
+
+          const userRef =
+            db.collection("users")
+              .doc(userId);
+
+
+          const userDoc =
+            await userRef.get();
+
+
+          if (!userDoc.exists) {
+
+            /*
+             * Create missing worker document.
+             */
+
+            batch.set(
+              userRef,
+              {
+
+                balance: reward,
+
+                totalEarned: reward,
+
+                updatedAt: now,
+
+                createdAt: now
+
+              },
+              { merge: true }
+            );
+
+          } else {
+
+            /*
+             * Increment existing balance.
+             */
+
+            batch.update(
+              userRef,
+              {
+
+                balance:
+                  firebase.firestore.FieldValue
+                    .increment(reward),
+
+                totalEarned:
+                  firebase.firestore.FieldValue
+                    .increment(reward),
+
+                updatedAt: now
+
+              }
+            );
+
+          }
+
+
+          /*
+           * Update task approved count.
+           */
+
+          const taskRef =
+            db.collection("advertise_tasks")
+              .doc(taskId);
+
 
           batch.update(
-            userRef,
+            taskRef,
             {
 
-              balance:
-                firebase.firestore
-                  .FieldValue
-                  .increment(
-                    reward
-                  ),
+              approvedCount:
+                firebase.firestore.FieldValue
+                  .increment(1)
 
-              totalEarned:
-                firebase.firestore
-                  .FieldValue
-                  .increment(
-                    reward
-                  ),
+            }
+          );
 
-              updatedAt:
-                now
+
+          /*
+           * Earnings audit record.
+           */
+
+          const earningRef =
+            db.collection("earnings")
+              .doc();
+
+
+          batch.set(
+            earningRef,
+            {
+
+              userId: userId,
+
+              advertId: taskId,
+
+              submissionId: submissionId,
+
+              amount: reward,
+
+              type: "task_reward",
+
+              status: "completed",
+
+              reviewedBy:
+                currentUser.uid,
+
+              reviewedByEmail:
+                currentUser.email || "",
+
+              createdAt: now
 
             }
           );
@@ -2600,158 +2572,98 @@
         }
 
 
-        /* ========================================
-           3. UPDATE TASK APPROVED COUNT
-        ======================================== */
+        /*
+         * Atomic commit
+         */
 
-        const taskRef =
-          db
-            .collection(
-              "advertise_tasks"
-            )
-            .doc(taskId);
+        await batch.commit();
 
 
-        batch.update(
-          taskRef,
-          {
-
-            approvedCount:
-              firebase.firestore
-                .FieldValue
-                .increment(1),
-
-            updatedAt:
-              now
-
-          }
+        showToast(
+          newStatus === "approved"
+            ? `${fmtMoney(task.unitPrice)} credited successfully.`
+            : "Submission rejected successfully.",
+          "success"
         );
 
 
-        /* ========================================
-           4. CREATE EARNINGS RECORD
-        ======================================== */
+        /*
+         * Reload everything from Firestore.
+         */
 
-        const earningRef =
-          db
-            .collection(
-              "earnings"
-            )
-            .doc();
+        await loadAllTasks();
 
 
-        batch.set(
-          earningRef,
-          {
+        /*
+         * Reopen task with fresh data.
+         */
 
-            userId:
-              userId,
+        openTask(taskId);
 
-            advertId:
-              taskId,
 
-            submissionId:
-              submissionId,
+      } catch (error) {
 
-            amount:
-              reward,
+        console.error(
+          "Review submission error:",
+          error
+        );
 
-            type:
-              "task_reward",
 
-            status:
-              "completed",
-
-            reviewedBy:
-              currentUser.uid,
-
-            reviewedByEmail:
-              currentUser.email,
-
-            createdAt:
-              now
-
-          }
+        showToast(
+          error.message ||
+          "Failed to review submission.",
+          "error"
         );
 
       }
 
-
-      /* ============================================
-         COMMIT
-      ============================================ */
-
-      await batch.commit();
+    }
 
 
-      showToast(
-        newStatus === "approved"
-          ? "Submission approved and worker credited."
-          : "Submission rejected.",
-        "success"
-      );
+    /* =========================================================
+       CLOSE OVERLAY
+    ========================================================= */
 
+    function closeOverlay() {
 
-      /* ============================================
-         RELOAD EVERYTHING
-      ============================================ */
+      document
+        .getElementById("overlay")
+        .classList.remove("show");
 
-      await loadAllSubmissions();
-
-      renderTasks();
-
-      updateStats();
-
-      openSubmissions(taskId);
-
-
-    } catch (error) {
-
-      console.error(
-        "Review error:",
-        error
-      );
-
-
-      showToast(
-        error.message ||
-        "Failed to process submission.",
-        "error"
-      );
+      document.body.style.overflow = "";
 
     }
 
-  }
-
-
-  /* =========================================================
-     CLOSE OVERLAY
-  ========================================================= */
-
-  function closeOverlay() {
 
     document
       .getElementById("overlay")
-      .classList.remove("show");
+      .addEventListener(
+        "click",
+        function(event) {
+
+          if (
+            event.target ===
+            document.getElementById("overlay")
+          ) {
+
+            closeOverlay();
+
+          }
+
+        }
+      );
 
 
-    document.body.style.overflow =
-      "";
-
-  }
-
-
-  document
-    .getElementById("overlay")
-    .addEventListener(
-      "click",
-      event => {
+    document.addEventListener(
+      "keydown",
+      function(event) {
 
         if (
-          event.target ===
-          document.getElementById(
-            "overlay"
-          )
+          event.key === "Escape" &&
+          document
+            .getElementById("overlay")
+            .classList
+            .contains("show")
         ) {
 
           closeOverlay();
@@ -2762,77 +2674,102 @@
     );
 
 
-  document.addEventListener(
-    "keydown",
-    event => {
+    /* =========================================================
+       REFRESH
+    ========================================================= */
 
-      if (
-        event.key === "Escape" &&
-        document
-          .getElementById(
-            "overlay"
-          )
-          .classList.contains(
-            "show"
-          )
-      ) {
+    async function refreshAdminData() {
 
-        closeOverlay();
+      if (!currentUser) {
+
+        showToast(
+          "No authenticated admin session.",
+          "error"
+        );
+
+        return;
 
       }
 
+
+      const btn =
+        document.getElementById(
+          "refreshBtn"
+        );
+
+
+      btn.classList.add("spinning");
+
+
+      try {
+
+        await loadAllTasks();
+
+        showToast(
+          "Admin data refreshed.",
+          "success"
+        );
+
+      } catch (error) {
+
+        console.error(error);
+
+      }
+
+
+      setTimeout(() => {
+
+        btn.classList.remove(
+          "spinning"
+        );
+
+      }, 700);
+
     }
-  );
 
 
-  /* =========================================================
-     REFRESH
-  ========================================================= */
+    /* =========================================================
+       SEARCH
+    ========================================================= */
 
-  async function refreshData() {
+    document
+      .getElementById("searchInput")
+      .addEventListener(
+        "input",
+        function() {
 
-    const button =
-      document.getElementById(
-        "refreshBtn"
+          renderTasks();
+
+        }
       );
 
 
-    button.classList.add(
-      "spinning"
+    /* =========================================================
+       PAGE VISIBILITY
+    ========================================================= */
+
+    document.addEventListener(
+      "visibilitychange",
+      function() {
+
+        if (
+          !document.hidden &&
+          currentUser &&
+          authResolved
+        ) {
+
+          /*
+           * Refresh when returning to the page.
+           */
+
+          loadAllTasks();
+
+        }
+
+      }
     );
 
-
-    try {
-
-      await loadAllSubmissions();
-
-      renderTasks();
-
-      updateStats();
-
-      showToast(
-        "Data refreshed.",
-        "success"
-      );
-
-    } catch(error) {
-
-      console.error(error);
-
-    }
-
-
-    setTimeout(() => {
-
-      button.classList.remove(
-        "spinning"
-      );
-
-    }, 800);
-
-  }
-
-</script>
+  </script>
 
 </body>
 </html>
