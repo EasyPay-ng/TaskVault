@@ -1479,7 +1479,7 @@ button{
 const firebaseConfig = {
 
   apiKey:
-    "AIzaSyAv6QCpopa0Q77AVTyJ5uqJEIKIE9OVTs",
+    "AIzaSyAv6QCpopa0Q77AVTyjU5cqJEIKIE9OVTs",
 
   authDomain:
     "taskvault-412a0.firebaseapp.com",
@@ -3761,6 +3761,54 @@ document.addEventListener(
             closeSubmissionModal();
 
         }
+
+    }
+);
+
+
+/* =========================================
+   RETRY / CHECK AGAIN BUTTON
+========================================= */
+
+document.getElementById(
+    "retryAuthBtn"
+).addEventListener(
+    "click",
+    async function(){
+
+        const user =
+            auth.currentUser;
+
+
+        if(user && isAdmin(user)){
+
+            showAdminApp(user);
+
+            await loadAllTasks();
+
+            return;
+
+        }
+
+
+        if(user && !isAdmin(user)){
+
+            showAccessScreen(
+                "Access Denied",
+                "This account is signed in but is not authorized to access the TaskVault admin page."
+            );
+
+            return;
+
+        }
+
+
+        /*
+         Still no session in memory. Reload so Firebase
+         re-reads persisted auth from storage.
+        */
+
+        window.location.reload();
 
     }
 );
