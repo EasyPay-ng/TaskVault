@@ -394,6 +394,16 @@ background:var(--red-bg);
 color:#991b1b;
 }
 
+.status.completed{
+background:var(--green-bg);
+color:#065f46;
+}
+
+.status.active{
+background:var(--green-bg);
+color:#065f46;
+}
+
 .task-owner{
 margin-top:8px;
 font-size:10px;
@@ -548,6 +558,8 @@ transform:rotate(360deg);
 font-size:11px;
 color:var(--muted);
 font-weight:600;
+text-align:center;
+padding:0 20px;
 }
 
 .access-screen{
@@ -846,6 +858,11 @@ background:var(--red);
 color:white;
 }
 
+.action:disabled{
+opacity:.55;
+cursor:not-allowed;
+}
+
 .already-approved{
 margin-top:10px;
 
@@ -948,6 +965,8 @@ opacity:0;
 transition:.3s;
 
 max-width:90%;
+
+text-align:center;
 }
 
 .toast.show{
@@ -1007,20 +1026,24 @@ grid-template-columns:repeat(2,1fr);
 
 <body>
 
-<!-- LOADING -->
+<!-- =========================================
+     LOADING SCREEN
+========================================= -->
 
 <div class="loading-screen" id="loadingScreen">
 
 <div class="spinner"></div>
 
 <div class="loading-text" id="loadingText">
-Checking authentication...
+Restoring your TaskVault session...
 </div>
 
 </div>
 
 
-<!-- ACCESS -->
+<!-- =========================================
+     ACCESS SCREEN
+========================================= -->
 
 <div class="access-screen" id="accessScreen">
 
@@ -1048,7 +1071,9 @@ Go to Login
 </div>
 
 
-<!-- APP -->
+<!-- =========================================
+     MAIN APP
+========================================= -->
 
 <div class="app" id="app" style="display:none;">
 
@@ -1088,6 +1113,10 @@ Admin
 
 
 <main class="main">
+
+<!-- =========================================
+     STATISTICS
+========================================= -->
 
 <section class="stats">
 
@@ -1177,6 +1206,10 @@ Admin
 </section>
 
 
+<!-- =========================================
+     TOOLBAR
+========================================= -->
+
 <section class="toolbar">
 
 <div class="search">
@@ -1187,6 +1220,7 @@ Admin
 type="text"
 id="searchInput"
 placeholder="Search task, owner, platform or status..."
+autocomplete="off"
 >
 
 </div>
@@ -1195,6 +1229,7 @@ placeholder="Search task, owner, platform or status..."
 class="refresh-btn"
 id="refreshBtn"
 title="Refresh"
+type="button"
 >
 
 <i class="ri-refresh-line"></i>
@@ -1203,6 +1238,10 @@ title="Refresh"
 
 </section>
 
+
+<!-- =========================================
+     TASK HEADING
+========================================= -->
 
 <div class="section-heading">
 
@@ -1216,6 +1255,10 @@ All Advertised Tasks
 
 </div>
 
+
+<!-- =========================================
+     TASK GRID
+========================================= -->
 
 <section class="task-grid" id="taskGrid">
 
@@ -1240,7 +1283,9 @@ Please wait.
 </div>
 
 
-<!-- SUBMISSION MODAL -->
+<!-- =========================================
+     SUBMISSION MODAL
+========================================= -->
 
 <div class="modal" id="submissionModal">
 
@@ -1259,6 +1304,7 @@ Task Submissions
 <button
 class="close-btn"
 id="closeSubmissionBtn"
+type="button"
 >
 
 <i class="ri-close-line"></i>
@@ -1275,13 +1321,16 @@ id="closeSubmissionBtn"
 </div>
 
 
-<!-- IMAGE VIEWER -->
+<!-- =========================================
+     IMAGE VIEWER
+========================================= -->
 
 <div class="image-viewer" id="imageViewer">
 
 <button
 class="image-close"
 id="imageCloseBtn"
+type="button"
 >
 
 <i class="ri-close-line"></i>
@@ -1297,14 +1346,18 @@ alt="Proof image"
 </div>
 
 
-<!-- TOAST -->
+<!-- =========================================
+     TOAST
+========================================= -->
 
 <div class="toast" id="toast">
 Message
 </div>
 
 
-<!-- FIREBASE -->
+<!-- =========================================
+     FIREBASE SDK
+========================================= -->
 
 <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
 
@@ -1348,18 +1401,20 @@ measurementId:
 
 
 /* =========================================
-   INITIALIZE ONLY ONCE
+   INITIALIZE FIREBASE
 ========================================= */
 
-if (!firebase.apps.length){
+if(!firebase.apps.length){
 
 firebase.initializeApp(firebaseConfig);
 
 }
 
-const auth = firebase.auth();
+const auth =
+firebase.auth();
 
-const db = firebase.firestore();
+const db =
+firebase.firestore();
 
 
 /* =========================================
@@ -1386,6 +1441,8 @@ let allTasks = [];
 let allSubmissions = {};
 
 let authResolved = false;
+
+let authTimeout = null;
 
 
 /* =========================================
@@ -1429,7 +1486,8 @@ timestamp &&
 typeof timestamp.toDate === "function"
 ){
 
-timestamp = timestamp.toDate();
+timestamp =
+timestamp.toDate();
 
 }
 
@@ -1503,9 +1561,30 @@ user.email
 return ADMIN_EMAILS
 .map(
 item =>
-item.toLowerCase()
+item.toLowerCase().trim()
 )
 .includes(email);
+
+}
+
+
+/* =========================================
+   HIDE LOADING
+========================================= */
+
+function hideLoading(){
+
+const loading =
+document.getElementById(
+"loadingScreen"
+);
+
+if(loading){
+
+loading.style.display =
+"none";
+
+}
 
 }
 
@@ -1519,19 +1598,19 @@ title,
 message
 ){
 
-document.getElementById(
-"loadingScreen"
-).style.display =
-"none";
+hideLoading();
 
 document.getElementById(
 "app"
 ).style.display =
 "none";
 
+const screen =
 document.getElementById(
 "accessScreen"
-).style.display =
+);
+
+screen.style.display =
 "flex";
 
 document.getElementById(
@@ -1548,12 +1627,13 @@ message;
 
 
 /* =========================================
-   SHOW APP
+   SHOW ADMIN APP
 ========================================= */
 
 function showAdminApp(user){
 
-currentUser = user;
+currentUser =
+user;
 
 document.getElementById(
 "adminEmail"
@@ -1578,20 +1658,41 @@ document.getElementById(
 ========================================= */
 
 /*
- IMPORTANT:
+   IMPORTANT AUTH FIX
 
- There is ONLY ONE authentication listener
- on this page.
+   Firebase authentication persistence is
+   explicitly set to LOCAL.
 
- We intentionally do not use:
+   This allows the Firebase Auth session
+   created on login.html to remain available
+   when the user opens this admin page.
 
- getRedirectResult()
-
- or another duplicate auth system.
-
- onAuthStateChanged() resolves whenever
- Firebase finishes restoring the login session.
+   We also wait for Firebase to restore the
+   session before deciding that no user exists.
 */
+
+async function initializeAuthentication(){
+
+try{
+
+document.getElementById(
+"loadingText"
+).textContent =
+"Restoring your TaskVault session...";
+
+
+/* -----------------------------------------
+   FORCE LOCAL AUTH PERSISTENCE
+----------------------------------------- */
+
+await auth.setPersistence(
+firebase.auth.Auth.Persistence.LOCAL
+);
+
+
+/* -----------------------------------------
+   AUTH STATE LISTENER
+----------------------------------------- */
 
 auth.onAuthStateChanged(
 async function(user){
@@ -1601,16 +1702,29 @@ console.log(
 user
 );
 
-authResolved = true;
+authResolved =
+true;
+
+if(authTimeout){
+
+clearTimeout(
+authTimeout
+);
+
+authTimeout =
+null;
+
+}
 
 
 /* -----------------------------------------
-   NO USER
+   NO AUTHENTICATED USER
 ----------------------------------------- */
 
 if(!user){
 
-currentUser = null;
+currentUser =
+null;
 
 showAccessScreen(
 "No authenticated user found.",
@@ -1643,7 +1757,8 @@ user.uid
 
 if(!isAdmin(user)){
 
-currentUser = user;
+currentUser =
+user;
 
 showAccessScreen(
 "Access Denied",
@@ -1681,13 +1796,95 @@ error
 }
 
 
-document.getElementById(
-"loadingScreen"
-).style.display =
-"none";
+hideLoading();
+
+},
+function(error){
+
+console.error(
+"Firebase authentication listener error:",
+error
+);
+
+authResolved =
+true;
+
+if(authTimeout){
+
+clearTimeout(
+authTimeout
+);
+
+authTimeout =
+null;
+
+}
+
+showAccessScreen(
+"Authentication Error",
+"TaskVault could not restore your login session. Please return to the login page and sign in again."
+);
 
 }
 );
+
+
+/* -----------------------------------------
+   SAFETY TIMEOUT
+
+   Firebase normally resolves the auth state
+   very quickly. This prevents the page from
+   remaining on the loading screen forever if
+   the browser/network has a problem.
+----------------------------------------- */
+
+authTimeout =
+setTimeout(
+function(){
+
+if(authResolved){
+
+return;
+
+}
+
+console.warn(
+"Firebase auth restoration timed out."
+);
+
+showAccessScreen(
+"Authentication Timeout",
+"Your login session could not be restored. Please sign in again."
+);
+
+},
+12000
+);
+
+
+}catch(error){
+
+console.error(
+"Authentication initialization error:",
+error
+);
+
+showAccessScreen(
+"Authentication Error",
+error.message ||
+"Unable to initialize TaskVault authentication."
+);
+
+}
+
+}
+
+
+/* =========================================
+   START AUTHENTICATION
+========================================= */
+
+initializeAuthentication();
 
 
 /* =========================================
@@ -1747,15 +1944,14 @@ console.log(
 
 
 /*
- IMPORTANT:
+   No owner filter.
 
- No owner filter.
+   Admin sees every advertised task
+   permitted by Firestore Security Rules.
 
- Admin sees every advertised task
- allowed by Firestore Security Rules.
-
- No orderBy() is used, so this request
- does not require a composite index.
+   No orderBy() is used, therefore this
+   request does not require a composite
+   index.
 */
 
 const snapshot =
@@ -1800,11 +1996,13 @@ a.createdAt &&
 typeof a.createdAt.toDate ===
 "function"
 
-? a.createdAt
+?
+a.createdAt
 .toDate()
 .getTime()
 
-: 0;
+:
+0;
 
 
 const bTime =
@@ -1812,11 +2010,13 @@ b.createdAt &&
 typeof b.createdAt.toDate ===
 "function"
 
-? b.createdAt
+?
+b.createdAt
 .toDate()
 .getTime()
 
-: 0;
+:
+0;
 
 
 return bTime - aTime;
@@ -1877,8 +2077,6 @@ showToast(
 
 }
 
-}
-
 
 /* =========================================
    LOAD ALL SUBMISSIONS
@@ -1892,20 +2090,20 @@ allSubmissions = {};
 allTasks.forEach(
 task=>{
 
-allSubmissions[task.id] = [];
+allSubmissions[task.id] =
+[];
 
 }
 );
 
 
 /*
- Instead of one query per task,
- we load the submissions collection
- once and distribute each submission
- to its corresponding task.
+   Load the submissions collection once,
+   then distribute each submission to its
+   advertised task.
 
- This is much faster when there are
- many advertised tasks.
+   This is faster than running a separate
+   Firestore query for every task.
 */
 
 try{
@@ -1925,8 +2123,7 @@ task=>{
 taskMap[task.id] =
 task;
 
-}
-);
+});
 
 
 snapshot.forEach(
@@ -1996,9 +2193,9 @@ throw error;
 }
 
 
-/* =========================================
-   SORT EACH SUBMISSION LIST
-========================================= */
+/* -----------------------------------------
+   SORT SUBMISSIONS
+----------------------------------------- */
 
 Object.values(
 allSubmissions
@@ -2013,11 +2210,13 @@ a.createdAt &&
 typeof a.createdAt.toDate ===
 "function"
 
-? a.createdAt
+?
+a.createdAt
 .toDate()
 .getTime()
 
-: 0;
+:
+0;
 
 
 const bTime =
@@ -2025,11 +2224,13 @@ b.createdAt &&
 typeof b.createdAt.toDate ===
 "function"
 
-? b.createdAt
+?
+b.createdAt
 .toDate()
 .getTime()
 
-: 0;
+:
+0;
 
 
 return bTime - aTime;
@@ -2163,7 +2364,8 @@ task.owner ||
 return(
 
 String(
-task.title || ""
+task.title ||
+""
 )
 .toLowerCase()
 .includes(search)
@@ -2171,7 +2373,8 @@ task.title || ""
 ||
 
 String(
-task.platform || ""
+task.platform ||
+""
 )
 .toLowerCase()
 .includes(search)
@@ -2179,7 +2382,8 @@ task.platform || ""
 ||
 
 String(
-task.status || ""
+task.status ||
+""
 )
 .toLowerCase()
 .includes(search)
@@ -2187,14 +2391,17 @@ task.status || ""
 ||
 
 String(
-task.subcategory || ""
+task.subcategory ||
+""
 )
 .toLowerCase()
 .includes(search)
 
 ||
 
-String(owner)
+String(
+owner
+)
 .toLowerCase()
 .includes(search)
 
@@ -2227,16 +2434,20 @@ grid.innerHTML = `
 <h3>
 ${
 search
-? "No matching tasks"
-: "No advertised tasks"
+?
+"No matching tasks"
+:
+"No advertised tasks"
 }
 </h3>
 
 <p>
 ${
 search
-? "Try another search term."
-: "There are currently no advertised tasks."
+?
+"Try another search term."
+:
+"There are currently no advertised tasks."
 }
 </p>
 
@@ -2249,7 +2460,8 @@ return;
 }
 
 
-grid.innerHTML = "";
+grid.innerHTML =
+"";
 
 
 tasks.forEach(
@@ -2266,7 +2478,8 @@ task.status ||
 const submissions =
 allSubmissions[
 task.id
-] || [];
+] ||
+[];
 
 
 const pending =
@@ -2394,7 +2607,8 @@ Per Worker
 
 <strong>
 ${Number(
-task.workers || 0
+task.workers ||
+0
 )}
 </strong>
 
@@ -2431,7 +2645,7 @@ src="${escapeHtml(
 task.thumbnail
 )}"
 alt="Task image"
-onclick="event.stopPropagation();openImageViewer('${escapeHtml(task.thumbnail)}')"
+onclick="event.stopPropagation();openImageViewer(this.src)"
 >
 
 `
@@ -2498,7 +2712,9 @@ task.id
 }
 
 
-grid.appendChild(card);
+grid.appendChild(
+card
+);
 
 }
 );
@@ -2527,6 +2743,21 @@ renderTasks();
 ========================================= */
 
 async function refreshPage(){
+
+if(
+!currentUser ||
+!isAdmin(currentUser)
+){
+
+showToast(
+"Administrator authentication required.",
+"error"
+);
+
+return;
+
+}
+
 
 const button =
 document.getElementById(
@@ -2582,1100 +2813,6 @@ document.getElementById(
 ).addEventListener(
 "click",
 refreshPage
-);
-/* =========================================
-   OPEN SUBMISSIONS
-========================================= */
-
-function openSubmissions(taskId){
-
-const task =
-allTasks.find(
-item =>
-item.id === taskId
-);
-
-
-if(!task){
-
-showToast(
-"Task not found.",
-"error"
-);
-
-return;
-
-}
-
-
-const submissions =
-allSubmissions[taskId] || [];
-
-
-const content =
-document.getElementById(
-"submissionContent"
-);
-
-
-let html = `
-
-<div class="summary">
-
-<h3>
-
-${escapeHtml(
-task.title ||
-"Untitled Task"
-)}
-
-</h3>
-
-
-<div class="summary-grid">
-
-<div class="summary-item">
-
-<span>
-Owner
-</span>
-
-<strong>
-${escapeHtml(
-task.ownerEmail ||
-task.email ||
-task.owner ||
-"-"
-)}
-</strong>
-
-</div>
-
-
-<div class="summary-item">
-
-<span>
-Platform
-</span>
-
-<strong>
-${escapeHtml(
-task.platform ||
-"-"
-)}
-</strong>
-
-</div>
-
-
-<div class="summary-item">
-
-<span>
-Reward
-</span>
-
-<strong>
-${money(
-task.unitPrice
-)}
-</strong>
-
-</div>
-
-
-<div class="summary-item">
-
-<span>
-Workers
-</span>
-
-<strong>
-${Number(
-task.workers ||
-0
-)}
-</strong>
-
-</div>
-
-
-<div class="summary-item">
-
-<span>
-Submissions
-</span>
-
-<strong>
-${submissions.length}
-</strong>
-
-</div>
-
-
-<div class="summary-item">
-
-<span>
-Total Cost
-</span>
-
-<strong>
-${money(
-task.totalCost
-)}
-</strong>
-
-</div>
-
-</div>
-
-</div>
-
-`;
-
-
-if(!submissions.length){
-
-html += `
-
-<div class="state">
-
-<i class="ri-inbox-line"></i>
-
-<h3>
-No submissions yet
-</h3>
-
-<p>
-Workers have not submitted proof
-for this task.
-</p>
-
-</div>
-
-`;
-
-}else{
-
-submissions.forEach(
-submission=>{
-
-html += renderSubmission(
-task,
-submission
-);
-
-}
-);
-
-}
-
-
-content.innerHTML =
-html;
-
-
-document.getElementById(
-"submissionModal"
-).classList.add(
-"show"
-);
-
-
-document.body.style.overflow =
-"hidden";
-
-}
-
-
-/* =========================================
-   RENDER SUBMISSION
-========================================= */
-
-function renderSubmission(
-task,
-sub
-){
-
-const status =
-String(
-sub.status ||
-"pending"
-)
-.toLowerCase();
-
-
-const worker =
-sub.username ||
-sub.userName ||
-sub.email ||
-sub.userEmail ||
-"Unknown Worker";
-
-
-let html = `
-
-<div
-class="submission"
-id="submission-${escapeHtml(sub.id)}"
->
-
-<div class="submission-top">
-
-<div>
-
-<div class="worker">
-
-${escapeHtml(worker)}
-
-</div>
-
-<div class="worker-id">
-
-User ID:
-${escapeHtml(
-sub.userId ||
-"-"
-)}
-
-</div>
-
-</div>
-
-
-<div class="status ${escapeHtml(status)}">
-
-${escapeHtml(
-sub.status ||
-"PENDING"
-)}
-
-</div>
-
-</div>
-
-
-<div class="submission-date">
-
-Submitted:
-${niceDate(
-sub.createdAt
-)}
-
-</div>
-
-`;
-
-
-if(sub.textProof){
-
-html += `
-
-<div class="proof-text">
-
-${escapeHtml(
-sub.textProof
-)}
-
-</div>
-
-`;
-
-}
-
-
-if(sub.imageUrl){
-
-html += `
-
-<img
-class="proof-image"
-src="${escapeHtml(
-sub.imageUrl
-)}"
-alt="Submission proof"
-onclick="openImageViewer('${escapeHtml(sub.imageUrl)}')"
->
-
-`;
-
-}
-
-
-if(status === "pending"){
-
-html += `
-
-<div class="submission-actions">
-
-<button
-class="action approve"
-type="button"
-onclick="reviewSubmission(
-'${escapeHtml(task.id)}',
-'${escapeHtml(sub.id)}',
-'${escapeHtml(sub.userId || "")}',
-'approved',
-${Number(task.unitPrice || 0)}
-)"
->
-
-<i class="ri-check-line"></i>
-
-Approve & Pay
-${money(
-task.unitPrice
-)}
-
-</button>
-
-
-<button
-class="action reject"
-type="button"
-onclick="reviewSubmission(
-'${escapeHtml(task.id)}',
-'${escapeHtml(sub.id)}',
-'${escapeHtml(sub.userId || "")}',
-'rejected',
-0
-)"
->
-
-<i class="ri-close-line"></i>
-
-Reject
-
-</button>
-
-</div>
-
-`;
-
-}
-
-
-if(status === "approved"){
-
-html += `
-
-<div class="already-approved">
-
-<i class="ri-check-double-line"></i>
-
-Approved and credited
-${money(
-task.unitPrice
-)}
-
-</div>
-
-`;
-
-}
-
-
-if(status === "rejected"){
-
-html += `
-
-<div class="already-rejected">
-
-<i class="ri-close-circle-line"></i>
-
-Submission rejected
-
-</div>
-
-`;
-
-}
-
-
-html += `</div>`;
-
-
-return html;
-
-}
-
-
-/* =========================================
-   REVIEW SUBMISSION
-========================================= */
-
-async function reviewSubmission(
-taskId,
-submissionId,
-userId,
-newStatus,
-rewardAmount
-){
-
-if(
-!currentUser ||
-!isAdmin(currentUser)
-){
-
-showToast(
-"Administrator session expired.",
-"error"
-);
-
-return;
-
-}
-
-
-const task =
-allTasks.find(
-item =>
-item.id === taskId
-);
-
-
-if(!task){
-
-showToast(
-"Task not found.",
-"error"
-);
-
-return;
-
-}
-
-
-const submissions =
-allSubmissions[taskId] || [];
-
-
-const submission =
-submissions.find(
-item =>
-item.id === submissionId
-);
-
-
-if(!submission){
-
-showToast(
-"Submission not found.",
-"error"
-);
-
-return;
-
-}
-
-
-const currentStatus =
-String(
-submission.status ||
-"pending"
-)
-.toLowerCase();
-
-
-if(
-currentStatus !==
-"pending"
-){
-
-showToast(
-`This submission is already ${currentStatus}.`,
-"info"
-);
-
-return;
-
-}
-
-
-let confirmed = false;
-
-
-if(
-newStatus === "approved"
-){
-
-confirmed =
-window.confirm(
-`Approve this submission and credit ${money(rewardAmount)} to the worker?`
-);
-
-}else{
-
-confirmed =
-window.confirm(
-"Reject this submission?"
-);
-
-}
-
-
-if(!confirmed){
-
-return;
-
-}
-
-
-/* =========================================
-   FIRESTORE REFERENCES
-========================================= */
-
-const submissionRef =
-db.collection(
-"advert_submissions"
-)
-.doc(submissionId);
-
-
-try{
-
-/*
- Read the latest version before changing it.
- This helps prevent double approval.
-*/
-
-const latest =
-await submissionRef.get();
-
-
-if(!latest.exists){
-
-throw new Error(
-"Submission no longer exists."
-);
-
-}
-
-
-const latestData =
-latest.data();
-
-
-const latestStatus =
-String(
-latestData.status ||
-"pending"
-)
-.toLowerCase();
-
-
-if(
-latestStatus !==
-"pending"
-){
-
-showToast(
-`This submission is already ${latestStatus}.`,
-"info"
-);
-
-await loadAllTasks();
-
-return;
-
-}
-
-
-/* =========================================
-   FIRESTORE BATCH
-========================================= */
-
-const batch =
-db.batch();
-
-
-const now =
-firebase.firestore.FieldValue
-.serverTimestamp();
-
-
-/* -----------------------------------------
-   UPDATE SUBMISSION
------------------------------------------ */
-
-batch.update(
-submissionRef,
-{
-
-status:newStatus,
-
-reviewedAt:now,
-
-reviewedBy:
-currentUser.uid,
-
-reviewedByEmail:
-currentUser.email || ""
-
-}
-);
-
-
-/* =========================================
-   APPROVAL PAYMENT
-========================================= */
-
-if(
-newStatus === "approved" &&
-Number(rewardAmount) > 0 &&
-userId
-){
-
-const userRef =
-db.collection(
-"users"
-)
-.doc(userId);
-
-
-batch.set(
-userRef,
-{
-
-balance:
-firebase.firestore.FieldValue
-.increment(
-Number(rewardAmount)
-),
-
-totalEarned:
-firebase.firestore.FieldValue
-.increment(
-Number(rewardAmount)
-),
-
-updatedAt:now
-
-},
-{
-merge:true
-}
-);
-
-
-/* -----------------------------------------
-   EARNINGS RECORD
------------------------------------------ */
-
-const earningRef =
-db.collection(
-"earnings"
-)
-.doc();
-
-
-batch.set(
-earningRef,
-{
-
-userId:userId,
-
-advertId:taskId,
-
-submissionId:submissionId,
-
-amount:
-Number(rewardAmount),
-
-type:"task_reward",
-
-status:"completed",
-
-createdAt:now,
-
-approvedBy:
-currentUser.uid,
-
-approvedByEmail:
-currentUser.email || ""
-
-}
-);
-
-
-/* -----------------------------------------
-   TASK APPROVED COUNT
------------------------------------------ */
-
-const taskRef =
-db.collection(
-"advertise_tasks"
-)
-.doc(taskId);
-
-
-batch.set(
-taskRef,
-{
-
-approvedCount:
-firebase.firestore.FieldValue
-.increment(1),
-
-updatedAt:now
-
-},
-{
-merge:true
-}
-);
-
-}
-
-
-/* =========================================
-   COMMIT
-========================================= */
-
-await batch.commit();
-
-
-/* =========================================
-   UPDATE LOCAL STATE
-========================================= */
-
-submission.status =
-newStatus;
-
-
-submission.reviewedAt =
-new Date();
-
-
-submission.reviewedBy =
-currentUser.uid;
-
-
-if(
-newStatus === "approved"
-){
-
-showToast(
-`Approved and ${money(rewardAmount)} credited.`,
-"success"
-);
-
-}else{
-
-showToast(
-"Submission rejected.",
-"success"
-);
-
-}
-
-
-/*
- Reload from Firestore after the operation.
-
- This guarantees that the admin page displays
- the real database state rather than relying
- entirely on local counters.
-*/
-
-await loadAllTasks();
-
-
-/*
- Re-open the same task modal using the newly
- refreshed data.
-*/
-
-openSubmissions(taskId);
-
-
-}catch(error){
-
-console.error(
-"Review submission error:",
-error
-);
-
-
-showToast(
-error.message ||
-"Failed to process submission.",
-"error"
-);
-
-}
-
-}
-
-
-/* =========================================
-   CLOSE SUBMISSION MODAL
-========================================= */
-
-function closeSubmissionModal(){
-
-document.getElementById(
-"submissionModal"
-).classList.remove(
-"show"
-);
-
-document.body.style.overflow =
-"";
-
-}
-
-
-document.getElementById(
-"closeSubmissionBtn"
-).addEventListener(
-"click",
-closeSubmissionModal
-);
-
-
-/* =========================================
-   CLOSE MODAL WHEN CLICKING BACKDROP
-========================================= */
-
-document.getElementById(
-"submissionModal"
-).addEventListener(
-"click",
-function(event){
-
-if(
-event.target ===
-document.getElementById(
-"submissionModal"
-)
-){
-
-closeSubmissionModal();
-
-}
-
-}
-);
-
-
-/* =========================================
-   IMAGE VIEWER
-========================================= */
-
-function openImageViewer(url){
-
-if(!url){
-
-return;
-
-}
-
-
-const viewer =
-document.getElementById(
-"imageViewer"
-);
-
-
-const image =
-document.getElementById(
-"viewerImage"
-);
-
-
-image.src =
-url;
-
-
-viewer.classList.add(
-"show"
-);
-
-
-document.body.style.overflow =
-"hidden";
-
-}
-
-
-function closeImageViewer(){
-
-const viewer =
-document.getElementById(
-"imageViewer"
-);
-
-
-const image =
-document.getElementById(
-"viewerImage"
-);
-
-
-viewer.classList.remove(
-"show"
-);
-
-
-image.src =
-"";
-
-
-if(
-!document.getElementById(
-"submissionModal"
-)
-.classList.contains(
-"show"
-)
-){
-
-document.body.style.overflow =
-"";
-
-}
-
-}
-
-
-document.getElementById(
-"imageCloseBtn"
-).addEventListener(
-"click",
-closeImageViewer
-);
-
-
-/* =========================================
-   IMAGE VIEWER BACKDROP
-========================================= */
-
-document.getElementById(
-"imageViewer"
-).addEventListener(
-"click",
-function(event){
-
-if(
-event.target ===
-document.getElementById(
-"imageViewer"
-)
-){
-
-closeImageViewer();
-
-}
-
-}
-);
-
-
-/* =========================================
-   ESCAPE KEY
-========================================= */
-
-document.addEventListener(
-"keydown",
-function(event){
-
-if(
-event.key !== "Escape"
-){
-
-return;
-
-}
-
-
-const viewer =
-document.getElementById(
-"imageViewer"
-);
-
-
-const modal =
-document.getElementById(
-"submissionModal"
-);
-
-
-if(
-viewer.classList.contains(
-"show"
-)
-){
-
-closeImageViewer();
-
-return;
-
-}
-
-
-if(
-modal.classList.contains(
-"show"
-)
-){
-
-closeSubmissionModal();
-
-}
-
-}
-);
-
-
-/* =========================================
-   ONLINE / OFFLINE LOGGING
-========================================= */
-
-window.addEventListener(
-"online",
-function(){
-
-console.log(
-"TaskVault connection restored."
-);
-
-showToast(
-"Connection restored.",
-"success"
-);
-
-}
-);
-
-
-window.addEventListener(
-"offline",
-function(){
-
-console.warn(
-"TaskVault connection lost."
-);
-
-showToast(
-"Internet connection lost.",
-"error"
-);
-
-}
-);
-
-
-/* =========================================
-   INITIAL PAGE LOG
-========================================= */
-
-console.log(
-"TaskVault Advertised Tasks Admin initialized."
-);
-
-console.log(
-"Authorized administrators:",
-ADMIN_EMAILS
 );
 
 </script>
