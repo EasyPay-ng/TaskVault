@@ -416,82 +416,6 @@
       transform: scale(0.97);
     }
 
-    /* ==================== LOCKED OVERLAY ==================== */
-    .locked-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.85);
-      backdrop-filter: blur(8px);
-      z-index: 1000;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      padding: 40px;
-      text-align: center;
-    }
-
-    .locked-overlay.active {
-      display: flex;
-      animation: fadeIn 0.4s ease;
-    }
-
-    .locked-icon {
-      width: 80px;
-      height: 80px;
-      background: var(--gradient-gold);
-      border-radius: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 36px;
-      color: #333;
-      margin-bottom: 24px;
-      box-shadow: 0 0 40px rgba(255, 215, 0, 0.4);
-      animation: lockPulse 2s ease-in-out infinite;
-    }
-
-    @keyframes lockPulse {
-      0%, 100% { transform: scale(1); box-shadow: 0 0 40px rgba(255, 215, 0, 0.4); }
-      50% { transform: scale(1.05); box-shadow: 0 0 60px rgba(255, 215, 0, 0.6); }
-    }
-
-    .locked-title {
-      font-size: 22px;
-      font-weight: 800;
-      color: white;
-      margin-bottom: 12px;
-    }
-
-    .locked-text {
-      font-size: 14px;
-      color: rgba(255, 255, 255, 0.7);
-      line-height: 1.6;
-      margin-bottom: 24px;
-    }
-
-    .upgrade-btn {
-      background: var(--gradient-gold);
-      color: #333;
-      border: none;
-      padding: 14px 32px;
-      border-radius: 14px;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      box-shadow: 0 4px 20px rgba(255, 215, 0, 0.3);
-      transition: all 0.3s ease;
-      text-decoration: none;
-    }
-
-    .upgrade-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 30px rgba(255, 215, 0, 0.5);
-    }
-
     /* ==================== BOTTOM NAV ==================== */
     .bottom-nav {
       position: absolute;
@@ -583,22 +507,6 @@
   </style>
 </head>
 <body>
-
-  <!-- LOCKED OVERLAY (shown if not silver plan) -->
-  <div class="locked-overlay" id="lockedOverlay">
-    <div class="locked-icon">
-      <i class="fa-solid fa-crown"></i>
-    </div>
-    <div class="locked-title">Silver Plan Required</div>
-    <div class="locked-text">
-      Gaming is exclusive to Silver plan members.<br>
-      Upgrade your plan to unlock Vault Rush, Vault Defender,<br>
-      and Subway Runner with amazing rewards!
-    </div>
-    <a href="activate.html" class="upgrade-btn">
-      <i class="fa-solid fa-arrow-up"></i> Upgrade to Silver
-    </a>
-  </div>
 
   <div class="app-container">
     <!-- Animated Background Orbs -->
@@ -781,7 +689,7 @@
     const db = firebase.firestore();
     const auth = firebase.auth();
 
-    // Check user plan on load
+    // Load user plan for the badge (all plans can play)
     auth.onAuthStateChanged(async (user) => {
       if (!user) {
         window.location.href = 'login.html';
@@ -796,16 +704,9 @@
         // Update plan badge
         document.getElementById('planText').textContent = plan.charAt(0).toUpperCase() + plan.slice(1);
 
-        // Show locked overlay if not silver or higher
-        if (plan !== 'silver' && plan !== 'gold' && plan !== 'premium' && plan !== 'vip') {
-          document.getElementById('lockedOverlay').classList.add('active');
-          document.body.style.overflow = 'hidden';
-        }
-
       } catch (err) {
-        console.error('Error checking plan:', err);
-        // Default to locked if error
-        document.getElementById('lockedOverlay').classList.add('active');
+        console.error('Error reading plan:', err);
+        document.getElementById('planText').textContent = 'Free';
       }
     });
 
