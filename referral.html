@@ -764,37 +764,23 @@
       <button id="closeOverlayBtn" class="btn-close-overlay">
         <i class="fas fa-times"></i>
       </button>
-      <h2><i class="fas fa-gift"></i> Referral Rewards Breakdown</h2>
+      <h2><i class="fas fa-gift"></i> Referral Rebate</h2>
       <p>Here's how you earn from every referral you bring to TaskVault</p>
     </div>
     <div class="overlay-body">
-      <!-- Activation Bonus -->
+      <!-- Referral Rebate -->
       <div class="reward-card">
         <div class="reward-card-header">
           <div class="reward-icon">
-            <i class="fas fa-bolt"></i>
+            <i class="fas fa-percent"></i>
           </div>
-          <h3>Activation Bonus</h3>
-          <div class="amount">$1.00</div>
+          <h3>Referral Rebate</h3>
+          <div class="amount">8%</div>
         </div>
         <p class="reward-desc">
-          When your referral <strong>activates their account</strong> (upgrades to Silver plan or higher), 
-          you instantly receive a <strong>$1.00 commission</strong> credited to your referral balance.
-        </p>
-      </div>
-
-      <!-- Lifetime Earnings -->
-      <div class="reward-card">
-        <div class="reward-card-header">
-          <div class="reward-icon">
-            <i class="fas fa-infinity"></i>
-          </div>
-          <h3>Lifetime Earnings</h3>
-          <div class="amount">5%</div>
-        </div>
-        <p class="reward-desc">
-          You earn <strong>5% of your referral's total earnings withdrawn</strong> for life. 
-          Every time they withdraw earnings from tasks, games, or activities, you get a 5% cut.
+          You earn an <strong>8% rebate on your referral's earnings</strong> for life.
+          Every time they earn from tasks, games, or activities, <strong>8%</strong> is
+          credited to your referral balance — at no cost to them.
         </p>
       </div>
 
@@ -811,12 +797,12 @@
         </div>
         <div class="example-item">
           <div class="example-icon">%</div>
-          <div class="example-text">5% of $10 = <strong>$0.50 per referral/week</strong></div>
+          <div class="example-text">8% of $10 = <strong>$0.80 per referral/week</strong></div>
         </div>
         <div class="example-item">
           <div class="example-icon">=</div>
-          <div class="example-text">20 referrals × $0.50</div>
-          <div class="example-result">$10/week</div>
+          <div class="example-text">20 referrals &times; $0.80</div>
+          <div class="example-result">$16/week</div>
         </div>
       </div>
 
@@ -920,7 +906,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
     import { 
       getFirestore, collection, query, where, getDocs, 
-      doc, getDoc, updateDoc, onSnapshot, increment 
+      doc, getDoc, updateDoc, onSnapshot 
     } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
 
@@ -961,7 +947,6 @@
     let unsubscribeSnapshot = null;
 
     const SILVER_PLANS = ['silver', 'gold', 'premium', 'elite', 'diamond', 'platinum'];
-    const REFERRAL_COMMISSION = 1.0;
 
     function fmtDate(ts){
       try{
@@ -1177,38 +1162,23 @@
       const qRef = query(collection(db, 'users'), where('referral', '==', myCode));
       
       unsubscribeSnapshot = onSnapshot(qRef, async (snap) => {
-        snap.docChanges().forEach(async (change) => {
-          const d = change.doc.data();
-          const docId = change.doc.id;
-          
-          if(docId === currentUser.uid) return;
-          if(!d.username) return;
-          
-          const plan = (d.plan || '').toLowerCase();
-          const alreadyCredited = d.referralCredited === true;
-          
-          if(SILVER_PLANS.includes(plan) && !alreadyCredited){
-            try{
-              await updateDoc(currentUserRef, {
-                referralBalance: increment(REFERRAL_COMMISSION)
-              });
-              
-              await updateDoc(change.doc.ref, {
-                referralCredited: true,
-                referralCreditedAt: new Date()
-              });
-              
-              referralBalance += REFERRAL_COMMISSION;
-              referralBalanceEl.textContent = `$${referralBalance.toFixed(2)}`;
-              
-              showToast(`+$${REFERRAL_COMMISSION.toFixed(2)} from ${d.username || 'a referral'}!`);
-              
-              await loadData(myCode);
-            }catch(err){
-              console.error('Auto-credit failed:', err);
-            }
+        /*
+         Referral earnings are paid as an 8% rebate and are credited
+         server-side. This listener only keeps the on-screen referral
+         list and balance in sync — it never writes to balances.
+        */
+        if(snap.docChanges().length === 0) return;
+
+        try{
+          const meSnap = await getDoc(currentUserRef);
+          if(meSnap.exists()){
+            referralBalance = Number(meSnap.data().referralBalance || 0);
+            referralBalanceEl.textContent = `$${referralBalance.toFixed(2)}`;
           }
-        });
+          await loadData(myCode);
+        }catch(err){
+          console.error('Referral refresh failed:', err);
+        }
       });
     }
 
