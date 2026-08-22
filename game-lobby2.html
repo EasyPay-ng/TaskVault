@@ -78,72 +78,6 @@
 
     .container { max-width: 600px; margin: 0 auto; padding: 1.5rem; }
 
-    /* UPGRADE GATE */
-    .upgrade-gate {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 2rem;
-    }
-    .upgrade-card {
-      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-      border: 1px solid var(--gray-700);
-      border-radius: var(--radius-lg);
-      padding: 3rem 2.5rem;
-      text-align: center;
-      max-width: 420px;
-      width: 100%;
-      position: relative;
-      overflow: hidden;
-    }
-    .upgrade-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 4px;
-      background: linear-gradient(90deg, var(--orange), var(--gold), var(--orange));
-    }
-    .upgrade-icon {
-      width: 80px; height: 80px;
-      background: linear-gradient(135deg, var(--orange) 0%, var(--orange-dark) 100%);
-      border-radius: var(--radius-xl);
-      display: flex; align-items: center; justify-content: center;
-      margin: 0 auto 1.5rem;
-      font-size: 2.5rem;
-      box-shadow: 0 8px 32px rgba(249,115,22,0.3);
-    }
-    .upgrade-card h2 { font-size: 1.5rem; font-weight: 800; margin-bottom: .75rem; }
-    .upgrade-card p { color: var(--gray-400); font-size: .95rem; line-height: 1.6; margin-bottom: 2rem; }
-    .upgrade-features { text-align: left; margin-bottom: 2rem; }
-    .upgrade-feature {
-      display: flex; align-items: center; gap: .75rem;
-      padding: .75rem;
-      background: rgba(249,115,22,0.05);
-      border-radius: var(--radius);
-      margin-bottom: .5rem;
-      font-size: .9rem; color: var(--gray-300);
-    }
-    .upgrade-feature i { color: var(--orange); font-size: 1.1rem; }
-    .upgrade-btn {
-      width: 100%; padding: 1rem;
-      background: linear-gradient(135deg, var(--orange) 0%, var(--orange-dark) 100%);
-      color: var(--white); border: none;
-      border-radius: var(--radius-lg);
-      font-size: 1rem; font-weight: 800;
-      cursor: pointer; transition: all .2s ease;
-      display: flex; align-items: center; justify-content: center; gap: .5rem;
-      box-shadow: 0 4px 16px rgba(249,115,22,0.3);
-      text-decoration: none;
-    }
-    .upgrade-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(249,115,22,0.4); }
-    .upgrade-skip {
-      display: inline-block; margin-top: 1rem;
-      color: var(--gray-500); font-size: .85rem;
-      text-decoration: none; transition: color .2s;
-    }
-    .upgrade-skip:hover { color: var(--gray-400); }
-
     .hero { text-align: center; padding: 2rem 0; }
     .hero-icon {
       width: 80px; height: 80px;
@@ -531,37 +465,6 @@
   <div style="width:80px;"></div>
 </header>
 
-<!-- UPGRADE GATE (shown if not silver) -->
-<div id="upgradeGate" class="upgrade-gate hidden">
-  <div class="upgrade-card">
-    <div class="upgrade-icon"><i class="ri-shield-star-fill"></i></div>
-    <h2>Silver Plan Required</h2>
-    <p>Vault Defender is exclusive to Silver plan members. Upgrade now to build your base, defend your vault, and win leaderboard prizes.</p>
-    <div class="upgrade-features">
-      <div class="upgrade-feature">
-        <i class="ri-shield-flash-fill"></i>
-        <span>Strategic tower defense gameplay</span>
-      </div>
-      <div class="upgrade-feature">
-        <i class="ri-trophy-fill"></i>
-        <span>Win real cash prizes every round</span>
-      </div>
-      <div class="upgrade-feature">
-        <i class="ri-bar-chart-grouped-fill"></i>
-        <span>Live leaderboard & rankings</span>
-      </div>
-      <div class="upgrade-feature">
-        <i class="ri-share-line"></i>
-        <span>Share your base layouts</span>
-      </div>
-    </div>
-    <a href="activate.html" class="upgrade-btn">
-      <i class="ri-vip-crown-fill"></i> Upgrade to Silver
-    </a>
-    <a href="dashboard.html" class="upgrade-skip">← Back to Dashboard</a>
-  </div>
-</div>
-
 <div id="mainContainer" class="container hidden">
   <div id="loadingState">
     <div class="hero">
@@ -713,7 +616,6 @@
   let countdownInterval = null;
 
   const mainHeader = document.getElementById('mainHeader');
-  const upgradeGate = document.getElementById('upgradeGate');
   const mainContainer = document.getElementById('mainContainer');
   const loadingState = document.getElementById('loadingState');
   const mainContent = document.getElementById('mainContent');
@@ -734,10 +636,10 @@
   onAuthStateChanged(auth, async (user) => {
     if (!user) { location.href = 'login.html'; return; }
     currentUser = user;
-    await checkPlanAccess();
+    await loadUserProfile();
   });
 
-  async function checkPlanAccess() {
+  async function loadUserProfile() {
     try {
       const userRef = doc(db, 'users', currentUser.uid);
       const userSnap = await getDoc(userRef);
@@ -749,31 +651,12 @@
 
       currentUserData = userSnap.data();
 
-      const hasSilver = (
-        currentUserData.plan === 'silver' ||
-        currentUserData.subscriptionPlan === 'silver' ||
-        currentUserData.plan === 'gold' ||
-        currentUserData.subscriptionPlan === 'gold' ||
-        currentUserData.plan === 'premium' ||
-        currentUserData.subscriptionPlan === 'premium' ||
-        currentUserData.isSilver === true ||
-        currentUserData.isPremium === true
-      );
-
-      if (!hasSilver) {
-        mainHeader.style.display = 'none';
-        upgradeGate.classList.remove('hidden');
-        mainContainer.classList.add('hidden');
-        return;
-      }
-
-      upgradeGate.classList.add('hidden');
       mainContainer.classList.remove('hidden');
       await initialize();
 
     } catch (err) {
-      console.error('Plan check error:', err);
-      showToast('Failed to verify plan: ' + err.message, 'error');
+      console.error('Profile load error:', err);
+      showToast('Failed to load profile: ' + err.message, 'error');
     }
   }
 
@@ -1171,5 +1054,5 @@
   }
 </script>
 
-</body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a2f27d1f3e6957fe',t:'MTc4NzQwODExNw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
