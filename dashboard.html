@@ -141,160 +141,6 @@
             justify-content: center;
         }
 
-        /* ==================== ACTIVATION MODAL ==================== */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(4px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 2600;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-            padding: 20px;
-        }
-
-        .modal-overlay.show {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .activate-modal {
-            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
-            border-radius: 20px;
-            padding: 28px 24px;
-            color: white;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 20px 60px rgba(239, 68, 68, 0.4);
-            max-width: 360px;
-            width: 100%;
-            text-align: center;
-            transform: scale(0.9) translateY(20px);
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        .modal-overlay.show .activate-modal {
-            transform: scale(1) translateY(0);
-        }
-
-        .activate-modal::before {
-            content: '';
-            position: absolute;
-            top: -30px;
-            right: -30px;
-            width: 100px;
-            height: 100px;
-            background: rgba(255,255,255,0.08);
-            border-radius: 50%;
-        }
-
-        .activate-modal::after {
-            content: '';
-            position: absolute;
-            bottom: -20px;
-            left: -20px;
-            width: 80px;
-            height: 80px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 50%;
-        }
-
-        .modal-close {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            width: 32px;
-            height: 32px;
-            background: rgba(255,255,255,0.15);
-            border: none;
-            border-radius: 50%;
-            color: white;
-            font-size: 14px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 2;
-            transition: all 0.3s ease;
-        }
-
-        .modal-close:hover {
-            background: rgba(255,255,255,0.25);
-            transform: rotate(90deg);
-        }
-
-        .modal-icon {
-            width: 56px;
-            height: 56px;
-            background: rgba(255,255,255,0.15);
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            margin: 0 auto 16px;
-            position: relative;
-            z-index: 1;
-            animation: pulseGlow 2s ease-in-out infinite;
-        }
-
-        @keyframes pulseGlow {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.3); }
-            50% { box-shadow: 0 0 0 12px rgba(255,255,255,0); }
-        }
-
-        .activate-modal h3 {
-            font-size: 18px;
-            font-weight: 800;
-            margin-bottom: 8px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .activate-modal p {
-            font-size: 12px;
-            opacity: 0.9;
-            margin-bottom: 20px;
-            line-height: 1.6;
-            position: relative;
-            z-index: 1;
-        }
-
-        .btn-activate {
-            background: white;
-            color: #EF4444;
-            border: none;
-            padding: 14px 28px;
-            border-radius: 12px;
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s ease;
-            position: relative;
-            z-index: 1;
-            text-decoration: none;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-        }
-
-        .btn-activate:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-        }
-
-        .btn-activate:active {
-            transform: scale(0.97);
-        }
-
         /* ==================== HEADER ==================== */
         .header {
             display: flex;
@@ -977,23 +823,6 @@
         <button class="close-banner" onclick="dismissNotifBanner()"><i class="ri-close-line"></i></button>
     </div>
 
-    <!-- Activation Modal -->
-    <div class="modal-overlay" id="activateModal">
-        <div class="activate-modal">
-            <button class="modal-close" onclick="closeActivateModal()">
-                <i class="ri-close-line"></i>
-            </button>
-            <div class="modal-icon">
-                <i class="ri-vip-crown-line"></i>
-            </div>
-            <h3>ACTIVATE YOUR ACCOUNT NOW!</h3>
-            <p>Enjoy seamless experience with varieties of tasks, games and lots more events.</p>
-            <a href="activate.html" class="btn-activate">
-                <i class="ri-flashlight-line"></i> Activate
-            </a>
-        </div>
-    </div>
-
     <div class="loading-overlay" id="loadingOverlay">
         <div class="spinner"></div>
         <div class="loader-text">Loading</div>
@@ -1270,38 +1099,22 @@
             localStorage.setItem('notifBannerDismissed', 'true');
         }
 
-        // ==================== ACTIVATION MODAL ====================
+        // ==================== PLAN / CLAIM RATE ====================
         function checkActivationStatus() {
             if (!userData) return;
             const plan = userData.plan;
             isSilver = plan === 'silver' || plan === 'Silver' || plan === 'SILVER';
-            
+
             // Update claim amount based on plan
             dailyClaimAmount = isSilver ? 0.002 : 0.001;
             document.getElementById('claimAmount').textContent = `$${dailyClaimAmount.toFixed(3)}`;
-            
+
             // Show silver badge if applicable
             if (isSilver) {
                 const claimTitle = document.getElementById('claimTitle');
                 claimTitle.innerHTML = `Daily Claim <span class="silver-badge"><i class="ri-vip-crown-line"></i> 2x</span>`;
             }
-            
-            if (!plan || !isSilver) {
-                showActivateModal();
-            }
         }
-
-        function showActivateModal() {
-            document.getElementById('activateModal').classList.add('show');
-        }
-
-        function closeActivateModal() {
-            document.getElementById('activateModal').classList.remove('show');
-        }
-
-        document.getElementById('activateModal').addEventListener('click', function(e) {
-            if (e.target === this) closeActivateModal();
-        });
 
         // ==================== AUTH & DATA ====================
         auth.onAuthStateChanged((user) => {
