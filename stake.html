@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>TaskVault – Stake</title>
+  <title>TaskVault – Marketplace</title>
   <link rel="icon" type="image/jpeg" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg"/>
   <link rel="shortcut icon" type="image/jpeg" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
@@ -29,8 +29,8 @@
       --radius-lg: 16px;
       --radius-xl: 24px;
     }
-    
-    * { box-sizing: border-box; margin:0; padding:0; font-family:'Inter', 'Segoe UI', system-ui, sans-serif; }
+
+    * { box-sizing:border-box; margin:0; padding:0; font-family:'Inter','Segoe UI',system-ui,sans-serif; }
     body { background:var(--orange-light); color:#1f2937; min-height:100vh; -webkit-font-smoothing:antialiased; }
 
     /* Header */
@@ -58,335 +58,179 @@
 
     /* Provider Notice */
     .provider-notice {
-      background:linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); 
+      background:linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
       border-left:4px solid #d97706;
       padding:.875rem 1.25rem; font-size:.85rem; color:#92400e;
-      display:flex; align-items:center; gap:.75rem;
-      font-weight:500;
+      display:flex; align-items:center; gap:.75rem; font-weight:500;
     }
     .provider-notice i { color:#d97706; font-size:1rem; }
 
     /* Container */
-    .container { max-width:900px; margin:0 auto; padding:1.5rem; }
+    .container { max-width:1100px; margin:0 auto; padding:1.5rem; }
 
     /* Search */
-    .search-bar { margin-bottom:1.25rem; }
+    .search-bar { margin-bottom:1rem; }
     .search-wrap {
       display:flex; align-items:center; gap:.75rem;
       background:var(--white); border:2px solid #e5e7eb; border-radius:var(--radius);
-      padding:.65rem 1rem; transition:all .3s ease;
-      box-shadow:var(--shadow-sm);
+      padding:.65rem 1rem; transition:all .3s ease; box-shadow:var(--shadow-sm);
     }
-    .search-wrap:focus-within { 
-      border-color:var(--orange); 
-      box-shadow:0 0 0 3px var(--orange-glow), var(--shadow);
-    }
+    .search-wrap:focus-within { border-color:var(--orange); box-shadow:0 0 0 3px var(--orange-glow), var(--shadow); }
     .search-wrap i { color:var(--gray-light); font-size:.9rem; }
-    .search-wrap input {
-      flex:1; border:none; background:transparent; font-size:.9rem; outline:none;
-      font-weight:500;
-    }
+    .search-wrap input { flex:1; border:none; background:transparent; font-size:.9rem; outline:none; font-weight:500; }
     .search-wrap input::placeholder { color:var(--gray-light); }
 
-    /* Filters */
-    .filter-bar {
-      display:flex; gap:.5rem; margin-bottom:1.5rem; overflow-x:auto; padding-bottom:.5rem;
-      scrollbar-width:none;
+    /* Tab Bar */
+    .tab-bar { display:flex; gap:.5rem; margin-bottom:1rem; overflow-x:auto; padding-bottom:.25rem; scrollbar-width:none; }
+    .tab-bar::-webkit-scrollbar { display:none; }
+    .tab-btn {
+      padding:.6rem 1.25rem; border:2px solid var(--orange); background:var(--white);
+      color:var(--orange); border-radius:var(--radius-sm); cursor:pointer; font-size:.85rem;
+      font-weight:700; white-space:nowrap; transition:all .25s cubic-bezier(0.4,0,0.2,1);
+      box-shadow:var(--shadow-sm); display:flex; align-items:center; gap:.4rem;
     }
+    .tab-btn.active, .tab-btn:hover { background:var(--orange); color:var(--white); transform:translateY(-1px); box-shadow:var(--shadow); }
+
+    .sell-cta {
+      margin-left:auto; background:var(--green); color:#fff; border:none;
+      padding:.6rem 1.25rem; border-radius:var(--radius-sm); cursor:pointer; font-size:.85rem;
+      font-weight:700; box-shadow:var(--shadow-sm); display:flex; align-items:center; gap:.4rem; transition:all .2s ease;
+    }
+    .sell-cta:hover { transform:translateY(-1px); box-shadow:var(--shadow); filter:brightness(1.05); }
+
+    /* Filter Bar */
+    .filter-bar { display:flex; gap:.5rem; margin-bottom:1.5rem; overflow-x:auto; padding-bottom:.5rem; scrollbar-width:none; }
     .filter-bar::-webkit-scrollbar { display:none; }
     .filter-btn {
       padding:.5rem 1.1rem; border:2px solid var(--orange); background:var(--white);
-      color:var(--orange); border-radius:20px; cursor:pointer; font-size:.85rem;
-      font-weight:600; white-space:nowrap; transition:all .25s cubic-bezier(0.4, 0, 0.2, 1);
+      color:var(--orange); border-radius:20px; cursor:pointer; font-size:.8rem;
+      font-weight:600; white-space:nowrap; transition:all .25s cubic-bezier(0.4,0,0.2,1);
       box-shadow:var(--shadow-sm);
     }
-    .filter-btn.active, .filter-btn:hover {
-      background:var(--orange); color:var(--white);
-      transform:translateY(-1px); box-shadow:var(--shadow);
-    }
+    .filter-btn.active, .filter-btn:hover { background:var(--orange); color:var(--white); transform:translateY(-1px); box-shadow:var(--shadow); }
 
-    /* Topic Cards */
-    .topics-grid { display:grid; gap:1rem; }
-    .topic-card {
-      background:var(--white); border-radius:var(--radius-lg); padding:1.25rem;
-      box-shadow:var(--shadow); transition:all .3s cubic-bezier(0.4, 0, 0.2, 1);
-      position:relative; cursor:pointer; border:1px solid transparent;
-    }
-    .topic-card:hover { 
-      transform:translateY(-3px); 
-      box-shadow:var(--shadow-xl); 
-      border-color:var(--orange-glow);
-    }
-    .topic-card:active { transform:translateY(-1px); }
-    .topic-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:.875rem; }
-    .header-left { display:flex; align-items:center; gap:.5rem; }
-    
-    .category-tag {
-      display:inline-flex; align-items:center; gap:.35rem;
-      padding:.3rem .7rem; border-radius:8px; font-size:.75rem; font-weight:700;
-      letter-spacing:0.02em;
-    }
-    .cat-sports { background:#fee2e2; color:var(--red); }
-    .cat-crypto { background:#dbeafe; color:var(--blue); }
-    .cat-reallife { background:#dcfce7; color:var(--green); }
-    .cat-entertainment { background:#f3e8ff; color:var(--purple); }
-    
-    .status-badge {
-      padding:.3rem .7rem; border-radius:8px; font-size:.75rem; font-weight:700;
-      letter-spacing:0.02em;
-    }
-    .status-open { background:#dcfce7; color:var(--green); }
-    .status-closed { background:#fee2e2; color:var(--red); }
-    .status-resulted { background:#dbeafe; color:var(--blue); }
+    /* Section heading */
+    .section-head { display:flex; align-items:center; gap:.6rem; margin:1rem 0 1.25rem; }
+    .section-head h2 { font-size:1.05rem; font-weight:800; color:#1f2937; }
+    .section-head .badge { background:var(--orange-light); color:var(--orange-dark); padding:.2rem .6rem; border-radius:20px; font-size:.7rem; font-weight:700; }
 
-    .copy-btn {
-      width:32px; height:32px; border:none; border-radius:8px;
-      background:#f3f4f6; color:var(--gray); cursor:pointer;
-      display:flex; align-items:center; justify-content:center;
-      transition:all .2s ease; flex-shrink:0;
+    /* Products Grid */
+    .products-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:1rem; }
+    .product-card {
+      background:var(--white); border-radius:var(--radius-lg); overflow:hidden;
+      box-shadow:var(--shadow); transition:all .3s cubic-bezier(0.4,0,0.2,1); cursor:pointer;
+      border:1px solid transparent; display:flex; flex-direction:column;
     }
-    .copy-btn:hover { background:var(--orange); color:var(--white); transform:scale(1.05); }
-    .copy-btn.copied { background:var(--green); color:var(--white); }
-    .copy-btn i { font-size:.8rem; }
+    .product-card:hover { transform:translateY(-4px); box-shadow:var(--shadow-xl); border-color:var(--orange-glow); }
+    .product-img-wrap { width:100%; aspect-ratio:1/1; background:#f3f4f6; overflow:hidden; position:relative; }
+    .product-img-wrap img { width:100%; height:100%; object-fit:cover; transition:transform .4s ease; }
+    .product-card:hover .product-img-wrap img { transform:scale(1.06); }
+    .product-tag {
+      position:absolute; top:.6rem; left:.6rem; padding:.25rem .55rem; border-radius:6px;
+      font-size:.65rem; font-weight:800; text-transform:uppercase; letter-spacing:.03em; color:#fff;
+      box-shadow:var(--shadow-sm);
+    }
+    .tag-official { background:var(--orange); }
+    .tag-community { background:var(--purple); }
+    .product-body { padding:.9rem; display:flex; flex-direction:column; gap:.4rem; flex:1; }
+    .product-cat { font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--gray-light); }
+    .product-name { font-size:.95rem; font-weight:800; line-height:1.3; color:#1f2937; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+    .product-desc { font-size:.78rem; color:var(--gray); line-height:1.4; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+    .product-footer { display:flex; align-items:center; justify-content:space-between; margin-top:auto; padding-top:.5rem; }
+    .product-price { font-size:1.1rem; font-weight:800; color:var(--orange-dark); }
+    .stock-pill { font-size:.68rem; font-weight:700; color:var(--gray); background:#f3f4f6; padding:.2rem .5rem; border-radius:20px; }
+    .stock-pill.low { color:var(--red); background:#fee2e2; }
+    .stock-pill.out { color:var(--gray-light); background:#f3f4f6; }
+    .buy-btn {
+      width:100%; margin-top:.6rem; padding:.7rem; border:none; border-radius:var(--radius-sm);
+      background:var(--orange); color:#fff; font-weight:700; cursor:pointer; font-size:.85rem;
+      transition:all .2s ease; box-shadow:0 4px 6px -1px rgba(249,115,22,0.3);
+      display:flex; align-items:center; justify-content:center; gap:.4rem;
+    }
+    .buy-btn:hover:not(:disabled) { background:var(--orange-dark); transform:translateY(-1px); }
+    .buy-btn:disabled { background:#d1d5db; cursor:not-allowed; box-shadow:none; }
 
-    .topic-question { font-size:1.1rem; font-weight:800; margin-bottom:.5rem; line-height:1.4; letter-spacing:-0.01em; }
-    .topic-desc { font-size:.875rem; color:var(--gray); margin-bottom:1rem; line-height:1.5; }
-    .topic-desc .truncated { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
-    
-    .topic-meta { 
-      display:flex; align-items:center; gap:1rem; 
-      font-size:.8rem; color:var(--gray-light); margin-bottom:1rem;
-    }
-    .topic-meta span { display:flex; align-items:center; gap:.35rem; }
+    .listing-actions { display:flex; gap:.5rem; margin-top:.6rem; }
+    .listing-actions button { flex:1; padding:.55rem; border:none; border-radius:var(--radius-sm); font-size:.75rem; font-weight:700; cursor:pointer; transition:all .2s ease; }
+    .btn-delist { background:#fee2e2; color:var(--red); }
+    .btn-delist:hover { background:var(--red); color:#fff; }
 
-    .countdown-wrap {
-      display:flex; align-items:center; gap:.5rem; margin-bottom:1rem;
-      padding:.6rem .875rem; background:var(--orange-light); border-radius:var(--radius-sm);
-      width:fit-content;
-    }
-    .countdown-wrap i { color:var(--orange); }
-    .countdown { font-family:'SF Mono', 'Courier New', monospace; font-weight:800; color:var(--orange-dark); font-size:.9rem; }
-    .countdown.urgent { color:var(--red); animation:pulse 1.2s infinite; }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+    /* Skeleton */
+    .skeleton-card { background:var(--white); border-radius:var(--radius-lg); overflow:hidden; box-shadow:var(--shadow); }
+    .skeleton { background:linear-gradient(90deg,#f0f0f0 25%,#e8e8e8 50%,#f0f0f0 75%); background-size:200% 100%; animation:shimmer 1.5s infinite; border-radius:6px; }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
 
-    .options-preview {
-      display:flex; gap:.5rem; flex-wrap:wrap;
-    }
-    .option-chip {
-      padding:.4rem .8rem; background:#f3f4f6; border-radius:20px;
-      font-size:.8rem; font-weight:600; color:var(--gray);
-    }
+    /* Empty State */
+    .empty-state { text-align:center; padding:3rem 1rem; color:var(--gray); }
+    .empty-state i { font-size:3rem; margin-bottom:1rem; color:#e5e7eb; }
+    .empty-state p { font-weight:500; }
 
-    /* FULL PAGE TOPIC DETAIL - Like a new page */
-    .topic-detail-overlay {
-      position:fixed; inset:0; background:var(--orange-light);
-      display:none; z-index:1000; overflow-y:auto;
-      animation:pageFadeIn .4s ease;
+    /* KYC Block */
+    .kyc-block {
+      background:var(--white); border-radius:var(--radius-xl); padding:2.5rem; text-align:center;
+      box-shadow:var(--shadow-lg); margin-bottom:1.5rem; border:1px solid #f3f4f6;
     }
-    .topic-detail-overlay.active { display:block; }
-    
-    @keyframes pageFadeIn { from { opacity:0; } to { opacity:1; } }
-    
-    .topic-detail-page {
-      min-height:100vh; display:flex; flex-direction:column;
-      animation:pageSlideIn .5s cubic-bezier(0.16, 1, 0.3, 1);
+    .kyc-block .lock-icon {
+      width:72px; height:72px; background:linear-gradient(135deg,#fef3c7 0%,#fde68a 100%);
+      color:#d97706; border-radius:50%; display:flex; align-items:center; justify-content:center;
+      margin:0 auto 1.25rem; font-size:1.75rem; box-shadow:0 4px 12px rgba(217,119,6,0.2);
     }
-    
-    @keyframes pageSlideIn {
-      from { opacity:0; transform:translateY(30px); }
-      to { opacity:1; transform:translateY(0); }
-    }
-    
-    .detail-page-header {
-      background:var(--orange); color:var(--white);
-      padding:1rem 1.5rem; display:flex; justify-content:space-between; align-items:center;
-      box-shadow:var(--shadow-lg); position:sticky; top:0; z-index:10;
-    }
-    .detail-page-header .logo-wrap img { box-shadow:0 2px 8px rgba(0,0,0,0.2); }
-    
-    .detail-back-btn {
-      display:flex; align-items:center; gap:.5rem;
-      background:rgba(255,255,255,0.15); color:var(--white); border:none;
-      padding:.5rem 1rem; border-radius:var(--radius-sm); cursor:pointer;
-      font-size:.85rem; font-weight:600; transition:all .2s ease;
-    }
-    .detail-back-btn:hover { background:rgba(255,255,255,0.25); transform:translateX(-2px); }
-    
-    .detail-page-body {
-      flex:1; max-width:800px; width:100%; margin:0 auto; padding:2rem 1.5rem;
-    }
-    
-    .detail-hero {
-      background:var(--white); border-radius:var(--radius-xl); padding:2rem;
-      box-shadow:var(--shadow-lg); margin-bottom:1.5rem;
-      border:1px solid #f3f4f6;
-    }
-    
-    .detail-category-row {
-      display:flex; align-items:center; gap:.75rem; margin-bottom:1rem;
-    }
-    
-    .detail-title {
-      font-size:1.5rem; font-weight:800; line-height:1.3;
-      letter-spacing:-0.02em; color:#111827; margin-bottom:1rem;
-    }
-    
-    .detail-desc-box {
-      background:#f9fafb; border-radius:var(--radius); padding:1.25rem;
-      border-left:4px solid var(--orange); margin-bottom:1.5rem;
-    }
-    
-    .detail-desc-box .section-label {
-      font-size:.7rem; font-weight:700; text-transform:uppercase;
-      letter-spacing:0.1em; color:var(--gray-light); margin-bottom:.5rem;
-    }
-    
-    .detail-desc-text {
-      font-size:.95rem; color:#374151; line-height:1.7;
-      white-space:pre-wrap; word-wrap:break-word;
-    }
-    
-    .detail-desc-text a {
-      color:var(--orange); text-decoration:none; font-weight:600;
-      border-bottom:1px solid var(--orange);
-      transition:all .2s ease;
-    }
-    .detail-desc-text a:hover {
-      color:var(--orange-dark); border-bottom-width:2px;
-    }
-    
-    .detail-countdown-section {
-      background:linear-gradient(135deg, var(--orange-light) 0%, #ffedd5 100%);
-      border:2px solid #fed7aa; border-radius:var(--radius);
-      padding:1.25rem; display:flex; align-items:center; gap:1rem; margin-bottom:1.5rem;
-    }
-    .detail-countdown-section i { font-size:1.5rem; color:var(--orange); }
-    .detail-countdown-section .time-display {
-      font-family:'SF Mono', 'Courier New', monospace;
-      font-size:1.75rem; font-weight:800; color:var(--orange-dark);
-    }
-    .detail-countdown-section .time-label {
-      font-size:.85rem; color:var(--gray); font-weight:600;
-    }
-    
-    .detail-options-section {
-      background:var(--white); border-radius:var(--radius-xl); padding:1.5rem;
-      box-shadow:var(--shadow); margin-bottom:1.5rem;
-      border:1px solid #f3f4f6;
-    }
-    
-    .detail-section-title {
-      font-size:1rem; font-weight:700; color:#1f2937; margin-bottom:1rem;
-      display:flex; align-items:center; gap:.5rem;
-    }
-    
-    .detail-options-grid {
-      display:grid; gap:.75rem;
-    }
-    
-    .detail-option-btn {
-      padding:1.25rem; border:2px solid #e5e7eb; background:var(--white);
-      border-radius:var(--radius); cursor:pointer;
-      transition:all .25s cubic-bezier(0.4, 0, 0.2, 1);
-      display:flex; align-items:center; justify-content:space-between;
-      text-align:left;
-    }
-    .detail-option-btn:hover:not(:disabled) {
-      border-color:var(--orange); 
-      background:var(--orange-light);
-      transform:translateX(4px);
-      box-shadow:var(--shadow);
-    }
-    .detail-option-btn:disabled {
-      opacity:.5; cursor:not-allowed; background:#f9fafb;
-    }
-    
-    .option-info { flex:1; }
-    .option-label { font-size:1.05rem; font-weight:700; color:#1f2937; }
-    .option-stats { font-size:.8rem; color:var(--gray); margin-top:.25rem; }
-    
-    .option-stake-icon {
-      width:40px; height:40px; border-radius:50%;
-      background:var(--orange-light); color:var(--orange);
-      display:flex; align-items:center; justify-content:center;
-      transition:all .2s ease; font-size:1rem;
-    }
-    .detail-option-btn:hover .option-stake-icon {
-      background:var(--orange); color:var(--white);
-      transform:scale(1.1);
-    }
-    
-    .detail-stats-section {
-      background:var(--white); border-radius:var(--radius-xl); padding:1.5rem;
-      box-shadow:var(--shadow); margin-bottom:1.5rem;
-      border:1px solid #f3f4f6;
-    }
-    
-    .detail-meta-grid {
-      display:grid; grid-template-columns:repeat(3, 1fr); gap:1rem;
-    }
-    .meta-item {
-      background:#f9fafb; border-radius:var(--radius-sm);
-      padding:1rem; text-align:center;
-    }
-    .meta-value {
-      font-size:1.1rem; font-weight:800; color:#1f2937;
-    }
-    .meta-label {
-      font-size:.75rem; color:var(--gray); font-weight:600; margin-top:.25rem;
-    }
-    
-    .detail-footer-bar {
-      background:var(--white); border-top:1px solid #f3f4f6;
-      padding:1rem 1.5rem; display:flex; justify-content:space-between; align-items:center;
-      position:sticky; bottom:0; box-shadow:0 -4px 12px rgba(0,0,0,0.05);
-    }
-    
-    .detail-share-btn {
-      padding:.6rem 1.2rem; border:2px solid #e5e7eb; background:var(--white);
-      border-radius:var(--radius-sm); cursor:pointer; font-size:.85rem;
-      font-weight:600; color:var(--gray); transition:all .2s ease;
-      display:flex; align-items:center; gap:.5rem;
-    }
-    .detail-share-btn:hover { border-color:var(--orange); color:var(--orange); }
-    
-    .detail-stake-hint {
-      font-size:.85rem; color:var(--gray); font-weight:500;
-    }
+    .kyc-block h2 { font-size:1.3rem; margin-bottom:.5rem; font-weight:800; }
+    .kyc-block p { color:var(--gray); margin-bottom:1.5rem; font-size:.9rem; }
+    .kyc-block .btn { display:inline-block; padding:.875rem 2rem; background:var(--orange); color:var(--white); text-decoration:none; border-radius:var(--radius); font-weight:700; box-shadow:0 4px 12px rgba(249,115,22,0.3); transition:all .2s ease; border:none; cursor:pointer; }
+    .kyc-block .btn:hover { background:var(--orange-dark); transform:translateY(-2px); }
 
-    /* Stake Modal */
-    .modal-backdrop {
-      position:fixed; inset:0; background:rgba(0,0,0,0.5);
-      display:none; justify-content:center; align-items:center; z-index:2000;
-      padding:1rem; backdrop-filter:blur(4px);
+    /* Modals */
+    .modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.5); display:none; justify-content:center; align-items:center; z-index:2000; padding:1rem; backdrop-filter:blur(4px); }
+    .modal { background:var(--white); border-radius:var(--radius-xl); padding:1.75rem; max-width:420px; width:100%; animation:modalIn .35s cubic-bezier(0.16,1,0.3,1); box-shadow:0 25px 50px -12px rgba(0,0,0,0.25); max-height:90vh; overflow-y:auto; }
+    @keyframes modalIn { from{opacity:0; transform:scale(.92) translateY(10px);} to{opacity:1; transform:scale(1) translateY(0);} }
+    .modal h3 { font-size:1.15rem; margin-bottom:1rem; display:flex; align-items:center; gap:.5rem; }
+    .modal-icon { font-size:3.5rem; margin-bottom:1rem; }
+    .modal-title { font-size:1.2rem; font-weight:800; margin-bottom:.5rem; text-align:center; }
+    .modal-text { color:var(--gray); margin-bottom:1.5rem; line-height:1.5; text-align:center; }
+
+    /* Product detail modal */
+    .detail-modal { max-width:560px; }
+    .detail-img { width:100%; aspect-ratio:1/1; object-fit:cover; border-radius:var(--radius-lg); margin-bottom:1rem; background:#f3f4f6; }
+    .detail-cat-row { display:flex; align-items:center; gap:.5rem; margin-bottom:.6rem; }
+    .detail-name { font-size:1.3rem; font-weight:800; margin-bottom:.4rem; }
+    .detail-price-row { display:flex; align-items:baseline; gap:.5rem; margin-bottom:.75rem; }
+    .detail-price { font-size:1.6rem; font-weight:800; color:var(--orange-dark); }
+    .detail-desc { font-size:.9rem; color:var(--gray); line-height:1.6; margin-bottom:1rem; background:#f9fafb; padding:1rem; border-radius:var(--radius); border-left:4px solid var(--orange); }
+    .detail-meta { display:flex; gap:.75rem; flex-wrap:wrap; margin-bottom:1rem; font-size:.78rem; color:var(--gray); }
+    .detail-meta span { display:flex; align-items:center; gap:.3rem; }
+    .qty-wrap { display:flex; align-items:center; gap:.75rem; margin-bottom:1rem; }
+    .qty-wrap label { font-weight:700; font-size:.85rem; }
+    .qty-controls { display:flex; align-items:center; border:2px solid #e5e7eb; border-radius:var(--radius-sm); overflow:hidden; }
+    .qty-controls button { width:40px; height:40px; border:none; background:#f9fafb; font-size:1.1rem; font-weight:700; cursor:pointer; color:var(--orange); transition:all .2s ease; }
+    .qty-controls button:hover { background:var(--orange-light); }
+    .qty-controls input { width:56px; height:40px; border:none; text-align:center; font-weight:800; font-size:1rem; outline:none; }
+
+    /* Forms */
+    .field { margin-bottom:1rem; }
+    .field label { display:block; font-size:.78rem; font-weight:700; margin-bottom:.4rem; color:#374151; }
+    .field input, .field select, .field textarea {
+      width:100%; padding:.75rem .9rem; border:2px solid #e5e7eb; border-radius:var(--radius-sm);
+      font-size:.9rem; outline:none; transition:all .2s ease; font-family:inherit;
     }
-    .modal {
-      background:var(--white); border-radius:var(--radius-xl); padding:1.75rem;
-      max-width:400px; width:100%; 
-      animation:modalIn .35s cubic-bezier(0.16, 1, 0.3, 1);
-      box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);
+    .field input:focus, .field select:focus, .field textarea:focus { border-color:var(--orange); box-shadow:0 0 0 3px var(--orange-glow); }
+    .field textarea { resize:vertical; min-height:80px; }
+    .field-row { display:flex; gap:.75rem; }
+    .field-row .field { flex:1; }
+
+    .upload-area {
+      border:2px dashed #d1d5db; border-radius:var(--radius); padding:1.5rem; text-align:center;
+      cursor:pointer; transition:all .2s ease; background:#f9fafb; position:relative; min-height:120px;
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.4rem;
     }
-    @keyframes modalIn {
-      from { opacity:0; transform:scale(.92) translateY(10px); }
-      to { opacity:1; transform:scale(1) translateY(0); }
-    }
-    .modal h3 { font-size:1.15rem; margin-bottom:1.25rem; display:flex; align-items:center; gap:.5rem; }
-    .modal .topic-ref { 
-      font-size:.85rem; color:var(--gray); margin-bottom:1.25rem; 
-      padding:.75rem; background:#f9fafb; border-radius:var(--radius-sm);
-      border-left:3px solid var(--orange);
-    }
-    .stake-input-wrap {
-      display:flex; align-items:center; border:2px solid #e5e7eb; 
-      border-radius:var(--radius); overflow:hidden; margin-bottom:.5rem;
-      transition:all .2s ease;
-    }
-    .stake-input-wrap:focus-within { border-color:var(--orange); box-shadow:0 0 0 3px var(--orange-glow); }
-    .stake-input-wrap span { padding:.875rem; background:#f9fafb; font-weight:700; color:var(--gray); font-size:1.1rem; }
-    .stake-input-wrap input {
-      flex:1; border:none; padding:.875rem; font-size:1.25rem; font-weight:700; outline:none;
-    }
-    .stake-hint { font-size:.8rem; color:var(--gray); margin-bottom:1.5rem; }
+    .upload-area:hover { border-color:var(--orange); background:var(--orange-light); }
+    .upload-area i { font-size:1.75rem; color:var(--orange); }
+    .upload-area p { font-size:.82rem; color:var(--gray); font-weight:600; }
+    .upload-area.has-img { padding:0; border-style:solid; min-height:auto; }
+    .upload-area img.preview { width:100%; border-radius:var(--radius); display:block; }
+    .upload-area input { display:none; }
+    .img-clear { position:absolute; top:.5rem; right:.5rem; background:rgba(0,0,0,0.6); color:#fff; border:none; width:28px; height:28px; border-radius:50%; cursor:pointer; font-size:.8rem; }
+
     .modal-actions { display:flex; gap:.75rem; }
     .modal-actions .btn { flex:1; padding:.875rem; border:none; border-radius:var(--radius-sm); font-weight:700; cursor:pointer; font-size:.9rem; transition:all .2s ease; }
     .btn-cancel { background:#f3f4f6; color:#4b5563; }
@@ -395,99 +239,23 @@
     .btn-confirm:hover { background:var(--orange-dark); transform:translateY(-1px); }
     .btn-confirm:disabled { background:#d1d5db; cursor:not-allowed; transform:none; box-shadow:none; }
 
-    /* Success/Error Modals */
-    .modal-icon { font-size:3.5rem; margin-bottom:1rem; }
-    .modal-title { font-size:1.2rem; font-weight:800; margin-bottom:.5rem; }
-    .modal-text { color:var(--gray); margin-bottom:1.5rem; line-height:1.5; }
-
-    /* KYC Block */
-    .kyc-block {
-      background:var(--white); border-radius:var(--radius-xl); padding:2.5rem; text-align:center;
-      box-shadow:var(--shadow-lg); margin-bottom:1.5rem;
-      border:1px solid #f3f4f6;
-    }
-    .kyc-block .lock-icon {
-      width:72px; height:72px; background:linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-      color:#d97706; border-radius:50%; display:flex; align-items:center; justify-content:center;
-      margin:0 auto 1.25rem; font-size:1.75rem;
-      box-shadow:0 4px 12px rgba(217,119,6,0.2);
-    }
-    .kyc-block h2 { font-size:1.3rem; margin-bottom:.5rem; font-weight:800; }
-    .kyc-block p { color:var(--gray); margin-bottom:1.5rem; font-size:.9rem; }
-    .kyc-block .btn { 
-      display:inline-block; padding:.875rem 2rem; background:var(--orange); 
-      color:var(--white); text-decoration:none; border-radius:var(--radius); 
-      font-weight:700; box-shadow:0 4px 12px rgba(249,115,22,0.3);
-      transition:all .2s ease;
-    }
-    .kyc-block .btn:hover { background:var(--orange-dark); transform:translateY(-2px); }
-
-    /* Welcome Overlay */
-    .overlay {
-      position:fixed; inset:0; background:rgba(0,0,0,0.65); z-index:3000;
-      display:none; justify-content:center; align-items:center; padding:1rem;
-      backdrop-filter:blur(8px);
-    }
-    .overlay-card {
-      background:var(--white); border-radius:var(--radius-xl); padding:2.5rem; 
-      max-width:460px; width:100%;
-      text-align:center; animation:modalIn .4s cubic-bezier(0.16, 1, 0.3, 1);
-      box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);
-    }
-    .overlay-logo { width:56px; height:56px; border-radius:12px; object-fit:cover; margin:0 auto 1.25rem; box-shadow:0 4px 12px rgba(0,0,0,0.15); }
-    .overlay-card h2 { font-size:1.4rem; margin-bottom:.875rem; color:var(--orange-dark); font-weight:800; }
-    .overlay-card p { color:var(--gray); line-height:1.7; margin-bottom:1.5rem; font-size:.95rem; }
-    .overlay-card .highlight { color:var(--orange); font-weight:800; }
-    .overlay-card .disclaimer { 
-      background:#fef3c7; padding:1rem; border-radius:var(--radius-sm); 
-      font-size:.85rem; color:#92400e; margin-bottom:1.5rem; text-align:left;
-      border-left:3px solid #d97706;
-    }
-    .overlay-card .disclaimer i { margin-right:.4rem; }
-    .overlay-card .btn {
-      width:100%; padding:1rem; background:var(--orange); color:var(--white);
-      border:none; border-radius:var(--radius); font-size:1rem; font-weight:700; 
-      cursor:pointer; box-shadow:0 4px 12px rgba(249,115,22,0.3);
-      transition:all .2s ease;
-    }
-    .overlay-card .btn:hover { background:var(--orange-dark); transform:translateY(-2px); }
-    .step-dots { display:flex; justify-content:center; gap:.4rem; margin-bottom:1.25rem; }
-    .dot { width:8px; height:8px; border-radius:50%; background:#e5e7eb; transition:all .3s ease; }
-    .dot.active { background:var(--orange); width:24px; border-radius:4px; }
-
-    /* Skeleton */
-    .skeleton-card {
-      background:var(--white); border-radius:var(--radius-lg); padding:1.25rem;
-      box-shadow:var(--shadow); margin-bottom:1rem;
-    }
-    .skeleton { 
-      background:linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%); 
-      background-size:200% 100%; animation:shimmer 1.5s infinite; 
-      border-radius:6px; 
-    }
-    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
-
-    /* Empty State */
-    .empty-state { text-align:center; padding:3rem 1rem; color:var(--gray); }
-    .empty-state i { font-size:3rem; margin-bottom:1rem; color:#e5e7eb; }
-    .empty-state p { font-weight:500; }
+    .stake-input-wrap { display:flex; align-items:center; border:2px solid #e5e7eb; border-radius:var(--radius); overflow:hidden; margin-bottom:.5rem; transition:all .2s ease; }
+    .stake-input-wrap:focus-within { border-color:var(--orange); box-shadow:0 0 0 3px var(--orange-glow); }
+    .stake-input-wrap span { padding:.875rem; background:#f9fafb; font-weight:700; color:var(--gray); font-size:1.1rem; }
+    .stake-input-wrap input { flex:1; border:none; padding:.875rem; font-size:1.1rem; font-weight:700; outline:none; }
 
     .hidden { display:none !important; }
-    
+
     /* Toast */
-    .toast-notification {
-      position:fixed; bottom:2rem; left:50%; transform:translateX(-50%);
-      background:#1f2937; color:white; padding:.875rem 1.5rem;
-      border-radius:var(--radius); font-size:.9rem; font-weight:600;
-      z-index:5000; animation:slideUp .3s ease; box-shadow:var(--shadow-lg);
-    }
-    @keyframes slideUp { from { opacity:0; transform:translateX(-50%) translateY(20px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }
-    
-    /* Scrollbar */
+    .toast-notification { position:fixed; bottom:2rem; left:50%; transform:translateX(-50%); background:#1f2937; color:white; padding:.875rem 1.5rem; border-radius:var(--radius); font-size:.9rem; font-weight:600; z-index:5000; animation:slideUp .3s ease; box-shadow:var(--shadow-lg); display:flex; align-items:center; }
+    @keyframes slideUp { from{opacity:0; transform:translateX(-50%) translateY(20px);} to{opacity:1; transform:translateX(-50%) translateY(0);} }
+
     ::-webkit-scrollbar { width:6px; }
     ::-webkit-scrollbar-track { background:transparent; }
     ::-webkit-scrollbar-thumb { background:#d1d5db; border-radius:3px; }
     ::-webkit-scrollbar-thumb:hover { background:#9ca3af; }
+
+    @media (max-width:560px) { .products-grid { grid-template-columns:repeat(2, 1fr); } .sell-cta { margin-left:0; } }
   </style>
 </head>
 <body>
@@ -495,41 +263,33 @@
 <header>
   <div class="logo-wrap">
     <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" alt="TaskVault"/>
-    <h1>TaskVault Stake</h1>
+    <h1>TaskVault Market</h1>
   </div>
   <div class="header-btns">
     <span class="balance-pill" id="balanceDisplay">$0.00</span>
-    <button class="header-btn" onclick="location.href='stakes-records.html'">
-      <i class="fas fa-list"></i> Records
-    </button>
+    <button class="header-btn" onclick="location.href='stake.html'"><i class="fas fa-arrow-left"></i> Stake</button>
   </div>
 </header>
 
-<div class="provider-notice" id="providerNotice">
+<div class="provider-notice">
   <i class="fas fa-info-circle"></i>
-  <span><strong>Notice:</strong> All stakes are processed in real time to our stake providers. TaskVault has no control over outcomes or results.</span>
+  <span><strong>Marketplace:</strong> Official items are sold by TaskVault. Community items are listed by other verified users. All purchases use your TaskVault balance.</span>
 </div>
 
 <div class="container">
   <!-- Loading -->
-  <div id="loadingState">
-    <div class="skeleton-card">
-      <div class="skeleton" style="width:80px;height:14px;margin-bottom:1rem;"></div>
-      <div class="skeleton" style="width:100%;height:22px;margin-bottom:.75rem;"></div>
-      <div class="skeleton" style="width:60%;height:16px;"></div>
-    </div>
-    <div class="skeleton-card">
-      <div class="skeleton" style="width:80px;height:14px;margin-bottom:1rem;"></div>
-      <div class="skeleton" style="width:100%;height:22px;margin-bottom:.75rem;"></div>
-      <div class="skeleton" style="width:60%;height:16px;"></div>
-    </div>
+  <div id="loadingState" class="products-grid">
+    <div class="skeleton-card"><div class="skeleton" style="width:100%;aspect-ratio:1/1;"></div><div style="padding:.9rem;"><div class="skeleton" style="width:60%;height:12px;margin-bottom:.5rem;"></div><div class="skeleton" style="width:90%;height:18px;"></div></div></div>
+    <div class="skeleton-card"><div class="skeleton" style="width:100%;aspect-ratio:1/1;"></div><div style="padding:.9rem;"><div class="skeleton" style="width:60%;height:12px;margin-bottom:.5rem;"></div><div class="skeleton" style="width:90%;height:18px;"></div></div></div>
+    <div class="skeleton-card"><div class="skeleton" style="width:100%;aspect-ratio:1/1;"></div><div style="padding:.9rem;"><div class="skeleton" style="width:60%;height:12px;margin-bottom:.5rem;"></div><div class="skeleton" style="width:90%;height:18px;"></div></div></div>
+    <div class="skeleton-card"><div class="skeleton" style="width:100%;aspect-ratio:1/1;"></div><div style="padding:.9rem;"><div class="skeleton" style="width:60%;height:12px;margin-bottom:.5rem;"></div><div class="skeleton" style="width:90%;height:18px;"></div></div></div>
   </div>
 
   <!-- KYC Block -->
   <div id="kycBlock" class="kyc-block hidden">
     <div class="lock-icon"><i class="fas fa-lock"></i></div>
     <h2>Verification Required</h2>
-    <p>Complete KYC verification to start staking on topics and unlock all features.</p>
+    <p>Complete KYC verification to browse the marketplace, buy official items, and list your own products for sale.</p>
     <a href="kyc.html" class="btn">Complete KYC</a>
   </div>
 
@@ -538,52 +298,91 @@
     <div class="search-bar">
       <div class="search-wrap">
         <i class="fas fa-search"></i>
-        <input type="text" id="searchInput" placeholder="Search by topic ID or keywords..."/>
+        <input type="text" id="searchInput" placeholder="Search products by name or category..."/>
       </div>
     </div>
+
+    <div class="tab-bar">
+      <button class="tab-btn active" data-tab="official"><i class="fas fa-store"></i> Official Store</button>
+      <button class="tab-btn" data-tab="community"><i class="fas fa-users"></i> Community Market</button>
+      <button class="tab-btn" data-tab="mine"><i class="fas fa-box"></i> My Listings</button>
+      <button class="sell-cta" id="sellCtaBtn"><i class="fas fa-plus"></i> Sell an Item</button>
+    </div>
+
     <div class="filter-bar" id="filterBar">
       <button class="filter-btn active" data-cat="all">All</button>
-      <button class="filter-btn" data-cat="sports">Sports</button>
-      <button class="filter-btn" data-cat="crypto">Crypto</button>
-      <button class="filter-btn" data-cat="reallife">Real Life</button>
-      <button class="filter-btn" data-cat="entertainment">Entertainment</button>
+      <button class="filter-btn" data-cat="electronics">Electronics</button>
+      <button class="filter-btn" data-cat="fashion">Fashion</button>
+      <button class="filter-btn" data-cat="home">Home</button>
+      <button class="filter-btn" data-cat="gaming">Gaming</button>
+      <button class="filter-btn" data-cat="groceries">Groceries</button>
+      <button class="filter-btn" data-cat="other">Other</button>
     </div>
-    <div class="topics-grid" id="topicsGrid"></div>
+
+    <div class="products-grid" id="productsGrid"></div>
   </div>
 </div>
 
-<!-- FULL PAGE TOPIC DETAIL - Like a completely new page -->
-<div class="topic-detail-overlay" id="topicDetailOverlay">
-  <div class="topic-detail-page" id="topicDetailPage">
-    <!-- Injected dynamically -->
-  </div>
+<!-- Product Detail / Buy Modal -->
+<div class="modal-backdrop" id="detailModal">
+  <div class="modal detail-modal" id="detailModalInner"></div>
 </div>
 
-<!-- Stake Modal -->
-<div class="modal-backdrop" id="stakeModal">
+<!-- Sell Item Modal -->
+<div class="modal-backdrop" id="sellModal">
   <div class="modal">
-    <h3><i class="fas fa-coins" style="color:var(--orange);"></i> Place Stake</h3>
-    <div class="topic-ref" id="modalTopicRef"></div>
-    <div style="margin-bottom:.5rem; font-weight:700; color:#374151;" id="modalOptionLabel"></div>
-    <div class="stake-input-wrap">
-      <span>$</span>
-      <input type="number" id="stakeAmount" min="0.1" max="1" step="0.1" placeholder="0.10"/>
+    <h3><i class="fas fa-tag" style="color:var(--green);"></i> List an Item for Sale</h3>
+    <div class="field">
+      <label>Product Image</label>
+      <div class="upload-area" id="sellUploadArea">
+        <input type="file" id="sellImageInput" accept="image/*"/>
+        <i class="fas fa-cloud-arrow-up"></i>
+        <p>Tap to upload a photo (JPG/PNG)</p>
+      </div>
     </div>
-    <div class="stake-hint">Min: $0.10 — Max: $1.00</div>
+    <div class="field">
+      <label>Product Name</label>
+      <input type="text" id="sellName" placeholder="e.g. Slightly used AirPods Pro"/>
+    </div>
+    <div class="field">
+      <label>Description</label>
+      <textarea id="sellDesc" placeholder="Condition, features, reason for selling..."></textarea>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>Price ($)</label>
+        <input type="number" id="sellPrice" min="0.01" step="0.01" placeholder="0.00"/>
+      </div>
+      <div class="field">
+        <label>Category</label>
+        <select id="sellCategory">
+          <option value="electronics">Electronics</option>
+          <option value="fashion">Fashion</option>
+          <option value="home">Home</option>
+          <option value="gaming">Gaming</option>
+          <option value="groceries">Groceries</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label>Quantity Available</label>
+      <input type="number" id="sellStock" min="1" step="1" value="1"/>
+    </div>
     <div class="modal-actions">
-      <button class="btn btn-cancel" onclick="closeModal('stakeModal')">Cancel</button>
-      <button class="btn btn-confirm" id="confirmStakeBtn" onclick="submitStake()">Confirm Stake</button>
+      <button class="btn btn-cancel" onclick="closeModal('sellModal')">Cancel</button>
+      <button class="btn btn-confirm" id="submitListingBtn"><i class="fas fa-check"></i> Post Listing</button>
     </div>
   </div>
 </div>
 
-<!-- Success Modal -->
+<!-- Generic Success Modal -->
 <div class="modal-backdrop" id="successModal">
   <div class="modal" style="text-align:center;">
     <div class="modal-icon" style="color:var(--green);"><i class="fas fa-check-circle"></i></div>
-    <div class="modal-title">Stake Placed!</div>
-    <div class="modal-text">Your stake has been recorded. Check Records to see your active stakes.</div>
-    <button class="btn btn-confirm" onclick="closeModal('successModal'); resetStakeForm();">Done</button>
+    <div class="modal-title" id="successTitle">Success!</div>
+    <div class="modal-text" id="successText">Done.</div>
+    <button class="btn btn-confirm" onclick="closeModal('successModal')">Done</button>
   </div>
 </div>
 
@@ -597,18 +396,12 @@
   </div>
 </div>
 
-<!-- Welcome Overlay -->
-<div class="overlay" id="welcomeOverlay">
-  <div class="overlay-card">
-    <div class="step-dots" id="stepDots"><span class="dot active"></span><span class="dot"></span></div>
-    <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" class="overlay-logo" alt="TaskVault"/>
-    <h2 id="overlayTitle">Welcome to TaskVault Stake</h2>
-    <p id="overlayText">Get paid for your opinions on <span class="highlight">real life</span>, <span class="highlight">crypto</span>, and <span class="highlight">sports</span> topics. Pick a topic, choose your option, and stake your call.</p>
-    <div class="disclaimer" id="overlayDisclaimer">
-      <i class="fas fa-shield-alt"></i>
-      <strong>Important:</strong> All stakes are processed in real time to our stake providers. TaskVault has no control over outcomes or results.
-    </div>
-    <button class="btn" id="overlayBtn" onclick="nextOverlayStep()">Next</button>
+<!-- Processing Overlay -->
+<div class="modal-backdrop" id="processingModal" style="background:rgba(0,0,0,0.4);">
+  <div class="modal" style="text-align:center; max-width:300px;">
+    <div style="font-size:2.5rem; margin-bottom:.75rem;"><i class="fas fa-spinner fa-spin" style="color:var(--orange);"></i></div>
+    <div class="modal-title" style="font-size:1rem;">Processing...</div>
+    <div class="modal-text" style="margin-bottom:0;" id="processingText">Please wait.</div>
   </div>
 </div>
 
@@ -617,7 +410,7 @@
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
   import {
     getFirestore, doc, getDoc, collection, query, where, orderBy,
-    getDocs, serverTimestamp, runTransaction
+    getDocs, addDoc, serverTimestamp, runTransaction, deleteDoc, updateDoc, limit
   } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -635,35 +428,19 @@
 
   let currentUser = null;
   let currentUserData = null;
-  let topics = [];
+  let officialProducts = [];
+  let communityListings = [];
+  let myListings = [];
+  let activeTab = 'official';
   let activeFilter = 'all';
   let searchQuery = '';
-  let selectedTopic = null;
-  let selectedOption = null;
-  let currentDetailTopic = null;
-  let pendingTopicId = null;
 
   const loadingState = document.getElementById('loadingState');
   const kycBlock = document.getElementById('kycBlock');
   const mainContent = document.getElementById('mainContent');
-  const topicsGrid = document.getElementById('topicsGrid');
+  const productsGrid = document.getElementById('productsGrid');
   const balanceDisplay = document.getElementById('balanceDisplay');
-  const stakeAmount = document.getElementById('stakeAmount');
-  const confirmStakeBtn = document.getElementById('confirmStakeBtn');
   const searchInput = document.getElementById('searchInput');
-  const topicDetailOverlay = document.getElementById('topicDetailOverlay');
-  const topicDetailPage = document.getElementById('topicDetailPage');
-
-  const welcomeOverlay = document.getElementById('welcomeOverlay');
-  const overlayTitle = document.getElementById('overlayTitle');
-  const overlayText = document.getElementById('overlayText');
-  const overlayBtn = document.getElementById('overlayBtn');
-  const stepDots = document.getElementById('stepDots');
-  let overlayStep = 0;
-
-  // Check URL params immediately
-  const urlParams = new URLSearchParams(window.location.search);
-  pendingTopicId = urlParams.get('topic');
 
   onAuthStateChanged(auth, async (user) => {
     if (!user) { location.href = 'login.html'; return; }
@@ -689,685 +466,508 @@
     }
 
     mainContent.classList.remove('hidden');
+    await loadAll();
+  }
 
-    const visits = parseInt(localStorage.getItem('taskvault_stake_visits') || '0');
-    if (visits < 2 && !pendingTopicId) {
-      showWelcomeOverlay();
-      localStorage.setItem('taskvault_stake_visits', (visits + 1).toString());
-    }
+  async function loadAll() {
+    await Promise.all([loadOfficial(), loadCommunity(), loadMine()]);
+    renderProducts();
+  }
 
-    await loadTopics();
-    
-    // If URL has topic param, open it directly after topics load
-    if (pendingTopicId) {
-      const topic = topics.find(t => t.id === pendingTopicId);
-      if (topic) {
-        openTopicDetail(pendingTopicId);
-        // Clean URL without reloading
-        window.history.replaceState({}, document.title, window.location.pathname);
+  async function loadOfficial() {
+    try {
+      let snap;
+      try {
+        const q = query(collection(db, 'products'), where('isActive', '==', true), orderBy('createdAt', 'desc'));
+        snap = await getDocs(q);
+      } catch (e) {
+        const q = query(collection(db, 'products'), where('isActive', '==', true));
+        snap = await getDocs(q);
       }
+      officialProducts = snap.docs.map(d => ({ id: d.id, type: 'official', ...d.data() }));
+    } catch (err) {
+      console.error('[Market] load official:', err);
+      officialProducts = [];
     }
   }
 
-  function showWelcomeOverlay() {
-    welcomeOverlay.style.display = 'flex';
-    overlayStep = 0;
-    updateOverlayContent();
-  }
-
-  function updateOverlayContent() {
-    const dots = stepDots.querySelectorAll('.dot');
-    dots.forEach((d, i) => d.classList.toggle('active', i === overlayStep));
-    
-    if (overlayStep === 0) {
-      overlayTitle.textContent = 'Welcome to TaskVault Stake';
-      overlayText.innerHTML = 'Get paid for your opinions on <span class="highlight">real life</span>, <span class="highlight">crypto</span>, and <span class="highlight">sports</span> topics. Pick a topic, choose your option, and stake your call.';
-      overlayBtn.textContent = 'Next';
-    } else {
-      overlayTitle.textContent = 'How It Works';
-      overlayText.innerHTML = '1. Browse open topics<br>2. Select your predicted option<br>3. Stake between <span class="highlight">$0.10 - $1.00</span><br>4. Wait for the result<br><br>Admins will credit winners manually after results are declared.';
-      overlayBtn.textContent = "Let's Go!";
+  async function loadCommunity() {
+    try {
+      let snap;
+      try {
+        const q = query(collection(db, 'userListings'), where('status', '==', 'active'), orderBy('createdAt', 'desc'));
+        snap = await getDocs(q);
+      } catch (e) {
+        const q = query(collection(db, 'userListings'), where('status', '==', 'active'));
+        snap = await getDocs(q);
+      }
+      communityListings = snap.docs.map(d => ({ id: d.id, type: 'community', ...d.data() }))
+        .filter(p => p.sellerId !== currentUser.uid);
+    } catch (err) {
+      console.error('[Market] load community:', err);
+      communityListings = [];
     }
   }
 
-  window.nextOverlayStep = function() {
-    if (overlayStep === 0) {
-      overlayStep = 1;
-      updateOverlayContent();
-    } else {
-      welcomeOverlay.style.display = 'none';
+  async function loadMine() {
+    try {
+      let snap;
+      try {
+        const q = query(collection(db, 'userListings'), where('sellerId', '==', currentUser.uid), orderBy('createdAt', 'desc'));
+        snap = await getDocs(q);
+      } catch (e) {
+        const q = query(collection(db, 'userListings'), where('sellerId', '==', currentUser.uid));
+        snap = await getDocs(q);
+      }
+      myListings = snap.docs.map(d => ({ id: d.id, type: 'mine', ...d.data() }));
+    } catch (err) {
+      console.error('[Market] load mine:', err);
+      myListings = [];
     }
-  };
+  }
 
+  // Tabs
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeTab = btn.dataset.tab;
+      renderProducts();
+    });
+  });
+
+  // Filters
   document.querySelectorAll('.filter-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       activeFilter = btn.dataset.cat;
-      renderTopics();
+      renderProducts();
     });
   });
 
   searchInput.addEventListener('input', (e) => {
     searchQuery = e.target.value.trim().toLowerCase();
-    renderTopics();
+    renderProducts();
   });
 
-  async function loadTopics() {
-    try {
-      const q = query(
-        collection(db, 'predictionTopics'),
-        where('isActive', '==', true),
-        orderBy('postedAt', 'desc')
-      );
-      
-      const snap = await getDocs(q);
-      topics = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      topics = topics.filter(t => ['open', 'closed', 'resulted'].includes(t.status));
-      
-      console.log(`[TaskVault] Loaded ${topics.length} topics`);
-      
-      if (topics.length === 0) {
-        topicsGrid.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i><p>No topics available right now. Check back later!</p></div>';
-        return;
-      }
-      
-      renderTopics();
-    } catch (err) {
-      console.error('[TaskVault] Load topics error:', err);
-      
-      try {
-        const fallbackQ = query(
-          collection(db, 'predictionTopics'),
-          where('isActive', '==', true)
-        );
-        const fallbackSnap = await getDocs(fallbackQ);
-        topics = fallbackSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-        topics = topics.filter(t => ['open', 'closed', 'resulted'].includes(t.status));
-        topics.sort((a, b) => {
-          const aTime = a.postedAt?.toDate?.() || new Date(0);
-          const bTime = b.postedAt?.toDate?.() || new Date(0);
-          return bTime - aTime;
-        });
-        
-        console.log(`[TaskVault] Fallback loaded ${topics.length} topics`);
-        
-        if (topics.length === 0) {
-          topicsGrid.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i><p>No topics available right now. Check back later!</p></div>';
-          return;
-        }
-        
-        renderTopics();
-      } catch (fallbackErr) {
-        console.error('[TaskVault] Fallback also failed:', fallbackErr);
-        topicsGrid.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Failed to load topics. Please try again later.</p></div>';
-      }
-    }
+  function activeList() {
+    if (activeTab === 'official') return officialProducts;
+    if (activeTab === 'community') return communityListings;
+    return myListings;
   }
 
-  function renderTopics() {
-    let filtered = activeFilter === 'all' ? topics : topics.filter(t => t.category === activeFilter);
-    
+  function renderProducts() {
+    let list = activeList();
+
+    if (activeFilter !== 'all') {
+      list = list.filter(p => (p.category || 'other') === activeFilter);
+    }
     if (searchQuery) {
-      filtered = filtered.filter(t => 
-        t.id.toLowerCase().includes(searchQuery) || 
-        (t.question && t.question.toLowerCase().includes(searchQuery))
+      list = list.filter(p =>
+        (p.name && p.name.toLowerCase().includes(searchQuery)) ||
+        (p.description && p.description.toLowerCase().includes(searchQuery)) ||
+        (p.category && p.category.toLowerCase().includes(searchQuery))
       );
     }
-    
-    if (filtered.length === 0) {
-      topicsGrid.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i><p>No topics found.</p></div>';
+
+    if (list.length === 0) {
+      let msg = 'No products available right now.';
+      if (activeTab === 'community') msg = 'No community listings yet. Be the first to sell!';
+      if (activeTab === 'mine') msg = "You haven't listed any items yet. Tap \u201cSell an Item\u201d to start.";
+      if (searchQuery || activeFilter !== 'all') msg = 'No products match your filters.';
+      productsGrid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><i class="fas fa-box-open"></i><p>${msg}</p></div>`;
       return;
     }
 
-    let html = '';
-    filtered.forEach(topic => {
-      const catClass = `cat-${topic.category || 'reallife'}`;
-      const catIcon = topic.category === 'sports' ? 'fa-futbol' : topic.category === 'crypto' ? 'fa-bitcoin-sign' : topic.category === 'entertainment' ? 'fa-film' : 'fa-globe';
-      const statusClass = topic.status === 'open' ? 'status-open' : topic.status === 'closed' ? 'status-closed' : 'status-resulted';
-      const statusText = topic.status === 'open' ? 'Open' : topic.status === 'closed' ? 'Closed' : 'Resulted';
-      
-      const deadline = topic.deadline?.toDate ? topic.deadline.toDate() : new Date(topic.deadline || Date.now());
-      const isOpen = topic.status === 'open' && deadline > new Date();
-      const timeLeft = isOpen ? getTimeLeft(deadline) : null;
-      const isUrgent = isOpen && (deadline - new Date()) < 3600000;
-      
-      const totalPool = topic.totalPool || 0;
-      const optionCount = (topic.options || []).length;
-      const stakerCount = (topic.options || []).reduce((sum, o) => sum + (o.stakerCount || 0), 0);
-      
-      // Truncate description for card preview
-      let descPreview = '';
-      if (topic.description) {
-        const plainDesc = topic.description.replace(/<[^>]*>/g, '');
-        descPreview = plainDesc.length > 120 ? plainDesc.substring(0, 120) + '...' : plainDesc;
-      }
-
-      html += `
-        <div class="topic-card" data-id="${topic.id}" onclick="openTopicDetail('${topic.id}')">
-          <div class="topic-header">
-            <div class="header-left">
-              <button class="copy-btn" onclick="event.stopPropagation(); copyTopicLink('${topic.id}', this)" title="Copy link">
-                <i class="fas fa-link"></i>
-              </button>
-              <span class="category-tag ${catClass}"><i class="fas ${catIcon}"></i> ${topic.category || 'General'}</span>
-            </div>
-            <span class="status-badge ${statusClass}">${statusText}</span>
-          </div>
-          <div class="topic-question">${escapeHtml(topic.question)}</div>
-          ${descPreview ? `<div class="topic-desc"><span class="truncated">${escapeHtml(descPreview)}</span></div>` : ''}
-          
-          <div class="topic-meta">
-            <span><i class="fas fa-coins"></i> $${totalPool.toFixed(2)} pool</span>
-            <span><i class="fas fa-list"></i> ${optionCount} options</span>
-            <span><i class="fas fa-users"></i> ${stakerCount} stakers</span>
-          </div>
-          
-          ${isOpen ? `
-            <div class="countdown-wrap">
-              <i class="fas fa-clock"></i>
-              <span class="countdown ${isUrgent ? 'urgent' : ''}" data-deadline="${deadline.toISOString()}">${timeLeft}</span>
-            </div>
-          ` : ''}
-          
-          <div class="options-preview">
-            ${(topic.options || []).slice(0, 3).map(opt => `
-              <span class="option-chip">${escapeHtml(opt.label)}</span>
-            `).join('')}
-            ${(topic.options || []).length > 3 ? `<span class="option-chip">+${(topic.options || []).length - 3} more</span>` : ''}
-          </div>
-        </div>
-      `;
-    });
-    
-    topicsGrid.innerHTML = html;
-    startCountdowns();
+    productsGrid.innerHTML = list.map(p => cardHtml(p)).join('');
   }
 
-  function getTimeLeft(deadline) {
-    const diff = deadline - new Date();
-    if (diff <= 0) return '00:00:00';
-    const h = Math.floor(diff / 3600000);
-    const m = Math.floor((diff % 3600000) / 60000);
-    const s = Math.floor((diff % 60000) / 1000);
-    return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-  }
-
-  function startCountdowns() {
-    document.querySelectorAll('.countdown').forEach(el => {
-      if (el.dataset.interval) clearInterval(parseInt(el.dataset.interval));
-      
-      const deadline = new Date(el.dataset.deadline);
-      const update = () => {
-        const diff = deadline - new Date();
-        if (diff <= 0) {
-          el.textContent = '00:00:00';
-          el.classList.add('urgent');
-          setTimeout(() => loadTopics(), 2000);
-          return;
-        }
-        el.textContent = getTimeLeft(deadline);
-      };
-      update();
-      const interval = setInterval(update, 1000);
-      el.dataset.interval = interval;
-    });
-  }
-
-  // Convert plain text URLs to clickable links
-  function linkifyText(text) {
-    if (!text) return '';
-    
-    // First escape HTML to prevent XSS
-    let escaped = escapeHtml(text);
-    
-    // URL regex pattern
-    const urlPattern = /(https?:\/\/[^\s<>"{}|\\^`\[\]]+)/g;
-    
-    // Replace URLs with anchor tags
-    escaped = escaped.replace(urlPattern, (url) => {
-      // Clean up trailing punctuation that might be caught
-      let cleanUrl = url;
-      let trailing = '';
-      while (/[.,;:!?)$]/.test(cleanUrl.slice(-1))) {
-        trailing = cleanUrl.slice(-1) + trailing;
-        cleanUrl = cleanUrl.slice(0, -1);
-      }
-      return `<a href="${cleanUrl}" target="_blank" rel="noopener noreferrer">${cleanUrl}</a>${trailing}`;
-    });
-    
-    return escaped;
-  }
-
-  // FULL PAGE TOPIC DETAIL - Completely new page feel
-  window.openTopicDetail = function(topicId) {
-    const topic = topics.find(t => t.id === topicId);
-    if (!topic) {
-      showToast('Topic not found');
-      return;
-    }
-    
-    currentDetailTopic = topic;
-    
-    const catClass = `cat-${topic.category || 'reallife'}`;
-    const catIcon = topic.category === 'sports' ? 'fa-futbol' : topic.category === 'crypto' ? 'fa-bitcoin-sign' : topic.category === 'entertainment' ? 'fa-film' : 'fa-globe';
-    const statusClass = topic.status === 'open' ? 'status-open' : topic.status === 'closed' ? 'status-closed' : 'status-resulted';
-    const statusText = topic.status === 'open' ? 'Open' : topic.status === 'closed' ? 'Closed' : 'Resulted';
-    
-    const deadline = topic.deadline?.toDate ? topic.deadline.toDate() : new Date(topic.deadline || Date.now());
-    const isOpen = topic.status === 'open' && deadline > new Date();
-    const timeLeft = isOpen ? getTimeLeft(deadline) : null;
-    const isUrgent = isOpen && (deadline - new Date()) < 3600000;
-    
-    const totalPool = topic.totalPool || 0;
-    const totalStakers = (topic.options || []).reduce((sum, o) => sum + (o.stakerCount || 0), 0);
-    
-    const postedDate = topic.postedAt?.toDate ? topic.postedAt.toDate().toLocaleDateString() : 'Recently';
-    
-    // Process description with linkified URLs
-    const fullDescription = linkifyText(topic.description || 'No additional instructions provided.');
-    
-    let optionsHtml = '';
-    (topic.options || []).forEach(opt => {
-      const optTotal = opt.totalStaked || 0;
-      const optStakers = opt.stakerCount || 0;
-      const percentage = totalPool > 0 ? ((optTotal / totalPool) * 100).toFixed(1) : 0;
-      
-      optionsHtml += `
-        <button class="detail-option-btn" 
-          onclick="openStakeModal('${topic.id}', '${opt.id}', '${escapeHtml(opt.label)}')"
-          ${!isOpen ? 'disabled' : ''}>
-          <div class="option-info">
-            <div class="option-label">${escapeHtml(opt.label)}</div>
-            <div class="option-stats">
-              $${optTotal.toFixed(2)} staked · ${optStakers} stakers · ${percentage}% of pool
-            </div>
-          </div>
-          ${isOpen ? `
-            <div class="option-stake-icon">
-              <i class="fas fa-arrow-right"></i>
-            </div>
-          ` : `
-            <div class="option-stake-icon" style="background:#fee2e2;color:var(--red);">
-              <i class="fas fa-lock"></i>
-            </div>
-          `}
-        </button>
-      `;
-    });
-    
-    let countdownHtml = '';
-    if (isOpen) {
-      countdownHtml = `
-        <div class="detail-countdown-section">
-          <i class="fas fa-hourglass-half"></i>
-          <div>
-            <div class="time-display countdown ${isUrgent ? 'urgent' : ''}" id="detailCountdown" data-deadline="${deadline.toISOString()}">${timeLeft}</div>
-            <div class="time-label">Place your stake before time runs out</div>
-          </div>
-        </div>
-      `;
-    } else if (topic.status === 'closed') {
-      countdownHtml = `
-        <div class="detail-countdown-section" style="background:#fee2e2; border-color:#fca5a5;">
-          <i class="fas fa-lock" style="color:var(--red);"></i>
-          <div>
-            <div class="time-display" style="color:var(--red); font-size:1.25rem;">Topic Closed</div>
-            <div class="time-label">Staking is no longer available for this topic</div>
-          </div>
-        </div>
-      `;
+  function cardHtml(p) {
+    const tagClass = p.type === 'official' ? 'tag-official' : 'tag-community';
+    const tagText = p.type === 'official' ? 'Official' : (p.sellerName ? 'By ' + escapeHtml(p.sellerName.split(' ')[0]) : 'Community');
+    const stock = p.stock != null ? p.stock : (p.type === 'official' ? null : 1);
+    let stockPill = '';
+    if (p.type === 'official' && stock == null) {
+      stockPill = '<span class="stock-pill">In stock</span>';
+    } else if (stock <= 0) {
+      stockPill = '<span class="stock-pill out">Sold out</span>';
+    } else if (stock <= 3) {
+      stockPill = `<span class="stock-pill low">Only ${stock} left</span>`;
     } else {
-      countdownHtml = `
-        <div class="detail-countdown-section" style="background:#dbeafe; border-color:#93c5fd;">
-          <i class="fas fa-check-circle" style="color:var(--blue);"></i>
-          <div>
-            <div class="time-display" style="color:var(--blue); font-size:1.25rem;">Result Declared</div>
-            <div class="time-label">Check your records to see if you won</div>
-          </div>
-        </div>
-      `;
+      stockPill = `<span class="stock-pill">${stock} available</span>`;
     }
-    
-    topicDetailPage.innerHTML = `
-      <div class="detail-page-header">
-        <div class="logo-wrap">
-          <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" alt="TaskVault"/>
-          <h1>TaskVault Stake</h1>
+    const soldOut = stock != null && stock <= 0;
+    const img = p.image ? p.image : 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300"><rect width="300" height="300" fill="#f3f4f6"/><text x="50%" y="50%" font-size="60" fill="#d1d5db" text-anchor="middle" dominant-baseline="middle">No Image</text></svg>');
+
+    let actionHtml = '';
+    if (p.type === 'mine') {
+      actionHtml = `<div class="listing-actions">
+        <button class="btn-delist" onclick="event.stopPropagation(); delistItem('${p.id}')"><i class="fas fa-trash"></i> Delist</button>
+      </div>`;
+    } else {
+      actionHtml = `<button class="buy-btn" ${soldOut ? 'disabled' : ''} onclick="event.stopPropagation(); openDetail('${p.type}','${p.id}')">
+        ${soldOut ? '<i class="fas fa-ban"></i> Sold Out' : '<i class="fas fa-cart-shopping"></i> View / Buy'}
+      </button>`;
+    }
+
+    return `
+      <div class="product-card" onclick="openDetail('${p.type}','${p.id}')">
+        <div class="product-img-wrap">
+          <img src="${img}" alt="${escapeHtml(p.name || '')}" loading="lazy" onerror="this.style.opacity=.3"/>
+          <span class="product-tag ${tagClass}">${tagText}</span>
         </div>
-        <button class="detail-back-btn" onclick="closeTopicDetail()">
-          <i class="fas fa-arrow-left"></i> Back to Topics
-        </button>
-      </div>
-      
-      <div class="detail-page-body">
-        <div class="detail-hero">
-          <div class="detail-category-row">
-            <span class="category-tag ${catClass}"><i class="fas ${catIcon}"></i> ${topic.category || 'General'}</span>
-            <span class="status-badge ${statusClass}">${statusText}</span>
+        <div class="product-body">
+          <span class="product-cat">${escapeHtml((p.category || 'other'))}</span>
+          <div class="product-name">${escapeHtml(p.name || 'Untitled')}</div>
+          <div class="product-desc">${escapeHtml(p.description || '')}</div>
+          <div class="product-footer">
+            <span class="product-price">$${(p.price || 0).toFixed(2)}</span>
+            ${stockPill}
           </div>
-          <div class="detail-title">${escapeHtml(topic.question)}</div>
-          
-          <div class="detail-desc-box">
-            <div class="section-label">Instructions & Details</div>
-            <div class="detail-desc-text">${fullDescription}</div>
-          </div>
-          
-          ${countdownHtml}
+          ${actionHtml}
         </div>
-        
-        <div class="detail-options-section">
-          <div class="detail-section-title">
-            <i class="fas fa-hand-pointer" style="color:var(--orange);"></i> Choose Your Option
-          </div>
-          <div class="detail-options-grid">
-            ${optionsHtml}
-          </div>
-        </div>
-        
-        <div class="detail-stats-section">
-          <div class="detail-section-title">
-            <i class="fas fa-chart-bar" style="color:var(--blue);"></i> Topic Statistics
-          </div>
-          <div class="detail-meta-grid">
-            <div class="meta-item">
-              <div class="meta-value">$${totalPool.toFixed(2)}</div>
-              <div class="meta-label">Total Pool</div>
-            </div>
-            <div class="meta-item">
-              <div class="meta-value">${totalStakers}</div>
-              <div class="meta-label">Total Stakers</div>
-            </div>
-            <div class="meta-item">
-              <div class="meta-value">${(topic.options || []).length}</div>
-              <div class="meta-label">Options</div>
-            </div>
-          </div>
-        </div>
-        
-        <div class="detail-stats-section">
-          <div class="detail-section-title">
-            <i class="fas fa-info-circle" style="color:var(--gray);"></i> Topic Information
-          </div>
-          <div class="detail-meta-grid">
-            <div class="meta-item">
-              <div class="meta-value" style="font-size:.85rem; word-break:break-all;">${topic.id}</div>
-              <div class="meta-label">Topic ID</div>
-            </div>
-            <div class="meta-item">
-              <div class="meta-value" style="font-size:.9rem;">${postedDate}</div>
-              <div class="meta-label">Posted</div>
-            </div>
-            <div class="meta-item">
-              <div class="meta-value" style="font-size:.9rem;">$0.10 - $1.00</div>
-              <div class="meta-label">Stake Range</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <div class="detail-footer-bar">
-        <button class="detail-share-btn" onclick="copyDetailLink()">
-          <i class="fas fa-share-alt"></i> Share Topic
-        </button>
-        <span class="detail-stake-hint">Min $0.10 · Max $1.00 per stake</span>
       </div>
     `;
-    
-    topicDetailOverlay.classList.add('active');
-    document.body.style.overflow = 'hidden';
-    window.scrollTo(0, 0);
-    
-    if (isOpen) {
-      startDetailCountdown();
-    }
+  }
+
+  window.openDetail = function(type, id) {
+    const list = type === 'official' ? officialProducts : (type === 'community' ? communityListings : myListings);
+    const p = list.find(x => x.id === id);
+    if (!p) { showToast('Item not found', 'fa-circle-exclamation'); return; }
+
+    const img = p.image ? p.image : 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"><rect width="400" height="400" fill="#f3f4f6"/><text x="50%" y="50%" font-size="40" fill="#d1d5db" text-anchor="middle" dominant-baseline="middle">No Image</text></svg>');
+    const stock = p.stock != null ? p.stock : (p.type === 'official' ? 99 : 1);
+    const soldOut = stock <= 0;
+    const tagClass = p.type === 'official' ? 'tag-official' : 'tag-community';
+    const tagText = p.type === 'official' ? 'Official Store' : 'Community Listing';
+    const maxQty = p.type === 'official' ? (stock != null ? stock : 10) : Math.min(stock, 1);
+    const isMine = p.type === 'mine';
+
+    document.getElementById('detailModalInner').innerHTML = `
+      <span class="modal-icon" style="position:absolute;top:.75rem;right:.75rem;font-size:1.25rem;cursor:pointer;color:var(--gray);z-index:2;" onclick="closeModal('detailModal')"><i class="fas fa-xmark"></i></span>
+      <img src="${img}" class="detail-img" alt="${escapeHtml(p.name||'')}"/>
+      <div class="detail-cat-row">
+        <span class="product-tag ${tagClass}" style="position:static;">${tagText}</span>
+        <span class="product-cat" style="margin:0;">${escapeHtml(p.category || 'other')}</span>
+      </div>
+      <div class="detail-name">${escapeHtml(p.name || 'Untitled')}</div>
+      <div class="detail-price-row">
+        <span class="detail-price">$${(p.price || 0).toFixed(2)}</span>
+        ${p.sellerName && p.type === 'community' ? `<span style="font-size:.8rem;color:var(--gray);">by ${escapeHtml(p.sellerName)}</span>` : ''}
+      </div>
+      <div class="detail-desc">${escapeHtml(p.description || 'No description provided.') || 'No description provided.'}</div>
+      <div class="detail-meta">
+        ${stock != null ? `<span><i class="fas fa-boxes-stacked"></i> ${stock} available</span>` : '<span><i class="fas fa-check-circle" style="color:var(--green)"></i> In stock</span>'}
+        ${p.type === 'official' ? '<span><i class="fas fa-shield-halved" style="color:var(--orange)"></i> Verified seller</span>' : ''}
+      </div>
+      ${isMine ? `
+        <div class="modal-actions" style="margin-top:.5rem;">
+          <button class="btn btn-cancel" onclick="closeModal('detailModal'); delistItem('${p.id}')"><i class="fas fa-trash"></i> Delist Item</button>
+        </div>
+      ` : `
+        <div class="qty-wrap">
+          <label>Quantity</label>
+          <div class="qty-controls">
+            <button onclick="adjustQty(-1)">\u2212</button>
+            <input type="number" id="detailQty" value="1" min="1" max="${maxQty}" readonly/>
+            <button onclick="adjustQty(1)">+</button>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-cancel" onclick="closeModal('detailModal')">Close</button>
+          <button class="btn btn-confirm" id="buyBtn" ${soldOut ? 'disabled' : ''} onclick="purchaseItem('${type}','${p.id}')">
+            ${soldOut ? '<i class="fas fa-ban"></i> Sold Out' : '<i class="fas fa-cart-shopping"></i> Buy Now'}
+          </button>
+        </div>
+      `}
+    `;
+    openModal('detailModal');
   };
 
-  function startDetailCountdown() {
-    const el = document.getElementById('detailCountdown');
+  window.adjustQty = function(delta) {
+    const el = document.getElementById('detailQty');
     if (!el) return;
-    
-    if (el.dataset.interval) clearInterval(parseInt(el.dataset.interval));
-    
-    const deadline = new Date(el.dataset.deadline);
-    const update = () => {
-      const diff = deadline - new Date();
-      if (diff <= 0) {
-        el.textContent = '00:00:00';
-        el.classList.add('urgent');
-        return;
-      }
-      el.textContent = getTimeLeft(deadline);
-    };
-    update();
-    const interval = setInterval(update, 1000);
-    el.dataset.interval = interval;
-  }
-
-  window.closeTopicDetail = function() {
-    topicDetailOverlay.classList.remove('active');
-    document.body.style.overflow = '';
-    
-    const el = document.getElementById('detailCountdown');
-    if (el && el.dataset.interval) clearInterval(parseInt(el.dataset.interval));
-    
-    currentDetailTopic = null;
+    let v = parseInt(el.value || '1') + delta;
+    const max = parseInt(el.max || '99');
+    v = Math.max(1, Math.min(max, v));
+    el.value = v;
   };
 
-  window.copyDetailLink = async function() {
-    if (!currentDetailTopic) return;
-    await copyTopicLink(currentDetailTopic.id);
-  };
+  // ---- Purchase flow ----
+  window.purchaseItem = async function(type, id) {
+    const qty = parseInt(document.getElementById('detailQty')?.value || '1');
+    const list = type === 'official' ? officialProducts : communityListings;
+    const p = list.find(x => x.id === id);
+    if (!p) return;
+    const total = (p.price || 0) * qty;
 
-  window.copyTopicLink = async function(topicId, btnElement) {
-    const shareUrl = `${window.location.origin}${window.location.pathname}?topic=${topicId}`;
-    
-    try {
-      await navigator.clipboard.writeText(shareUrl);
-      
-      if (btnElement) {
-        const icon = btnElement.querySelector('i');
-        icon.className = 'fas fa-check';
-        btnElement.classList.add('copied');
-        setTimeout(() => {
-          icon.className = 'fas fa-link';
-          btnElement.classList.remove('copied');
-        }, 2000);
-      } else {
-        showToast('Link copied to clipboard!');
-      }
-    } catch (err) {
-      const textarea = document.createElement('textarea');
-      textarea.value = shareUrl;
-      textarea.style.position = 'fixed';
-      textarea.style.opacity = '0';
-      document.body.appendChild(textarea);
-      textarea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textarea);
-      
-      if (btnElement) {
-        const icon = btnElement.querySelector('i');
-        icon.className = 'fas fa-check';
-        btnElement.classList.add('copied');
-        setTimeout(() => {
-          icon.className = 'fas fa-link';
-          btnElement.classList.remove('copied');
-        }, 2000);
-      } else {
-        showToast('Link copied to clipboard!');
-      }
-    }
-  };
-
-  function showToast(message) {
-    const existing = document.querySelector('.toast-notification');
-    if (existing) existing.remove();
-    
-    const toast = document.createElement('div');
-    toast.className = 'toast-notification';
-    toast.innerHTML = `<i class="fas fa-check-circle" style="color:var(--green);margin-right:.5rem;"></i> ${message}`;
-    document.body.appendChild(toast);
-    
-    setTimeout(() => {
-      toast.style.animation = 'fadeIn .3s ease reverse';
-      setTimeout(() => toast.remove(), 300);
-    }, 2500);
-  }
-
-  window.openStakeModal = function(topicId, optionId, optionLabel) {
-    selectedTopic = topics.find(t => t.id === topicId);
-    selectedOption = { id: optionId, label: optionLabel };
-    
-    document.getElementById('modalTopicRef').textContent = selectedTopic.question;
-    document.getElementById('modalOptionLabel').innerHTML = `Your pick: <strong style="color:var(--orange);">${optionLabel}</strong>`;
-    stakeAmount.value = '';
-    confirmStakeBtn.disabled = true;
-    
-    openModal('stakeModal');
-  };
-
-  stakeAmount.addEventListener('input', () => {
-    const val = parseFloat(stakeAmount.value);
-    confirmStakeBtn.disabled = !(val >= 0.1 && val <= 1.0);
-  });
-
-  window.submitStake = async function() {
-    const amount = parseFloat(stakeAmount.value);
-    if (!amount || amount < 0.1 || amount > 1.0) return;
-    if (!selectedTopic || !selectedOption) return;
-
-    confirmStakeBtn.disabled = true;
-    confirmStakeBtn.textContent = 'Processing...';
+    showProcessing('Confirming your purchase...');
+    closeModal('detailModal');
 
     try {
       const userRef = doc(db, 'users', currentUser.uid);
-      const topicRef = doc(db, 'predictionTopics', selectedTopic.id);
-      const stakeRef = doc(collection(db, 'users', currentUser.uid, 'stakes'));
+      const productRef = type === 'official'
+        ? doc(db, 'products', id)
+        : doc(db, 'userListings', id);
 
-      await runTransaction(db, async (transaction) => {
-        const userSnap = await transaction.get(userRef);
-        const topicSnap = await transaction.get(topicRef);
+      await runTransaction(db, async (tx) => {
+        const userSnap = await tx.get(userRef);
+        const prodSnap = await tx.get(productRef);
+        if (!userSnap.exists() || !prodSnap.exists()) throw new Error('Item no longer available');
 
-        if (!userSnap.exists() || !topicSnap.exists()) throw new Error('Data not found');
+        const uData = userSnap.data();
+        if ((uData.kycStatus || 'pending') !== 'verified') throw new Error('KYC verification required');
 
-        const userData = userSnap.data();
-        const topicData = topicSnap.data();
+        const balance = uData.balance || 0;
+        if (balance < total) throw new Error('Insufficient balance. Top up your wallet to continue.');
 
-        if (userData.kycStatus !== 'verified') throw new Error('KYC not verified');
+        const pData = prodSnap.data();
+        if (pData.isActive === false || pData.status === 'sold') throw new Error('This item is no longer available');
 
-        const balance = userData.balance || 0;
-        if (balance < amount) throw new Error('Insufficient balance');
+        if (type === 'official') {
+          const remaining = (pData.stock != null) ? pData.stock - qty : null;
+          if (remaining != null && remaining < 0) throw new Error('Not enough stock available');
+          tx.update(productRef, remaining != null ? { stock: remaining, isActive: remaining > 0 } : {});
+        } else {
+          if ((pData.stock || 1) < qty) throw new Error('Item was just sold out');
+          const newStock = (pData.stock || 1) - qty;
+          tx.update(productRef, { stock: newStock, status: newStock <= 0 ? 'sold' : 'active' });
+          // credit seller
+          const sellerRef = doc(db, 'users', pData.sellerId);
+          const sellerSnap = await tx.get(sellerRef);
+          if (sellerSnap.exists()) {
+            const sData = sellerSnap.data();
+            tx.update(sellerRef, { balance: (sData.balance || 0) + total });
+          }
+        }
 
-        if (topicData.status !== 'open') throw new Error('Topic is closed');
-        const deadline = topicData.deadline?.toDate ? topicData.deadline.toDate() : new Date(topicData.deadline);
-        if (deadline <= new Date()) throw new Error('Deadline passed');
+        tx.update(userRef, { balance: balance - total });
 
-        transaction.update(userRef, { balance: balance - amount });
-
-        transaction.set(stakeRef, {
-          topicId: selectedTopic.id,
-          topicQuestion: topicData.question,
-          category: topicData.category || 'general',
-          optionId: selectedOption.id,
-          optionLabel: selectedOption.label,
-          amount: amount,
-          status: 'active',
+        const orderRef = doc(collection(db, 'orders'));
+        tx.set(orderRef, {
+          buyerId: currentUser.uid,
+          buyerName: uData.fullName || uData.name || currentUser.email || '',
+          sellerId: type === 'official' ? 'official' : pData.sellerId,
+          productId: id,
+          productName: pData.name,
+          productType: type,
+          image: pData.image || null,
+          unitPrice: pData.price,
+          quantity: qty,
+          total: total,
+          status: 'completed',
           createdAt: serverTimestamp()
         });
-
-        const optIndex = (topicData.options || []).findIndex(o => o.id === selectedOption.id);
-        if (optIndex >= 0) {
-          const newOptions = [...topicData.options];
-          newOptions[optIndex] = {
-            ...newOptions[optIndex],
-            totalStaked: (newOptions[optIndex].totalStaked || 0) + amount,
-            stakerCount: (newOptions[optIndex].stakerCount || 0) + 1
-          };
-          transaction.update(topicRef, {
-            options: newOptions,
-            totalPool: (topicData.totalPool || 0) + amount
-          });
-        }
       });
 
-      const freshSnap = await getDoc(userRef);
-      currentUserData = freshSnap.data();
+      const fresh = await getDoc(userRef);
+      currentUserData = fresh.data();
       balanceDisplay.textContent = `$${(currentUserData.balance || 0).toFixed(2)}`;
 
-      closeModal('stakeModal');
+      closeModal('processingModal');
+      document.getElementById('successTitle').textContent = 'Purchase Complete!';
+      document.getElementById('successText').innerHTML = `You bought <strong>${escapeHtml(p.name)}</strong>${qty > 1 ? ' \u00d7 ' + qty : ''} for <strong>$${total.toFixed(2)}</strong>.`;
       openModal('successModal');
-      
-      // Refresh topic detail if open
-      if (currentDetailTopic && currentDetailTopic.id === selectedTopic.id) {
-        setTimeout(() => {
-          loadTopics().then(() => openTopicDetail(selectedTopic.id));
-        }, 500);
-      }
 
+      await loadAll();
     } catch (err) {
-      console.error('[TaskVault] Stake error:', err);
-      document.getElementById('errorText').textContent = err.message || 'Failed to place stake. Please try again.';
-      closeModal('stakeModal');
+      console.error('[Market] purchase error:', err);
+      closeModal('processingModal');
+      document.getElementById('errorText').textContent = err.message || 'Purchase failed. Please try again.';
+      openModal('errorModal');
+    }
+  };
+
+  // ---- Sell flow ----
+  document.getElementById('sellCtaBtn').addEventListener('click', () => {
+    resetSellForm();
+    openModal('sellModal');
+  });
+
+  const sellUploadArea = document.getElementById('sellUploadArea');
+  const sellImageInput = document.getElementById('sellImageInput');
+  let sellImageBase64 = null;
+
+  sellUploadArea.addEventListener('click', () => sellImageInput.click());
+  sellImageInput.addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) { showToast('Please choose an image file', 'fa-circle-exclamation'); return; }
+    try {
+      sellImageBase64 = await compressImage(file, 900, 0.72);
+      sellUploadArea.classList.add('has-img');
+      sellUploadArea.innerHTML = `
+        <input type="file" id="sellImageInput" accept="image/*"/>
+        <img src="${sellImageBase64}" class="preview" alt="preview"/>
+        <button class="img-clear" onclick="event.stopPropagation(); clearSellImage()"><i class="fas fa-xmark"></i></button>
+      `;
+      document.getElementById('sellImageInput').addEventListener('change', arguments.callee);
+    } catch (err) {
+      console.error(err);
+      showToast('Could not process image', 'fa-circle-exclamation');
+    }
+  });
+
+  window.clearSellImage = function() {
+    sellImageBase64 = null;
+    resetSellForm();
+  };
+
+  function resetSellForm() {
+    sellImageBase64 = null;
+    document.getElementById('sellName').value = '';
+    document.getElementById('sellDesc').value = '';
+    document.getElementById('sellPrice').value = '';
+    document.getElementById('sellStock').value = '1';
+    document.getElementById('sellCategory').value = 'electronics';
+    sellUploadArea.classList.remove('has-img');
+    sellUploadArea.innerHTML = `
+      <input type="file" id="sellImageInput" accept="image/*"/>
+      <i class="fas fa-cloud-arrow-up"></i>
+      <p>Tap to upload a photo (JPG/PNG)</p>
+    `;
+    rebindSellInput();
+  }
+
+  function rebindSellInput() {
+    const inp = document.getElementById('sellImageInput');
+    if (inp) {
+      inp.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        if (!file.type.startsWith('image/')) { showToast('Please choose an image file', 'fa-circle-exclamation'); return; }
+        try {
+          sellImageBase64 = await compressImage(file, 900, 0.72);
+          sellUploadArea.classList.add('has-img');
+          sellUploadArea.innerHTML = `
+            <input type="file" id="sellImageInput" accept="image/*"/>
+            <img src="${sellImageBase64}" class="preview" alt="preview"/>
+            <button class="img-clear" onclick="event.stopPropagation(); clearSellImage()"><i class="fas fa-xmark"></i></button>
+          `;
+          rebindSellInput();
+        } catch (err) { showToast('Could not process image', 'fa-circle-exclamation'); }
+      });
+    }
+  }
+
+  document.getElementById('submitListingBtn').addEventListener('click', async () => {
+    const name = document.getElementById('sellName').value.trim();
+    const desc = document.getElementById('sellDesc').value.trim();
+    const price = parseFloat(document.getElementById('sellPrice').value);
+    const category = document.getElementById('sellCategory').value;
+    const stock = parseInt(document.getElementById('sellStock').value);
+
+    if (!name) return showToast('Please enter a product name', 'fa-circle-exclamation');
+    if (!price || price <= 0) return showToast('Please enter a valid price', 'fa-circle-exclamation');
+    if (!stock || stock < 1) return showToast('Please enter a valid quantity', 'fa-circle-exclamation');
+
+    const btn = document.getElementById('submitListingBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Posting...';
+    showProcessing('Listing your item...');
+
+    try {
+      await addDoc(collection(db, 'userListings'), {
+        name, description: desc, price, category, stock,
+        image: sellImageBase64,
+        sellerId: currentUser.uid,
+        sellerName: currentUserData.fullName || currentUserData.name || currentUser.email || 'Seller',
+        status: 'active',
+        isActive: true,
+        createdAt: serverTimestamp()
+      });
+
+      closeModal('sellModal');
+      closeModal('processingModal');
+      resetSellForm();
+      document.getElementById('successTitle').textContent = 'Listing Posted!';
+      document.getElementById('successText').innerHTML = `<strong>${escapeHtml(name)}</strong> is now live in the Community Market.`;
+      openModal('successModal');
+
+      // jump to community tab
+      document.querySelector('.tab-btn[data-tab="community"]').click();
+      await loadCommunity();
+      await loadMine();
+      renderProducts();
+    } catch (err) {
+      console.error('[Market] listing error:', err);
+      closeModal('processingModal');
+      document.getElementById('errorText').textContent = err.message || 'Could not post listing. Please try again.';
       openModal('errorModal');
     } finally {
-      confirmStakeBtn.disabled = false;
-      confirmStakeBtn.textContent = 'Confirm Stake';
-    }
-  };
-
-  window.resetStakeForm = function() {
-    selectedTopic = null;
-    selectedOption = null;
-    stakeAmount.value = '';
-  };
-
-  window.closeModal = function(id) {
-    document.getElementById(id).style.display = 'none';
-  };
-
-  function openModal(id) {
-    document.getElementById(id).style.display = 'flex';
-  }
-
-  function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-  }
-
-  document.addEventListener('visibilitychange', () => {
-    if (document.hidden) {
-      document.querySelectorAll('.countdown').forEach(el => {
-        if (el.dataset.interval) clearInterval(parseInt(el.dataset.interval));
-      });
-    } else {
-      startCountdowns();
-      if (topicDetailOverlay.classList.contains('active')) {
-        startDetailCountdown();
-      }
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-check"></i> Post Listing';
     }
   });
 
-  // Keyboard shortcuts
+  window.delistItem = async function(id) {
+    if (!confirm('Remove this listing? It will no longer be visible to buyers.')) return;
+    showProcessing('Removing listing...');
+    try {
+      await deleteDoc(doc(db, 'userListings', id));
+      closeModal('processingModal');
+      showToast('Listing removed', 'fa-trash-can');
+      await loadMine();
+      await loadCommunity();
+      renderProducts();
+    } catch (err) {
+      closeModal('processingModal');
+      document.getElementById('errorText').textContent = 'Could not remove listing.';
+      openModal('errorModal');
+    }
+  };
+
+  // ---- Image compression to base64 ----
+  function compressImage(file, maxSize, quality) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          let { width, height } = img;
+          if (width > height && width > maxSize) { height = Math.round(height * maxSize / width); width = maxSize; }
+          else if (height > maxSize) { width = Math.round(width * maxSize / height); height = maxSize; }
+          const canvas = document.createElement('canvas');
+          canvas.width = width; canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL('image/jpeg', quality));
+        };
+        img.onerror = reject;
+        img.src = e.target.result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // ---- Helpers ----
+  function showProcessing(text) {
+    document.getElementById('processingText').textContent = text || 'Please wait.';
+    openModal('processingModal');
+  }
+  function showToast(message, icon) {
+    const existing = document.querySelector('.toast-notification');
+    if (existing) existing.remove();
+    const toast = document.createElement('div');
+    toast.className = 'toast-notification';
+    toast.innerHTML = `<i class="fas ${icon || 'fa-check-circle'}" style="color:var(--orange);margin-right:.5rem;"></i> ${message}`;
+    document.body.appendChild(toast);
+    setTimeout(() => { toast.style.animation = 'slideUp .3s ease reverse'; setTimeout(() => toast.remove(), 300); }, 2600);
+  }
+  window.closeModal = function(id) { document.getElementById(id).style.display = 'none'; };
+  function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+  function escapeHtml(text) { if (text == null) return ''; const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
+
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
-      if (document.getElementById('stakeModal').style.display === 'flex') {
-        closeModal('stakeModal');
-      } else if (topicDetailOverlay.classList.contains('active')) {
-        closeTopicDetail();
-      }
-    }
-  });
-
-  // Handle browser back button for detail overlay
-  window.addEventListener('popstate', (e) => {
-    if (topicDetailOverlay.classList.contains('active')) {
-      e.preventDefault();
-      closeTopicDetail();
+      ['detailModal','sellModal','successModal','errorModal'].forEach(id => {
+        if (document.getElementById(id).style.display === 'flex') closeModal(id);
+      });
     }
   });
 </script>
 
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a2fa1d81beef8504',t:'MTc4NzQ4ODA4Nw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</body>
 </html>
