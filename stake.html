@@ -24,12 +24,32 @@
     .logo-wrap img{width:36px;height:36px;border-radius:10px;object-fit:cover;box-shadow:0 2px 8px rgba(0,0,0,0.2);}
     .logo-wrap h1{font-size:1.15rem;font-weight:800;letter-spacing:-0.02em;}
     .header-btns{display:flex;gap:.5rem;align-items:center;}
-    .header-btn{background:rgba(255,255,255,0.15);color:var(--white);border:none;padding:.5rem 1rem;border-radius:var(--radius-sm);cursor:pointer;font-size:.85rem;font-weight:600;transition:all .2s ease;}
+    .header-btn{background:rgba(255,255,255,0.15);color:var(--white);border:none;padding:.5rem 1rem;border-radius:var(--radius-sm);cursor:pointer;font-size:.85rem;font-weight:600;transition:all .2s ease;display:inline-flex;align-items:center;gap:.4rem;text-decoration:none;}
     .header-btn:hover{background:rgba(255,255,255,0.25);transform:translateY(-1px);}
     .balance-pill{background:rgba(255,255,255,0.2);padding:.4rem .9rem;border-radius:20px;font-size:.85rem;font-weight:700;border:1px solid rgba(255,255,255,0.1);}
     .provider-notice{background:linear-gradient(135deg,#fef3c7 0%,#fde68a 100%);border-left:4px solid #d97706;padding:.875rem 1.25rem;font-size:.85rem;color:#92400e;display:flex;align-items:center;gap:.75rem;font-weight:500;}
     .provider-notice i{color:#d97706;font-size:1rem;}
     .container{max-width:1000px;margin:0 auto;padding:1.5rem;}
+
+    /* Buy-back panel */
+    .bb-panel{background:linear-gradient(135deg,#dcfce7 0%,#bbf7d0 100%);border:2px solid #86efac;border-radius:var(--radius-lg);padding:1.25rem;margin-bottom:1.5rem;box-shadow:var(--shadow);display:none;}
+    .bb-head{display:flex;align-items:center;gap:.6rem;margin-bottom:.85rem;flex-wrap:wrap;}
+    .bb-head h2{font-size:1.05rem;font-weight:800;display:flex;align-items:center;gap:.5rem;color:#14532d;}
+    .bb-head h2 i{color:var(--green);}
+    .bb-sub{font-size:.76rem;color:#166534;font-weight:600;}
+    .bb-row{display:flex;align-items:center;gap:1rem;background:rgba(255,255,255,0.75);border-radius:var(--radius);padding:.75rem 1rem;margin-bottom:.6rem;}
+    .bb-row:last-child{margin-bottom:0;}
+    .bb-img{width:44px;height:44px;border-radius:10px;object-fit:cover;background:#fff;flex-shrink:0;}
+    .bb-main{flex:1;min-width:0;}
+    .bb-name{font-weight:800;font-size:.92rem;color:#14532d;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;}
+    .bb-meta{font-size:.74rem;color:#166534;margin-top:.15rem;}
+    .bb-right{display:flex;align-items:center;gap:.85rem;flex-shrink:0;}
+    .bb-price{font-weight:800;color:var(--green);font-size:1.05rem;}
+    .sell-btn{padding:.55rem 1.1rem;border:none;border-radius:var(--radius-sm);background:var(--green);color:#fff;font-weight:700;cursor:pointer;font-size:.82rem;transition:all .2s ease;box-shadow:0 4px 6px -1px rgba(22,163,74,0.3);display:inline-flex;align-items:center;gap:.4rem;}
+    .sell-btn:hover:not(:disabled){filter:brightness(1.05);transform:translateY(-1px);}
+    .sell-btn:disabled{background:#d1d5db;cursor:not-allowed;box-shadow:none;}
+    .bb-nohold{font-size:.74rem;color:#166534;font-weight:700;}
+
     .toolbar{display:flex;gap:.6rem;align-items:center;margin-bottom:1.25rem;flex-wrap:wrap;}
     .search-wrap{display:flex;align-items:center;gap:.6rem;background:var(--white);border:2px solid #e5e7eb;border-radius:var(--radius);padding:.6rem 1rem;flex:1;min-width:200px;box-shadow:var(--shadow-sm);transition:all .3s ease;}
     .search-wrap:focus-within{border-color:var(--orange);box-shadow:0 0 0 3px var(--orange-glow),var(--shadow);}
@@ -62,7 +82,6 @@
     .modal{background:var(--white);border-radius:var(--radius-xl);padding:1.75rem;max-width:400px;width:100%;animation:modalIn .35s cubic-bezier(0.16,1,0.3,1);box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);max-height:90vh;overflow-y:auto;}
     @keyframes modalIn{from{opacity:0;transform:scale(.92) translateY(10px);}to{opacity:1;transform:scale(1) translateY(0);}}
     .modal h3{font-size:1.15rem;margin-bottom:.25rem;display:flex;align-items:center;gap:.5rem;}
-    .modal .modal-sub{font-size:.82rem;color:var(--gray);margin-bottom:1.25rem;}
     .buy-asset-head{display:flex;align-items:center;gap:.75rem;margin-bottom:1.1rem;padding-bottom:1rem;border-bottom:1px solid #f3f4f6;}
     .buy-asset-head img{width:48px;height:48px;border-radius:10px;object-fit:cover;background:#f3f4f6;}
     .buy-asset-head .bn{font-weight:800;font-size:.95rem;}
@@ -76,9 +95,13 @@
     .qty-controls button{width:42px;height:42px;border:none;background:#f9fafb;font-size:1.2rem;font-weight:800;cursor:pointer;color:var(--orange);transition:all .2s ease;}
     .qty-controls button:hover{background:var(--orange-light);}
     .qty-controls input{width:64px;height:42px;border:none;text-align:center;font-weight:800;font-size:1rem;outline:none;}
-    .total-box{background:var(--orange-light);border:2px solid #fed7aa;border-radius:var(--radius);padding:1rem;margin-bottom:1.1rem;display:flex;justify-content:space-between;align-items:center;}
-    .total-box .tl{font-size:.78rem;font-weight:700;color:var(--orange-dark);text-transform:uppercase;letter-spacing:.05em;}
-    .total-box .tv{font-size:1.5rem;font-weight:800;color:var(--orange-dark);}
+    .total-box{padding:1rem;margin-bottom:1.1rem;display:flex;justify-content:space-between;align-items:center;border-radius:var(--radius);}
+    .total-box.buy{background:var(--orange-light);border:2px solid #fed7aa;}
+    .total-box.buy .tl{font-size:.78rem;font-weight:700;color:var(--orange-dark);text-transform:uppercase;letter-spacing:.05em;}
+    .total-box.buy .tv{font-size:1.5rem;font-weight:800;color:var(--orange-dark);}
+    .total-box.sell{background:#dcfce7;border:2px solid #bbf7d0;}
+    .total-box.sell .tl{font-size:.78rem;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.05em;}
+    .total-box.sell .tv{font-size:1.5rem;font-weight:800;color:var(--green);}
     .modal-actions{display:flex;gap:.75rem;}
     .btn{padding:.875rem;border:none;border-radius:var(--radius-sm);font-weight:700;cursor:pointer;font-size:.9rem;transition:all .2s ease;flex:1;display:flex;align-items:center;justify-content:center;gap:.4rem;}
     .btn-cancel{background:#f3f4f6;color:#4b5563;}
@@ -86,6 +109,8 @@
     .btn-confirm{background:var(--orange);color:#fff;box-shadow:0 4px 6px -1px rgba(249,115,22,0.3);}
     .btn-confirm:hover:not(:disabled){background:var(--orange-dark);transform:translateY(-1px);}
     .btn-confirm:disabled{background:#d1d5db;cursor:not-allowed;box-shadow:none;}
+    .btn-confirm.sell{background:var(--green);box-shadow:0 4px 6px -1px rgba(22,163,74,0.3);}
+    .btn-confirm.sell:hover:not(:disabled){filter:brightness(1.05);transform:translateY(-1px);}
     .modal-icon{font-size:3.5rem;margin-bottom:1rem;}
     .modal-title{font-size:1.2rem;font-weight:800;margin-bottom:.5rem;text-align:center;}
     .modal-text{color:var(--gray);margin-bottom:1.5rem;line-height:1.5;text-align:center;}
@@ -94,7 +119,7 @@
     @keyframes slideUp{from{opacity:0;transform:translateX(-50%) translateY(20px);}to{opacity:1;transform:translateX(-50%) translateY(0);}}
     ::-webkit-scrollbar{width:6px;}
     ::-webkit-scrollbar-thumb{background:#d1d5db;border-radius:3px;}
-    @media (max-width:560px){.asset-row{flex-wrap:wrap;}.asset-right{flex-direction:row;align-items:center;width:100%;justify-content:space-between;}}
+    @media (max-width:560px){.asset-row{flex-wrap:wrap;}.asset-right{flex-direction:row;align-items:center;width:100%;justify-content:space-between;}.bb-row{flex-wrap:wrap;}.bb-right{width:100%;justify-content:space-between;}}
   </style>
 </head>
 <body>
@@ -106,13 +131,13 @@
   </div>
   <div class="header-btns">
     <span class="balance-pill" id="balanceDisplay">$0.00</span>
-    <button class="header-btn" onclick="location.href='stakes-records.html'"><i class="fas fa-briefcase"></i> Portfolio</button>
+    <button class="header-btn" onclick="location.href='inventory.html'"><i class="fas fa-briefcase"></i> Portfolio</button>
   </div>
 </header>
 
 <div class="provider-notice">
   <i class="fas fa-info-circle"></i>
-  <span><strong>Official Market:</strong> Trade official assets at the set price. Buy units here, hold them in your portfolio, and sell them back anytime at the current price.</span>
+  <span><strong>Official Market:</strong> Buy official assets at the set price. Sell them back only when an admin buy-back is open (shown below).</span>
 </div>
 
 <div class="container">
@@ -122,6 +147,15 @@
   </div>
 
   <div id="mainContent" class="hidden">
+    <!-- Active Buy-Backs -->
+    <div class="bb-panel" id="buybackPanel">
+      <div class="bb-head">
+        <h2><i class="fas fa-rotate-left"></i> Active Buy-Backs</h2>
+        <span class="bb-sub">Sell your holdings back to the market at these prices.</span>
+      </div>
+      <div id="buybackList"></div>
+    </div>
+
     <div class="toolbar">
       <div class="search-wrap">
         <i class="fas fa-search"></i>
@@ -146,12 +180,12 @@
     <div class="qty-wrap">
       <label>Quantity</label>
       <div class="qty-controls">
-        <button onclick="adjustQty(-1)">-</button>
+        <button onclick="adjustQty(-1)">−</button>
         <input type="number" id="buyQty" value="1" min="1"/>
         <button onclick="adjustQty(1)">+</button>
       </div>
     </div>
-    <div class="total-box"><span class="tl">Total</span><span class="tv" id="buyTotal">$0.00</span></div>
+    <div class="total-box buy"><span class="tl">Total</span><span class="tv" id="buyTotal">$0.00</span></div>
     <div class="modal-actions">
       <button class="btn btn-cancel" onclick="closeModal('buyModal')">Cancel</button>
       <button class="btn btn-confirm" id="confirmBuyBtn" onclick="confirmBuy()">Confirm Buy</button>
@@ -159,10 +193,32 @@
   </div>
 </div>
 
+<!-- Sell (into buy-back) Modal -->
+<div class="modal-backdrop" id="sellModal">
+  <div class="modal">
+    <h3><i class="fas fa-rotate-left" style="color:var(--green);"></i> Sell into Buy-Back</h3>
+    <div class="buy-asset-head" id="sellHead"></div>
+    <div class="price-row"><span class="lbl">Buy-back price per unit</span><span class="val" id="sellUnitPrice" style="color:var(--green);">$0.00</span></div>
+    <div class="qty-wrap">
+      <label>Quantity</label>
+      <div class="qty-controls">
+        <button onclick="adjustSellQty(-1)">−</button>
+        <input type="number" id="sellQty" value="1" min="1"/>
+        <button onclick="adjustSellQty(1)">+</button>
+      </div>
+    </div>
+    <div class="total-box sell"><span class="tl">You receive</span><span class="tv" id="sellTotal">$0.00</span></div>
+    <div class="modal-actions">
+      <button class="btn btn-cancel" onclick="closeModal('sellModal')">Cancel</button>
+      <button class="btn btn-confirm sell" id="confirmSellBtn" onclick="confirmSell()">Confirm Sell</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-backdrop" id="successModal">
   <div class="modal" style="text-align:center;">
     <div class="modal-icon" style="color:var(--green);"><i class="fas fa-check-circle"></i></div>
-    <div class="modal-title">Purchase Complete!</div>
+    <div class="modal-title" id="successTitle">Done!</div>
     <div class="modal-text" id="successText">Added to your portfolio.</div>
     <button class="btn btn-confirm" onclick="closeModal('successModal')">Done</button>
   </div>
@@ -189,7 +245,7 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
   import {
-    getFirestore, doc, getDoc, collection, query, where, orderBy,
+    getFirestore, doc, getDoc, collection, query, where,
     getDocs, serverTimestamp, runTransaction, onSnapshot
   } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 
@@ -207,18 +263,37 @@
 
   let currentUser = null;
   let assets = [];
+  let holdings = {};        // assetId -> quantity held
+  let buybacks = [];        // open buy-back offers
   let selectedAsset = null;
+  let selectedSell = null;  // {productId, offer}
   const balanceDisplay = document.getElementById('balanceDisplay');
 
   onAuthStateChanged(auth, async (user) => {
     if (!user) { location.href = 'login.html'; return; }
     currentUser = user;
+    await refreshBalance();
+    await loadHoldings();
+    loadAssets();
+    loadBuybacks();
+    document.getElementById('loadingState').classList.add('hidden');
+    document.getElementById('mainContent').classList.remove('hidden');
+  });
+
+  async function refreshBalance() {
     try {
       const snap = await getDoc(doc(db, 'users', currentUser.uid));
-      if (snap.exists()) balanceDisplay.textContent = `$${(snap.data().balance||0).toFixed(2)}`;
+      if (snap.exists()) balanceDisplay.textContent = `$${((snap.data().balance)||0).toFixed(2)}`;
     } catch (e) {}
-    loadAssets();
-  });
+  }
+
+  async function loadHoldings() {
+    try {
+      const snap = await getDocs(collection(db, 'users', currentUser.uid, 'holdings'));
+      holdings = {};
+      snap.forEach(d => { const h = d.data(); if ((h.quantity||0) > 0) holdings[h.productId || d.id] = h.quantity; });
+    } catch (e) { console.warn('[Market] holdings', e); holdings = {}; }
+  }
 
   function getAvailable(p){ return (p.available != null) ? p.available : (p.stock != null ? p.stock : 0); }
   function getSupply(p){ return (p.supply != null) ? p.supply : getAvailable(p); }
@@ -229,15 +304,19 @@
       assets = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       renderMarket();
     }, () => {
-      // fallback
       getDocs(q).then(snap => { assets = snap.docs.map(d => ({ id: d.id, ...d.data() })); renderMarket(); });
     });
   }
 
-  function renderMarket() {
-    document.getElementById('loadingState').classList.add('hidden');
-    document.getElementById('mainContent').classList.remove('hidden');
+  function loadBuybacks() {
+    const q = query(collection(db, 'buybacks'), where('status', '==', 'open'));
+    onSnapshot(q, (snap) => {
+      buybacks = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderBuybacks();
+    }, () => {});
+  }
 
+  function renderMarket() {
     const q = document.getElementById('searchInput').value.trim().toLowerCase();
     const sort = document.getElementById('sortSel').value;
     let list = assets.slice();
@@ -279,9 +358,44 @@
     }).join('');
   }
 
+  function renderBuybacks() {
+    const el = document.getElementById('buybackList');
+    const panel = document.getElementById('buybackPanel');
+    if (buybacks.length === 0) { panel.style.display = 'none'; return; }
+    panel.style.display = 'block';
+    el.innerHTML = buybacks.map(b => {
+      const held = holdings[b.assetId] || 0;
+      const remaining = (b.maxUnits == null) ? Infinity : Math.max(0, (b.maxUnits||0) - (b.unitsBought||0));
+      const maxTxt = (b.maxUnits == null) ? 'Unlimited' : b.maxUnits;
+      const img = b.image ? b.image : placeholderImg();
+      let action;
+      if (held > 0 && remaining > 0) {
+        action = `<button class="sell-btn" onclick="openSell('${b.assetId}')"><i class="fas fa-rotate-left"></i> Sell ${held > 1 ? '(' + held + ' held)' : ''}</button>`;
+      } else if (held <= 0) {
+        action = `<span class="bb-nohold">You don't hold this</span>`;
+      } else {
+        action = `<span class="bb-nohold">Buy-back full</span>`;
+      }
+      return `
+        <div class="bb-row">
+          <img src="${img}" class="bb-img" alt=""/>
+          <div class="bb-main">
+            <div class="bb-name">${escapeHtml(b.assetName||'Asset')}</div>
+            <div class="bb-meta">${remaining === Infinity ? 'Unlimited' : remaining + ' left'} of ${maxTxt} · you hold ${held}</div>
+          </div>
+          <div class="bb-right">
+            <span class="bb-price">$${(b.buyBackPrice||0).toFixed(2)}</span>
+            ${action}
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
   document.getElementById('searchInput').addEventListener('input', renderMarket);
   document.getElementById('sortSel').addEventListener('change', renderMarket);
 
+  // ---------- Buy ----------
   window.openBuy = function(id) {
     selectedAsset = assets.find(a => a.id === id);
     if (!selectedAsset) return;
@@ -292,46 +406,38 @@
       <div><div class="bn">${escapeHtml(selectedAsset.name||'Asset')}</div><div class="bp">${max} units available</div></div>
     `;
     document.getElementById('buyUnitPrice').textContent = `$${(selectedAsset.price||0).toFixed(2)}`;
-    const qtyInput = document.getElementById('buyQty');
-    qtyInput.value = 1; qtyInput.max = max; qtyInput.min = 1;
+    const qi = document.getElementById('buyQty');
+    qi.value = 1; qi.max = max; qi.min = 1;
     updateBuyTotal();
     openModal('buyModal');
   };
-
   window.adjustQty = function(d) {
     const el = document.getElementById('buyQty');
     let v = parseInt(el.value||'1') + d;
     const max = parseInt(el.max||'999');
-    v = Math.max(1, Math.min(max, v));
-    el.value = v;
-    updateBuyTotal();
+    v = Math.max(1, Math.min(max, v)); el.value = v; updateBuyTotal();
   };
   document.getElementById('buyQty').addEventListener('input', updateBuyTotal);
-
   function updateBuyTotal() {
     if (!selectedAsset) return;
     const qty = Math.max(1, parseInt(document.getElementById('buyQty').value||'1')||1);
     document.getElementById('buyTotal').textContent = `$${((selectedAsset.price||0)*qty).toFixed(2)}`;
   }
-
   window.confirmBuy = async function() {
     if (!selectedAsset) return;
     const qty = Math.max(1, parseInt(document.getElementById('buyQty').value||'1')||1);
     const price = selectedAsset.price || 0;
     const total = price * qty;
     const id = selectedAsset.id;
-
     const btn = document.getElementById('confirmBuyBtn');
     btn.disabled = true; btn.textContent = 'Processing...';
     closeModal('buyModal');
     showProcessing('Buying ' + qty + ' unit(s)...');
-
     try {
       const userRef = doc(db, 'users', currentUser.uid);
       const productRef = doc(db, 'products', id);
       const holdingRef = doc(db, 'users', currentUser.uid, 'holdings', id);
       const orderRef = doc(collection(db, 'orders'));
-
       await runTransaction(db, async (tx) => {
         const u = await tx.get(userRef);
         const p = await tx.get(productRef);
@@ -344,55 +450,122 @@
         if (avail < qty) throw new Error('Not enough units available');
         const balance = ud.balance || 0;
         if (balance < total) throw new Error('Insufficient balance. Top up your wallet.');
-
         tx.update(productRef, { available: avail - qty });
         tx.update(userRef, { balance: balance - total });
-
         const curQty = h.exists() ? (h.data().quantity||0) : 0;
         const curAvg = h.exists() ? (h.data().avgBuyPrice||price) : price;
         const newQty = curQty + qty;
         const newAvg = newQty > 0 ? ((curQty*curAvg) + (qty*price)) / newQty : price;
-        tx.set(holdingRef, {
-          productId: id,
-          name: pd.name,
-          description: pd.description || '',
-          image: pd.image || null,
-          quantity: newQty,
-          avgBuyPrice: newAvg,
-          updatedAt: serverTimestamp()
-        }, { merge: true });
-
-        tx.set(orderRef, {
-          buyerId: currentUser.uid,
-          sellerId: 'official',
-          productId: id,
-          productName: pd.name,
-          image: pd.image || null,
-          unitPrice: price,
-          quantity: qty,
-          total: total,
-          type: 'buy',
-          status: 'completed',
-          createdAt: serverTimestamp()
-        });
+        tx.set(holdingRef, { productId: id, name: pd.name, description: pd.description || '', image: pd.image || null, quantity: newQty, avgBuyPrice: newAvg, updatedAt: serverTimestamp() }, { merge: true });
+        tx.set(orderRef, { buyerId: currentUser.uid, sellerId: 'official', productId: id, productName: pd.name, image: pd.image || null, unitPrice: price, quantity: qty, total, type: 'buy', status: 'completed', createdAt: serverTimestamp() });
       });
-
+      holdings[id] = (holdings[id] || 0) + qty;
       const fresh = await getDoc(userRef);
       balanceDisplay.textContent = `$${((fresh.data().balance)||0).toFixed(2)}`;
-
       closeModal('processingModal');
-      document.getElementById('successText').innerHTML = `You bought <strong>${qty}</strong> \u00d7 <strong>${escapeHtml(selectedAsset.name)}</strong> for <strong>$${total.toFixed(2)}</strong>.`;
+      document.getElementById('successTitle').textContent = 'Purchase Complete!';
+      document.getElementById('successText').innerHTML = `You bought <strong>${qty}</strong> × <strong>${escapeHtml(selectedAsset.name)}</strong> for <strong>$${total.toFixed(2)}</strong>.`;
       openModal('successModal');
+      renderBuybacks();
     } catch (err) {
       console.error('[Market] buy error', err);
       closeModal('processingModal');
-      document.getElementById('errorText').textContent = err.message || 'Purchase failed. Please try again.';
+      document.getElementById('errorText').textContent = err.message || 'Purchase failed.';
       openModal('errorModal');
-    } finally {
-      btn.disabled = false; btn.textContent = 'Confirm Buy';
-    }
+    } finally { btn.disabled = false; btn.textContent = 'Confirm Buy'; }
   };
 
+  // ---------- Sell (into buy-back) ----------
+  window.openSell = function(productId) {
+    const offer = buybacks.find(b => b.assetId === productId);
+    const held = holdings[productId] || 0;
+    if (!offer) { showToast('No buy-back is open for this asset'); return; }
+    if (held <= 0) { showToast("You don't hold this asset"); return; }
+    selectedSell = { productId, offer };
+    const price = offer.buyBackPrice || 0;
+    const remaining = (offer.maxUnits == null) ? Infinity : Math.max(0, (offer.maxUnits||0) - (offer.unitsBought||0));
+    const maxQty = Math.max(1, Math.min(held, isFinite(remaining) ? remaining : held));
+    const img = offer.image ? offer.image : placeholderImg();
+    document.getElementById('sellHead').innerHTML = `<img src="${img}" alt=""/><div><div class="bn">${escapeHtml(offer.assetName||'Asset')}</div><div class="bp">You hold ${held} units · buy-back open</div></div>`;
+    document.getElementById('sellUnitPrice').textContent = `$${price.toFixed(2)}`;
+    const qi = document.getElementById('sellQty');
+    qi.value = Math.min(held, maxQty); qi.min = 1; qi.max = maxQty;
+    updateSellTotal();
+    openModal('sellModal');
+  };
+  window.adjustSellQty = function(d) {
+    const el = document.getElementById('sellQty');
+    let v = parseInt(el.value||'1') + d;
+    const max = parseInt(el.max||'1'); const min = parseInt(el.min||'1');
+    v = Math.max(min, Math.min(max, v)); el.value = v; updateSellTotal();
+  };
+  document.getElementById('sellQty').addEventListener('input', updateSellTotal);
+  function updateSellTotal() {
+    if (!selectedSell) return;
+    const qty = Math.max(1, parseInt(document.getElementById('sellQty').value||'1')||1);
+    const price = selectedSell.offer.buyBackPrice || 0;
+    document.getElementById('sellTotal').textContent = `$${(price*qty).toFixed(2)}`;
+  }
+  window.confirmSell = async function() {
+    if (!selectedSell) return;
+    const sellQty = Math.max(1, parseInt(document.getElementById('sellQty').value||'1')||1);
+    const productId = selectedSell.productId;
+    const btn = document.getElementById('confirmSellBtn');
+    btn.disabled = true; btn.textContent = 'Processing...';
+    closeModal('sellModal');
+    showProcessing('Selling ' + sellQty + ' unit(s) into buy-back...');
+    try {
+      const userRef = doc(db, 'users', currentUser.uid);
+      const productRef = doc(db, 'products', productId);
+      const holdingRef = doc(db, 'users', currentUser.uid, 'holdings', productId);
+      const buybackRef = doc(db, 'buybacks', productId);
+      const orderRef = doc(collection(db, 'orders'));
+      await runTransaction(db, async (tx) => {
+        const u = await tx.get(userRef);
+        const p = await tx.get(productRef);
+        const h = await tx.get(holdingRef);
+        const b = await tx.get(buybackRef);
+        if (!u.exists()) throw new Error('Account not found');
+        if (!p.exists()) throw new Error('Asset not found');
+        if (!h.exists()) throw new Error('You no longer hold this asset');
+        if (!b.exists()) throw new Error('No buy-back is open for this asset');
+        const ud = u.data(), pd = p.data(), hd = h.data(), bd = b.data();
+        if (bd.status && bd.status !== 'open') throw new Error('This buy-back is closed');
+        const held = hd.quantity || 0;
+        if (held < sellQty) throw new Error('You do not own that many units');
+        const remaining = (bd.maxUnits == null) ? Infinity : Math.max(0, (bd.maxUnits||0) - (bd.unitsBought||0));
+        if (remaining < sellQty) throw new Error('Buy-back limit reached');
+        const price = bd.buyBackPrice || 0;
+        const total = price * sellQty;
+        const newQty = held - sellQty;
+        if (newQty > 0) tx.set(holdingRef, { quantity: newQty, updatedAt: serverTimestamp() }, { merge: true });
+        else tx.delete(holdingRef);
+        const avail = getAvailable(pd);
+        tx.update(productRef, { available: avail + sellQty });
+        tx.update(userRef, { balance: (ud.balance||0) + total });
+        const newBought = (bd.unitsBought||0) + sellQty;
+        const closed = (bd.maxUnits != null && newBought >= bd.maxUnits);
+        tx.update(buybackRef, { unitsBought: newBought, status: closed ? 'closed' : 'open', updatedAt: serverTimestamp() });
+        tx.set(orderRef, { buyerId: 'official', sellerId: currentUser.uid, productId, productName: pd.name, image: pd.image || null, unitPrice: price, quantity: sellQty, total, type: 'sell', status: 'completed', createdAt: serverTimestamp() });
+      });
+      holdings[productId] = Math.max(0, (holdings[productId] || 0) - sellQty);
+      if (holdings[productId] === 0) delete holdings[productId];
+      await refreshBalance();
+      await loadHoldings();
+      closeModal('processingModal');
+      document.getElementById('successTitle').textContent = 'Sale Complete!';
+      document.getElementById('successText').innerHTML = `You sold <strong>${sellQty}</strong> unit(s) into the buy-back and received cash to your wallet.`;
+      openModal('successModal');
+      renderBuybacks();
+    } catch (err) {
+      console.error('[Market] sell error', err);
+      closeModal('processingModal');
+      document.getElementById('errorText').textContent = err.message || 'Sale failed.';
+      openModal('errorModal');
+    } finally { btn.disabled = false; btn.textContent = 'Confirm Sell'; }
+  };
+
+  // ---------- helpers ----------
   function placeholderImg(){
     return 'data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"><rect width="64" height="64" fill="#f3f4f6"/><text x="50%" y="55%" font-size="9" fill="#9ca3af" text-anchor="middle">Asset</text></svg>');
   }
@@ -401,8 +574,8 @@
   window.closeModal = function(id){ document.getElementById(id).style.display='none'; };
   function openModal(id){ document.getElementById(id).style.display='flex'; }
   function escapeHtml(t){ if(t==null)return''; const d=document.createElement('div'); d.textContent=t; return d.innerHTML; }
-  document.addEventListener('keydown',(e)=>{ if(e.key==='Escape'){ ['buyModal','successModal','errorModal'].forEach(id=>{ if(document.getElementById(id).style.display==='flex')closeModal(id); }); } });
+  document.addEventListener('keydown',(e)=>{ if(e.key==='Escape'){ ['buyModal','sellModal','successModal','errorModal'].forEach(id=>{ if(document.getElementById(id).style.display==='flex')closeModal(id); }); } });
 </script>
 
-</body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a2fa7aec8e542a7c',t:'MTc4NzQ5MTkxMw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
