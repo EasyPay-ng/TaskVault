@@ -24,7 +24,7 @@
     .logo-wrap img{width:36px;height:36px;border-radius:10px;object-fit:cover;box-shadow:0 2px 8px rgba(0,0,0,0.2);}
     .logo-wrap h1{font-size:1.15rem;font-weight:800;letter-spacing:-0.02em;}
     .header-btns{display:flex;gap:.5rem;align-items:center;}
-    .header-btn{background:rgba(255,255,255,0.15);color:var(--white);border:none;padding:.5rem 1rem;border-radius:var(--radius-sm);cursor:pointer;font-size:.85rem;font-weight:600;transition:all .2s ease;}
+    .header-btn{background:rgba(255,255,255,0.15);color:var(--white);border:none;padding:.5rem 1rem;border-radius:var(--radius-sm);cursor:pointer;font-size:.85rem;font-weight:600;transition:all .2s ease;display:inline-flex;align-items:center;gap:.4rem;text-decoration:none;}
     .header-btn:hover{background:rgba(255,255,255,0.25);transform:translateY(-1px);}
     .balance-pill{background:rgba(255,255,255,0.2);padding:.4rem .9rem;border-radius:20px;font-size:.85rem;font-weight:700;border:1px solid rgba(255,255,255,0.1);}
     .container{max-width:1100px;margin:0 auto;padding:1.5rem;}
@@ -48,9 +48,6 @@
     .tab-btn.active,.tab-btn:hover{background:var(--orange);color:var(--white);transform:translateY(-1px);box-shadow:var(--shadow);}
     .tab-count{background:rgba(249,115,22,0.15);color:var(--orange-dark);padding:.05rem .45rem;border-radius:10px;font-size:.72rem;font-weight:800;}
     .tab-btn.active .tab-count{background:rgba(255,255,255,0.25);color:#fff;}
-    .btn{padding:.7rem 1.2rem;border:none;border-radius:var(--radius-sm);font-weight:700;cursor:pointer;font-size:.85rem;transition:all .2s ease;display:inline-flex;align-items:center;gap:.4rem;text-decoration:none;}
-    .btn-primary{background:var(--green);color:#fff;box-shadow:0 4px 6px -1px rgba(22,163,74,0.3);}
-    .btn-primary:hover{filter:brightness(1.05);transform:translateY(-1px);}
 
     .holding-row{display:flex;align-items:center;gap:1rem;background:#f9fafb;border-radius:var(--radius);padding:.9rem 1rem;margin-bottom:.75rem;transition:all .2s ease;border:1px solid transparent;}
     .holding-row:hover{background:var(--orange-light);border-color:var(--orange-glow);}
@@ -66,8 +63,6 @@
     .h-right{text-align:right;flex-shrink:0;}
     .h-value{font-weight:800;font-size:1.05rem;color:var(--orange-dark);}
     .h-cost{font-size:.72rem;color:var(--gray-light);font-weight:600;}
-    .sell-btn{padding:.5rem 1rem;border:none;border-radius:var(--radius-sm);background:var(--orange);color:#fff;font-weight:700;cursor:pointer;font-size:.8rem;transition:all .2s ease;box-shadow:0 4px 6px -1px rgba(249,115,22,0.3);display:inline-flex;align-items:center;gap:.35rem;margin-top:.35rem;}
-    .sell-btn:hover{background:var(--orange-dark);transform:translateY(-1px);}
 
     .record-row{display:flex;align-items:center;gap:1rem;background:#f9fafb;border-radius:var(--radius);padding:.85rem 1rem;transition:all .2s ease;border:1px solid transparent;}
     .record-row:hover{background:var(--orange-light);border-color:var(--orange-glow);}
@@ -89,43 +84,10 @@
     .empty-state p{font-weight:500;margin-bottom:.25rem;}
     .empty-state small{color:var(--gray-light);}
 
-    .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;justify-content:center;align-items:center;z-index:2000;padding:1rem;backdrop-filter:blur(4px);}
-    .modal{background:var(--white);border-radius:var(--radius-xl);padding:1.75rem;max-width:400px;width:100%;animation:modalIn .35s cubic-bezier(0.16,1,0.3,1);box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);max-height:90vh;overflow-y:auto;}
-    @keyframes modalIn{from{opacity:0;transform:scale(.92) translateY(10px);}to{opacity:1;transform:scale(1) translateY(0);}}
-    .modal h3{font-size:1.15rem;margin-bottom:.25rem;display:flex;align-items:center;gap:.5rem;}
-    .buy-asset-head{display:flex;align-items:center;gap:.75rem;margin-bottom:1.1rem;padding-bottom:1rem;border-bottom:1px solid #f3f4f6;}
-    .buy-asset-head img{width:48px;height:48px;border-radius:10px;object-fit:cover;background:#f3f4f6;}
-    .buy-asset-head .bn{font-weight:800;font-size:.95rem;}
-    .buy-asset-head .bp{font-size:.78rem;color:var(--gray);}
-    .price-row{display:flex;justify-content:space-between;align-items:center;padding:.6rem .9rem;background:#f9fafb;border-radius:var(--radius-sm);margin-bottom:1rem;}
-    .price-row .lbl{font-size:.82rem;color:var(--gray);font-weight:600;}
-    .price-row .val{font-weight:800;color:var(--orange-dark);}
-    .qty-wrap{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;}
-    .qty-wrap label{font-weight:700;font-size:.85rem;}
-    .qty-controls{display:flex;align-items:center;border:2px solid #e5e7eb;border-radius:var(--radius-sm);overflow:hidden;}
-    .qty-controls button{width:42px;height:42px;border:none;background:#f9fafb;font-size:1.2rem;font-weight:800;cursor:pointer;color:var(--orange);transition:all .2s ease;}
-    .qty-controls button:hover{background:var(--orange-light);}
-    .qty-controls input{width:64px;height:42px;border:none;text-align:center;font-weight:800;font-size:1rem;outline:none;}
-    .total-box{background:#dcfce7;border:2px solid #bbf7d0;border-radius:var(--radius);padding:1rem;margin-bottom:1.1rem;display:flex;justify-content:space-between;align-items:center;}
-    .total-box .tl{font-size:.78rem;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.05em;}
-    .total-box .tv{font-size:1.5rem;font-weight:800;color:var(--green);}
-    .modal-actions{display:flex;gap:.75rem;}
-    .modal-actions .btn{flex:1;justify-content:center;padding:.875rem;}
-    .btn-cancel{background:#f3f4f6;color:#4b5563;}
-    .btn-cancel:hover{background:#e5e7eb;}
-    .btn-confirm{background:var(--orange);color:#fff;box-shadow:0 4px 6px -1px rgba(249,115,22,0.3);}
-    .btn-confirm:hover:not(:disabled){background:var(--orange-dark);transform:translateY(-1px);}
-    .btn-confirm:disabled{background:#d1d5db;cursor:not-allowed;box-shadow:none;}
-    .modal-icon{font-size:3rem;margin-bottom:.75rem;}
-    .modal-title{font-size:1.15rem;font-weight:800;margin-bottom:.5rem;text-align:center;}
-    .modal-text{color:var(--gray);margin-bottom:1.25rem;line-height:1.5;text-align:center;}
-
-    .toast-notification{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:#1f2937;color:white;padding:.875rem 1.5rem;border-radius:var(--radius);font-size:.9rem;font-weight:600;z-index:5000;animation:slideUp .3s ease;box-shadow:var(--shadow-lg);display:flex;align-items:center;}
-    @keyframes slideUp{from{opacity:0;transform:translateX(-50%) translateY(20px);}to{opacity:1;transform:translateX(-50%) translateY(0);}}
     .hidden{display:none !important;}
     ::-webkit-scrollbar{width:6px;}
     ::-webkit-scrollbar-thumb{background:#d1d5db;border-radius:3px;}
-    @media (max-width:560px){.holding-row{flex-wrap:wrap;}.h-right{width:100%;display:flex;justify-content:space-between;align-items:center;}.h-right .sell-btn{margin-top:0;}}
+    @media (max-width:560px){.holding-row{flex-wrap:wrap;}.h-right{width:100%;display:flex;justify-content:space-between;align-items:center;}}
   </style>
 </head>
 <body>
@@ -174,7 +136,6 @@
       <button class="tab-btn active" data-tab="holdings"><i class="fas fa-briefcase"></i> Holdings <span class="tab-count" id="tHold">0</span></button>
       <button class="tab-btn" data-tab="sales"><i class="fas fa-hand-holding-dollar"></i> Sales <span class="tab-count" id="tSales">0</span></button>
       <button class="tab-btn" data-tab="purchases"><i class="fas fa-receipt"></i> Purchases <span class="tab-count" id="tPur">0</span></button>
-      <a class="btn btn-primary" href="marketplace.html" style="margin-left:auto;"><i class="fas fa-plus"></i> Buy Assets</a>
     </div>
 
     <div class="panel" id="panelHoldings">
@@ -194,60 +155,11 @@
   </div>
 </div>
 
-<!-- Sell Modal -->
-<div class="modal-backdrop" id="sellModal">
-  <div class="modal">
-    <h3><i class="fas fa-money-bill-transfer" style="color:var(--green);"></i> Sell Back to Market</h3>
-    <div class="buy-asset-head" id="sellHead"></div>
-    <div class="price-row"><span class="lbl">Price per unit (set by admin)</span><span class="val" id="sellUnitPrice">$0.00</span></div>
-    <div class="qty-wrap">
-      <label>Quantity</label>
-      <div class="qty-controls">
-        <button onclick="adjustSellQty(-1)">\u2212</button>
-        <input type="number" id="sellQty" value="1" min="1"/>
-        <button onclick="adjustSellQty(1)">+</button>
-      </div>
-    </div>
-    <div class="total-box"><span class="tl">You receive</span><span class="tv" id="sellTotal">$0.00</span></div>
-    <div class="modal-actions">
-      <button class="btn btn-cancel" onclick="closeModal('sellModal')">Cancel</button>
-      <button class="btn btn-confirm" id="confirmSellBtn" onclick="confirmSell()">Confirm Sell</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal-backdrop" id="successModal">
-  <div class="modal" style="text-align:center;">
-    <div class="modal-icon" style="color:var(--green);"><i class="fas fa-check-circle"></i></div>
-    <div class="modal-title" id="successTitle">Done!</div>
-    <div class="modal-text" id="successText">Sale complete.</div>
-    <button class="btn btn-confirm" onclick="closeModal('successModal')">OK</button>
-  </div>
-</div>
-
-<div class="modal-backdrop" id="errorModal">
-  <div class="modal" style="text-align:center;">
-    <div class="modal-icon" style="color:var(--red);"><i class="fas fa-times-circle"></i></div>
-    <div class="modal-title">Failed</div>
-    <p id="errorText" class="modal-text">Something went wrong.</p>
-    <button class="btn btn-confirm" onclick="closeModal('errorModal')">Try Again</button>
-  </div>
-</div>
-
-<div class="modal-backdrop" id="processingModal" style="background:rgba(0,0,0,0.4);">
-  <div class="modal" style="text-align:center;max-width:300px;">
-    <div style="font-size:2.5rem;margin-bottom:.75rem;"><i class="fas fa-spinner fa-spin" style="color:var(--orange);"></i></div>
-    <div class="modal-title" style="font-size:1rem;">Processing...</div>
-    <div class="modal-text" style="margin-bottom:0;" id="processingText">Please wait.</div>
-  </div>
-</div>
-
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
   import {
-    getFirestore, doc, getDoc, collection, query, where, orderBy,
-    getDocs, serverTimestamp, runTransaction, deleteDoc
+    getFirestore, doc, getDoc, collection, query, where, orderBy, getDocs
   } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -263,11 +175,10 @@
   const db = getFirestore(app);
 
   let currentUser = null;
-  let holdings = [];      // user's holdings docs
-  let prices = {};        // productId -> current price (live)
-  let sales = [];         // orders type=sell (user sold back)
-  let purchases = [];     // orders type=buy
-  let selectedHolding = null;
+  let holdings = [];
+  let prices = {};
+  let sales = [];
+  let purchases = [];
 
   const balanceDisplay = document.getElementById('balanceDisplay');
 
@@ -303,7 +214,6 @@
   }
 
   async function loadPrices() {
-    // pull current prices for held assets
     try {
       const snap = await getDocs(collection(db, 'products'));
       snap.forEach(d => { prices[d.id] = d.data().price || 0; });
@@ -394,7 +304,6 @@
           <div class="h-right">
             <div class="h-value">$${value.toFixed(2)}</div>
             <div class="h-cost">cost $${cost.toFixed(2)}</div>
-            <button class="sell-btn" onclick="openSell('${h.productId}','${escapeHtml(h.name||'Asset').replace(/'/g,"\\'")}')"><i class="fas fa-money-bill-transfer"></i> Sell</button>
           </div>
         </div>
       `;
@@ -407,7 +316,7 @@
     const qty = o.quantity || 1;
     const total = o.total || 0;
     const date = o.createdAt?.toDate ? o.createdAt.toDate().toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'}) : 'Recently';
-    const sign = inflow ? '+' : '\u2212';
+    const sign = inflow ? '+' : '−';
     const cls = inflow ? 'pos' : 'neg';
     const label = inflow ? 'Sold to Market' : 'Bought from Market';
     return `
@@ -419,7 +328,7 @@
         </div>
         <div class="rec-right">
           <div class="rec-amount ${cls}">${sign}$${total.toFixed(2)}</div>
-          <div class="rec-qty">${qty} \u00d7 $${(o.unitPrice||0).toFixed(2)}</div>
+          <div class="rec-qty">${qty} × $${(o.unitPrice||0).toFixed(2)}</div>
         </div>
       </div>
     `;
@@ -428,7 +337,7 @@
   function renderSales() {
     const el = document.getElementById('salesList');
     if (sales.length === 0) {
-      el.innerHTML = `<div class="empty-state"><i class="fas fa-hand-holding-dollar"></i><p>No sales yet.</p><small>When you sell assets back to the market, they'll appear here.</small></div>`;
+      el.innerHTML = `<div class="empty-state"><i class="fas fa-hand-holding-dollar"></i><p>No sales yet.</p><small>Assets you've sold appear here.</small></div>`;
       return;
     }
     el.innerHTML = sales.map(o => recordRow(o, true)).join('');
@@ -437,13 +346,12 @@
   function renderPurchases() {
     const el = document.getElementById('purchasesList');
     if (purchases.length === 0) {
-      el.innerHTML = `<div class="empty-state"><i class="fas fa-receipt"></i><p>No purchases yet.</p><small>Assets you buy from the market will appear here.</small></div>`;
+      el.innerHTML = `<div class="empty-state"><i class="fas fa-receipt"></i><p>No purchases yet.</p><small>Assets you've bought appear here.</small></div>`;
       return;
     }
     el.innerHTML = purchases.map(o => recordRow(o, false)).join('');
   }
 
-  // Tabs
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -455,115 +363,8 @@
     });
   });
 
-  // Sell flow
-  window.openSell = function(productId, name) {
-    const h = holdings.find(x => x.productId === productId);
-    if (!h) { showToast('Holding not found'); return; }
-    selectedHolding = h;
-    const price = prices[h.productId] != null ? prices[h.productId] : (h.avgBuyPrice || 0);
-    const img = h.image ? h.image : placeholderImg();
-    document.getElementById('sellHead').innerHTML = `<img src="${img}" alt=""/><div><div class="bn">${escapeHtml(name)}</div><div class="bp">You hold ${h.quantity} units</div></div>`;
-    document.getElementById('sellUnitPrice').textContent = `$${price.toFixed(2)}`;
-    const qi = document.getElementById('sellQty');
-    qi.value = h.quantity; qi.min = 1; qi.max = h.quantity;
-    updateSellTotal();
-    openModal('sellModal');
-  };
-
-  window.adjustSellQty = function(d) {
-    const el = document.getElementById('sellQty');
-    let v = parseInt(el.value||'1') + d;
-    const max = parseInt(el.max||'1'); const min = parseInt(el.min||'1');
-    v = Math.max(min, Math.min(max, v));
-    el.value = v; updateSellTotal();
-  };
-  document.getElementById('sellQty').addEventListener('input', updateSellTotal);
-  function updateSellTotal() {
-    if (!selectedHolding) return;
-    const qty = Math.max(1, parseInt(document.getElementById('sellQty').value||'1')||1);
-    const price = prices[selectedHolding.productId] != null ? prices[selectedHolding.productId] : (selectedHolding.avgBuyPrice || 0);
-    document.getElementById('sellTotal').textContent = `$${(price*qty).toFixed(2)}`;
-  }
-
-  window.confirmSell = async function() {
-    if (!selectedHolding) return;
-    const sellQty = Math.max(1, parseInt(document.getElementById('sellQty').value||'1')||1);
-    const productId = selectedHolding.productId;
-
-    const btn = document.getElementById('confirmSellBtn');
-    btn.disabled = true; btn.textContent = 'Processing...';
-    closeModal('sellModal');
-    showProcessing('Selling ' + sellQty + ' unit(s)...');
-
-    try {
-      const userRef = doc(db, 'users', currentUser.uid);
-      const productRef = doc(db, 'products', productId);
-      const holdingRef = doc(db, 'users', currentUser.uid, 'holdings', productId);
-      const orderRef = doc(collection(db, 'orders'));
-
-      await runTransaction(db, async (tx) => {
-        const u = await tx.get(userRef);
-        const p = await tx.get(productRef);
-        const h = await tx.get(holdingRef);
-        if (!u.exists()) throw new Error('Account not found');
-        if (!p.exists()) throw new Error('Asset not found');
-        if (!h.exists()) throw new Error('You no longer hold this asset');
-        const ud = u.data(), pd = p.data(), hd = h.data();
-        const held = hd.quantity || 0;
-        if (held < sellQty) throw new Error('You do not own that many units');
-
-        const price = pd.price || 0;            // current admin-set price (buy & sell same)
-        const total = price * sellQty;
-
-        const newQty = held - sellQty;
-        if (newQty > 0) tx.set(holdingRef, { quantity: newQty, updatedAt: serverTimestamp() }, { merge: true });
-        else tx.delete(holdingRef);
-
-        // restock admin supply
-        const avail = (pd.available != null) ? pd.available : (pd.stock != null ? pd.stock : 0);
-        tx.update(productRef, { available: avail + sellQty });
-        // credit user
-        tx.update(userRef, { balance: (ud.balance||0) + total });
-
-        tx.set(orderRef, {
-          buyerId: 'official',
-          sellerId: currentUser.uid,
-          productId,
-          productName: pd.name,
-          image: pd.image || null,
-          unitPrice: price,
-          quantity: sellQty,
-          total,
-          type: 'sell',
-          status: 'completed',
-          createdAt: serverTimestamp()
-        });
-      });
-
-      await refreshBalance();
-      await Promise.all([loadHoldings(), loadPrices(), loadSales(), loadPurchases()]);
-      closeModal('processingModal');
-      computeStats(); renderHoldings(); renderSales(); renderPurchases();
-      document.getElementById('successTitle').textContent = 'Sale Complete!';
-      document.getElementById('successText').innerHTML = `You sold <strong>${sellQty}</strong> unit(s) and received cash to your wallet.`;
-      openModal('successModal');
-    } catch (err) {
-      console.error('[Portfolio] sell', err);
-      closeModal('processingModal');
-      document.getElementById('errorText').textContent = err.message || 'Sale failed. Please try again.';
-      openModal('errorModal');
-    } finally {
-      btn.disabled = false; btn.textContent = 'Confirm Sell';
-    }
-  };
-
-  function showProcessing(t){ document.getElementById('processingText').textContent = t||'Please wait.'; openModal('processingModal'); }
-  function showToast(m){ const e=document.querySelector('.toast-notification'); if(e)e.remove(); const t=document.createElement('div'); t.className='toast-notification'; t.innerHTML=`<i class="fas fa-circle-info" style="color:var(--orange);margin-right:.5rem;"></i> ${m}`; document.body.appendChild(t); setTimeout(()=>{t.style.animation='slideUp .3s ease reverse';setTimeout(()=>t.remove(),300);},2600); }
-  window.closeModal = function(id){ document.getElementById(id).style.display='none'; };
-  function openModal(id){ document.getElementById(id).style.display='flex'; }
   function escapeHtml(t){ if(t==null)return''; const d=document.createElement('div'); d.textContent=t; return d.innerHTML; }
-  document.addEventListener('keydown',(e)=>{ if(e.key==='Escape'){ ['sellModal','successModal','errorModal'].forEach(id=>{ if(document.getElementById(id).style.display==='flex')closeModal(id); }); } });
 </script>
 
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a2fa5bbb9fce5858',t:'MTc4NzQ5MDYzNg=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a2fa8ec7eefad5dd',t:'MTc4NzQ5MjcyNw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
