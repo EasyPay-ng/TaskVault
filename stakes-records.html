@@ -3,200 +3,264 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>TaskVault – Stake Records</title>
-  <!-- Favicon -->
+  <title>TaskVault – My Inventory</title>
   <link rel="icon" type="image/jpeg" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg"/>
   <link rel="shortcut icon" type="image/jpeg" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg"/>
-  
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
   <style>
     :root {
       --orange: #f97316;
       --orange-light: #fff7ed;
       --orange-dark: #ea580c;
+      --orange-glow: rgba(249, 115, 22, 0.15);
       --white: #fff;
       --gray: #6b7280;
+      --gray-light: #9ca3af;
       --red: #dc2626;
       --green: #16a34a;
       --blue: #2563eb;
-      --yellow: #eab308;
-      --shadow: rgba(0,0,0,0.08);
+      --purple: #9333ea;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+      --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+      --radius-sm: 8px;
+      --radius: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 24px;
     }
-    * { box-sizing: border-box; margin:0; padding:0; font-family:'Segoe UI',system-ui,sans-serif; }
-    body { background:var(--orange-light); color:#1f2937; min-height:100vh; }
 
-    /* Header */
+    * { box-sizing:border-box; margin:0; padding:0; font-family:'Inter','Segoe UI',system-ui,sans-serif; }
+    body { background:var(--orange-light); color:#1f2937; min-height:100vh; -webkit-font-smoothing:antialiased; }
+
     header {
       background:var(--orange); color:var(--white);
       padding:1rem 1.5rem; display:flex; justify-content:space-between; align-items:center;
-      box-shadow:0 2px 8px var(--shadow); position:sticky; top:0; z-index:100;
+      box-shadow:var(--shadow-lg); position:sticky; top:0; z-index:100;
     }
-    .logo-wrap { display:flex; align-items:center; gap:.6rem; cursor:pointer; }
-    .logo-wrap img { width:32px; height:32px; border-radius:6px; object-fit:cover; }
-    .logo-wrap h1 { font-size:1.1rem; font-weight:700; }
+    .logo-wrap { display:flex; align-items:center; gap:.75rem; }
+    .logo-wrap img { width:36px; height:36px; border-radius:10px; object-fit:cover; box-shadow:0 2px 8px rgba(0,0,0,0.2); }
+    .logo-wrap h1 { font-size:1.15rem; font-weight:800; letter-spacing:-0.02em; }
     .header-btns { display:flex; gap:.5rem; align-items:center; }
-    .header-btn {
-      background:rgba(255,255,255,0.2); color:var(--white); border:none;
-      padding:.4rem .8rem; border-radius:6px; cursor:pointer; font-size:.85rem;
-    }
-    .header-btn:hover { background:rgba(255,255,255,0.3); }
+    .header-btn { background:rgba(255,255,255,0.15); color:var(--white); border:none; padding:.5rem 1rem; border-radius:var(--radius-sm); cursor:pointer; font-size:.85rem; font-weight:600; transition:all .2s ease; }
+    .header-btn:hover { background:rgba(255,255,255,0.25); transform:translateY(-1px); }
+    .balance-pill { background:rgba(255,255,255,0.2); padding:.4rem .9rem; border-radius:20px; font-size:.85rem; font-weight:700; border:1px solid rgba(255,255,255,0.1); }
 
-    /* Container */
-    .container { max-width:800px; margin:0 auto; padding:1.5rem; }
+    .container { max-width:1100px; margin:0 auto; padding:1.5rem; }
 
-    /* Stats Bar */
-    .stats-bar {
-      display:grid; grid-template-columns:repeat(4, 1fr); gap:1rem; margin-bottom:1.5rem;
-    }
-    .stat-card {
-      background:var(--white); border-radius:12px; padding:1rem; text-align:center;
-      box-shadow:0 2px 8px var(--shadow);
-    }
-    .stat-card .number { font-size:1.5rem; font-weight:700; color:var(--orange); }
-    .stat-card .label { font-size:.75rem; color:var(--gray); margin-top:.25rem; text-transform:uppercase; }
+    /* Stat cards */
+    .stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1rem; margin-bottom:1.5rem; }
+    .stat-card { background:var(--white); border-radius:var(--radius-lg); padding:1.4rem; box-shadow:var(--shadow); display:flex; align-items:center; gap:1rem; transition:all .25s ease; border:1px solid transparent; }
+    .stat-card:hover { transform:translateY(-2px); box-shadow:var(--shadow-lg); border-color:var(--orange-glow); }
+    .stat-ic { width:52px; height:52px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:1.4rem; flex-shrink:0; }
+    .stat-body { min-width:0; }
+    .stat-val { font-size:1.6rem; font-weight:800; line-height:1.1; color:#111827; letter-spacing:-0.02em; }
+    .stat-lbl { font-size:.8rem; color:var(--gray); font-weight:600; margin-top:.15rem; }
+    .stat-sub { font-size:.72rem; color:var(--gray-light); font-weight:600; margin-top:.15rem; }
 
-    /* Filter Tabs */
-    .filter-tabs {
-      display:flex; gap:.5rem; margin-bottom:1.5rem; overflow-x:auto;
-    }
-    .tab-btn {
-      padding:.6rem 1.2rem; border:none; background:var(--white);
-      color:var(--gray); border-radius:8px; cursor:pointer; font-size:.85rem;
-      font-weight:600; transition:all .2s; white-space:nowrap;
-    }
-    .tab-btn.active { background:var(--orange); color:var(--white); }
-    .tab-btn:hover:not(.active) { background:#fed7aa; color:var(--orange-dark); }
+    /* Panel */
+    .panel { background:var(--white); border-radius:var(--radius-xl); padding:1.5rem; box-shadow:var(--shadow-lg); margin-bottom:1.5rem; border:1px solid #f3f4f6; }
+    .panel-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.25rem; gap:.75rem; flex-wrap:wrap; }
+    .panel-head h2 { font-size:1.05rem; font-weight:800; display:flex; align-items:center; gap:.5rem; }
+    .panel-head h2 i { color:var(--orange); }
 
-    /* Records List */
-    .records-list { display:grid; gap:.75rem; }
-    .record-card {
-      background:var(--white); border-radius:12px; padding:1.25rem;
-      box-shadow:0 2px 8px var(--shadow); transition:transform .2s;
-    }
-    .record-card:hover { transform:translateX(4px); }
-    .record-header {
-      display:flex; justify-content:space-between; align-items:start; margin-bottom:.75rem;
-    }
-    .record-topic { font-size:1rem; font-weight:700; line-height:1.4; flex:1; }
-    .record-meta { display:flex; gap:.5rem; align-items:center; margin-top:.5rem; }
-    .record-meta span { font-size:.8rem; color:var(--gray); }
-    .record-meta .dot { width:4px; height:4px; background:#d1d5db; border-radius:50%; }
+    /* Tabs */
+    .tab-bar { display:flex; gap:.5rem; margin-bottom:1.25rem; overflow-x:auto; padding-bottom:.25rem; scrollbar-width:none; }
+    .tab-bar::-webkit-scrollbar { display:none; }
+    .tab-btn { padding:.6rem 1.25rem; border:2px solid var(--orange); background:var(--white); color:var(--orange); border-radius:var(--radius-sm); cursor:pointer; font-size:.85rem; font-weight:700; white-space:nowrap; transition:all .25s cubic-bezier(0.4,0,0.2,1); box-shadow:var(--shadow-sm); display:flex; align-items:center; gap:.4rem; }
+    .tab-btn.active, .tab-btn:hover { background:var(--orange); color:var(--white); transform:translateY(-1px); box-shadow:var(--shadow); }
+    .tab-count { background:rgba(249,115,22,0.15); color:var(--orange-dark); padding:.05rem .45rem; border-radius:10px; font-size:.72rem; font-weight:800; }
+    .tab-btn.active .tab-count { background:rgba(255,255,255,0.25); color:#fff; }
 
-    .record-details {
-      display:flex; justify-content:space-between; align-items:center;
-      padding-top:.75rem; border-top:1px solid #f3f4f6;
-    }
-    .record-pick { display:flex; align-items:center; gap:.5rem; }
-    .pick-badge {
-      padding:.35rem .7rem; border-radius:6px; font-size:.85rem; font-weight:600;
-    }
-    .pick-yes { background:#dcfce7; color:var(--green); }
-    .pick-no { background:#fee2e2; color:var(--red); }
-    .pick-other { background:#dbeafe; color:var(--blue); }
+    .btn { padding:.7rem 1.2rem; border:none; border-radius:var(--radius-sm); font-weight:700; cursor:pointer; font-size:.85rem; transition:all .2s ease; display:inline-flex; align-items:center; gap:.4rem; text-decoration:none; }
+    .btn-primary { background:var(--green); color:#fff; box-shadow:0 4px 6px -1px rgba(22,163,74,0.3); }
+    .btn-primary:hover { filter:brightness(1.05); transform:translateY(-1px); }
 
-    .record-amount { font-size:1.1rem; font-weight:700; color:var(--orange-dark); }
+    /* Inventory grid */
+    .inv-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:1rem; }
+    .inv-card { background:var(--white); border-radius:var(--radius-lg); overflow:hidden; box-shadow:var(--shadow); border:1px solid #f3f4f6; display:flex; flex-direction:column; transition:all .25s ease; }
+    .inv-card:hover { transform:translateY(-3px); box-shadow:var(--shadow-xl); }
+    .inv-img { width:100%; aspect-ratio:1/1; background:#f3f4f6; overflow:hidden; position:relative; }
+    .inv-img img { width:100%; height:100%; object-fit:cover; }
+    .status-chip { position:absolute; top:.5rem; left:.5rem; padding:.25rem .55rem; border-radius:6px; font-size:.65rem; font-weight:800; text-transform:uppercase; }
+    .chip-active { background:#dcfce7; color:var(--green); }
+    .chip-out { background:#fee2e2; color:var(--red); }
+    .chip-sold { background:#e0e7ff; color:#4f46e5; }
+    .inv-body { padding:.9rem; display:flex; flex-direction:column; gap:.4rem; flex:1; }
+    .inv-cat { font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--gray-light); }
+    .inv-name { font-size:.92rem; font-weight:800; line-height:1.3; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+    .inv-foot { display:flex; align-items:center; justify-content:space-between; margin-top:auto; padding-top:.5rem; }
+    .inv-price { font-size:1.05rem; font-weight:800; color:var(--orange-dark); }
+    .inv-stock { font-size:.7rem; font-weight:700; color:var(--gray); background:#f3f4f6; padding:.2rem .5rem; border-radius:20px; }
+    .inv-actions { display:flex; gap:.5rem; margin-top:.6rem; }
+    .inv-actions .btn { flex:1; justify-content:center; padding:.5rem; font-size:.75rem; }
+    .btn-delist { background:#fee2e2; color:var(--red); }
+    .btn-delist:hover { background:var(--red); color:#fff; }
 
-    /* Status Badges */
-    .status-badge {
-      padding:.35rem .7rem; border-radius:20px; font-size:.75rem; font-weight:600;
-    }
-    .status-active { background:#fef3c7; color:#92400e; }
-    .status-won { background:#dcfce7; color:var(--green); }
-    .status-lost { background:#fee2e2; color:var(--red); }
-    .status-pending { background:#dbeafe; color:var(--blue); }
-    .status-refunded { background:#f3f4f6; color:var(--gray); }
+    /* Records (sales/purchases) */
+    .records-list { display:flex; flex-direction:column; gap:.75rem; }
+    .record-row { display:flex; align-items:center; gap:1rem; background:#f9fafb; border-radius:var(--radius); padding:.85rem 1rem; transition:all .2s ease; border:1px solid transparent; }
+    .record-row:hover { background:var(--orange-light); border-color:var(--orange-glow); }
+    .rec-thumb { width:52px; height:52px; border-radius:10px; object-fit:cover; background:#e5e7eb; flex-shrink:0; }
+    .rec-thumb.placeholder { display:flex; align-items:center; justify-content:center; color:var(--gray-light); }
+    .rec-main { flex:1; min-width:0; }
+    .rec-name { font-weight:800; font-size:.92rem; color:#1f2937; display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden; }
+    .rec-meta { font-size:.76rem; color:var(--gray); margin-top:.15rem; display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; }
+    .rec-meta .dot { width:3px; height:3px; border-radius:50%; background:var(--gray-light); display:inline-block; }
+    .rec-right { text-align:right; flex-shrink:0; }
+    .rec-amount { font-weight:800; font-size:1rem; }
+    .rec-amount.pos { color:var(--green); }
+    .rec-amount.neg { color:var(--red); }
+    .rec-qty { font-size:.72rem; color:var(--gray-light); font-weight:600; }
 
-    /* Category Tag */
-    .cat-tag {
-      display:inline-flex; align-items:center; gap:.3rem;
-      padding:.2rem .5rem; border-radius:4px; font-size:.7rem; font-weight:600;
-    }
-    .cat-sports { background:#fee2e2; color:var(--red); }
-    .cat-crypto { background:#dbeafe; color:var(--blue); }
-    .cat-reallife { background:#dcfce7; color:var(--green); }
-    .cat-entertainment { background:#f3e8ff; color:#9333ea; }
+    .badge-mini { padding:.15rem .5rem; border-radius:6px; font-size:.66rem; font-weight:800; }
+    .b-official { background:#ffedd5; color:var(--orange-dark); }
+    .b-community { background:#f3e8ff; color:var(--purple); }
 
-    /* Empty State */
+    /* Skeleton + empty */
+    .skeleton { background:linear-gradient(90deg,#f0f0f0 25%,#e8e8e8 50%,#f0f0f0 75%); background-size:200% 100%; animation:shimmer 1.5s infinite; border-radius:6px; }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
     .empty-state { text-align:center; padding:3rem 1rem; color:var(--gray); }
     .empty-state i { font-size:3rem; margin-bottom:1rem; color:#e5e7eb; }
-    .empty-state h3 { font-size:1.1rem; margin-bottom:.5rem; color:#374151; }
-    .empty-state p { font-size:.9rem; }
+    .empty-state p { font-weight:500; margin-bottom:.25rem; }
+    .empty-state small { color:var(--gray-light); }
 
-    /* Loading */
-    .skeleton-card {
-      background:var(--white); border-radius:12px; padding:1.25rem;
-      box-shadow:0 2px 8px var(--shadow); margin-bottom:.75rem;
-    }
-    .skeleton { background:linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size:200% 100%; animation:shimmer 1.5s infinite; border-radius:6px; height:16px; margin-bottom:.5rem; }
-    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+    /* Modal */
+    .modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.5); display:none; justify-content:center; align-items:center; z-index:2000; padding:1rem; backdrop-filter:blur(4px); }
+    .modal { background:var(--white); border-radius:var(--radius-xl); padding:1.75rem; max-width:380px; width:100%; animation:modalIn .35s cubic-bezier(0.16,1,0.3,1); box-shadow:0 25px 50px -12px rgba(0,0,0,0.25); text-align:center; }
+    @keyframes modalIn { from{opacity:0; transform:scale(.92) translateY(10px);} to{opacity:1; transform:scale(1) translateY(0);} }
+    .modal-icon { font-size:3rem; margin-bottom:.75rem; }
+    .modal-title { font-size:1.15rem; font-weight:800; margin-bottom:.5rem; }
+    .modal-text { color:var(--gray); margin-bottom:1.25rem; line-height:1.5; }
+    .modal-actions { display:flex; gap:.75rem; }
+    .modal-actions .btn { flex:1; justify-content:center; }
+    .btn-cancel { background:#f3f4f6; color:#4b5563; }
+    .btn-cancel:hover { background:#e5e7eb; }
+
+    .toast-notification { position:fixed; bottom:2rem; left:50%; transform:translateX(-50%); background:#1f2937; color:white; padding:.875rem 1.5rem; border-radius:var(--radius); font-size:.9rem; font-weight:600; z-index:5000; animation:slideUp .3s ease; box-shadow:var(--shadow-lg); display:flex; align-items:center; }
+    @keyframes slideUp { from{opacity:0; transform:translateX(-50%) translateY(20px);} to{opacity:1; transform:translateX(-50%) translateY(0);} }
 
     .hidden { display:none !important; }
+    ::-webkit-scrollbar { width:6px; }
+    ::-webkit-scrollbar-thumb { background:#d1d5db; border-radius:3px; }
+
+    @media (max-width:560px) { .inv-grid { grid-template-columns:repeat(2,1fr); } .record-row { flex-wrap:wrap; } }
   </style>
 </head>
 <body>
 
 <header>
-  <div class="logo-wrap" onclick="location.href='stake.html'">
+  <div class="logo-wrap">
     <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" alt="TaskVault"/>
-    <h1>Stake Records</h1>
+    <h1>My Inventory</h1>
   </div>
   <div class="header-btns">
-    <button class="header-btn" onclick="location.href='stake.html'">
-      <i class="fas fa-arrow-left"></i> Back to Stake
-    </button>
-    <button class="header-btn" onclick="signOutUser()">
-      <i class="fas fa-sign-out-alt"></i>
-    </button>
+    <span class="balance-pill" id="balanceDisplay">$0.00</span>
+    <button class="header-btn" onclick="location.href='marketplace.html'"><i class="fas fa-store"></i> Market</button>
   </div>
 </header>
 
 <div class="container">
   <!-- Loading -->
   <div id="loadingState">
-    <div class="skeleton-card"><div class="skeleton" style="width:100%;height:18px;"></div><div class="skeleton" style="width:60%;height:14px;"></div></div>
-    <div class="skeleton-card"><div class="skeleton" style="width:100%;height:18px;"></div><div class="skeleton" style="width:60%;height:14px;"></div></div>
-    <div class="skeleton-card"><div class="skeleton" style="width:100%;height:18px;"></div><div class="skeleton" style="width:60%;height:14px;"></div></div>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-ic skeleton" style="border-radius:14px;"></div><div style="flex:1;"><div class="skeleton" style="width:80px;height:24px;margin-bottom:.5rem;"></div><div class="skeleton" style="width:120px;height:14px;"></div></div></div>
+      <div class="stat-card"><div class="stat-ic skeleton" style="border-radius:14px;"></div><div style="flex:1;"><div class="skeleton" style="width:80px;height:24px;margin-bottom:.5rem;"></div><div class="skeleton" style="width:120px;height:14px;"></div></div></div>
+    </div>
+    <div class="panel"><div class="skeleton" style="width:100%;height:120px;"></div></div>
   </div>
 
-  <!-- Stats -->
-  <div id="statsBar" class="stats-bar hidden">
-    <div class="stat-card">
-      <div class="number" id="statTotal">0</div>
-      <div class="label">Total Stakes</div>
+  <!-- App -->
+  <div id="app" class="hidden">
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-ic" style="background:var(--orange-light); color:var(--orange);"><i class="fas fa-box-open"></i></div>
+        <div class="stat-body">
+          <div class="stat-val" id="invCount">0</div>
+          <div class="stat-lbl">Items in Inventory</div>
+          <div class="stat-sub" id="invSub">0 active</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-ic" style="background:#fef3c7; color:#d97706;"><i class="fas fa-sack-dollar"></i></div>
+        <div class="stat-body">
+          <div class="stat-val" id="invWorth">$0.00</div>
+          <div class="stat-lbl">Inventory Worth</div>
+          <div class="stat-sub">across all active items</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-ic" style="background:#dcfce7; color:var(--green);"><i class="fas fa-arrow-trend-up"></i></div>
+        <div class="stat-body">
+          <div class="stat-val" id="salesCount">0</div>
+          <div class="stat-lbl">Total Sales</div>
+          <div class="stat-sub" id="salesSub">$0.00 earned</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-ic" style="background:#fee2e2; color:var(--red);"><i class="fas fa-cart-shopping"></i></div>
+        <div class="stat-body">
+          <div class="stat-val" id="purchasesCount">0</div>
+          <div class="stat-lbl">Total Purchases</div>
+          <div class="stat-sub" id="purchasesSub">$0.00 spent</div>
+        </div>
+      </div>
     </div>
-    <div class="stat-card">
-      <div class="number" id="statActive">0</div>
-      <div class="label">Active</div>
+
+    <!-- Tabs -->
+    <div class="tab-bar">
+      <button class="tab-btn active" data-tab="inventory"><i class="fas fa-box"></i> Inventory <span class="tab-count" id="tInv">0</span></button>
+      <button class="tab-btn" data-tab="sales"><i class="fas fa-hand-holding-dollar"></i> My Sales <span class="tab-count" id="tSales">0</span></button>
+      <button class="tab-btn" data-tab="purchases"><i class="fas fa-receipt"></i> My Purchases <span class="tab-count" id="tPur">0</span></button>
+      <a class="btn btn-primary" href="marketplace.html" style="margin-left:auto;"><i class="fas fa-plus"></i> Sell New Item</a>
     </div>
-    <div class="stat-card">
-      <div class="number" id="statWon">0</div>
-      <div class="label">Won</div>
+
+    <!-- Inventory -->
+    <div class="panel" id="panelInventory">
+      <div class="panel-head">
+        <h2><i class="fas fa-warehouse"></i> Products in My Possession</h2>
+      </div>
+      <div class="inv-grid" id="invGrid"></div>
     </div>
-    <div class="stat-card">
-      <div class="number" id="statLost">0</div>
-      <div class="label">Lost</div>
+
+    <!-- Sales -->
+    <div class="panel hidden" id="panelSales">
+      <div class="panel-head">
+        <h2><i class="fas fa-hand-holding-dollar" style="color:var(--green)!important;"></i> Sales History</h2>
+      </div>
+      <div class="records-list" id="salesList"></div>
+    </div>
+
+    <!-- Purchases -->
+    <div class="panel hidden" id="panelPurchases">
+      <div class="panel-head">
+        <h2><i class="fas fa-receipt" style="color:var(--blue)!important;"></i> Purchase History</h2>
+      </div>
+      <div class="records-list" id="purchasesList"></div>
     </div>
   </div>
+</div>
 
-  <!-- Filter Tabs -->
-  <div id="filterTabs" class="filter-tabs hidden">
-    <button class="tab-btn active" data-filter="all">All</button>
-    <button class="tab-btn" data-filter="active">Active</button>
-    <button class="tab-btn" data-filter="won">Won</button>
-    <button class="tab-btn" data-filter="lost">Lost</button>
-    <button class="tab-btn" data-filter="pending">Pending</button>
-    <button class="tab-btn" data-filter="refunded">Refunded</button>
+<!-- Confirm delist modal -->
+<div class="modal-backdrop" id="confirmModal">
+  <div class="modal">
+    <div class="modal-icon" style="color:var(--red);"><i class="fas fa-triangle-exclamation"></i></div>
+    <div class="modal-title">Remove listing?</div>
+    <p class="modal-text" id="confirmText">This item will no longer be visible to buyers.</p>
+    <div class="modal-actions">
+      <button class="btn btn-cancel" onclick="closeModal('confirmModal')">Cancel</button>
+      <button class="btn btn-primary" id="confirmDelistBtn" style="background:var(--red); box-shadow:none;">Confirm</button>
+    </div>
   </div>
-
-  <!-- Records List -->
-  <div class="records-list" id="recordsList"></div>
 </div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
   import {
-    getFirestore, doc, getDoc, collection, query, orderBy, getDocs
+    getFirestore, doc, getDoc, collection, query, where, orderBy,
+    getDocs, deleteDoc
   } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -213,143 +277,240 @@
   const db = getFirestore(app);
 
   let currentUser = null;
-  let allStakes = [];
-  let activeFilter = 'all';
+  let inventory = [];
+  let sales = [];
+  let purchases = [];
+  let pendingDelistId = null;
 
   const loadingState = document.getElementById('loadingState');
-  const statsBar = document.getElementById('statsBar');
-  const filterTabs = document.getElementById('filterTabs');
-  const recordsList = document.getElementById('recordsList');
+  const appEl = document.getElementById('app');
 
   onAuthStateChanged(auth, async (user) => {
     if (!user) { location.href = 'login.html'; return; }
     currentUser = user;
-    await loadRecords();
+    await init();
   });
 
-  async function loadRecords() {
-    loadingState.classList.add('hidden');
-    statsBar.classList.remove('hidden');
-    filterTabs.classList.remove('hidden');
-
+  async function init() {
+    // wallet balance
     try {
-      const q = query(
-        collection(db, 'users', currentUser.uid, 'stakes'),
-        orderBy('createdAt', 'desc')
-      );
-      
-      const snap = await getDocs(q);
-      allStakes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      
-      updateStats();
-      renderRecords();
-    } catch (err) {
-      console.error('Load records error:', err);
-      recordsList.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><h3>Failed to load</h3><p>Could not fetch your stake records. Try refreshing.</p></div>';
-    }
+      const snap = await getDoc(doc(db, 'users', currentUser.uid));
+      if (snap.exists()) {
+        const bal = snap.data().balance || 0;
+        document.getElementById('balanceDisplay').textContent = `$${bal.toFixed(2)}`;
+      }
+    } catch (e) { console.warn('[Inventory] balance load', e); }
+
+    await Promise.all([loadInventory(), loadSales(), loadPurchases()]);
+    loadingState.classList.add('hidden');
+    appEl.classList.remove('hidden');
+    computeStats();
+    renderInventory();
+    renderSales();
+    renderPurchases();
   }
 
-  function updateStats() {
-    const total = allStakes.length;
-    const active = allStakes.filter(s => s.status === 'active').length;
-    const won = allStakes.filter(s => s.status === 'won').length;
-    const lost = allStakes.filter(s => s.status === 'lost').length;
-    
-    document.getElementById('statTotal').textContent = total;
-    document.getElementById('statActive').textContent = active;
-    document.getElementById('statWon').textContent = won;
-    document.getElementById('statLost').textContent = lost;
+  async function loadInventory() {
+    try {
+      let snap;
+      try {
+        const q = query(collection(db, 'userListings'), where('sellerId', '==', currentUser.uid), orderBy('createdAt', 'desc'));
+        snap = await getDocs(q);
+      } catch (e) {
+        const q = query(collection(db, 'userListings'), where('sellerId', '==', currentUser.uid));
+        snap = await getDocs(q);
+      }
+      inventory = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      inventory.sort((a,b) => (b.createdAt?.toMillis?.()||0) - (a.createdAt?.toMillis?.()||0));
+    } catch (err) { console.error('[Inventory] load', err); inventory = []; }
   }
 
-  function renderRecords() {
-    let filtered = activeFilter === 'all' 
-      ? allStakes 
-      : allStakes.filter(s => s.status === activeFilter);
-    
-    if (filtered.length === 0) {
-      const emptyMessages = {
-        all: 'No stake records yet.',
-        active: 'No active stakes.',
-        won: 'No winning stakes yet.',
-        lost: 'No lost stakes.',
-        pending: 'No pending results.',
-        refunded: 'No refunded stakes.'
-      };
-      recordsList.innerHTML = `
-        <div class="empty-state">
-          <i class="fas fa-inbox"></i>
-          <h3>Nothing here</h3>
-          <p>${emptyMessages[activeFilter] || 'No records found.'}</p>
-        </div>
-      `;
+  async function loadSales() {
+    try {
+      let snap;
+      try {
+        const q = query(collection(db, 'orders'), where('sellerId', '==', currentUser.uid), orderBy('createdAt', 'desc'));
+        snap = await getDocs(q);
+      } catch (e) {
+        const q = query(collection(db, 'orders'), where('sellerId', '==', currentUser.uid));
+        snap = await getDocs(q);
+      }
+      sales = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      sales.sort((a,b) => (b.createdAt?.toMillis?.()||0) - (a.createdAt?.toMillis?.()||0));
+    } catch (err) { console.error('[Inventory] sales load', err); sales = []; }
+  }
+
+  async function loadPurchases() {
+    try {
+      let snap;
+      try {
+        const q = query(collection(db, 'orders'), where('buyerId', '==', currentUser.uid), orderBy('createdAt', 'desc'));
+        snap = await getDocs(q);
+      } catch (e) {
+        const q = query(collection(db, 'orders'), where('buyerId', '==', currentUser.uid));
+        snap = await getDocs(q);
+      }
+      purchases = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      purchases.sort((a,b) => (b.createdAt?.toMillis?.()||0) - (a.createdAt?.toMillis?.()||0));
+    } catch (err) { console.error('[Inventory] purchases load', err); purchases = []; }
+  }
+
+  function computeStats() {
+    const activeItems = inventory.filter(p => (p.status || 'active') === 'active' && (p.stock || 0) > 0);
+    const invWorth = activeItems.reduce((s, p) => s + ((p.price||0) * (p.stock||0)), 0);
+    const salesWorth = sales.reduce((s, o) => s + (o.total||0), 0);
+    const purchasesWorth = purchases.reduce((s, o) => s + (o.total||0), 0);
+
+    document.getElementById('invCount').textContent = inventory.length;
+    document.getElementById('invSub').textContent = `${activeItems.length} active`;
+    document.getElementById('invWorth').textContent = `$${invWorth.toFixed(2)}`;
+
+    document.getElementById('salesCount').textContent = sales.length;
+    document.getElementById('salesSub').textContent = `$${salesWorth.toFixed(2)} earned`;
+
+    document.getElementById('purchasesCount').textContent = purchases.length;
+    document.getElementById('purchasesSub').textContent = `$${purchasesWorth.toFixed(2)} spent`;
+
+    document.getElementById('tInv').textContent = inventory.length;
+    document.getElementById('tSales').textContent = sales.length;
+    document.getElementById('tPur').textContent = purchases.length;
+  }
+
+  function placeholderImg() {
+    return 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="52" height="52"><rect width="52" height="52" fill="#e5e7eb"/><text x="50%" y="55%" font-size="10" fill="#9ca3af" text-anchor="middle">No img</text></svg>');
+  }
+
+  function renderInventory() {
+    const grid = document.getElementById('invGrid');
+    if (inventory.length === 0) {
+      grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><i class="fas fa-box-open"></i><p>You have no items listed yet.</p><small>Tap "Sell New Item" to list your first product.</small></div>`;
       return;
     }
-
-    let html = '';
-    filtered.forEach(stake => {
-      const statusClass = `status-${stake.status || 'active'}`;
-      const statusText = stake.status ? stake.status.charAt(0).toUpperCase() + stake.status.slice(1) : 'Active';
-      const catClass = `cat-${stake.category || 'reallife'}`;
-      const catIcon = stake.category === 'sports' ? 'fa-futbol' : stake.category === 'crypto' ? 'fa-bitcoin-sign' : stake.category === 'entertainment' ? 'fa-film' : 'fa-globe';
-      
-      const date = stake.createdAt?.toDate?.() 
-        ? stake.createdAt.toDate().toLocaleString('en-US', { month:'short', day:'numeric', year:'numeric', hour:'2-digit', minute:'2-digit' })
-        : 'Just now';
-
-      // Pick badge color
-      const pickClass = stake.optionLabel?.toLowerCase() === 'yes' ? 'pick-yes' 
-        : stake.optionLabel?.toLowerCase() === 'no' ? 'pick-no' 
-        : 'pick-other';
-
-      html += `
-        <div class="record-card">
-          <div class="record-header">
-            <div>
-              <div class="record-topic">${escapeHtml(stake.topicQuestion || 'Unknown Topic')}</div>
-              <div class="record-meta">
-                <span class="cat-tag ${catClass}"><i class="fas ${catIcon}"></i> ${stake.category || 'General'}</span>
-                <span class="dot"></span>
-                <span>${date}</span>
-              </div>
-            </div>
-            <span class="status-badge ${statusClass}">${statusText}</span>
+    grid.innerHTML = inventory.map(p => {
+      const stock = p.stock || 0;
+      const status = (p.status || 'active');
+      let chip = '';
+      if (status === 'sold' || stock <= 0) chip = '<span class="status-chip chip-sold">Sold out</span>';
+      else chip = '<span class="status-chip chip-active">Active</span>';
+      const img = p.image ? p.image : placeholderImg();
+      return `
+        <div class="inv-card">
+          <div class="inv-img">
+            <img src="${img}" alt="${escapeHtml(p.name||'')}" loading="lazy"/>
+            ${chip}
           </div>
-          <div class="record-details">
-            <div class="record-pick">
-              <span style="font-size:.85rem; color:var(--gray);">Your pick:</span>
-              <span class="pick-badge ${pickClass}">${escapeHtml(stake.optionLabel || '—')}</span>
+          <div class="inv-body">
+            <span class="inv-cat">${escapeHtml(p.category||'other')}</span>
+            <div class="inv-name">${escapeHtml(p.name||'Untitled')}</div>
+            <div class="inv-foot">
+              <span class="inv-price">$${(p.price||0).toFixed(2)}</span>
+              <span class="inv-stock">${stock} in stock</span>
             </div>
-            <div style="text-align:right;">
-              <div class="record-amount">$${(stake.amount || 0).toFixed(2)}</div>
-              ${(stake.status === 'won' || stake.status === 'settled') && stake.payoutAmount > 0 ? `<div style="font-size:.85rem; color:var(--green); font-weight:600;"><i class="fas fa-coins"></i> Payout: $${stake.payoutAmount.toFixed(3)}</div>` : ''}
+            <div class="inv-actions">
+              <button class="btn btn-delist" onclick="askDelist('${p.id}','${escapeHtml((p.name||'this item')).replace(/'/g,"\\'")}')"><i class="fas fa-trash"></i> Delist</button>
             </div>
           </div>
         </div>
       `;
-    });
-    
-    recordsList.innerHTML = html;
+    }).join('');
   }
 
-  // Filter tabs
+  function recordRow(o, isInflow) {
+    const img = o.image ? o.image : placeholderImg();
+    const name = escapeHtml(o.productName || 'Product');
+    const qty = o.quantity || 1;
+    const total = o.total || 0;
+    const date = o.createdAt?.toDate ? o.createdAt.toDate().toLocaleDateString(undefined, { year:'numeric', month:'short', day:'numeric' }) : 'Recently';
+    const party = isInflow ? (o.buyerName || 'A buyer') : (o.sellerId === 'official' ? 'TaskVault Store' : 'Community seller');
+    const typeBadge = o.productType === 'official' ? '<span class="badge-mini b-official">Official</span>' : '<span class="badge-mini b-community">Community</span>';
+    const sign = isInflow ? '+' : '\u2212';
+    const cls = isInflow ? 'pos' : 'neg';
+    return `
+      <div class="record-row">
+        <img src="${img}" class="rec-thumb" alt=""/>
+        <div class="rec-main">
+          <div class="rec-name">${name}</div>
+          <div class="rec-meta">
+            ${typeBadge}
+            <span>${isInflow ? 'Sold to ' + escapeHtml(party) : 'Bought from ' + escapeHtml(party)}</span>
+            <span class="dot"></span>
+            <span>${date}</span>
+          </div>
+        </div>
+        <div class="rec-right">
+          <div class="rec-amount ${cls}">${sign}$${total.toFixed(2)}</div>
+          <div class="rec-qty">${qty} \u00d7 $${(o.unitPrice||0).toFixed(2)}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderSales() {
+    const el = document.getElementById('salesList');
+    if (sales.length === 0) {
+      el.innerHTML = `<div class="empty-state"><i class="fas fa-hand-holding-dollar"></i><p>No sales yet.</p><small>When someone buys your listings, they'll show up here.</small></div>`;
+      return;
+    }
+    el.innerHTML = sales.map(o => recordRow(o, true)).join('');
+  }
+
+  function renderPurchases() {
+    const el = document.getElementById('purchasesList');
+    if (purchases.length === 0) {
+      el.innerHTML = `<div class="empty-state"><i class="fas fa-receipt"></i><p>No purchases yet.</p><small>Items you buy in the marketplace will appear here.</small></div>`;
+      return;
+    }
+    el.innerHTML = purchases.map(o => recordRow(o, false)).join('');
+  }
+
+  // Tabs
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      activeFilter = btn.dataset.filter;
-      renderRecords();
+      const tab = btn.dataset.tab;
+      document.getElementById('panelInventory').classList.toggle('hidden', tab !== 'inventory');
+      document.getElementById('panelSales').classList.toggle('hidden', tab !== 'sales');
+      document.getElementById('panelPurchases').classList.toggle('hidden', tab !== 'purchases');
     });
   });
 
-  window.signOutUser = function() {
-    signOut(auth).then(() => location.href = 'login.html');
+  // Delist
+  window.askDelist = function(id, name) {
+    pendingDelistId = id;
+    document.getElementById('confirmText').innerHTML = `Remove <strong>${escapeHtml(name)}</strong> from your listings? It will no longer be visible to buyers.`;
+    openModal('confirmModal');
   };
 
-  function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
+  document.getElementById('confirmDelistBtn').addEventListener('click', async () => {
+    if (!pendingDelistId) return;
+    closeModal('confirmModal');
+    try {
+      await deleteDoc(doc(db, 'userListings', pendingDelistId));
+      inventory = inventory.filter(p => p.id !== pendingDelistId);
+      pendingDelistId = null;
+      computeStats();
+      renderInventory();
+      showToast('Listing removed');
+    } catch (err) {
+      console.error('[Inventory] delist', err);
+      showToast('Could not remove listing');
+    }
+  });
+
+  // Helpers
+  function showToast(message) {
+    const existing = document.querySelector('.toast-notification');
+    if (existing) existing.remove();
+    const toast = document.createElement('div');
+    toast.className = 'toast-notification';
+    toast.innerHTML = `<i class="fas fa-circle-info" style="color:var(--orange);margin-right:.5rem;"></i> ${message}`;
+    document.body.appendChild(toast);
+    setTimeout(() => { toast.style.animation = 'slideUp .3s ease reverse'; setTimeout(() => toast.remove(), 300); }, 2600);
   }
+  window.closeModal = function(id) { document.getElementById(id).style.display = 'none'; };
+  function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+  function escapeHtml(text) { if (text == null) return ''; const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
 </script>
 
 </body>
