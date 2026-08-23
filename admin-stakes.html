@@ -3,150 +3,129 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>TaskVault – Admin Marketplace</title>
+  <title>TaskVault – Admin Stakes</title>
   <link rel="icon" type="image/jpeg" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg"/>
   <link rel="shortcut icon" type="image/jpeg" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
   <style>
     :root {
-      --orange: #f97316;
-      --orange-light: #fff7ed;
-      --orange-dark: #ea580c;
-      --orange-glow: rgba(249, 115, 22, 0.15);
-      --white: #fff;
-      --gray: #6b7280;
-      --gray-light: #9ca3af;
-      --red: #dc2626;
-      --green: #16a34a;
-      --blue: #2563eb;
-      --purple: #9333ea;
-      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
-      --shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
-      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
-      --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
-      --radius-sm: 8px;
-      --radius: 12px;
-      --radius-lg: 16px;
-      --radius-xl: 24px;
+      --orange:#f97316; --orange-light:#fff7ed; --orange-dark:#ea580c; --orange-glow:rgba(249,115,22,0.15);
+      --white:#fff; --gray:#6b7280; --gray-light:#9ca3af; --red:#dc2626; --green:#16a34a; --blue:#2563eb; --purple:#9333ea;
+      --shadow-sm:0 1px 2px rgba(0,0,0,0.05);
+      --shadow:0 4px 6px -1px rgba(0,0,0,0.1),0 2px 4px -1px rgba(0,0,0,0.06);
+      --shadow-lg:0 10px 15px -3px rgba(0,0,0,0.1),0 4px 6px -2px rgba(0,0,0,0.05);
+      --shadow-xl:0 20px 25px -5px rgba(0,0,0,0.1),0 10px 10px -5px rgba(0,0,0,0.04);
+      --radius-sm:8px; --radius:12px; --radius-lg:16px; --radius-xl:24px;
     }
+    *{box-sizing:border-box;margin:0;padding:0;font-family:'Inter','Segoe UI',system-ui,sans-serif;}
+    body{background:var(--orange-light);color:#1f2937;min-height:100vh;-webkit-font-smoothing:antialiased;}
+    header{background:var(--orange);color:var(--white);padding:1rem 1.5rem;display:flex;justify-content:space-between;align-items:center;box-shadow:var(--shadow-lg);position:sticky;top:0;z-index:100;}
+    .logo-wrap{display:flex;align-items:center;gap:.75rem;}
+    .logo-wrap img{width:36px;height:36px;border-radius:10px;object-fit:cover;box-shadow:0 2px 8px rgba(0,0,0,0.2);}
+    .logo-wrap h1{font-size:1.15rem;font-weight:800;letter-spacing:-0.02em;}
+    .header-btns{display:flex;gap:.5rem;align-items:center;}
+    .header-btn{background:rgba(255,255,255,0.15);color:var(--white);border:none;padding:.5rem 1rem;border-radius:var(--radius-sm);cursor:pointer;font-size:.85rem;font-weight:600;transition:all .2s ease;display:inline-flex;align-items:center;gap:.4rem;text-decoration:none;}
+    .header-btn:hover{background:rgba(255,255,255,0.25);transform:translateY(-1px);}
+    .container{max-width:1100px;margin:0 auto;padding:1.5rem;}
 
-    * { box-sizing:border-box; margin:0; padding:0; font-family:'Inter','Segoe UI',system-ui,sans-serif; }
-    body { background:var(--orange-light); color:#1f2937; min-height:100vh; -webkit-font-smoothing:antialiased; }
+    .stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;margin-bottom:1.5rem;}
+    .stat-card{background:var(--white);border-radius:var(--radius-lg);padding:1.25rem;box-shadow:var(--shadow);display:flex;align-items:center;gap:.9rem;}
+    .stat-ic{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.25rem;}
+    .stat-val{font-size:1.5rem;font-weight:800;line-height:1;}
+    .stat-lbl{font-size:.78rem;color:var(--gray);font-weight:600;margin-top:.2rem;}
 
-    header {
-      background:var(--orange); color:var(--white);
-      padding:1rem 1.5rem; display:flex; justify-content:space-between; align-items:center;
-      box-shadow:var(--shadow-lg); position:sticky; top:0; z-index:100;
-    }
-    .logo-wrap { display:flex; align-items:center; gap:.75rem; }
-    .logo-wrap img { width:36px; height:36px; border-radius:10px; object-fit:cover; box-shadow:0 2px 8px rgba(0,0,0,0.2); }
-    .logo-wrap h1 { font-size:1.15rem; font-weight:800; letter-spacing:-0.02em; }
-    .header-btns { display:flex; gap:.5rem; align-items:center; }
-    .header-btn { background:rgba(255,255,255,0.15); color:var(--white); border:none; padding:.5rem 1rem; border-radius:var(--radius-sm); cursor:pointer; font-size:.85rem; font-weight:600; transition:all .2s ease; }
-    .header-btn:hover { background:rgba(255,255,255,0.25); transform:translateY(-1px); }
+    .panel{background:var(--white);border-radius:var(--radius-xl);padding:1.75rem;box-shadow:var(--shadow-lg);margin-bottom:1.5rem;border:1px solid #f3f4f6;}
+    .panel h2{font-size:1.1rem;font-weight:800;margin-bottom:1.25rem;display:flex;align-items:center;gap:.5rem;}
+    .panel h2 i{color:var(--orange);}
 
-    .container { max-width:1100px; margin:0 auto; padding:1.5rem; }
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+    .field{margin-bottom:1rem;}
+    .field.full{grid-column:1/-1;}
+    .field label{display:block;font-size:.78rem;font-weight:700;margin-bottom:.4rem;color:#374151;}
+    .field input,.field select,.field textarea{width:100%;padding:.75rem .9rem;border:2px solid #e5e7eb;border-radius:var(--radius-sm);font-size:.9rem;outline:none;transition:all .2s ease;font-family:inherit;background:var(--white);}
+    .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--orange);box-shadow:0 0 0 3px var(--orange-glow);}
+    .field textarea{resize:vertical;min-height:80px;}
+    .field .hint{font-size:.72rem;color:var(--gray-light);margin-top:.3rem;}
 
-    .stats-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:1rem; margin-bottom:1.5rem; }
-    .stat-card { background:var(--white); border-radius:var(--radius-lg); padding:1.25rem; box-shadow:var(--shadow); display:flex; align-items:center; gap:.9rem; }
-    .stat-card .stat-ic { width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.25rem; }
-    .stat-card .stat-val { font-size:1.5rem; font-weight:800; line-height:1; }
-    .stat-card .stat-lbl { font-size:.78rem; color:var(--gray); font-weight:600; margin-top:.2rem; }
+    .options-builder{display:flex;flex-direction:column;gap:.5rem;}
+    .option-row{display:flex;gap:.5rem;align-items:center;}
+    .option-row input{flex:1;padding:.65rem .85rem;border:2px solid #e5e7eb;border-radius:var(--radius-sm);font-size:.9rem;outline:none;}
+    .option-row input:focus{border-color:var(--orange);}
+    .option-row .grip{color:var(--gray-light);font-size:1rem;}
+    .option-del{width:38px;height:38px;border:none;border-radius:var(--radius-sm);background:#fee2e2;color:var(--red);cursor:pointer;flex-shrink:0;transition:all .2s ease;}
+    .option-del:hover{background:var(--red);color:#fff;}
+    .add-option{align-self:flex-start;padding:.55rem 1rem;border:2px dashed var(--orange);background:var(--white);color:var(--orange);border-radius:var(--radius-sm);cursor:pointer;font-size:.82rem;font-weight:700;transition:all .2s ease;display:inline-flex;align-items:center;gap:.4rem;}
+    .add-option:hover{background:var(--orange-light);}
 
-    .panel { background:var(--white); border-radius:var(--radius-xl); padding:1.75rem; box-shadow:var(--shadow-lg); margin-bottom:1.5rem; border:1px solid #f3f4f6; }
-    .panel h2 { font-size:1.1rem; font-weight:800; margin-bottom:1.25rem; display:flex; align-items:center; gap:.5rem; }
-    .panel h2 i { color:var(--orange); }
+    .btn{padding:.875rem 1.5rem;border:none;border-radius:var(--radius-sm);font-weight:700;cursor:pointer;font-size:.9rem;transition:all .2s ease;display:inline-flex;align-items:center;justify-content:center;gap:.4rem;}
+    .btn-primary{background:var(--orange);color:#fff;box-shadow:0 4px 6px -1px rgba(249,115,22,0.3);width:100%;padding:1rem;}
+    .btn-primary:hover:not(:disabled){background:var(--orange-dark);transform:translateY(-1px);}
+    .btn-primary:disabled{background:#d1d5db;cursor:not-allowed;box-shadow:none;}
+    .btn-sm{padding:.5rem .9rem;font-size:.78rem;}
+    .btn-edit{background:#dbeafe;color:var(--blue);}
+    .btn-edit:hover{background:var(--blue);color:#fff;}
+    .btn-del{background:#fee2e2;color:var(--red);}
+    .btn-del:hover{background:var(--red);color:#fff;}
+    .btn-result{background:#fef3c7;color:#d97706;}
+    .btn-result:hover{background:#d97706;color:#fff;}
+    .btn-toggle{background:#f3f4f6;color:var(--gray);}
+    .btn-toggle.on{background:#dcfce7;color:var(--green);}
+    .btn-cancel{background:#f3f4f6;color:#4b5563;}
+    .btn-cancel:hover{background:#e5e7eb;}
 
-    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
-    .field { margin-bottom:1rem; }
-    .field.full { grid-column:1/-1; }
-    .field label { display:block; font-size:.78rem; font-weight:700; margin-bottom:.4rem; color:#374151; }
-    .field input, .field select, .field textarea {
-      width:100%; padding:.75rem .9rem; border:2px solid #e5e7eb; border-radius:var(--radius-sm);
-      font-size:.9rem; outline:none; transition:all .2s ease; font-family:inherit; background:var(--white);
-    }
-    .field input:focus, .field select:focus, .field textarea:focus { border-color:var(--orange); box-shadow:0 0 0 3px var(--orange-glow); }
-    .field textarea { resize:vertical; min-height:80px; }
-    .field .hint { font-size:.72rem; color:var(--gray-light); margin-top:.3rem; }
+    .toolbar{display:flex;gap:.5rem;align-items:center;margin-bottom:1rem;flex-wrap:wrap;}
+    .search-wrap{display:flex;align-items:center;gap:.6rem;background:var(--white);border:2px solid #e5e7eb;border-radius:var(--radius);padding:.55rem .9rem;flex:1;min-width:200px;}
+    .search-wrap input{flex:1;border:none;background:transparent;font-size:.88rem;outline:none;}
+    .filter-sel{padding:.55rem .8rem;border:2px solid #e5e7eb;border-radius:var(--radius);font-size:.85rem;background:var(--white);outline:none;cursor:pointer;}
 
-    .upload-area {
-      border:2px dashed #d1d5db; border-radius:var(--radius); padding:1.75rem; text-align:center;
-      cursor:pointer; transition:all .2s ease; background:#f9fafb; position:relative; min-height:160px;
-      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.5rem;
-    }
-    .upload-area:hover { border-color:var(--orange); background:var(--orange-light); }
-    .upload-area i { font-size:2rem; color:var(--orange); }
-    .upload-area p { font-size:.82rem; color:var(--gray); font-weight:600; }
-    .upload-area.has-img { padding:0; border-style:solid; min-height:auto; }
-    .upload-area img.preview { width:100%; border-radius:var(--radius); display:block; max-height:300px; object-fit:cover; }
-    .upload-area input { display:none; }
-    .img-clear { position:absolute; top:.6rem; right:.6rem; background:rgba(0,0,0,0.6); color:#fff; border:none; width:32px; height:32px; border-radius:50%; cursor:pointer; font-size:.9rem; }
+    .admin-table{width:100%;border-collapse:collapse;}
+    .admin-table th{text-align:left;font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--gray-light);font-weight:700;padding:.6rem .75rem;border-bottom:2px solid #f3f4f6;}
+    .admin-table td{padding:.75rem;border-bottom:1px solid #f3f4f6;vertical-align:middle;font-size:.85rem;}
+    .admin-table tr:hover{background:#fafafa;}
+    .topic-q{font-weight:700;color:#1f2937;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .topic-cat{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.03em;color:var(--gray-light);margin-top:.15rem;}
+    .price-cell{font-weight:800;color:var(--orange-dark);}
+    .badge{padding:.2rem .55rem;border-radius:6px;font-size:.68rem;font-weight:800;}
+    .b-open{background:#dcfce7;color:var(--green);}
+    .b-closed{background:#fee2e2;color:var(--red);}
+    .b-resulted{background:#dbeafe;color:var(--blue);}
+    .winner-tag{font-size:.72rem;color:var(--green);font-weight:700;margin-top:.2rem;display:flex;align-items:center;gap:.3rem;}
+    .row-actions{display:flex;gap:.4rem;}
 
-    .btn { padding:.875rem 1.5rem; border:none; border-radius:var(--radius-sm); font-weight:700; cursor:pointer; font-size:.9rem; transition:all .2s ease; display:inline-flex; align-items:center; justify-content:center; gap:.4rem; }
-    .btn-primary { background:var(--orange); color:#fff; box-shadow:0 4px 6px -1px rgba(249,115,22,0.3); width:100%; padding:1rem; }
-    .btn-primary:hover:not(:disabled) { background:var(--orange-dark); transform:translateY(-1px); }
-    .btn-primary:disabled { background:#d1d5db; cursor:not-allowed; box-shadow:none; }
-    .btn-sm { padding:.5rem .9rem; font-size:.78rem; border-radius:var(--radius-sm); }
-    .btn-edit { background:#dbeafe; color:var(--blue); }
-    .btn-edit:hover { background:var(--blue); color:#fff; }
-    .btn-del { background:#fee2e2; color:var(--red); }
-    .btn-del:hover { background:var(--red); color:#fff; }
-    .btn-toggle { background:#f3f4f6; color:var(--gray); }
-    .btn-toggle.on { background:#dcfce7; color:var(--green); }
+    .empty-state{text-align:center;padding:2.5rem 1rem;color:var(--gray);}
+    .empty-state i{font-size:2.5rem;margin-bottom:.75rem;color:#e5e7eb;}
 
-    .toolbar { display:flex; gap:.5rem; align-items:center; margin-bottom:1rem; flex-wrap:wrap; }
-    .search-wrap { display:flex; align-items:center; gap:.6rem; background:var(--white); border:2px solid #e5e7eb; border-radius:var(--radius); padding:.55rem .9rem; flex:1; min-width:200px; }
-    .search-wrap input { flex:1; border:none; background:transparent; font-size:.88rem; outline:none; }
-    .filter-sel { padding:.55rem .8rem; border:2px solid #e5e7eb; border-radius:var(--radius); font-size:.85rem; background:var(--white); outline:none; cursor:pointer; }
+    .access-block{background:var(--white);border-radius:var(--radius-xl);padding:2.5rem;text-align:center;box-shadow:var(--shadow-lg);margin:2rem auto;max-width:460px;}
+    .access-block .lock-icon{width:72px;height:72px;background:linear-gradient(135deg,#fee2e2,#fecaca);color:var(--red);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem;font-size:1.75rem;box-shadow:0 4px 12px rgba(220,38,38,0.2);}
+    .access-block h2{font-size:1.3rem;margin-bottom:.5rem;font-weight:800;}
+    .access-block p{color:var(--gray);margin-bottom:1.5rem;font-size:.9rem;line-height:1.6;}
 
-    .admin-table { width:100%; border-collapse:collapse; }
-    .admin-table th { text-align:left; font-size:.72rem; text-transform:uppercase; letter-spacing:.05em; color:var(--gray-light); font-weight:700; padding:.6rem .75rem; border-bottom:2px solid #f3f4f6; }
-    .admin-table td { padding:.75rem; border-bottom:1px solid #f3f4f6; vertical-align:middle; font-size:.85rem; }
-    .admin-table tr:hover { background:#fafafa; }
-    .prod-thumb { width:48px; height:48px; border-radius:8px; object-fit:cover; background:#f3f4f6; }
-    .prod-name-cell { font-weight:700; color:#1f2937; }
-    .prod-meta-cell { font-size:.72rem; color:var(--gray); }
-    .price-cell { font-weight:800; color:var(--orange-dark); }
-    .badge { padding:.2rem .55rem; border-radius:6px; font-size:.68rem; font-weight:800; }
-    .badge-on { background:#dcfce7; color:var(--green); }
-    .badge-off { background:#fee2e2; color:var(--red); }
-    .row-actions { display:flex; gap:.4rem; }
+    .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;justify-content:center;align-items:center;z-index:2000;padding:1rem;backdrop-filter:blur(4px);}
+    .modal{background:var(--white);border-radius:var(--radius-xl);padding:1.75rem;max-width:420px;width:100%;animation:modalIn .35s cubic-bezier(0.16,1,0.3,1);box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);text-align:center;max-height:90vh;overflow-y:auto;}
+    @keyframes modalIn{from{opacity:0;transform:scale(.92) translateY(10px);}to{opacity:1;transform:scale(1) translateY(0);}}
+    .modal-icon{font-size:2.75rem;margin-bottom:.75rem;}
+    .modal-title{font-size:1.15rem;font-weight:800;margin-bottom:.5rem;}
+    .modal-text{color:var(--gray);margin-bottom:1.25rem;line-height:1.5;}
+    .modal-actions{display:flex;gap:.75rem;}
+    .modal-actions .btn{flex:1;}
+    .result-options{display:flex;flex-direction:column;gap:.6rem;text-align:left;margin-bottom:1.25rem;}
+    .result-opt{display:flex;align-items:center;gap:.6rem;padding:.75rem .9rem;border:2px solid #e5e7eb;border-radius:var(--radius-sm);cursor:pointer;transition:all .2s ease;}
+    .result-opt:hover{border-color:var(--orange);background:var(--orange-light);}
+    .result-opt input{accent-color:var(--orange);width:18px;height:18px;}
+    .result-opt .ro-stats{font-size:.72rem;color:var(--gray);margin-top:.1rem;}
 
-    .empty-state { text-align:center; padding:2.5rem 1rem; color:var(--gray); }
-    .empty-state i { font-size:2.5rem; margin-bottom:.75rem; color:#e5e7eb; }
-
-    /* KYC / Access block */
-    .access-block { background:var(--white); border-radius:var(--radius-xl); padding:2.5rem; text-align:center; box-shadow:var(--shadow-lg); margin:2rem auto; max-width:460px; }
-    .access-block .lock-icon { width:72px; height:72px; background:linear-gradient(135deg,#fee2e2,#fecaca); color:var(--red); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 1.25rem; font-size:1.75rem; box-shadow:0 4px 12px rgba(220,38,38,0.2); }
-    .access-block h2 { font-size:1.3rem; margin-bottom:.5rem; font-weight:800; }
-    .access-block p { color:var(--gray); margin-bottom:1.5rem; font-size:.9rem; line-height:1.6; }
-    .access-block .btn { padding:.875rem 2rem; }
-
-    /* Modal */
-    .modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.5); display:none; justify-content:center; align-items:center; z-index:2000; padding:1rem; backdrop-filter:blur(4px); }
-    .modal { background:var(--white); border-radius:var(--radius-xl); padding:1.75rem; max-width:380px; width:100%; animation:modalIn .35s cubic-bezier(0.16,1,0.3,1); box-shadow:0 25px 50px -12px rgba(0,0,0,0.25); text-align:center; }
-    @keyframes modalIn { from{opacity:0; transform:scale(.92) translateY(10px);} to{opacity:1; transform:scale(1) translateY(0);} }
-    .modal-icon { font-size:3rem; margin-bottom:.75rem; }
-    .modal-title { font-size:1.15rem; font-weight:800; margin-bottom:.5rem; }
-    .modal-text { color:var(--gray); margin-bottom:1.25rem; line-height:1.5; }
-    .modal-actions { display:flex; gap:.75rem; }
-    .modal-actions .btn { flex:1; }
-    .btn-cancel { background:#f3f4f6; color:#4b5563; }
-    .btn-cancel:hover { background:#e5e7eb; }
-
-    .toast-notification { position:fixed; bottom:2rem; left:50%; transform:translateX(-50%); background:#1f2937; color:white; padding:.875rem 1.5rem; border-radius:var(--radius); font-size:.9rem; font-weight:600; z-index:5000; animation:slideUp .3s ease; box-shadow:var(--shadow-lg); display:flex; align-items:center; }
-    @keyframes slideUp { from{opacity:0; transform:translateX(-50%) translateY(20px);} to{opacity:1; transform:translateX(-50%) translateY(0);} }
-
-    .hidden { display:none !important; }
-    ::-webkit-scrollbar { width:6px; height:6px; }
-    ::-webkit-scrollbar-thumb { background:#d1d5db; border-radius:3px; }
-
-    @media (max-width:680px) {
-      .form-grid { grid-template-columns:1fr; }
-      .admin-table thead { display:none; }
-      .admin-table, .admin-table tbody, .admin-table tr, .admin-table td { display:block; width:100%; }
-      .admin-table tr { background:var(--white); border-radius:var(--radius); margin-bottom:.75rem; padding:.5rem; box-shadow:var(--shadow-sm); }
-      .admin-table td { border:none; display:flex; justify-content:space-between; align-items:center; gap:.5rem; }
+    .toast-notification{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:#1f2937;color:white;padding:.875rem 1.5rem;border-radius:var(--radius);font-size:.9rem;font-weight:600;z-index:5000;animation:slideUp .3s ease;box-shadow:var(--shadow-lg);display:flex;align-items:center;}
+    @keyframes slideUp{from{opacity:0;transform:translateX(-50%) translateY(20px);}to{opacity:1;transform:translateX(-50%) translateY(0);}}
+    .hidden{display:none !important;}
+    ::-webkit-scrollbar{width:6px;height:6px;}
+    ::-webkit-scrollbar-thumb{background:#d1d5db;border-radius:3px;}
+    @media (max-width:680px){
+      .form-grid{grid-template-columns:1fr;}
+      .admin-table thead{display:none;}
+      .admin-table,.admin-table tbody,.admin-table tr,.admin-table td{display:block;width:100%;}
+      .admin-table tr{background:var(--white);border-radius:var(--radius);margin-bottom:.75rem;padding:.5rem;box-shadow:var(--shadow-sm);}
+      .admin-table td{border:none;display:flex;justify-content:space-between;align-items:center;gap:.5rem;}
+      .topic-q{max-width:200px;}
     }
   </style>
 </head>
@@ -155,134 +134,112 @@
 <header>
   <div class="logo-wrap">
     <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" alt="TaskVault"/>
-    <h1>Admin \u00b7 Marketplace</h1>
+    <h1>Admin \u00b7 Stakes</h1>
   </div>
   <div class="header-btns">
-    <button class="header-btn" onclick="location.href='marketplace.html'"><i class="fas fa-store"></i> View Market</button>
-    <button class="header-btn" onclick="location.href='stake.html'"><i class="fas fa-coins"></i> Stake</button>
+    <a class="header-btn" href="stake.html"><i class="fas fa-coins"></i> View Stakes</a>
+    <a class="header-btn" href="admin-marketplace.html"><i class="fas fa-coins"></i> Market Admin</a>
   </div>
 </header>
 
 <div class="container">
-  <!-- Loading -->
-  <div id="loadingState" style="text-align:center; padding:3rem;">
-    <i class="fas fa-spinner fa-spin" style="font-size:2rem; color:var(--orange);"></i>
-    <p style="margin-top:.75rem; color:var(--gray);">Checking admin access...</p>
+  <div id="loadingState" style="text-align:center;padding:3rem;">
+    <i class="fas fa-spinner fa-spin" style="font-size:2rem;color:var(--orange);"></i>
+    <p style="margin-top:.75rem;color:var(--gray);">Checking admin access...</p>
   </div>
 
-  <!-- Access Denied -->
   <div id="accessBlock" class="access-block hidden">
     <div class="lock-icon"><i class="fas fa-user-shield"></i></div>
     <h2>Admin Access Required</h2>
-    <p id="accessMsg">This page is restricted to administrators. If you believe this is an error, ask a super admin to grant you the admin role.</p>
-    <button class="btn btn-primary" style="width:auto;" onclick="location.href='marketplace.html'"><i class="fas fa-arrow-left"></i> Back to Marketplace</button>
+    <p id="accessMsg">This page is restricted to administrators.</p>
+    <button class="btn btn-primary" style="width:auto;" onclick="location.href='stake.html'"><i class="fas fa-arrow-left"></i> Back to Stakes</button>
   </div>
 
-  <!-- Admin App -->
   <div id="adminApp" class="hidden">
-    <!-- Stats -->
     <div class="stats-row">
-      <div class="stat-card">
-        <div class="stat-ic" style="background:var(--orange-light); color:var(--orange);"><i class="fas fa-box"></i></div>
-        <div><div class="stat-val" id="statTotal">0</div><div class="stat-lbl">Total Products</div></div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-ic" style="background:#dcfce7; color:var(--green);"><i class="fas fa-circle-check"></i></div>
-        <div><div class="stat-val" id="statActive">0</div><div class="stat-lbl">Active</div></div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-ic" style="background:#fee2e2; color:var(--red);"><i class="fas fa-circle-minus"></i></div>
-        <div><div class="stat-val" id="statInactive">0</div><div class="stat-lbl">Inactive</div></div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-ic" style="background:#dbeafe; color:var(--blue);"><i class="fas fa-coins"></i></div>
-        <div><div class="stat-val" id="statValue">$0</div><div class="stat-lbl">Stock Value</div></div>
-      </div>
+      <div class="stat-card"><div class="stat-ic" style="background:var(--orange-light);color:var(--orange);"><i class="fas fa-lightbulb"></i></div><div><div class="stat-val" id="statTotal">0</div><div class="stat-lbl">Total Topics</div></div></div>
+      <div class="stat-card"><div class="stat-ic" style="background:#dcfce7;color:var(--green);"><i class="fas fa-circle-check"></i></div><div><div class="stat-val" id="statOpen">0</div><div class="stat-lbl">Open</div></div></div>
+      <div class="stat-card"><div class="stat-ic" style="background:#fee2e2;color:var(--red);"><i class="fas fa-lock"></i></div><div><div class="stat-val" id="statClosed">0</div><div class="stat-lbl">Closed</div></div></div>
+      <div class="stat-card"><div class="stat-ic" style="background:#dbeafe;color:var(--blue);"><i class="fas fa-trophy"></i></div><div><div class="stat-val" id="statResulted">0</div><div class="stat-lbl">Resulted</div></div></div>
+      <div class="stat-card"><div class="stat-ic" style="background:#f3e8ff;color:var(--purple);"><i class="fas fa-coins"></i></div><div><div class="stat-val" id="statVolume">$0</div><div class="stat-lbl">Staked Volume</div></div></div>
     </div>
 
-    <!-- Upload Panel -->
     <div class="panel">
-      <h2 id="formTitle"><i class="fas fa-cloud-arrow-up"></i> <span id="formTitleText">Upload New Product</span></h2>
+      <h2><i class="fas fa-cloud-arrow-up"></i> <span id="formTitleText">Create Prediction Topic</span></h2>
       <div class="form-grid">
-        <div class="field full">
-          <label>Product Image</label>
-          <div class="upload-area" id="uploadArea">
-            <input type="file" id="imageInput" accept="image/*"/>
-            <i class="fas fa-image"></i>
-            <p>Click to upload product photo (JPG / PNG)</p>
-            <p style="font-size:.7rem; color:var(--gray-light);">Auto-compressed to base64 \u2014 stays under Firestore limits</p>
-          </div>
-        </div>
-        <div class="field full">
-          <label>Product Name *</label>
-          <input type="text" id="pName" placeholder="e.g. TaskVault Premium Hoodie"/>
-        </div>
-        <div class="field full">
-          <label>Description</label>
-          <textarea id="pDesc" placeholder="Details, specs, materials, sizing..."></textarea>
-        </div>
-        <div class="field">
-          <label>Price ($) *</label>
-          <input type="number" id="pPrice" min="0.01" step="0.01" placeholder="0.00"/>
-        </div>
-        <div class="field">
-          <label>Stock Quantity *</label>
-          <input type="number" id="pStock" min="0" step="1" placeholder="0"/>
-        </div>
         <div class="field">
           <label>Category</label>
-          <select id="pCategory">
-            <option value="electronics">Electronics</option>
-            <option value="fashion">Fashion</option>
-            <option value="home">Home</option>
-            <option value="gaming">Gaming</option>
-            <option value="groceries">Groceries</option>
-            <option value="other">Other</option>
+          <select id="tCategory">
+            <option value="sports">Sports</option>
+            <option value="crypto">Crypto</option>
+            <option value="reallife">Real Life</option>
+            <option value="entertainment">Entertainment</option>
           </select>
+        </div>
+        <div class="field">
+          <label>Deadline &amp; Time</label>
+          <input type="datetime-local" id="tDeadline"/>
+          <div class="hint">When staking closes for this topic.</div>
+        </div>
+        <div class="field full">
+          <label>Question *</label>
+          <input type="text" id="tQuestion" placeholder="e.g. Will Bitcoin close above $100k this week?"/>
+        </div>
+        <div class="field full">
+          <label>Description / Instructions</label>
+          <textarea id="tDesc" placeholder="Rules, sources, settlement details..."></textarea>
+        </div>
+        <div class="field full">
+          <label>Options (what users stake on) *</label>
+          <div class="options-builder" id="optionsBuilder"></div>
+          <button class="add-option" id="addOptionBtn" style="margin-top:.5rem;"><i class="fas fa-plus"></i> Add Option</button>
         </div>
         <div class="field">
           <label>Status</label>
-          <select id="pActive">
+          <select id="tStatus">
+            <option value="open">Open</option>
+            <option value="closed">Closed</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Visibility</label>
+          <select id="tActive">
             <option value="true">Active (visible)</option>
-            <option value="false">Inactive (hidden)</option>
+            <option value="false">Hidden</option>
           </select>
         </div>
       </div>
-      <div style="display:flex; gap:.75rem; margin-top:.5rem;">
-        <button class="btn btn-primary" id="saveBtn"><i class="fas fa-check"></i> <span id="saveBtnText">Publish Product</span></button>
+      <div style="display:flex;gap:.75rem;margin-top:.5rem;">
+        <button class="btn btn-primary" id="saveBtn"><i class="fas fa-check"></i> <span id="saveBtnText">Publish Topic</span></button>
         <button class="btn btn-cancel" id="cancelEditBtn" style="display:none;"><i class="fas fa-xmark"></i> Cancel Edit</button>
       </div>
     </div>
 
-    <!-- Manage Panel -->
     <div class="panel">
-      <h2><i class="fas fa-list"></i> Manage Products</h2>
+      <h2><i class="fas fa-list"></i> Manage Topics</h2>
       <div class="toolbar">
         <div class="search-wrap">
           <i class="fas fa-search" style="color:var(--gray-light);"></i>
-          <input type="text" id="adminSearch" placeholder="Search products..."/>
+          <input type="text" id="adminSearch" placeholder="Search topics..."/>
         </div>
-        <select class="filter-sel" id="adminFilter">
-          <option value="all">All categories</option>
-          <option value="electronics">Electronics</option>
-          <option value="fashion">Fashion</option>
-          <option value="home">Home</option>
-          <option value="gaming">Gaming</option>
-          <option value="groceries">Groceries</option>
-          <option value="other">Other</option>
-        </select>
         <select class="filter-sel" id="adminStatusFilter">
           <option value="all">All status</option>
-          <option value="active">Active</option>
-          <option value="inactive">Inactive</option>
+          <option value="open">Open</option>
+          <option value="closed">Closed</option>
+          <option value="resulted">Resulted</option>
+        </select>
+        <select class="filter-sel" id="adminCatFilter">
+          <option value="all">All categories</option>
+          <option value="sports">Sports</option>
+          <option value="crypto">Crypto</option>
+          <option value="reallife">Real Life</option>
+          <option value="entertainment">Entertainment</option>
         </select>
       </div>
       <div style="overflow-x:auto;">
         <table class="admin-table">
-          <thead>
-            <tr><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th>Actions</th></tr>
-          </thead>
-          <tbody id="productsTbody"></tbody>
+          <thead><tr><th>Topic</th><th>Options</th><th>Pool</th><th>Deadline</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="topicsTbody"></tbody>
         </table>
       </div>
     </div>
@@ -292,7 +249,7 @@
 <!-- Confirm Modal -->
 <div class="modal-backdrop" id="confirmModal">
   <div class="modal">
-    <div class="modal-icon" id="confirmIcon" style="color:var(--red);"><i class="fas fa-triangle-exclamation"></i></div>
+    <div class="modal-icon" style="color:var(--red);"><i class="fas fa-triangle-exclamation"></i></div>
     <div class="modal-title" id="confirmTitle">Are you sure?</div>
     <p class="modal-text" id="confirmText">This action cannot be undone.</p>
     <div class="modal-actions">
@@ -302,12 +259,27 @@
   </div>
 </div>
 
-<!-- Success Modal -->
+<!-- Declare Result Modal -->
+<div class="modal-backdrop" id="resultModal">
+  <div class="modal" style="text-align:left;">
+    <div style="text-align:center;margin-bottom:1rem;">
+      <div class="modal-icon" style="color:var(--orange);"><i class="fas fa-trophy"></i></div>
+      <div class="modal-title">Declare Result</div>
+      <p class="modal-text" id="resultTopicName" style="margin-bottom:0;">Select the winning option.</p>
+    </div>
+    <div class="result-options" id="resultOptions"></div>
+    <div class="modal-actions">
+      <button class="btn btn-cancel" onclick="closeModal('resultModal')">Cancel</button>
+      <button class="btn btn-primary" id="confirmResultBtn"><i class="fas fa-trophy"></i> Set Winner</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-backdrop" id="successModal">
   <div class="modal">
     <div class="modal-icon" style="color:var(--green);"><i class="fas fa-check-circle"></i></div>
     <div class="modal-title">Done!</div>
-    <p class="modal-text" id="successText">Product saved successfully.</p>
+    <p class="modal-text" id="successText">Topic saved successfully.</p>
     <button class="btn btn-primary" onclick="closeModal('successModal')">OK</button>
   </div>
 </div>
@@ -316,8 +288,8 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
   import {
-    getFirestore, doc, getDoc, collection, query, where, orderBy,
-    getDocs, addDoc, setDoc, updateDoc, deleteDoc, serverTimestamp, onSnapshot
+    getFirestore, doc, collection, query, orderBy,
+    getDocs, addDoc, updateDoc, deleteDoc, serverTimestamp, onSnapshot
   } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -328,21 +300,17 @@
     messagingSenderId: "420716701831",
     appId: "1:420716701831:web:c987d91f7f4c8684eb7022"
   };
-
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
 
-  // Only these two accounts can access the admin page.
-  const ADMIN_EMAILS = [
-    'beniwealth70@gmail.com',
-    'baasituoppor01@gmail.com'
-  ];
+  const ADMIN_EMAILS = ['beniwealth70@gmail.com', 'baasituoppor01@gmail.com'];
 
   let currentUser = null;
-  let allProducts = [];
+  let allTopics = [];
   let editingId = null;
-  let imageBase64 = null;
+  let topicOptions = []; // {id, label, totalStaked, stakerCount}
+  let resultTargetId = null;
 
   const loadingState = document.getElementById('loadingState');
   const accessBlock = document.getElementById('accessBlock');
@@ -351,98 +319,208 @@
   onAuthStateChanged(auth, async (user) => {
     if (!user) { location.href = 'login.html'; return; }
     currentUser = user;
-
-    // ---- Admin check: strict email allowlist ----
     const email = (user.email || '').trim().toLowerCase();
     const isAdmin = ADMIN_EMAILS.includes(email);
-
     loadingState.classList.add('hidden');
-
     if (!isAdmin) {
-      document.getElementById('accessMsg').textContent =
-        'This page is restricted to administrators. Signed in as ' + (user.email || 'unknown account') + '.';
+      document.getElementById('accessMsg').textContent = 'This page is restricted to administrators. Signed in as ' + (user.email || 'unknown account') + '.';
       accessBlock.classList.remove('hidden');
       return;
     }
-
     adminApp.classList.remove('hidden');
     setupForm();
-    loadProducts();
+    loadTopics();
   });
 
-  // ---- Real-time products ----
-  function loadProducts() {
-    const q = query(collection(db, 'products'), orderBy('createdAt', 'desc'));
+  // default deadline = +24h, rounded
+  function defaultDeadline() {
+    const d = new Date(Date.now() + 24*3600*1000);
+    const off = d.getTimezoneOffset();
+    const local = new Date(d.getTime() - off*60000);
+    return local.toISOString().slice(0,16);
+  }
+
+  // ---------- Options builder ----------
+  const optionsBuilder = document.getElementById('optionsBuilder');
+  document.getElementById('addOptionBtn').addEventListener('click', () => {
+    topicOptions.push({ id: null, label: '', totalStaked: 0, stakerCount: 0 });
+    renderOptions();
+  });
+
+  function renderOptions() {
+    if (topicOptions.length === 0) {
+      topicOptions = [
+        { id: null, label: '', totalStaked: 0, stakerCount: 0 },
+        { id: null, label: '', totalStaked: 0, stakerCount: 0 }
+      ];
+    }
+    optionsBuilder.innerHTML = topicOptions.map((o, i) => `
+      <div class="option-row">
+        <span class="grip"><i class="fas fa-grip-vertical"></i></span>
+        <input type="text" data-i="${i}" class="opt-input" placeholder="Option ${i+1}" value="${escapeAttr(o.label||'')}"/>
+        <button class="option-del" data-i="${i}" title="Remove"><i class="fas fa-xmark"></i></button>
+      </div>
+    `).join('');
+    optionsBuilder.querySelectorAll('.opt-input').forEach(inp => {
+      inp.addEventListener('input', (e) => { topicOptions[+e.target.dataset.i].label = e.target.value; });
+    });
+    optionsBuilder.querySelectorAll('.option-del').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const i = +e.currentTarget.dataset.i;
+        topicOptions.splice(i, 1);
+        renderOptions();
+      });
+    });
+  }
+
+  // ---------- Form ----------
+  function setupForm() {
+    document.getElementById('tDeadline').value = defaultDeadline();
+    topicOptions = [];
+    renderOptions();
+    document.getElementById('saveBtn').addEventListener('click', saveTopic);
+    document.getElementById('cancelEditBtn').addEventListener('click', resetForm);
+  }
+
+  function resetForm() {
+    editingId = null;
+    document.getElementById('tCategory').value = 'sports';
+    document.getElementById('tQuestion').value = '';
+    document.getElementById('tDesc').value = '';
+    document.getElementById('tDeadline').value = defaultDeadline();
+    document.getElementById('tStatus').value = 'open';
+    document.getElementById('tActive').value = 'true';
+    topicOptions = [];
+    renderOptions();
+    document.getElementById('formTitleText').textContent = 'Create Prediction Topic';
+    document.getElementById('saveBtnText').textContent = 'Publish Topic';
+    document.getElementById('cancelEditBtn').style.display = 'none';
+  }
+
+  function genOptId(label) {
+    return 'opt_' + Math.random().toString(36).slice(2, 8) + '_' + (label||'').toLowerCase().replace(/[^a-z0-9]+/g,'').slice(0,6);
+  }
+
+  async function saveTopic() {
+    const category = document.getElementById('tCategory').value;
+    const question = document.getElementById('tQuestion').value.trim();
+    const desc = document.getElementById('tDesc').value.trim();
+    const deadlineStr = document.getElementById('tDeadline').value;
+    const status = document.getElementById('tStatus').value;
+    const isActive = document.getElementById('tActive').value === 'true';
+
+    if (!question) return showToast('Enter a question');
+    if (!deadlineStr) return showToast('Set a deadline');
+    const cleanOpts = topicOptions.map(o => ({ ...o, label: (o.label||'').trim() })).filter(o => o.label);
+    if (cleanOpts.length < 2) return showToast('Add at least 2 options');
+
+    const options = cleanOpts.map(o => ({
+      id: o.id || genOptId(o.label),
+      label: o.label,
+      totalStaked: o.totalStaked || 0,
+      stakerCount: o.stakerCount || 0
+    }));
+    const deadline = new Date(deadlineStr);
+
+    const btn = document.getElementById('saveBtn');
+    btn.disabled = true;
+    document.getElementById('saveBtnText').textContent = 'Saving...';
+
+    const payload = {
+      category, question, description: desc,
+      deadline, status, isActive,
+      options,
+      updatedAt: serverTimestamp()
+    };
+
+    try {
+      if (editingId) {
+        await updateDoc(docRef(editingId), payload);
+        document.getElementById('successText').textContent = 'Topic updated successfully.';
+      } else {
+        payload.postedAt = serverTimestamp();
+        payload.createdAt = serverTimestamp();
+        payload.totalPool = 0;
+        payload.createdBy = currentUser.uid;
+        await addDoc(collection(db, 'predictionTopics'), payload);
+        document.getElementById('successText').textContent = 'Topic published!';
+      }
+      resetForm();
+      openModal('successModal');
+    } catch (err) {
+      console.error('[Admin] save', err);
+      showToast('Save failed: ' + (err.message || 'unknown error'));
+    } finally {
+      btn.disabled = false;
+      document.getElementById('saveBtnText').textContent = editingId ? 'Update Topic' : 'Publish Topic';
+    }
+  }
+
+
+  // ---------- Load / stats / table ----------
+  function loadTopics() {
+    const q = query(collection(db, 'predictionTopics'), orderBy('postedAt', 'desc'));
     onSnapshot(q, (snap) => {
-      allProducts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      updateStats();
-      renderTable();
-    }, (err) => {
-      console.error('[Admin] snapshot error', err);
-      // fallback without orderBy
-      getDocs(collection(db, 'products')).then(snap => {
-        allProducts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        allProducts.sort((a,b) => (b.createdAt?.toMillis?.()||0) - (a.createdAt?.toMillis?.()||0));
-        updateStats();
-        renderTable();
+      allTopics = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      updateStats(); renderTable();
+    }, () => {
+      getDocs(collection(db, 'predictionTopics')).then(snap => {
+        allTopics = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        allTopics.sort((a,b)=>(b.postedAt?.toMillis?.()||0)-(a.postedAt?.toMillis?.()||0));
+        updateStats(); renderTable();
       });
     });
   }
 
   function updateStats() {
-    const total = allProducts.length;
-    const active = allProducts.filter(p => p.isActive !== false).length;
-    const inactive = total - active;
-    const value = allProducts.reduce((sum, p) => sum + ((p.price||0) * (p.stock||0)), 0);
+    const total = allTopics.length;
+    const count = (s) => allTopics.filter(t => (t.status||'open')===s).length;
+    const vol = allTopics.reduce((s,t)=>s+(t.totalPool||0),0);
     document.getElementById('statTotal').textContent = total;
-    document.getElementById('statActive').textContent = active;
-    document.getElementById('statInactive').textContent = inactive;
-    document.getElementById('statValue').textContent = '$' + value.toFixed(2);
+    document.getElementById('statOpen').textContent = count('open');
+    document.getElementById('statClosed').textContent = count('closed');
+    document.getElementById('statResulted').textContent = count('resulted');
+    document.getElementById('statVolume').textContent = '$' + vol.toFixed(2);
   }
 
   function renderTable() {
-    const tbody = document.getElementById('productsTbody');
+    const tbody = document.getElementById('topicsTbody');
     const q = document.getElementById('adminSearch').value.trim().toLowerCase();
-    const cat = document.getElementById('adminFilter').value;
-    const stat = document.getElementById('adminStatusFilter').value;
-
-    let list = allProducts;
-    if (cat !== 'all') list = list.filter(p => (p.category||'other') === cat);
-    if (stat !== 'all') list = list.filter(p => stat === 'active' ? p.isActive !== false : p.isActive === false);
-    if (q) list = list.filter(p => (p.name||'').toLowerCase().includes(q) || (p.description||'').toLowerCase().includes(q));
+    const st = document.getElementById('adminStatusFilter').value;
+    const cat = document.getElementById('adminCatFilter').value;
+    let list = allTopics;
+    if (st !== 'all') list = list.filter(t => (t.status||'open')===st);
+    if (cat !== 'all') list = list.filter(t => (t.category||'')===cat);
+    if (q) list = list.filter(t => (t.question||'').toLowerCase().includes(q) || (t.description||'').toLowerCase().includes(q));
 
     if (list.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><i class="fas fa-box-open"></i><p>No products found. Upload your first product above.</p></div></td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><i class="fas fa-lightbulb"></i><p>No topics found. Create one above.</p></div></td></tr>`;
       return;
     }
-
-    tbody.innerHTML = list.map(p => {
-      const active = p.isActive !== false;
-      const stock = p.stock != null ? p.stock : '\u2014';
-      const lowStock = (typeof stock === 'number' && stock <= 3);
-      const thumb = p.image ? p.image : 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48"><rect width="48" height="48" fill="#f3f4f6"/></svg>');
+    tbody.innerHTML = list.map(t => {
+      const status = t.status || 'open';
+      const badge = status === 'open' ? 'b-open' : status === 'closed' ? 'b-closed' : 'b-resulted';
+      const opts = t.options || [];
+      const winner = opts.find(o => o.id === t.winningOptionId);
+      const deadline = t.deadline?.toDate ? t.deadline.toDate().toLocaleString(undefined,{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}) : '\u2014';
+      const past = t.deadline?.toDate ? t.deadline.toDate() < new Date() : false;
       return `
         <tr>
           <td>
-            <div style="display:flex; align-items:center; gap:.6rem;">
-              <img src="${thumb}" class="prod-thumb" alt=""/>
-              <div>
-                <div class="prod-name-cell">${escapeHtml(p.name||'Untitled')}</div>
-                <div class="prod-meta-cell">${(p.description||'').slice(0,40)}${(p.description||'').length>40?'\u2026':''}</div>
-              </div>
-            </div>
+            <div class="topic-q">${escapeHtml(t.question||'Untitled')}</div>
+            <div class="topic-cat">${escapeHtml(t.category||'general')}</div>
+            ${winner ? `<div class="winner-tag"><i class="fas fa-trophy"></i> ${escapeHtml(winner.label)}</div>` : ''}
           </td>
-          <td style="text-transform:capitalize;">${escapeHtml(p.category||'other')}</td>
-          <td class="price-cell">$${(p.price||0).toFixed(2)}</td>
-          <td style="${lowStock?'color:var(--red);font-weight:700;':''}">${stock}${lowStock?' \u26a0\ufe0f':''}</td>
-          <td><span class="badge ${active?'badge-on':'badge-off'}">${active?'Active':'Hidden'}</span></td>
+          <td>${opts.length}</td>
+          <td class="price-cell">$${(t.totalPool||0).toFixed(2)}</td>
+          <td style="color:${past?'var(--red)':'inherit'};font-weight:${past?700:400};">${deadline}</td>
+          <td><span class="badge ${badge}">${status[0].toUpperCase()+status.slice(1)}</span></td>
           <td>
             <div class="row-actions">
-              <button class="btn btn-sm btn-toggle ${active?'on':''}" onclick="toggleActive('${p.id}', ${!active})" title="${active?'Hide':'Show'}">
-                <i class="fas ${active?'fa-eye-slash':'fa-eye'}"></i>
-              </button>
-              <button class="btn btn-sm btn-edit" onclick="editProduct('${p.id}')" title="Edit"><i class="fas fa-pen"></i></button>
-              <button class="btn btn-sm btn-del" onclick="askDelete('${p.id}','${escapeHtml(p.name||'this product').replace(/'/g,"\\'")}')" title="Delete"><i class="fas fa-trash"></i></button>
+              <button class="btn btn-sm btn-result" onclick="declareResult('${t.id}')" title="Declare result"><i class="fas fa-trophy"></i></button>
+              <button class="btn btn-sm btn-toggle ${status==='open'?'on':''}" onclick="toggleStatus('${t.id}','${status}')" title="${status==='open'?'Close':'Reopen'}"><i class="fas ${status==='open'?'fa-lock':'fa-lock-open'}"></i></button>
+              <button class="btn btn-sm btn-edit" onclick="editTopic('${t.id}')" title="Edit"><i class="fas fa-pen"></i></button>
+              <button class="btn btn-sm btn-del" onclick="askDelete('${t.id}','${escapeHtml((t.question||'this topic')).replace(/'/g,"\\'")}') " title="Delete"><i class="fas fa-trash"></i></button>
             </div>
           </td>
         </tr>
@@ -450,217 +528,104 @@
     }).join('');
   }
 
-  ['adminSearch','adminFilter','adminStatusFilter'].forEach(id => {
+  ['adminSearch','adminStatusFilter','adminCatFilter'].forEach(id => {
     document.getElementById(id).addEventListener('input', renderTable);
     document.getElementById(id).addEventListener('change', renderTable);
   });
 
-  // ---- Form / image handling ----
-  const uploadArea = document.getElementById('uploadArea');
-  const imageInput = document.getElementById('imageInput');
-
-  function setupForm() {
-    uploadArea.addEventListener('click', () => imageInput.click());
-    imageInput.addEventListener('change', async (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-      if (!file.type.startsWith('image/')) { showToast('Please choose an image file'); return; }
-      try {
-        imageBase64 = await compressImage(file, 900, 0.72);
-        uploadArea.classList.add('has-img');
-        uploadArea.innerHTML = `
-          <input type="file" id="imageInput" accept="image/*"/>
-          <img src="${imageBase64}" class="preview" alt="preview"/>
-          <button class="img-clear" onclick="event.stopPropagation(); clearImage()"><i class="fas fa-xmark"></i></button>
-        `;
-        bindImageInput();
-      } catch (err) { showToast('Could not process image'); }
-    });
-  }
-
-  function bindImageInput() {
-    const inp = document.getElementById('imageInput');
-    if (!inp) return;
-    inp.addEventListener('change', async (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-      if (!file.type.startsWith('image/')) { showToast('Please choose an image file'); return; }
-      try {
-        imageBase64 = await compressImage(file, 900, 0.72);
-        uploadArea.classList.add('has-img');
-        uploadArea.innerHTML = `
-          <input type="file" id="imageInput" accept="image/*"/>
-          <img src="${imageBase64}" class="preview" alt="preview"/>
-          <button class="img-clear" onclick="event.stopPropagation(); clearImage()"><i class="fas fa-xmark"></i></button>
-        `;
-        bindImageInput();
-      } catch (err) { showToast('Could not process image'); }
-    });
-  }
-
-  window.clearImage = function() { resetImage(); };
-
-  function resetImage() {
-    imageBase64 = null;
-    uploadArea.classList.remove('has-img');
-    uploadArea.innerHTML = `
-      <input type="file" id="imageInput" accept="image/*"/>
-      <i class="fas fa-image"></i>
-      <p>Click to upload product photo (JPG / PNG)</p>
-      <p style="font-size:.7rem; color:var(--gray-light);">Auto-compressed to base64 \u2014 stays under Firestore limits</p>
-    `;
-    bindImageInput();
-  }
-
-  function resetForm() {
-    editingId = null;
-    imageBase64 = null;
-    document.getElementById('pName').value = '';
-    document.getElementById('pDesc').value = '';
-    document.getElementById('pPrice').value = '';
-    document.getElementById('pStock').value = '';
-    document.getElementById('pCategory').value = 'electronics';
-    document.getElementById('pActive').value = 'true';
-    document.getElementById('formTitleText').textContent = 'Upload New Product';
-    document.getElementById('saveBtnText').textContent = 'Publish Product';
-    document.getElementById('cancelEditBtn').style.display = 'none';
-    resetImage();
-  }
-
-  document.getElementById('saveBtn').addEventListener('click', async () => {
-    const name = document.getElementById('pName').value.trim();
-    const desc = document.getElementById('pDesc').value.trim();
-    const price = parseFloat(document.getElementById('pPrice').value);
-    const stock = parseInt(document.getElementById('pStock').value);
-    const category = document.getElementById('pCategory').value;
-    const isActive = document.getElementById('pActive').value === 'true';
-
-    if (!name) return showToast('Enter a product name');
-    if (!price || price <= 0) return showToast('Enter a valid price');
-    if (isNaN(stock) || stock < 0) return showToast('Enter a valid stock quantity');
-
-    const btn = document.getElementById('saveBtn');
-    btn.disabled = true;
-    const txt = document.getElementById('saveBtnText');
-    txt.textContent = 'Saving...';
-
-    const payload = {
-      name, description: desc, price, stock, category, isActive,
-      image: imageBase64 || null,
-      updatedAt: serverTimestamp()
-    };
-
-    try {
-      if (editingId) {
-        await updateDoc(doc(db, 'products', editingId), payload);
-        document.getElementById('successText').textContent = 'Product updated successfully.';
-      } else {
-        payload.createdAt = serverTimestamp();
-        payload.createdBy = currentUser.uid;
-        await addDoc(collection(db, 'products'), payload);
-        document.getElementById('successText').textContent = 'Product published to the marketplace!';
-      }
-      resetForm();
-      openModal('successModal');
-    } catch (err) {
-      console.error('[Admin] save error', err);
-      showToast('Save failed: ' + (err.message || 'unknown error'));
-    } finally {
-      btn.disabled = false;
-      txt.textContent = editingId ? 'Update Product' : 'Publish Product';
-    }
-  });
-
-  document.getElementById('cancelEditBtn').addEventListener('click', resetForm);
-
-  window.editProduct = function(id) {
-    const p = allProducts.find(x => x.id === id);
-    if (!p) return;
+  // ---------- Actions ----------
+  window.editTopic = function(id) {
+    const t = allTopics.find(x => x.id === id);
+    if (!t) return;
     editingId = id;
-    imageBase64 = p.image || null;
-    document.getElementById('pName').value = p.name || '';
-    document.getElementById('pDesc').value = p.description || '';
-    document.getElementById('pPrice').value = p.price || '';
-    document.getElementById('pStock').value = p.stock != null ? p.stock : '';
-    document.getElementById('pCategory').value = p.category || 'other';
-    document.getElementById('pActive').value = (p.isActive !== false).toString();
-    document.getElementById('formTitleText').textContent = 'Edit Product';
-    document.getElementById('saveBtnText').textContent = 'Update Product';
+    document.getElementById('tCategory').value = t.category || 'sports';
+    document.getElementById('tQuestion').value = t.question || '';
+    document.getElementById('tDesc').value = t.description || '';
+    if (t.deadline?.toDate) {
+      const d = t.deadline.toDate(); const off = d.getTimezoneOffset();
+      document.getElementById('tDeadline').value = new Date(d.getTime()-off*60000).toISOString().slice(0,16);
+    } else { document.getElementById('tDeadline').value = defaultDeadline(); }
+    document.getElementById('tStatus').value = (t.status === 'resulted') ? 'closed' : (t.status || 'open');
+    document.getElementById('tActive').value = (t.isActive !== false).toString();
+    topicOptions = (t.options || []).map(o => ({ id:o.id, label:o.label, totalStaked:o.totalStaked||0, stakerCount:o.stakerCount||0 }));
+    if (topicOptions.length < 2) { topicOptions = [{id:null,label:'',totalStaked:0,stakerCount:0},{id:null,label:'',totalStaked:0,stakerCount:0}]; }
+    renderOptions();
+    document.getElementById('formTitleText').textContent = 'Edit Topic';
+    document.getElementById('saveBtnText').textContent = 'Update Topic';
     document.getElementById('cancelEditBtn').style.display = 'inline-flex';
-
-    if (p.image) {
-      uploadArea.classList.add('has-img');
-      uploadArea.innerHTML = `
-        <input type="file" id="imageInput" accept="image/*"/>
-        <img src="${p.image}" class="preview" alt="preview"/>
-        <button class="img-clear" onclick="event.stopPropagation(); clearImage()"><i class="fas fa-xmark"></i></button>
-      `;
-      bindImageInput();
-    } else {
-      resetImage();
-    }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  window.toggleActive = async function(id, makeActive) {
+  window.toggleStatus = async function(id, current) {
+    const next = current === 'open' ? 'closed' : 'open';
     try {
-      await updateDoc(doc(db, 'products', id), { isActive: makeActive, updatedAt: serverTimestamp() });
-      showToast(makeActive ? 'Product is now visible' : 'Product hidden');
+      await updateDoc(doc(db, 'predictionTopics', id), { status: next, updatedAt: serverTimestamp() });
+      showToast(next === 'open' ? 'Topic reopened' : 'Topic closed');
     } catch (err) { showToast('Could not update status'); }
   };
 
+  window.declareResult = function(id) {
+    const t = allTopics.find(x => x.id === id);
+    if (!t) return;
+    const opts = t.options || [];
+    if (opts.length < 2) { showToast('Topic has no options'); return; }
+    resultTargetId = id;
+    document.getElementById('resultTopicName').innerHTML = `Select the winning option for <strong>${escapeHtml(t.question||'')}</strong>`;
+    document.getElementById('resultOptions').innerHTML = opts.map(o => {
+      const pct = (t.totalPool||0) > 0 ? ((o.totalStaked||0)/(t.totalPool||0)*100).toFixed(0) : 0;
+      const checked = o.id === t.winningOptionId ? 'checked' : '';
+      return `
+        <label class="result-opt">
+          <input type="radio" name="winner" value="${o.id}" ${checked}/>
+          <span><div style="font-weight:700;">${escapeHtml(o.label)}</div><div class="ro-stats">$${(o.totalStaked||0).toFixed(2)} staked \u00b7 ${o.stakerCount||0} stakers \u00b7 ${pct}%</div></span>
+        </label>
+      `;
+    }).join('');
+    openModal('resultModal');
+  };
+
+  document.getElementById('confirmResultBtn').addEventListener('click', async () => {
+    const picked = document.querySelector('input[name="winner"]:checked');
+    if (!picked) { showToast('Pick a winning option'); return; }
+    closeModal('resultModal');
+    try {
+      await updateDoc(doc(db, 'predictionTopics', resultTargetId), {
+        status: 'resulted',
+        winningOptionId: picked.value,
+        resultDeclaredAt: serverTimestamp(),
+        isActive: true,
+        updatedAt: serverTimestamp()
+      });
+      showToast('Result declared. Credit winners from the Users admin or a Cloud Function.');
+      document.getElementById('successText').textContent = 'Result declared. Remember to credit winners their payouts.';
+      openModal('successModal');
+    } catch (err) { showToast('Could not declare result'); }
+  });
+
   window.askDelete = function(id, name) {
-    document.getElementById('confirmTitle').textContent = 'Delete product?';
-    document.getElementById('confirmText').innerHTML = `Are you sure you want to permanently delete <strong>${escapeHtml(name)}</strong>? This cannot be undone.`;
-    const btn = document.getElementById('confirmActionBtn');
-    btn.onclick = async () => {
+    document.getElementById('confirmTitle').textContent = 'Delete topic?';
+    document.getElementById('confirmText').innerHTML = `Permanently delete <strong>${escapeHtml(name)}</strong>? Existing stakes on it will remain in users' records but show no result.`;
+    document.getElementById('confirmActionBtn').onclick = async () => {
       closeModal('confirmModal');
-      try {
-        await deleteDoc(doc(db, 'products', id));
-        showToast('Product deleted');
-      } catch (err) { showToast('Delete failed'); }
+      try { await deleteDoc(doc(db, 'predictionTopics', id)); showToast('Topic deleted'); }
+      catch (err) { showToast('Delete failed'); }
     };
     openModal('confirmModal');
   };
 
-  // ---- Image compression ----
-  function compressImage(file, maxSize, quality) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const img = new Image();
-        img.onload = () => {
-          let { width, height } = img;
-          if (width > height && width > maxSize) { height = Math.round(height * maxSize / width); width = maxSize; }
-          else if (height > maxSize) { width = Math.round(width * maxSize / height); height = maxSize; }
-          const canvas = document.createElement('canvas');
-          canvas.width = width; canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, width, height);
-          resolve(canvas.toDataURL('image/jpeg', quality));
-        };
-        img.onerror = reject;
-        img.src = e.target.result;
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-  }
-
-  // ---- Helpers ----
+  // ---------- Helpers ----------
   function showToast(message) {
-    const existing = document.querySelector('.toast-notification');
-    if (existing) existing.remove();
-    const toast = document.createElement('div');
-    toast.className = 'toast-notification';
-    toast.innerHTML = `<i class="fas fa-circle-info" style="color:var(--orange);margin-right:.5rem;"></i> ${message}`;
-    document.body.appendChild(toast);
-    setTimeout(() => { toast.style.animation = 'slideUp .3s ease reverse'; setTimeout(() => toast.remove(), 300); }, 2600);
+    const e = document.querySelector('.toast-notification'); if (e) e.remove();
+    const t = document.createElement('div'); t.className = 'toast-notification';
+    t.innerHTML = `<i class="fas fa-circle-info" style="color:var(--orange);margin-right:.5rem;"></i> ${message}`;
+    document.body.appendChild(t);
+    setTimeout(()=>{ t.style.animation='slideUp .3s ease reverse'; setTimeout(()=>t.remove(),300); }, 3000);
   }
-  window.closeModal = function(id) { document.getElementById(id).style.display = 'none'; };
-  function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-  function escapeHtml(text) { if (text == null) return ''; const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
+  window.closeModal = function(id){ document.getElementById(id).style.display='none'; };
+  function openModal(id){ document.getElementById(id).style.display='flex'; }
+  function escapeHtml(t){ if(t==null)return''; const d=document.createElement('div'); d.textContent=t; return d.innerHTML; }
+  function escapeAttr(t){ return (t==null?'':String(t)).replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
 </script>
 
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a2fa18a8fb12d128',t:'MTc4NzQ4Nzg4OA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a2fa5823b8175858',t:'MTc4NzQ5MDQ4OA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
