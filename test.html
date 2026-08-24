@@ -1,0 +1,1142 @@
+Make the card of those stuffs the products be smaller it is still too big 
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta name="theme-color" content="#020604">
+<title>Marketplace | Melody Store</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{min-height:100%}
+
+body{
+font-family:Arial,Helvetica,sans-serif;
+background:#020604;
+color:#effff2;
+overflow-x:hidden
+}
+
+body:before{
+content:"";
+position:fixed;
+width:480px;
+height:480px;
+left:-270px;
+top:80px;
+background:radial-gradient(circle,rgba(0,255,65,.13),transparent 68%);
+pointer-events:none
+}
+
+body:after{
+content:"";
+position:fixed;
+width:430px;
+height:430px;
+right:-260px;
+bottom:-150px;
+background:radial-gradient(circle,rgba(0,255,65,.08),transparent 68%);
+pointer-events:none
+}
+
+.page{
+max-width:760px;
+margin:auto;
+padding:0 13px 100px;
+position:relative;
+z-index:2
+}
+
+.header{
+height:70px;
+display:flex;
+align-items:center;
+justify-content:space-between;
+border-bottom:1px solid rgba(255,255,255,.06)
+}
+
+.brand{
+display:flex;
+align-items:center;
+gap:10px;
+text-decoration:none;
+color:inherit
+}
+
+.brand-icon{
+width:40px;
+height:40px;
+border-radius:12px;
+background:#16ef44;
+color:#001606;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:20px;
+box-shadow:0 0 25px rgba(22,242,70,.25)
+}
+
+.brand-name{
+font-size:18px;
+font-weight:700
+}
+
+.brand-name span{
+color:#18ef47
+}
+
+.head-btn{
+width:40px;
+height:40px;
+border:1px solid rgba(255,255,255,.08);
+border-radius:11px;
+background:#061009;
+color:#dce8df;
+font-size:19px
+}
+
+.title{
+padding:25px 2px 17px
+}
+
+.title h1{
+font-size:24px;
+margin-bottom:6px
+}
+
+.title p{
+color:#718078;
+font-size:11px;
+line-height:1.5
+}
+
+.search{
+height:44px;
+width:100%;
+border:1px solid rgba(255,255,255,.07);
+border-radius:12px;
+background:#061009;
+color:#effff2;
+padding:0 14px;
+outline:none;
+font-size:12px;
+margin-bottom:10px
+}
+
+.search:focus{
+border-color:rgba(24,239,71,.4)
+}
+
+/* ================= CATEGORY BAR ================= */
+
+.categories{
+display:flex;
+gap:7px;
+overflow-x:auto;
+padding:2px 1px 12px;
+scrollbar-width:none
+}
+
+.categories::-webkit-scrollbar{
+display:none
+}
+
+.category{
+height:34px;
+padding:0 13px;
+border:1px solid rgba(255,255,255,.07);
+border-radius:20px;
+background:#061009;
+color:#91a097;
+font-size:9px;
+font-weight:700;
+white-space:nowrap;
+cursor:pointer;
+flex:none
+}
+
+.category.active{
+background:rgba(24,239,71,.1);
+border-color:rgba(24,239,71,.4);
+color:#38f65f
+}
+
+/* ================= PRODUCTS ================= */
+
+.products{
+display:flex;
+flex-direction:column;
+gap:10px
+}
+
+/* Reduced moderately */
+.card{
+display:grid;
+grid-template-columns:100px 1fr;
+min-height:154px;
+border:1px solid rgba(45,255,87,.11);
+border-radius:15px;
+overflow:hidden;
+background:linear-gradient(145deg,#06180b,#020b05);
+box-shadow:0 10px 28px rgba(0,0,0,.22)
+}
+
+.pic{
+background:#07130a;
+min-height:154px;
+display:flex;
+align-items:center;
+justify-content:center;
+overflow:hidden;
+border-right:1px solid rgba(255,255,255,.05)
+}
+
+.pic img{
+width:100%;
+height:100%;
+object-fit:cover
+}
+
+.placeholder{
+width:58px;
+height:58px;
+border-radius:17px;
+background:linear-gradient(145deg,#18f348,#0aa52c);
+display:flex;
+align-items:center;
+justify-content:center;
+color:#001606;
+font-size:22px;
+font-weight:800
+}
+
+.content{
+padding:11px;
+min-width:0;
+display:flex;
+flex-direction:column
+}
+
+.top{
+display:flex;
+justify-content:space-between;
+align-items:flex-start;
+gap:7px
+}
+
+.name{
+font-size:14px;
+font-weight:700;
+line-height:1.25;
+word-break:break-word
+}
+
+.desc{
+color:#7c8a82;
+font-size:9px;
+line-height:1.5;
+margin-top:6px;
+display:-webkit-box;
+-webkit-line-clamp:2;
+-webkit-box-orient:vertical;
+overflow:hidden
+}
+
+.stock{
+padding:5px 7px;
+border-radius:20px;
+background:rgba(22,239,68,.08);
+color:#3df764;
+font-size:7px;
+font-weight:700;
+white-space:nowrap
+}
+
+.product-category{
+display:inline-block;
+margin-top:7px;
+padding:4px 7px;
+border-radius:12px;
+background:rgba(255,255,255,.035);
+color:#7e8c84;
+font-size:7px;
+width:max-content
+}
+
+.bottom{
+margin-top:auto;
+padding-top:9px;
+display:flex;
+align-items:center;
+justify-content:space-between;
+gap:7px
+}
+
+.price{
+color:#18ef47;
+font-size:15px;
+font-weight:700
+}
+
+.buy{
+height:34px;
+min-width:90px;
+border:0;
+border-radius:8px;
+background:#16ef44;
+color:#001606;
+font-size:9px;
+font-weight:700
+}
+
+.buy:disabled{
+opacity:.55
+}
+
+.state{
+text-align:center;
+padding:50px 15px;
+border:1px solid rgba(255,255,255,.06);
+border-radius:16px;
+background:#041009;
+display:none
+}
+
+.state.show{
+display:block
+}
+
+.state-icon{
+font-size:28px;
+margin-bottom:10px
+}
+
+.state h2{
+font-size:15px;
+margin-bottom:6px
+}
+
+.state p{
+color:#718078;
+font-size:10px;
+line-height:1.5
+}
+
+.spinner{
+width:25px;
+height:25px;
+border:3px solid rgba(255,255,255,.1);
+border-top-color:#18ef47;
+border-radius:50%;
+animation:spin .7s linear infinite;
+margin:0 auto 10px
+}
+
+@keyframes spin{
+to{transform:rotate(360deg)}
+}
+
+.toast{
+position:fixed;
+left:13px;
+right:13px;
+bottom:18px;
+z-index:100;
+max-width:460px;
+margin:auto;
+padding:12px;
+border-radius:11px;
+font-size:10px;
+line-height:1.5;
+display:none
+}
+
+.toast.show{
+display:block
+}
+
+.toast.ok{
+color:#65ff85;
+background:#06170b;
+border:1px solid rgba(30,245,72,.2)
+}
+
+.toast.err{
+color:#ff9999;
+background:#190707;
+border:1px solid rgba(255,70,70,.18)
+}
+
+.toast.warn{
+color:#ffd36b;
+background:#171106;
+border:1px solid rgba(255,184,0,.16)
+}
+
+/* ================= MODAL ================= */
+
+.modal{
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.7);
+backdrop-filter:blur(5px);
+display:none;
+align-items:flex-end;
+justify-content:center;
+padding:12px;
+z-index:80
+}
+
+.modal.show{
+display:flex
+}
+
+.modal-card{
+width:100%;
+max-width:500px;
+background:linear-gradient(145deg,#071c0e,#020b05);
+border:1px solid rgba(45,255,87,.13);
+border-radius:20px;
+padding:18px
+}
+
+.modal-head{
+display:flex;
+align-items:center;
+justify-content:space-between;
+margin-bottom:14px
+}
+
+.modal-head h2{
+font-size:17px
+}
+
+.close{
+width:34px;
+height:34px;
+border:1px solid rgba(255,255,255,.07);
+border-radius:9px;
+background:#061009;
+color:#fff;
+font-size:18px
+}
+
+.summary{
+padding:12px;
+border-radius:12px;
+background:rgba(255,255,255,.025);
+border:1px solid rgba(255,255,255,.05);
+margin-bottom:12px
+}
+
+.summary-name{
+font-size:14px;
+font-weight:700;
+margin-bottom:6px
+}
+
+.summary-price{
+color:#18ef47;
+font-weight:700;
+font-size:13px
+}
+
+.warning{
+padding:11px;
+border-radius:10px;
+background:rgba(255,184,0,.05);
+border:1px solid rgba(255,184,0,.12);
+color:#d4bf88;
+font-size:10px;
+line-height:1.5
+}
+
+.actions{
+display:flex;
+gap:8px;
+margin-top:14px
+}
+
+.actions button{
+flex:1;
+height:42px;
+border-radius:9px;
+font-size:10px
+}
+
+.cancel{
+border:1px solid rgba(255,255,255,.08);
+background:#061009;
+color:#ccd6cf
+}
+
+.confirm{
+border:0;
+background:#16ef44;
+color:#001606;
+font-weight:700
+}
+
+.confirm:disabled{
+opacity:.55
+}
+
+.support{
+position:fixed;
+right:13px;
+bottom:75px;
+z-index:20
+}
+
+.support a{
+width:42px;
+height:42px;
+border-radius:50%;
+display:flex;
+align-items:center;
+justify-content:center;
+text-decoration:none;
+color:#fff;
+background:#229ed9;
+box-shadow:0 8px 22px rgba(0,0,0,.35)
+}
+
+@media(max-width:520px){
+
+.card{
+grid-template-columns:92px 1fr;
+min-height:150px
+}
+
+.pic{
+min-height:150px
+}
+
+.content{
+padding:10px
+}
+
+.name{
+font-size:13px
+}
+
+.desc{
+font-size:8px
+}
+
+.price{
+font-size:14px
+}
+
+.buy{
+min-width:84px;
+font-size:8px;
+height:34px
+}
+
+.category{
+font-size:8px;
+padding:0 11px
+}
+
+}
+</style>
+</head>
+
+<body>
+
+<div class="page">
+
+<header class="header">
+
+<a class="brand" href="dashboard.html">
+<div class="brand-icon">⚡</div>
+<div class="brand-name">Melody <span>Store</span></div>
+</a>
+
+<button class="head-btn" onclick="window.location.href='marketplace-history.html'">
+▣
+</button>
+
+</header>
+
+<section class="title">
+<h1>Marketplace</h1>
+<p>Browse available products and purchase instantly from your wallet.</p>
+</section>
+
+<input
+id="search"
+class="search"
+placeholder="Search marketplace..."
+autocomplete="off"
+>
+
+<!-- CATEGORIES -->
+<div class="categories" id="categories">
+
+<button class="category active" data-category="all">
+All
+</button>
+
+<button class="category" data-category="Facebook">
+Facebook
+</button>
+
+<button class="category" data-category="WhatsApp">
+WhatsApp
+</button>
+
+<button class="category" data-category="TikTok">
+TikTok
+</button>
+
+<button class="category" data-category="Twitter">
+Twitter
+</button>
+
+<button class="category" data-category="Telegram">
+Telegram
+</button>
+
+<button class="category" data-category="Other">
+Other
+</button>
+
+</div>
+
+<div id="loading" class="state show">
+<div class="spinner"></div>
+<p>Loading marketplace...</p>
+</div>
+
+<div id="products" class="products"></div>
+
+<div id="empty" class="state">
+<div class="state-icon">🛍️</div>
+<h2>No products available</h2>
+<p>There are currently no marketplace products in stock.</p>
+</div>
+
+</div>
+
+<div class="support">
+<a href="marketplace-history.html">▣</a>
+</div>
+
+<div id="modal" class="modal">
+
+<div class="modal-card">
+
+<div class="modal-head">
+<h2>Confirm Purchase</h2>
+<button class="close" onclick="closeModal()">×</button>
+</div>
+
+<div class="summary">
+
+<div id="modalName" class="summary-name">
+Product
+</div>
+
+<div id="modalPrice" class="summary-price">
+₦0
+</div>
+
+</div>
+
+<div class="warning">
+Your wallet will be charged immediately. One available stock will be assigned to this purchase.
+</div>
+
+<div class="actions">
+
+<button class="cancel" onclick="closeModal()">
+Cancel
+</button>
+
+<button id="confirm" class="confirm" onclick="purchase()">
+Confirm & Buy
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+
+<script>
+
+const firebaseConfig={
+apiKey:"AIzaSyCfb-3kLoaYh22CPwGVI0P8NuBxFojpdVE",
+authDomain:"melodylogstore.firebaseapp.com",
+projectId:"melodylogstore",
+storageBucket:"melodylogstore.firebasestorage.app",
+messagingSenderId:"894799687100",
+appId:"1:894799687100:web:70e7d02e6c950efc684fb9",
+measurementId:"G-FD7R0SXLD1"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const db=firebase.firestore(),
+auth=firebase.auth();
+
+let user=null,
+products=[],
+selected=null,
+selectedCategory="all";
+
+const $=id=>document.getElementById(id);
+
+function esc(v){
+return String(v??"")
+.replace(/&/g,"&amp;")
+.replace(/</g,"&lt;")
+.replace(/>/g,"&gt;")
+.replace(/"/g,"&quot;")
+.replace(/'/g,"&#039;");
+}
+
+function money(v){
+return "₦"+Number(v||0).toLocaleString("en-NG");
+}
+
+function toast(t,type="ok"){
+
+let x=$("toast");
+
+x.textContent=t;
+
+x.className="toast show "+type;
+
+clearTimeout(window.tt);
+
+window.tt=setTimeout(()=>{
+x.className="toast";
+},4500);
+
+}
+
+function openModal(id){
+
+let p=products.find(x=>x.id===id);
+
+if(!p)return;
+
+if(Number(p.availableStock||0)<=0){
+return toast("This product is out of stock.","warn");
+}
+
+selected=p;
+
+$("modalName").textContent=p.name||"Product";
+
+$("modalPrice").textContent=money(p.price);
+
+$("modal").classList.add("show");
+
+}
+
+function closeModal(){
+
+selected=null;
+
+$("modal").classList.remove("show");
+
+$("confirm").disabled=false;
+
+$("confirm").textContent="Confirm & Buy";
+
+}
+
+/* ================= CATEGORY ================= */
+
+document.querySelectorAll(".category").forEach(button=>{
+
+button.addEventListener("click",()=>{
+
+document.querySelectorAll(".category")
+.forEach(x=>x.classList.remove("active"));
+
+button.classList.add("active");
+
+selectedCategory=button.dataset.category;
+
+render();
+
+});
+
+});
+
+/* ================= RENDER ================= */
+
+function render(){
+
+let q=$("search").value.trim().toLowerCase();
+
+let list=products.filter(p=>{
+
+if(Number(p.availableStock||0)<=0)return false;
+
+let matchesSearch=
+!q ||
+String(p.name||"").toLowerCase().includes(q) ||
+String(p.description||"").toLowerCase().includes(q);
+
+let productCategory=String(p.category||"Other");
+
+let matchesCategory=
+selectedCategory==="all" ||
+productCategory===selectedCategory;
+
+return matchesSearch && matchesCategory;
+
+});
+
+$("products").innerHTML="";
+
+if(!list.length){
+
+$("empty").classList.add("show");
+
+return;
+
+}
+
+$("empty").classList.remove("show");
+
+list.forEach(p=>{
+
+let logo=p.logo||p.imageUrl||"";
+
+let card=document.createElement("article");
+
+card.className="card";
+
+card.innerHTML=`
+
+<div class="pic">
+
+${logo
+? `<img
+src="${esc(logo)}"
+alt="${esc(p.name||"Product")}"
+onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+>`
+: ""
+}
+
+<div
+class="placeholder"
+style="${logo?"display:none":""}"
+>
+⚡
+</div>
+
+</div>
+
+<div class="content">
+
+<div class="top">
+
+<div class="name">
+${esc(p.name||"Untitled Product")}
+</div>
+
+<div class="stock">
+${Number(p.availableStock||0)} Available
+</div>
+
+</div>
+
+<div class="product-category">
+${esc(p.category||"Other")}
+</div>
+
+<div class="desc">
+${esc(p.description||"Marketplace product available for purchase.")}
+</div>
+
+<div class="bottom">
+
+<div class="price">
+${money(p.price)}
+</div>
+
+<button
+class="buy"
+onclick="openModal('${p.id}')"
+>
+Buy Now
+</button>
+
+</div>
+
+</div>
+`;
+
+$("products").appendChild(card);
+
+});
+
+}
+
+/* ================= LOAD ================= */
+
+async function load(){
+
+$("loading").classList.add("show");
+
+$("products").innerHTML="";
+
+$("empty").classList.remove("show");
+
+try{
+
+let s=await db
+.collection("marketplaceProducts")
+.get();
+
+products=s.docs
+.map(d=>({id:d.id,...d.data()}))
+.filter(p=>p.active!==false);
+
+products.sort((a,b)=>
+(b.createdAt?.toMillis?.()||0)-
+(a.createdAt?.toMillis?.()||0)
+);
+
+render();
+
+}catch(e){
+
+console.error(e);
+
+toast(
+"Unable to load marketplace. Check your connection.",
+"err"
+);
+
+}finally{
+
+$("loading").classList.remove("show");
+
+}
+
+}
+
+/* ================= PURCHASE ================= */
+
+async function purchase(){
+
+if(!user||!selected)
+return toast("Please login before purchasing.","err");
+
+let p=selected;
+
+$("confirm").disabled=true;
+
+$("confirm").textContent="Processing...";
+
+try{
+
+let userRef=db.collection("users").doc(user.uid);
+
+let productRef=
+db.collection("marketplaceProducts").doc(p.id);
+
+let inventoryQuery=
+await productRef
+.collection("inventory")
+.where("status","==","available")
+.limit(1)
+.get();
+
+if(inventoryQuery.empty)
+throw new Error("OUT");
+
+let invDoc=inventoryQuery.docs[0];
+
+let inv=invDoc.data();
+
+let userSnap=await userRef.get();
+
+let productSnap=await productRef.get();
+
+if(!userSnap.exists)
+throw new Error("USER");
+
+if(!productSnap.exists)
+throw new Error("PRODUCT");
+
+let ud=userSnap.data();
+
+let pd=productSnap.data();
+
+let balance=Number(ud.balance||0);
+
+let price=Number(pd.price||0);
+
+let stock=Number(pd.availableStock||0);
+
+if(price<=0)
+throw new Error("PRICE");
+
+if(stock<=0)
+throw new Error("OUT");
+
+if(balance<price)
+throw new Error("BALANCE");
+
+let purchaseId=
+"MP-"+
+Date.now()+
+"-"+
+Math.random()
+.toString(36)
+.substring(2,8)
+.toUpperCase();
+
+let purchaseRef=
+db.collection("marketplacePurchases")
+.doc(purchaseId);
+
+let newBalance=balance-price;
+
+let batch=db.batch();
+
+batch.update(userRef,{
+balance:newBalance,
+updatedAt:
+firebase.firestore.FieldValue.serverTimestamp()
+});
+
+batch.update(productRef,{
+availableStock:stock-1,
+updatedAt:
+firebase.firestore.FieldValue.serverTimestamp()
+});
+
+batch.update(invDoc.ref,{
+status:"sold",
+purchaseId,
+soldTo:user.uid,
+soldToEmail:user.email||"",
+soldAt:
+firebase.firestore.FieldValue.serverTimestamp()
+});
+
+batch.set(purchaseRef,{
+
+purchaseId,
+
+productId:p.id,
+
+productName:
+pd.name||"Marketplace Product",
+
+userId:user.uid,
+
+userEmail:user.email||"",
+
+price,
+
+inventoryId:invDoc.id,
+
+inventoryContent:inv.content||"",
+
+purchasedAt:
+firebase.firestore.FieldValue.serverTimestamp(),
+
+status:"completed"
+
+});
+
+await batch.commit();
+
+closeModal();
+
+toast(
+"Purchase successful! Purchase ID: "+purchaseId,
+"ok"
+);
+
+await load();
+
+}catch(e){
+
+console.error("Purchase error:",e);
+
+let m=
+"Purchase could not be completed. Please try again.";
+
+if(e.message==="BALANCE")
+m="Insufficient wallet balance.";
+
+if(e.message==="OUT")
+m="Sorry, this product is now out of stock.";
+
+if(e.message==="USER")
+m="Your account profile could not be found.";
+
+if(e.message==="PRODUCT")
+m="This product is no longer available.";
+
+if(e.message==="PRICE")
+m="This product has an invalid price.";
+
+toast(
+m,
+e.message==="BALANCE"?"warn":"err"
+);
+
+$("confirm").disabled=false;
+
+$("confirm").textContent="Confirm & Buy";
+
+}
+
+}
+
+$("search").addEventListener(
+"input",
+render
+);
+
+$("modal").addEventListener(
+"click",
+e=>{
+if(e.target===$("modal"))
+closeModal();
+}
+);
+
+auth.onAuthStateChanged(u=>{
+
+if(!u){
+
+window.location.href="login.html";
+
+return;
+
+}
+
+user=u;
+
+load();
+
+});
+
+</script>
+
+</body>
+</html>
