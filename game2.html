@@ -31,6 +31,9 @@
       --font-cyber: 'Orbitron', sans-serif;
       --font-mono: 'Share Tech Mono', monospace;
       --font-main: 'Rajdhani', sans-serif;
+      --hdr-h: 60px;
+      --ctrl-h: 170px;
+      --pad-x: 1.5rem;
     }
 
     * { 
@@ -66,12 +69,13 @@
       backdrop-filter: blur(12px);
       border-bottom: 2px solid var(--orange);
       box-shadow: 0 4px 30px rgba(0,0,0,0.5), inset 0 -1px 15px var(--orange-glow);
-      padding: 0 1.5rem;
+      padding: 0 var(--pad-x);
       display: flex;
       justify-content: space-between;
       align-items: center;
       z-index: 100;
-      height: 60px;
+      height: var(--hdr-h);
+      gap: 0.4rem;
     }
 
     .hud-element {
@@ -114,10 +118,10 @@
     /* CANVAS */
     #gameCanvas {
       position: fixed;
-      top: 60px;
+      top: var(--hdr-h);
       left: 0;
       right: 0;
-      bottom: 170px;
+      bottom: var(--ctrl-h);
       background: linear-gradient(180deg, #090a0f 0%, #12141c 50%, #090a0f 100%);
       cursor: none;
     }
@@ -125,7 +129,7 @@
     /* RETRO SCREEN GRID PATTERN OVERLAY */
     .crt-overlay {
       position: fixed;
-      top: 60px; left: 0; right: 0; bottom: 170px;
+      top: var(--hdr-h); left: 0; right: 0; bottom: var(--ctrl-h);
       background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
       background-size: 100% 4px, 6px 100%;
       pointer-events: none;
@@ -137,14 +141,15 @@
     .controls-zone {
       position: fixed;
       bottom: 0; left: 0; right: 0;
-      height: 170px;
+      height: var(--ctrl-h);
       background: linear-gradient(180deg, #101216 0%, #060709 100%);
       border-top: 2px solid var(--orange);
       box-shadow: 0 -4px 30px rgba(0,0,0,0.8), inset 0 1px 15px var(--orange-glow);
       display: grid;
-      grid-template-columns: 180px 1fr 180px;
+      grid-template-columns: auto minmax(0,1fr) auto;
       align-items: center;
-      padding: 0 1.5rem;
+      gap: 0.6rem;
+      padding: 0 var(--pad-x);
       z-index: 90;
     }
 
@@ -188,6 +193,7 @@
 
     /* CENTER CONTROL BLOCK: CHARACTER SELECT & SPECIAL BUTTONS */
     .center-controls {
+      min-width: 0;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -244,6 +250,7 @@
 
     /* POWER-UPS HUD & SUPER BAR */
     .powerups-super-hud {
+      min-width: 0;
       display: flex;
       align-items: center;
       gap: 1.5rem;
@@ -413,7 +420,7 @@
     /* SLIDE OUT SHOP PANEL */
     .shop-overlay {
       position: fixed;
-      top: 60px; right: -320px; bottom: 170px;
+      top: var(--hdr-h); right: -320px; bottom: var(--ctrl-h);
       width: 320px;
       background: rgba(16, 18, 22, 0.95);
       backdrop-filter: blur(15px);
@@ -594,7 +601,7 @@
     /* TEST MODE WARNING BANNER */
     .test-mode-banner {
       position: fixed;
-      top: 60px; left: 50%;
+      top: calc(var(--hdr-h) + 10px); left: 50%;
       transform: translateX(-50%);
       background: rgba(255, 183, 0, 0.15);
       border: 1px solid var(--gold);
@@ -837,6 +844,53 @@
     }
 
     .hidden { display: none !important; }
+    /* ================= RESPONSIVE / MOBILE FIT ================= */
+    @media (max-width: 900px){
+      :root{ --pad-x: .9rem; --ctrl-h: 158px; }
+      .joystick-base{ width:92px; height:92px; }
+      .joystick-knob{ width:40px; height:40px; }
+      .fire-btn{ width:70px; height:70px; font-size:1.5rem; }
+      .shop-toggle-btn{ width:44px; height:44px; }
+      .char-btn .char-name{ font-size:.55rem; }
+      .hud-value{ font-size:1.05rem; }
+    }
+    @media (max-width: 560px){
+      :root{ --hdr-h: 52px; --ctrl-h: 148px; --pad-x: .55rem; }
+      .game-header{ gap:.35rem; }
+      .hud-element{ padding:.25rem .5rem; gap:.3rem; border-radius:6px; }
+      .hud-label{ display:none; }
+      .hud-value{ font-size:1rem; }
+      .game-header .timer-box .hud-value{ font-size:1.15rem; min-width:34px; }
+      .controls-zone{ gap:.45rem; }
+      .joystick-base{ width:78px; height:78px; }
+      .joystick-knob{ width:34px; height:34px; }
+      .center-controls{ gap:.45rem; }
+      .powerups-super-hud{ gap:.6rem; }
+      .action-btn{ font-size:.6rem; padding:.25rem .5rem; gap:.2rem; }
+      .char-btn{ padding:.3rem .25rem; gap:.1rem; }
+      .char-btn .emoji{ font-size:1rem; }
+      .char-btn .char-name{ font-size:.48rem; letter-spacing:0; }
+      .fire-btn{ width:60px; height:60px; font-size:1.3rem; }
+      .shop-toggle-btn{ width:40px; height:40px; font-size:1rem; }
+      .shop-toggle-btn span{ display:none; }
+      .right-zone{ gap:.5rem; }
+      .shop-overlay{ width:min(320px, 88vw); }
+      .sound-toggle{ top:calc(var(--hdr-h) + 8px); }
+    }
+    @media (max-width: 400px){
+      .char-btn .char-name{ display:none; }
+      .char-bar{ gap:.3rem; padding:.3rem; }
+      .action-btn{ font-size:.55rem; }
+    }
+    @media (max-height: 480px){ /* landscape phones */
+      :root{ --hdr-h: 46px; --ctrl-h: 118px; }
+      .joystick-base{ width:64px; height:64px; }
+      .joystick-knob{ width:30px; height:30px; }
+      .fire-btn{ width:52px; height:52px; font-size:1.2rem; }
+      .char-btn .char-name{ display:none; }
+      .powerups-super-hud{ gap:.5rem; }
+    }
+
   </style>
 </head>
 <body>
@@ -1430,8 +1484,11 @@
 
   // ========== RESIZING ==========
   function resize() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight - 60 - 170; // Header 60px, Controls 170px
+    const cs = getComputedStyle(document.documentElement);
+    const hdrH = parseFloat(cs.getPropertyValue('--hdr-h')) || 60;
+    const ctrlH = parseFloat(cs.getPropertyValue('--ctrl-h')) || 170;
+    canvas.width = Math.max(1, window.innerWidth);
+    canvas.height = Math.max(120, window.innerHeight - hdrH - ctrlH);
   }
 
   // ========== CHARACTER SELECTION SCREEN ==========
@@ -2742,5 +2799,5 @@
   window.addEventListener('resize', resize);
 </script>
 
-</body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a301848d4d59783b',t:'MTc4NzU2NTcwOA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
