@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Art Sheet — TaskVault Game</title>
+<link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="assets/game.css" rel="stylesheet">
+<style>
+html,body{overflow:auto;height:auto;background:#eef1f4}
+body{display:block;padding:24px}
+.app-container{max-width:1180px;height:auto;max-height:none;border-radius:20px;margin:0 auto;padding-bottom:30px}
+h2{font-size:14px;font-weight:800;color:#333;padding:20px 20px 12px}
+</style></head>
+<body>
+<div class="app-container">
+  <header class="topbar"><div class="topbar-title"><h1>Art Sheet</h1><p>All weapon &amp; operator artwork</p></div>
+  <a href="store.html" class="wallet-row" id="walletLink" data-wallet style="text-decoration:none"></a></header>
+  <h2>Operators</h2><div class="grid-2" id="chars"></div>
+  <h2>Weapons &amp; Gear</h2><div class="grid-2" id="guns"></div>
+</div>
+<script src="assets/art.js"></script>
+<script src="assets/game.js"></script>
+<script>
+chars.innerHTML = TVG.CHARACTERS.map(c => `
+  <div class="item-card">
+    <div class="item-thumb r-${c.rarity}" style="height:132px">
+      <span class="rarity-tag ${c.rarity}">${c.rarity}</span>${TVGArt.characterSVG(c.id)}
+    </div>
+    <h4>${c.name}</h4><div class="item-sub">${c.desc}</div>
+    <div class="price-row"><span class="price"><i class="ri-copper-coin-fill"></i>${TVG.fmt(c.price)}</span></div>
+  </div>`).join('');
+guns.innerHTML = TVG.WEAPONS.map(w => `
+  <div class="item-card">
+    <div class="item-thumb r-${w.rarity}">
+      <span class="rarity-tag ${w.rarity}">${w.rarity}</span>${TVGArt.weaponSVG(w.id)}
+    </div>
+    <h4>${w.name}</h4><div class="item-sub">DMG ${w.dmg} · ${w.slot}</div>
+    <div class="price-row"><span class="price"><i class="ri-copper-coin-fill"></i>${TVG.fmt(w.price)}</span></div>
+  </div>`).join('');
+</script>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a31b5bff6d50d0be',t:'MTc4NzgzNjY3Nw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body></html>
