@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Character Shop — TaskVault</title>
+<link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="assets/game.css" rel="stylesheet">
+<style>.char-stage{height:132px}</style>
+</head>
+<body>
+<div class="app-container">
+  <header class="topbar">
+    <a href="game-hub.html" class="icon-btn ghost"><i class="ri-arrow-left-s-line"></i></a>
+    <div class="topbar-title"><h1>Character Shop</h1><p>Operators & skins</p></div>
+    <a href="store.html" class="wallet-row" id="walletLink" data-wallet style="text-decoration:none"></a>
+  </header>
+
+  <div class="scroll-content">
+   <div class="desk-wrap">
+    <div class="tabs" style="margin-top:14px">
+      <button class="tab active" data-f="all">All</button>
+      <button class="tab" data-f="owned">Owned</button>
+      <button class="tab" data-f="locked">Locked</button>
+    </div>
+    <div class="grid-2" id="grid"></div>
+    <div style="height:20px"></div>
+   </div>
+  </div>
+
+  <nav class="bottom-nav">
+    <a href="game-hub.html" class="nav-item"><i class="ri-gamepad-line"></i><span>Play</span></a>
+    <a href="weapon-shop.html" class="nav-item"><i class="ri-store-2-line"></i><span>Shop</span></a>
+    <a href="missions.html" class="nav-item"><i class="ri-task-line"></i><span>Missions</span></a>
+    <a href="leaderboard.html" class="nav-item"><i class="ri-bar-chart-2-line"></i><span>Ranks</span></a>
+    <a href="game-profile.html" class="nav-item"><i class="ri-user-3-line"></i><span>Profile</span></a>
+  </nav>
+</div>
+
+<div id="toast" class="toast"></div>
+<script src="assets/art.js"></script>
+<script src="assets/game.js"></script>
+<script>
+let filter = 'all';
+function render() {
+  const owned = TVG.state.owned.characters;
+  const eq = TVG.state.equipped.character;
+  const list = TVG.CHARACTERS.filter(c => {
+    if (filter === 'owned') return owned.includes(c.id);
+    if (filter === 'locked') return !owned.includes(c.id);
+    return true;
+  });
+  if (!list.length) { grid.innerHTML = '<div class="empty" style="grid-column:1/-1"><i class="ri-inbox-2-line"></i>Nothing here yet</div>'; return; }
+  grid.innerHTML = list.map(c => {
+    const has = owned.includes(c.id), on = eq === c.id;
+    return `<div class="item-card ${on?'equipped':has?'owned':''}" data-id="${c.id}">
+      <div class="item-thumb r-${c.rarity} char-stage">
+        <span class="rarity-tag ${c.rarity}">${c.rarity}</span>
+        ${TVGArt.characterSVG(c.id)}
+      </div>
+      <h4>${c.name}</h4>
+      <div class="item-sub">${c.desc}</div>
+      <div class="price-row">
+        ${has ? `<span class="state-tag ${on?'equipped':'owned'}">${on?'Equipped':'Owned'}</span>`
+              : `<span class="price ${c.cur==='gem'?'gem':''}"><i class="${c.cur==='gem'?'ri-vip-diamond-fill':'ri-copper-coin-fill'}"></i>${TVG.fmt(c.price)}</span>`}
+        ${has && !on ? '<span style="font-size:9px;color:var(--orange-main);font-weight:700">EQUIP</span>' : ''}
+        ${!has ? '<i class="ri-shopping-cart-2-fill" style="font-size:12px;color:var(--orange-main)"></i>' : ''}
+      </div>
+    </div>`;
+  }).join('');
+
+  grid.querySelectorAll('.item-card').forEach(el => el.onclick = () => {
+    const c = TVG.character(el.dataset.id);
+    if (TVG.state.owned.characters.includes(c.id)) {
+      TVG.state.equipped.character = c.id; TVG.save();
+      TVG.toast(c.name + ' equipped', 'success'); render();
+    } else {
+      if (!confirm(`Buy ${c.name} for ${TVG.fmt(c.price)} ${c.cur === 'gem' ? 'gems' : 'coins'}?`)) return;
+      const res = TVG.buy('characters', c.id, c.price, c.cur);
+      if (!res.ok) { TVG.toast(res.msg, 'error'); return; }
+      TVG.toast(c.name + ' purchased!', 'success');
+      TVG.renderWallet(); render();
+    }
+  });
+}
+document.querySelectorAll('.tab').forEach(t => t.onclick = () => {
+  document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+  t.classList.add('active'); filter = t.dataset.f; render();
+});
+render();
+</script>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a31b5d191f4dd0be',t:'MTc4NzgzNjcyMg=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
