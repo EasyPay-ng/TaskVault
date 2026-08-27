@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Coin Store — TaskVault</title>
+<link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="assets/game.css" rel="stylesheet">
+<style>
+.bal-card{margin:14px 20px;border-radius:20px;padding:18px;background:
+  radial-gradient(120% 90% at 18% 8%, rgba(255,255,255,.30), rgba(255,255,255,0) 58%),
+  linear-gradient(140deg,#12B981 0%,#0EA271 46%,#067A55 100%);
+  color:#fff;box-shadow:0 2px 4px rgba(6,90,64,.2),0 12px 26px rgba(6,90,64,.26),inset 0 1px 0 rgba(255,255,255,.4),inset 0 -2px 0 rgba(0,60,42,.28)}
+.bal-card .lbl{font-size:9px;letter-spacing:1.4px;text-transform:uppercase;opacity:.9;font-weight:600}
+.bal-card .amt{font-size:30px;font-weight:800;letter-spacing:-.5px;margin-top:2px}
+.bal-card .amt small{font-size:15px;font-weight:600;opacity:.85}
+.pack{position:relative;padding-top:14px}
+.pack .stack{height:74px;display:flex;align-items:center;justify-content:center}
+.best{position:absolute;top:-1px;right:10px;z-index:4;background:linear-gradient(160deg,#FCD34D,#E08A0B);
+  color:#5A3706;font-size:8px;font-weight:800;letter-spacing:.5px;padding:3px 8px;border-radius:0 0 7px 7px;
+  box-shadow:0 2px 5px rgba(0,0,0,.2)}
+.usd{font-size:13px;font-weight:800;color:var(--text-dark)}
+.bonus{font-size:8.5px;font-weight:700;color:var(--success)}
+.ledger{font-size:10px;color:var(--text-light);line-height:1.6}
+@media (min-width:1024px){ .bal-card{max-width:520px;margin-left:auto;margin-right:auto} }
+</style>
+</head>
+<body>
+<div class="app-container">
+  <header class="topbar">
+    <a href="game-hub.html" class="icon-btn ghost"><i class="ri-arrow-left-s-line"></i></a>
+    <div class="topbar-title"><h1>Coin Store</h1><p>Top up with your TaskVault balance</p></div>
+    <a href="store.html" class="wallet-row" id="walletLink" data-wallet style="text-decoration:none"></a>
+  </header>
+
+  <div class="scroll-content">
+   <div class="desk-wrap">
+
+    <div class="bal-card fade-in">
+      <div class="lbl">TaskVault Balance</div>
+      <div class="amt"><small>$</small><span id="cash">0.00</span></div>
+      <div style="display:flex;gap:6px;margin-top:12px">
+        <span class="chip" style="background:rgba(255,255,255,.18);color:#fff"><i class="ri-copper-coin-fill"></i><span id="cCoins">0</span></span>
+        <span class="chip" style="background:rgba(255,255,255,.18);color:#fff"><i class="ri-vip-diamond-fill"></i><span id="cGems">0</span></span>
+        <a href="deposit.html" class="chip" style="background:#fff;color:#067A55;text-decoration:none"><i class="ri-add-line"></i>Deposit</a>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" data-t="coins">Coins</button>
+      <button class="tab" data-t="gems">Gems</button>
+    </div>
+
+    <div class="grid-2" id="packs"></div>
+
+    <div class="pad">
+      <div class="card">
+        <h4 style="font-size:12px;font-weight:700;color:var(--text-dark);margin-bottom:8px">
+          <i class="ri-information-line" style="color:var(--orange-main)"></i> How this works
+        </h4>
+        <p class="ledger">
+          Purchases are deducted from your TaskVault dollar balance and credited as in-game
+          currency immediately. Coins and gems are spendable on characters and weapons only —
+          they are a closed economy and <b>cannot be converted back to dollars or withdrawn</b>.
+        </p>
+      </div>
+    </div>
+
+    <div class="pad" style="padding-bottom:10px">
+      <div class="section-header" style="padding:0"><h3 class="section-title"><i class="ri-file-list-3-line"></i> Recent Top-ups</h3></div>
+    </div>
+    <div class="list-wrap" id="hist"></div>
+    <div style="height:20px"></div>
+   </div>
+  </div>
+
+  <nav class="bottom-nav">
+    <a href="game-hub.html" class="nav-item"><i class="ri-gamepad-line"></i><span>Play</span></a>
+    <a href="weapon-shop.html" class="nav-item"><i class="ri-store-2-line"></i><span>Shop</span></a>
+    <a href="store.html" class="nav-item active"><i class="ri-copper-coin-fill"></i><span>Top Up</span></a>
+    <a href="leaderboard.html" class="nav-item"><i class="ri-bar-chart-2-line"></i><span>Ranks</span></a>
+    <a href="game-profile.html" class="nav-item"><i class="ri-user-3-line"></i><span>Profile</span></a>
+  </nav>
+</div>
+
+<div id="toast" class="toast"></div>
+<script src="assets/art.js"></script>
+<script src="assets/game.js"></script>
+<script>
+const PACKS = {
+  coins: [
+    { id:'c1', amt:1000,  usd:0.99,  bonus:0,  r:'common' },
+    { id:'c2', amt:5500,  usd:4.99,  bonus:10, r:'rare'   },
+    { id:'c3', amt:12000, usd:9.99,  bonus:20, r:'epic'   },
+    { id:'c4', amt:32000, usd:24.99, bonus:28, r:'legend', best:1 }
+  ],
+  gems: [
+    { id:'g1', amt:80,   usd:0.99,  bonus:0,  r:'common' },
+    { id:'g2', amt:440,  usd:4.99,  bonus:10, r:'rare'   },
+    { id:'g3', amt:960,  usd:9.99,  bonus:20, r:'epic'   },
+    { id:'g4', amt:2560, usd:24.99, bonus:28, r:'legend', best:1 }
+  ]
+};
+
+let tab = 'coins';
+if (!TVG.state.topups) { TVG.state.topups = []; TVG.save(); }
+
+function coinStack(n, kind) {
+  const gem = kind === 'gems';
+  const c = gem
+    ? ['#C4B5FD','#8B5CF6','#6D28D9']
+    : ['#FDE08A','#F5A524','#B4761A'];
+  let s = '';
+  for (let i = 0; i < n; i++) {
+    const y = 56 - i*7, x = 50 + (i%2?4:-4)*(i>2?1:0);
+    s += gem
+      ? `<g transform="translate(${x},${y})">
+           <path d="M0 -13 L11 -4 L0 13 L-11 -4Z" fill="${c[1]}"/>
+           <path d="M0 -13 L11 -4 L0 -1 Z" fill="${c[0]}"/>
+           <path d="M0 -1 L11 -4 L0 13Z" fill="${c[2]}"/>
+         </g>`
+      : `<g transform="translate(${x},${y})">
+           <ellipse cx="0" cy="4" rx="19" ry="7" fill="${c[2]}"/>
+           <rect x="-19" y="-2" width="38" height="6" fill="${c[2]}"/>
+           <ellipse cx="0" cy="-2" rx="19" ry="7" fill="${c[1]}"/>
+           <ellipse cx="0" cy="-3" rx="13" ry="4.4" fill="${c[0]}" fill-opacity=".75"/>
+         </g>`;
+  }
+  return `<svg viewBox="0 0 100 76" style="width:100%;height:100%">
+     <ellipse cx="50" cy="68" rx="30" ry="6" fill="url(#groundShadow)"/>${s}</svg>`;
+}
+
+function render() {
+  const list = PACKS[tab];
+  packs.innerHTML = list.map((p, i) => `
+    <div class="item-card pack" data-id="${p.id}">
+      ${p.best ? '<span class="best">BEST VALUE</span>' : ''}
+      <div class="item-thumb r-${p.r}" style="height:84px">
+        <div class="stack">${coinStack(Math.min(5, i+2), tab)}</div>
+      </div>
+      <h4>${TVG.fmt(p.amt)} ${tab === 'gems' ? 'Gems' : 'Coins'}</h4>
+      <div class="item-sub">${p.bonus ? `<span class="bonus">+${p.bonus}% bonus included</span>` : 'Starter pack'}</div>
+      <div class="price-row">
+        <span class="usd">$${p.usd.toFixed(2)}</span>
+        <i class="ri-shopping-cart-2-fill" style="font-size:13px;color:var(--orange-main)"></i>
+      </div>
+    </div>`).join('');
+
+  packs.querySelectorAll('.pack').forEach(el => el.onclick = () => buy(el.dataset.id));
+  renderBal(); renderHist();
+}
+
+function renderBal() {
+  cash.textContent = TVG.state.wallet.cash.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+  cCoins.textContent = TVG.fmt(TVG.state.wallet.coins);
+  cGems.textContent = TVG.fmt(TVG.state.wallet.gems);
+  TVG.renderWallet();
+}
+
+function renderHist() {
+  const h = TVG.state.topups.slice(0, 6);
+  if (!h.length) { hist.innerHTML = '<div class="empty"><i class="ri-receipt-line"></i>No top-ups yet</div>'; return; }
+  hist.innerHTML = h.map(t => `
+    <div class="row-item">
+      <div class="row-icon" style="background:${t.kind==='gems'?'#F3EEFE':'#FEF6E7'};color:${t.kind==='gems'?'#8B5CF6':'#F5A524'}">
+        <i class="${t.kind==='gems'?'ri-vip-diamond-fill':'ri-copper-coin-fill'}"></i>
+      </div>
+      <div class="row-body"><h4>+${TVG.fmt(t.amt)} ${t.kind}</h4><p>${new Date(t.at).toLocaleString()}</p></div>
+      <b style="font-size:12px;color:var(--danger)">-$${t.usd.toFixed(2)}</b>
+    </div>`).join('');
+}
+
+function buy(id) {
+  const p = PACKS[tab].find(x => x.id === id);
+  const wal = TVG.state.wallet;
+  if (wal.cash < p.usd) {
+    TVG.toast('Insufficient balance — deposit first', 'error');
+    setTimeout(() => location.href = 'deposit.html', 1200);
+    return;
+  }
+  if (!confirm(`Buy ${TVG.fmt(p.amt)} ${tab} for $${p.usd.toFixed(2)}?\n\nThis will be deducted from your TaskVault balance.`)) return;
+
+  wal.cash = +(wal.cash - p.usd).toFixed(2);
+  if (tab === 'gems') wal.gems += p.amt; else wal.coins += p.amt;
+  TVG.state.topups.unshift({ kind: tab, amt: p.amt, usd: p.usd, at: Date.now() });
+  TVG.save();
+  TVG.toast(`+${TVG.fmt(p.amt)} ${tab} added`, 'success');
+  renderBal(); renderHist();
+}
+
+document.querySelectorAll('.tab').forEach(t => t.onclick = () => {
+  document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+  t.classList.add('active'); tab = t.dataset.t; render();
+});
+TVGArt.ensureDefs();
+render();
+</script>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a31b651eeb8902d5',t:'MTc4NzgzNzA1MA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"1954b47c125f43f8b4338b3c4f804e4f"}' crossorigin="anonymous"></script>
+</body>
+</html>

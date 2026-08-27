@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Match History — TaskVault</title>
+<link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="assets/game.css" rel="stylesheet">
+<style>
+@media (min-width:1024px){ .list-wrap{display:grid;grid-template-columns:repeat(2,1fr);gap:8px} .row-item+.row-item{margin-top:0} }
+</style>
+</head>
+<body>
+<div class="app-container">
+  <header class="topbar">
+    <a href="game-profile.html" class="icon-btn ghost"><i class="ri-arrow-left-s-line"></i></a>
+    <div class="topbar-title"><h1>Match History</h1><p>Last 20 matches</p></div>
+    <a href="store.html" class="wallet-row" id="walletLink" data-wallet style="text-decoration:none"></a>
+  </header>
+  <div class="scroll-content">
+   <div class="desk-wrap">
+    <div style="height:14px"></div>
+    <div class="list-wrap" id="list"></div>
+    <div style="height:20px"></div>
+   </div>
+  </div>
+</div>
+<script src="assets/game.js"></script>
+<script>
+const rows = [];
+const last = TVG.state.lastResult;
+if (last) rows.push(last);
+for (let i = 0; i < 19; i++) {
+  const won = Math.random() > 0.42;
+  const k = TVG.rnd(4, 24), d = TVG.rnd(2, 16);
+  rows.push({ won, kills:k, deaths:d, kd:+(k/d).toFixed(2), map: TVG.pick(TVG.MAPS).id,
+    gameMode: TVG.pick(TVG.GAME_MODES), type: TVG.pick(['1v1','2v2','4v4']),
+    coins: won ? TVG.rnd(240,520) : TVG.rnd(80,180), ago: (i+1)*TVG.rnd(1,4) });
+}
+list.innerHTML = rows.map(r => `
+  <div class="row-item">
+    <div class="row-icon" style="background:${r.won?'#E8F8F1':'#FEECEC'};color:${r.won?'#10B981':'#EF4444'}">
+      <i class="${r.won?'ri-trophy-fill':'ri-close-circle-fill'}"></i>
+    </div>
+    <div class="row-body">
+      <h4>${r.won?'Victory':'Defeat'} · ${TVG.map(r.map).name}</h4>
+      <p>${r.gameMode} · ${r.type.toUpperCase()} · ${r.kills}/${r.deaths} · K/D ${r.kd}</p>
+    </div>
+    <div style="text-align:right">
+      <span class="chip"><i class="ri-copper-coin-fill"></i>${TVG.fmt(r.coins)}</span>
+      <p style="font-size:8.5px;color:var(--text-light);margin-top:3px">${r.ago?r.ago+'h ago':'just now'}</p>
+    </div>
+  </div>`).join('');
+</script>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a31b629b48c202d5',t:'MTc4NzgzNjk0Nw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"1954b47c125f43f8b4338b3c4f804e4f"}' crossorigin="anonymous"></script>
+</body>
+</html>

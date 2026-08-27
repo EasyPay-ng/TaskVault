@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Select Match Type — TaskVault</title>
+<link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="assets/game.css" rel="stylesheet">
+</head>
+<body>
+<div class="app-container">
+
+  <header class="topbar">
+    <a href="game-hub.html" class="icon-btn ghost"><i class="ri-arrow-left-s-line"></i></a>
+    <div class="topbar-title"><h1>Select Match Type</h1><p id="flowLabel">Quick Match</p></div>
+    <a href="store.html" class="wallet-row" id="walletLink" data-wallet style="text-decoration:none"></a>
+  </header>
+
+  <div class="scroll-content" style="padding-bottom:110px">
+   <div class="desk-wrap">
+    <div class="pad fade-in" style="padding-bottom:14px">
+      <p style="font-size:11px;color:var(--text-light);line-height:1.6">
+        Choose your battle mode. Larger teams mean longer queues but bigger reward pools.
+      </p>
+    </div>
+
+    <div class="select-list fade-in delay-1" id="modeList"></div>
+
+    <div class="pad fade-in delay-2">
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <h4 style="font-size:12px;font-weight:700;color:var(--text-dark)">Game Mode</h4>
+          <i class="ri-swap-box-line" style="color:var(--orange-main);font-size:14px"></i>
+        </div>
+        <select id="gameMode" style="width:100%;padding:11px 12px;border-radius:11px;border:1px solid #EAE7E1;background:var(--silk-bg);font-size:12px;font-weight:600;color:var(--text-dark);font-family:inherit;outline:none"></select>
+        <p style="font-size:10px;color:var(--text-light);margin-top:8px" id="modeDesc">First team to reach the score limit wins the match.</p>
+      </div>
+    </div>
+
+    <div class="pad fade-in delay-3">
+      <div class="card" style="display:flex;gap:12px;align-items:center">
+        <div class="row-icon" style="background:#FEF6E7;color:#F5A524"><i class="ri-copper-coin-fill"></i></div>
+        <div style="flex:1">
+          <h4 style="font-size:11.5px;font-weight:700;color:var(--text-dark)">Estimated reward</h4>
+          <p style="font-size:10px;color:var(--text-light)" id="rewardHint">Win: 250 coins · 180 XP</p>
+        </div>
+      </div>
+    </div>
+   </div>
+  </div>
+
+  <div class="footer-cta">
+    <button class="btn btn-primary" id="confirmBtn" disabled>
+      <i class="ri-arrow-right-line"></i> Continue to Map Select
+    </button>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+<script src="assets/game.js"></script>
+<script>
+const params = new URLSearchParams(location.search);
+const flow = params.get('flow') || 'quick';
+flowLabel.textContent = flow === 'custom' ? 'Custom Room' : 'Quick Match';
+
+let picked = null;
+
+modeList.innerHTML = TVG.MODES.map(m => `
+  <div class="select-item" data-id="${m.id}">
+    <div class="select-icon ${m.cls}"><i class="${m.icon}"></i></div>
+    <div class="select-body">
+      <h4>${m.id.toUpperCase()} · ${m.name}</h4>
+      <p>${m.sub}</p>
+    </div>
+  </div>`).join('');
+
+gameMode.innerHTML = TVG.GAME_MODES.map(g => `<option>${g}</option>`).join('');
+
+const DESCS = {
+  'Team Deathmatch':'First team to reach the score limit wins the match.',
+  'Domination':'Capture and hold zones to accumulate points over time.',
+  'Search & Destroy':'One life per round. Plant or defuse to win the round.',
+  'Free For All':'Every player for themselves. Highest kills wins.'
+};
+const REW = { '1v1':[250,180], '2v2':[400,260], '4v4':[650,420] };
+
+gameMode.onchange = () => modeDesc.textContent = DESCS[gameMode.value];
+
+modeList.querySelectorAll('.select-item').forEach(el => {
+  el.onclick = () => {
+    modeList.querySelectorAll('.select-item').forEach(x => x.classList.remove('selected'));
+    el.classList.add('selected');
+    picked = el.dataset.id;
+    confirmBtn.disabled = false;
+    const r = REW[picked];
+    rewardHint.textContent = `Win: ${TVG.fmt(r[0])} coins · ${r[1]} XP`;
+  };
+});
+
+confirmBtn.onclick = () => {
+  if (!picked) return;
+  TVG.state.match = {
+    flow, type: picked,
+    size: TVG.MODES.find(m => m.id === picked).size,
+    gameMode: gameMode.value,
+    map: null
+  };
+  TVG.save();
+  location.href = 'map-select.html';
+};
+</script>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"1954b47c125f43f8b4338b3c4f804e4f"}' crossorigin="anonymous"></script>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a31b62c5ae8902d5',t:'MTc4NzgzNjk1NA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

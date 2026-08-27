@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Select Map — TaskVault</title>
+<link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="assets/game.css" rel="stylesheet">
+</head>
+<body>
+<div class="app-container">
+
+  <header class="topbar">
+    <a href="match-type.html" class="icon-btn ghost"><i class="ri-arrow-left-s-line"></i></a>
+    <div class="topbar-title"><h1>Select Map</h1><p id="ctx">—</p></div>
+    <a href="store.html" class="wallet-row" id="walletLink" data-wallet style="text-decoration:none"></a>
+  </header>
+
+  <div class="scroll-content" style="padding-bottom:110px">
+   <div class="desk-wrap">
+    <div class="pad fade-in" style="padding-bottom:14px">
+      <p style="font-size:11px;color:var(--text-light)">Pick your battleground. Locked maps unlock as you level up.</p>
+    </div>
+
+    <div class="grid-2 fade-in delay-1" id="mapGrid"></div>
+
+    <div class="pad fade-in delay-2">
+      <div class="card">
+        <h4 style="font-size:12px;font-weight:700;color:var(--text-dark);margin-bottom:10px">Match Summary</h4>
+        <div id="summary" style="display:flex;flex-direction:column;gap:8px"></div>
+      </div>
+    </div>
+   </div>
+  </div>
+
+  <div class="footer-cta">
+    <button class="btn btn-primary" id="confirmBtn" disabled><i class="ri-check-line"></i> Confirm Map</button>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+<script src="assets/game.js"></script>
+<script>
+const m = TVG.state.match;
+if (!m) location.replace('match-type.html');
+ctx.textContent = m.type.toUpperCase() + ' · ' + m.gameMode;
+
+const lvl = TVG.state.player.level;
+let picked = null;
+
+mapGrid.innerHTML = TVG.MAPS.map(mp => {
+  const locked = lvl < mp.minLvl;
+  return `<div class="map-tile ${locked?'locked':''}" data-id="${mp.id}" data-locked="${locked}">
+      <div class="map-art">
+        ${TVG.mapArt(mp)}
+        <div class="veil"></div>
+        <div class="map-name">${mp.name}</div>
+        ${locked ? `<div class="lock-badge"><i class="ri-lock-2-fill"></i> Lv ${mp.minLvl}</div>` : ''}
+      </div>
+      <div class="map-meta">${mp.tag}</div>
+    </div>`;
+}).join('');
+
+function row(label, val) {
+  return `<div style="display:flex;justify-content:space-between;font-size:11px">
+    <span style="color:var(--text-light)">${label}</span>
+    <b style="color:var(--text-dark);font-weight:600">${val}</b></div>`;
+}
+function renderSummary() {
+  summary.innerHTML =
+    row('Match type', m.type.toUpperCase()) +
+    row('Game mode', m.gameMode) +
+    row('Map', picked ? TVG.map(picked).name : 'Not selected') +
+    row('Entry', 'Free');
+}
+renderSummary();
+
+mapGrid.querySelectorAll('.map-tile').forEach(el => {
+  el.onclick = () => {
+    if (el.dataset.locked === 'true') {
+      TVG.toast('Reach level ' + TVG.map(el.dataset.id).minLvl + ' to unlock', 'error');
+      return;
+    }
+    mapGrid.querySelectorAll('.map-tile').forEach(x => x.classList.remove('selected'));
+    el.classList.add('selected');
+    picked = el.dataset.id;
+    confirmBtn.disabled = false;
+    renderSummary();
+  };
+});
+
+confirmBtn.onclick = () => {
+  m.map = picked; TVG.state.match = m; TVG.save();
+  location.href = 'loadout.html';
+};
+</script>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a31b627bfb2502d5',t:'MTc4NzgzNjk0Mg=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"1954b47c125f43f8b4338b3c4f804e4f"}' crossorigin="anonymous"></script>
+</body>
+</html>

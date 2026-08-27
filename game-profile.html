@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Game Profile — TaskVault</title>
+<link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="assets/game.css" rel="stylesheet">
+<style>
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 20px}
+.pg{background:var(--white);border-radius:14px;padding:13px 8px;text-align:center;border:1px solid var(--line);box-shadow:var(--shadow-sm)}
+.pg b{display:block;font-size:16px;font-weight:800;color:var(--text-dark)}
+.pg span{font-size:9px;color:var(--text-light)}
+.badges{display:flex;gap:8px;overflow-x:auto;padding:0 20px 4px}
+.badges::-webkit-scrollbar{display:none}
+.bg{min-width:66px;background:var(--white);border-radius:14px;padding:11px 6px;text-align:center;border:1px solid var(--line);box-shadow:var(--shadow-sm);flex-shrink:0}
+.bg i{font-size:20px;color:var(--orange-main)}
+.bg span{display:block;font-size:8.5px;color:var(--text-light);margin-top:4px}
+.bg.locked i{color:#DDD} .bg.locked span{opacity:.6}
+@media (min-width:1024px){ .pgrid{grid-template-columns:repeat(6,1fr)} }
+</style>
+</head>
+<body>
+<div class="app-container">
+  <header class="topbar">
+    <a href="game-hub.html" class="icon-btn ghost"><i class="ri-arrow-left-s-line"></i></a>
+    <div class="topbar-title"><h1>Game Profile</h1><p>Your shooter career</p></div>
+    <a href="game-settings.html" class="icon-btn"><i class="ri-settings-3-line"></i></a>
+  </header>
+
+  <div class="scroll-content">
+   <div class="desk-wrap">
+
+    <div class="hero-card fade-in">
+      <div style="display:flex;align-items:center;gap:14px">
+        <div id="ini" style="width:74px;height:74px;flex-shrink:0;border-radius:20px;overflow:hidden;background:rgba(255,255,255,.18);box-shadow:inset 0 1px 0 rgba(255,255,255,.35), inset 0 -8px 16px -8px rgba(0,0,0,.3)"></div>
+        <div style="flex:1">
+          <h2 style="font-size:18px;font-weight:800" id="pname">Tasker123</h2>
+          <p style="font-size:10.5px;opacity:.9"><span id="ptag">#4417</span> · Level <span id="plvl">12</span></p>
+          <div style="margin-top:8px;background:rgba(255,255,255,.22);border-radius:8px;padding:4px 9px;display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700">
+            <i class="ri-vip-crown-2-fill"></i><span id="prank">Platinum III</span>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:14px">
+        <div style="display:flex;justify-content:space-between;font-size:9.5px;opacity:.9;margin-bottom:5px">
+          <span>Experience</span><span id="pxp">0 / 0</span>
+        </div>
+        <div style="height:6px;background:rgba(255,255,255,.25);border-radius:4px;overflow:hidden">
+          <div id="pbar" style="height:100%;background:#fff;border-radius:4px;width:0;transition:width .6s"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pgrid fade-in delay-1">
+      <div class="pg"><b id="s1">0</b><span>Matches</span></div>
+      <div class="pg"><b id="s2">0</b><span>Wins</span></div>
+      <div class="pg"><b id="s3">0</b><span>K/D Ratio</span></div>
+    </div>
+
+    <div class="pad" style="padding-bottom:10px">
+      <div class="section-header" style="padding:0"><h3 class="section-title"><i class="ri-medal-fill"></i> Achievements</h3></div>
+    </div>
+    <div class="badges fade-in delay-2">
+      <div class="bg"><i class="ri-sword-fill"></i><span>First Blood</span></div>
+      <div class="bg"><i class="ri-fire-fill"></i><span>Hot Streak</span></div>
+      <div class="bg"><i class="ri-focus-3-line"></i><span>Sharpshooter</span></div>
+      <div class="bg locked"><i class="ri-lock-2-fill"></i><span>Untouchable</span></div>
+      <div class="bg locked"><i class="ri-lock-2-fill"></i><span>Legend</span></div>
+    </div>
+
+    <div class="pad" style="padding-bottom:10px">
+      <div class="section-header" style="padding:0"><h3 class="section-title"><i class="ri-list-check-3"></i> More</h3></div>
+    </div>
+    <div class="list-wrap fade-in delay-3">
+      <a href="leaderboard.html" class="row-item">
+        <div class="row-icon"><i class="ri-bar-chart-2-fill"></i></div>
+        <div class="row-body"><h4>Rank & Leaderboard</h4><p>See where you stand</p></div>
+        <i class="ri-arrow-right-s-line" style="color:var(--text-light)"></i>
+      </a>
+      <a href="match-history.html" class="row-item">
+        <div class="row-icon"><i class="ri-history-line"></i></div>
+        <div class="row-body"><h4>Match History</h4><p>Your recent 20 matches</p></div>
+        <i class="ri-arrow-right-s-line" style="color:var(--text-light)"></i>
+      </a>
+      <a href="game-settings.html" class="row-item">
+        <div class="row-icon"><i class="ri-settings-3-fill"></i></div>
+        <div class="row-body"><h4>Settings</h4><p>Audio, graphics & controls</p></div>
+        <i class="ri-arrow-right-s-line" style="color:var(--text-light)"></i>
+      </a>
+    </div>
+    <div style="height:20px"></div>
+   </div>
+  </div>
+
+  <nav class="bottom-nav">
+    <a href="game-hub.html" class="nav-item"><i class="ri-gamepad-line"></i><span>Play</span></a>
+    <a href="weapon-shop.html" class="nav-item"><i class="ri-store-2-line"></i><span>Shop</span></a>
+    <a href="missions.html" class="nav-item"><i class="ri-task-line"></i><span>Missions</span></a>
+    <a href="leaderboard.html" class="nav-item"><i class="ri-bar-chart-2-line"></i><span>Ranks</span></a>
+    <a href="game-profile.html" class="nav-item active"><i class="ri-user-3-fill"></i><span>Profile</span></a>
+  </nav>
+</div>
+
+<div id="toast" class="toast"></div>
+<script src="assets/art.js"></script>
+<script src="assets/game.js"></script>
+<script>
+const p = TVG.state.player;
+ini.innerHTML = TVGArt.characterSVG(TVG.state.equipped.character);
+ini.querySelector('svg').style.cssText='width:100%;height:100%;transform:scale(1.2) translateY(8px)';
+pname.textContent = p.name; ptag.textContent = p.tag;
+plvl.textContent = p.level; prank.textContent = p.rank;
+pxp.textContent = TVG.fmt(p.xp) + ' / ' + TVG.fmt(p.xpMax);
+setTimeout(() => pbar.style.width = Math.min(100, p.xp/p.xpMax*100) + '%', 200);
+s1.textContent = TVG.fmt(p.matches); s2.textContent = TVG.fmt(p.wins); s3.textContent = p.kd.toFixed(2);
+</script>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a31b61155dc502d5',t:'MTc4NzgzNjg4NQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"1954b47c125f43f8b4338b3c4f804e4f"}' crossorigin="anonymous"></script>
+</body>
+</html>

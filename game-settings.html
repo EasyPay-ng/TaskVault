@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Game Settings — TaskVault</title>
+<link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="assets/game.css" rel="stylesheet">
+<style>
+.grp{margin:0 20px 14px;background:var(--white);border-radius:16px;border:1px solid var(--line);box-shadow:var(--shadow-sm);overflow:hidden}
+.gr{display:flex;align-items:center;gap:12px;padding:13px 15px}
+.gr+.gr{border-top:1px solid #F5F2ED}
+.gr .ic{width:32px;height:32px;border-radius:10px;background:var(--orange-light);color:var(--orange-main);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.gr h4{font-size:12px;font-weight:600;color:var(--text-dark)}
+.gr p{font-size:9.5px;color:var(--text-light)}
+.grp-title{font-size:10px;font-weight:700;color:var(--text-light);letter-spacing:1px;text-transform:uppercase;padding:0 20px;margin-bottom:8px}
+input[type=range]{-webkit-appearance:none;width:100%;height:5px;border-radius:3px;background:#EEE;outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:17px;height:17px;border-radius:50%;background:var(--orange-main);box-shadow:var(--shadow-sm);cursor:pointer}
+@media (min-width:1024px){ .grp{max-width:640px;margin-left:auto;margin-right:auto} .grp-title{max-width:640px;margin-left:auto;margin-right:auto} }
+</style>
+</head>
+<body>
+<div class="app-container">
+  <header class="topbar">
+    <a href="game-hub.html" class="icon-btn ghost"><i class="ri-arrow-left-s-line"></i></a>
+    <div class="topbar-title"><h1>Settings</h1><p>Audio, graphics & controls</p></div>
+  </header>
+
+  <div class="scroll-content">
+   <div class="desk-wrap">
+    <div style="height:16px"></div>
+
+    <div class="grp-title">General</div>
+    <div class="grp">
+      <div class="gr">
+        <div class="ic"><i class="ri-volume-up-fill"></i></div>
+        <div style="flex:1"><h4>Sound Effects</h4><p>Gunfire, footsteps & impacts</p></div>
+        <label class="switch"><input type="checkbox" id="sound"><span class="slider"></span></label>
+      </div>
+      <div class="gr">
+        <div class="ic"><i class="ri-music-2-fill"></i></div>
+        <div style="flex:1"><h4>Music</h4><p>Lobby & match soundtrack</p></div>
+        <label class="switch"><input type="checkbox" id="music"><span class="slider"></span></label>
+      </div>
+      <div class="gr">
+        <div class="ic"><i class="ri-vibrate-fill"></i></div>
+        <div style="flex:1"><h4>Vibration</h4><p>Haptic feedback on hits</p></div>
+        <label class="switch"><input type="checkbox" id="vibration"><span class="slider"></span></label>
+      </div>
+    </div>
+
+    <div class="grp-title">Graphics & Controls</div>
+    <div class="grp">
+      <div class="gr">
+        <div class="ic"><i class="ri-image-2-fill"></i></div>
+        <div style="flex:1"><h4>Graphics Quality</h4><p>Lower = smoother frame rate</p></div>
+        <div class="seg" id="gfx">
+          <button data-v="low">Low</button><button data-v="medium">Med</button><button data-v="high">High</button>
+        </div>
+      </div>
+      <div class="gr" style="flex-direction:column;align-items:stretch;gap:9px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="ic"><i class="ri-cursor-fill"></i></div>
+          <div style="flex:1"><h4>Aim Sensitivity</h4><p>Look speed when dragging</p></div>
+          <b style="font-size:12px;color:var(--orange-main)" id="sensVal">55</b>
+        </div>
+        <input type="range" min="15" max="100" id="sens">
+      </div>
+      <div class="gr">
+        <div class="ic"><i class="ri-translate-2"></i></div>
+        <div style="flex:1"><h4>Language</h4><p>Interface language</p></div>
+        <select id="lang" style="border:1px solid #EEE;border-radius:9px;padding:6px 9px;font-size:11px;font-family:inherit;font-weight:600;color:var(--text-dark);outline:none">
+          <option value="en">English</option><option value="fr">Français</option>
+          <option value="es">Español</option><option value="pt">Português</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="grp-title">Other</div>
+    <div class="grp">
+      <a href="how-to-play.html" class="gr" style="text-decoration:none">
+        <div class="ic"><i class="ri-question-fill"></i></div>
+        <div style="flex:1"><h4>How to Play</h4><p>Controls & game rules</p></div>
+        <i class="ri-arrow-right-s-line" style="color:var(--text-light)"></i>
+      </a>
+      <div class="gr" style="cursor:pointer" onclick="if(confirm('Reset all game progress, coins and unlocks?')){TVG.reset();location.reload()}">
+        <div class="ic" style="background:#FEECEC;color:#EF4444"><i class="ri-delete-bin-6-fill"></i></div>
+        <div style="flex:1"><h4 style="color:#EF4444">Reset Game Data</h4><p>Clears progress, coins & unlocks</p></div>
+        <i class="ri-arrow-right-s-line" style="color:var(--text-light)"></i>
+      </div>
+    </div>
+    <div style="height:20px"></div>
+   </div>
+  </div>
+
+  <nav class="bottom-nav">
+    <a href="game-hub.html" class="nav-item"><i class="ri-gamepad-line"></i><span>Play</span></a>
+    <a href="weapon-shop.html" class="nav-item"><i class="ri-store-2-line"></i><span>Shop</span></a>
+    <a href="missions.html" class="nav-item"><i class="ri-task-line"></i><span>Missions</span></a>
+    <a href="leaderboard.html" class="nav-item"><i class="ri-bar-chart-2-line"></i><span>Ranks</span></a>
+    <a href="game-profile.html" class="nav-item"><i class="ri-user-3-line"></i><span>Profile</span></a>
+  </nav>
+</div>
+
+<div id="toast" class="toast"></div>
+<script src="assets/game.js"></script>
+<script>
+const S = TVG.state.settings;
+['sound','music','vibration'].forEach(k => {
+  const el = document.getElementById(k);
+  el.checked = S[k];
+  el.onchange = () => { S[k] = el.checked; TVG.save(); TVG.toast(k[0].toUpperCase()+k.slice(1)+' '+(el.checked?'on':'off'),'info'); };
+});
+document.querySelectorAll('#gfx button').forEach(b => {
+  if (b.dataset.v === S.graphics) b.classList.add('active');
+  b.onclick = () => {
+    document.querySelectorAll('#gfx button').forEach(x => x.classList.remove('active'));
+    b.classList.add('active'); S.graphics = b.dataset.v; TVG.save();
+    TVG.toast('Graphics: ' + b.textContent, 'success');
+  };
+});
+sens.value = S.sensitivity; sensVal.textContent = S.sensitivity;
+sens.oninput = () => { sensVal.textContent = sens.value; S.sensitivity = +sens.value; TVG.save(); };
+lang.value = S.lang;
+lang.onchange = () => { S.lang = lang.value; TVG.save(); TVG.toast('Language saved','success'); };
+</script>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"1954b47c125f43f8b4338b3c4f804e4f"}' crossorigin="anonymous"></script>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a31b6141e86c02d5',t:'MTc4NzgzNjg5Mg=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

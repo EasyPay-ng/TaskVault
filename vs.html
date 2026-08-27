@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>VS — TaskVault</title>
+<link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="assets/game.css" rel="stylesheet">
+<style>
+.vs-wrap { flex:1; display:flex; flex-direction:column; padding:14px 20px 0; overflow-y:auto; }
+.teams { display:grid; grid-template-columns:1fr auto 1fr; gap:10px; align-items:start; }
+.team-col { display:flex; flex-direction:column; gap:8px; }
+.team-hd {
+  font-size:10px; font-weight:800; letter-spacing:.8px; text-transform:uppercase;
+  padding:7px 10px; border-radius:10px; text-align:center;
+}
+.team-hd.blue { background:#EAF2FE; color:#2563EB; }
+.team-hd.red  { background:#FEECEC; color:#DC2626; }
+.pcard {
+  background:var(--white); border-radius:12px; padding:8px 10px;
+  display:flex; align-items:center; gap:8px;
+  border:1px solid var(--line); box-shadow:var(--shadow-sm);
+  animation: slideIn .4s ease-out backwards;
+}
+.pcard.right { flex-direction:row-reverse; text-align:right; }
+@keyframes slideIn { from { opacity:0; transform:translateY(8px);} }
+.pcard .nm { font-size:11px; font-weight:600; color:var(--text-dark); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.pcard .lv { font-size:9px; color:var(--text-light); }
+.pcard.you { border-color:var(--orange-main); background:#FFF9F4; }
+
+.vs-badge {
+  align-self:center; margin-top:34px;
+  font-size:22px; font-weight:900; color:var(--orange-main);
+  background:var(--orange-light); width:48px; height:48px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  animation: pop .5s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes pop { from { transform:scale(0);} }
+
+.map-strip { margin-top:16px; border-radius:16px; overflow:hidden; position:relative; height:104px; box-shadow:var(--shadow-md); }
+.map-strip .ov {
+  position:absolute; inset:0; padding:12px;
+  background:linear-gradient(to top, rgba(0,0,0,.7), rgba(0,0,0,.05));
+  display:flex; flex-direction:column; justify-content:flex-end; color:#fff;
+}
+.map-strip h3 { font-size:15px; font-weight:800; }
+.map-strip p { font-size:10px; opacity:.85; }
+
+.countdown { text-align:center; padding:18px 0 22px; }
+.countdown .num {
+  font-size:46px; font-weight:900; color:var(--orange-main); line-height:1;
+  animation: tick .9s ease-out;
+}
+@keyframes tick { from { transform:scale(1.5); opacity:.3; } }
+.countdown p { font-size:10px; color:var(--text-light); letter-spacing:1.5px; text-transform:uppercase; margin-top:6px; }
+
+@media (min-width:1024px){ .vs-wrap{ max-width:900px; margin:0 auto; width:100%; } .map-strip{height:180px;} }
+</style>
+</head>
+<body>
+<div class="app-container">
+
+  <header class="topbar">
+    <div class="topbar-title" style="text-align:center"><h1 id="modeTitle">Team Deathmatch</h1><p id="ctx">—</p></div>
+  </header>
+
+  <div class="vs-wrap">
+    <div class="teams">
+      <div class="team-col">
+        <div class="team-hd blue">Your Team</div>
+        <div id="teamA"></div>
+      </div>
+      <div class="vs-badge">VS</div>
+      <div class="team-col">
+        <div class="team-hd red">Enemy Team</div>
+        <div id="teamB"></div>
+      </div>
+    </div>
+
+    <div class="map-strip" id="mapStrip"></div>
+
+    <div class="countdown">
+      <div class="num" id="cd">5</div>
+      <p>Match starts in</p>
+    </div>
+  </div>
+</div>
+
+<script src="assets/game.js"></script>
+<script>
+const m = TVG.state.match;
+if (!m || !m.roster) location.replace('match-type.html');
+const mp = TVG.map(m.map);
+modeTitle.textContent = m.gameMode;
+ctx.textContent = m.type.toUpperCase() + ' · ' + mp.name;
+
+const half = m.size;
+const a = m.roster.slice(0, half);
+const b = m.roster.slice(half);
+
+function card(n, side, i, you) {
+  return `<div class="pcard ${side==='right'?'right':''} ${you?'you':''}" style="animation-delay:${i*.08}s">
+    <div class="av sm ${side==='right'?'red':'blue'}">${TVG.initials(n)}</div>
+    <div style="flex:1;min-width:0"><div class="nm">${n}</div><div class="lv">Lv ${TVG.rnd(8,22)}</div></div>
+  </div>`;
+}
+teamA.innerHTML = a.map((n,i) => card(n,'left',i, n === TVG.state.player.name)).join('');
+teamB.innerHTML = b.map((n,i) => card(n,'right',i)).join('');
+
+mapStrip.innerHTML = TVG.mapArt(mp).replace('viewBox="0 0 200 84"','viewBox="0 0 200 84" style="position:absolute;inset:0;width:100%;height:100%"') +
+  `<div class="ov"><h3>${mp.name}</h3><p>${mp.tag} · ${m.gameMode}</p></div>`;
+
+m.teamA = a; m.teamB = b; TVG.state.match = m; TVG.save();
+
+let c = 5;
+const iv = setInterval(() => {
+  c--;
+  if (c <= 0) { clearInterval(iv); location.href = 'match.html'; return; }
+  cd.textContent = c;
+  cd.style.animation = 'none'; void cd.offsetWidth; cd.style.animation = 'tick .9s ease-out';
+}, 1000);
+</script>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a31b656aefc502d5',t:'MTc4NzgzNzA2Mg=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"1954b47c125f43f8b4338b3c4f804e4f"}' crossorigin="anonymous"></script>
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>How to Play — TaskVault</title>
+<link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="assets/game.css" rel="stylesheet">
+<style>
+.step{display:flex;gap:12px;padding:0 20px;margin-bottom:16px}
+.step .n{width:26px;height:26px;border-radius:9px;background:var(--gradient-orange);color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.step h4{font-size:12.5px;font-weight:700;color:var(--text-dark)}
+.step p{font-size:10.5px;color:var(--text-light);line-height:1.6;margin-top:2px}
+.ctrl{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;padding:0 20px}
+.cc{background:var(--white);border-radius:14px;padding:12px;border:1px solid var(--line);box-shadow:var(--shadow-sm);text-align:center}
+.cc i{font-size:22px;color:var(--orange-main)}
+.cc h5{font-size:11px;font-weight:700;color:var(--text-dark);margin-top:5px}
+.cc p{font-size:9px;color:var(--text-light);margin-top:1px}
+@media (min-width:1024px){ .ctrl{grid-template-columns:repeat(4,1fr)} }
+</style>
+</head>
+<body>
+<div class="app-container">
+  <header class="topbar">
+    <a href="game-hub.html" class="icon-btn ghost"><i class="ri-arrow-left-s-line"></i></a>
+    <div class="topbar-title"><h1>How to Play</h1><p>Rules & controls</p></div>
+  </header>
+
+  <div class="scroll-content">
+   <div class="desk-wrap">
+    <div class="hero-card">
+      <div class="eyebrow">Quick start</div>
+      <h2 style="font-size:18px;font-weight:800;margin-top:2px">Play. Win. Earn.</h2>
+      <p style="font-size:11px;opacity:.9;margin-top:4px;line-height:1.6">
+        Matches are played in landscape. Eliminate the enemy team to reach the score target before the clock runs out.
+      </p>
+    </div>
+
+    <div class="pad" style="padding-bottom:12px">
+      <div class="section-header" style="padding:0"><h3 class="section-title"><i class="ri-route-line"></i> Match Flow</h3></div>
+    </div>
+    <div class="step"><div class="n">1</div><div><h4>Choose a match type</h4><p>1v1 Duel, 2v2 Squad Duel or 4v4 Team Battle, plus a game mode.</p></div></div>
+    <div class="step"><div class="n">2</div><div><h4>Pick your map</h4><p>Some maps stay locked until you reach the required level.</p></div></div>
+    <div class="step"><div class="n">3</div><div><h4>Set your loadout</h4><p>Primary, secondary, grenade and melee. Buy new gear in the shops.</p></div></div>
+    <div class="step"><div class="n">4</div><div><h4>Fight</h4><p>First team to the score target wins. Timer runs out? Highest score takes it.</p></div></div>
+    <div class="step"><div class="n">5</div><div><h4>Claim rewards</h4><p>Coins and XP land in your game wallet. Coins buy characters and weapons.</p></div></div>
+
+    <div class="pad" style="padding-bottom:12px">
+      <div class="section-header" style="padding:0"><h3 class="section-title"><i class="ri-gamepad-fill"></i> Controls</h3></div>
+    </div>
+    <div class="ctrl">
+      <div class="cc"><i class="ri-drag-move-2-fill"></i><h5>Left Stick</h5><p>Move · WASD on desktop</p></div>
+      <div class="cc"><i class="ri-drag-move-line"></i><h5>Drag Right</h5><p>Look around · Mouse</p></div>
+      <div class="cc"><i class="ri-crosshair-2-fill"></i><h5>Fire</h5><p>Hold to shoot · Click</p></div>
+      <div class="cc"><i class="ri-loop-right-fill"></i><h5>Reload</h5><p>Refill mag · R key</p></div>
+      <div class="cc"><i class="ri-bomb-fill"></i><h5>Grenade</h5><p>8s cooldown</p></div>
+      <div class="cc"><i class="ri-knife-blood-fill"></i><h5>Melee</h5><p>Close range finisher</p></div>
+      <div class="cc"><i class="ri-run-fill"></i><h5>Sprint</h5><p>Hold · Shift key</p></div>
+      <div class="cc"><i class="ri-pause-fill"></i><h5>Pause</h5><p>Esc key</p></div>
+    </div>
+
+    <div class="pad">
+      <div class="card" style="display:flex;gap:11px;align-items:flex-start">
+        <i class="ri-information-fill" style="color:var(--orange-main);font-size:16px"></i>
+        <p style="font-size:10.5px;color:var(--text-light);line-height:1.6">
+          Coins and gems are in-game currency for characters and weapons. They are separate from your TaskVault dollar wallet and cannot be withdrawn.
+        </p>
+      </div>
+    </div>
+    <div style="height:24px"></div>
+   </div>
+  </div>
+</div>
+<script src="assets/game.js"></script>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"1954b47c125f43f8b4338b3c4f804e4f"}' crossorigin="anonymous"></script>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a31b6161daa202d5',t:'MTc4NzgzNjg5Nw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

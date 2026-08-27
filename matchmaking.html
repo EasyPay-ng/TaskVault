@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Matchmaking — TaskVault</title>
+<link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="assets/game.css" rel="stylesheet">
+<style>
+.center-stage{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 26px;text-align:center;overflow-y:auto}
+.radar{width:138px;height:138px;border-radius:50%;background:var(--orange-light);display:flex;align-items:center;justify-content:center;font-size:46px;color:var(--orange-main);margin-bottom:20px;position:relative}
+.radar::after{content:'';position:absolute;inset:-14px;border-radius:50%;border:2px solid var(--orange-main);opacity:.25;animation:ripple 2s ease-out infinite}
+@keyframes ripple{0%{transform:scale(.85);opacity:.5}100%{transform:scale(1.25);opacity:0}}
+.sweep{position:absolute;inset:0;border-radius:50%;overflow:hidden}
+.sweep::before{content:'';position:absolute;top:50%;left:50%;width:50%;height:50%;transform-origin:0 0;background:conic-gradient(from 0deg,rgba(255,140,66,.35),rgba(255,140,66,0) 70%);animation:sweep 1.6s linear infinite}
+@keyframes sweep{to{transform:rotate(360deg)}}
+.mm-title{font-size:16px;font-weight:800;color:var(--text-dark)}
+.mm-sub{font-size:11px;color:var(--text-light);margin-top:4px}
+.mm-stats{display:flex;gap:9px;margin:20px 0 16px;width:100%;max-width:360px}
+.mm-stat{flex:1;background:var(--white);border-radius:14px;padding:12px 6px}
+.mm-stat b{display:block;font-size:16px;font-weight:800;color:var(--orange-main)}
+.mm-stat span{font-size:8.5px;color:var(--text-light)}
+.found-row{display:flex;gap:7px;flex-wrap:wrap;justify-content:center;max-width:360px;margin-bottom:14px}
+.pslot{width:40px;height:40px;border-radius:12px;background:#F1EFEB;border:1.5px dashed #DDD8D0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#BFB9B0;transition:all .35s cubic-bezier(.34,1.56,.64,1);position:relative}
+.pslot.filled{background:var(--gradient-orange);color:#fff;border:none;transform:scale(1.06);box-shadow:var(--shadow-md)}
+.pslot.you::after{content:'YOU';position:absolute;bottom:-13px;font-size:7px;font-weight:800;color:var(--orange-main)}
+.pslot.bot{background:linear-gradient(135deg,#A8B0B8,#78838C)}
+.qbar{width:100%;max-width:360px;margin-bottom:14px}
+.qbar .progress{height:5px}
+.qbar .row{display:flex;justify-content:space-between;font-size:9px;color:var(--text-light);margin-bottom:5px;font-weight:600}
+.netpill{display:inline-flex;align-items:center;gap:5px;font-size:9.5px;font-weight:700;padding:4px 10px;border-radius:8px;margin-bottom:14px}
+.netpill.ok{background:#E8F8F1;color:#067A55}
+.netpill.bad{background:#FEECEC;color:#B91C1C}
+.netpill i{font-size:8px}
+</style>
+</head>
+<body>
+<div class="app-container">
+  <header class="topbar">
+    <button class="icon-btn ghost" onclick="quit()"><i class="ri-arrow-left-s-line"></i></button>
+    <div class="topbar-title"><h1>Matchmaking</h1><p id="ctx">—</p></div>
+  </header>
+
+  <div class="center-stage">
+    <div class="radar pulse-ring"><div class="sweep"></div><i class="ri-global-line" style="position:relative"></i></div>
+
+    <div class="netpill bad" id="netPill"><i class="ri-circle-fill"></i> <span>Connecting…</span></div>
+
+    <div class="mm-title" id="mmTitle">Searching for players…</div>
+    <div class="mm-sub" id="mmSub">Matching you with real players on the server</div>
+
+    <div class="mm-stats">
+      <div class="mm-stat"><b id="found">0/2</b><span>Players Found</span></div>
+      <div class="mm-stat"><b id="elapsed">0:00</b><span>Time Searching</span></div>
+      <div class="mm-stat"><b id="ping">—</b><span>Your Ping</span></div>
+    </div>
+
+    <div class="qbar">
+      <div class="row"><span>Search window</span><span id="remain">5:00 left</span></div>
+      <div class="progress"><i id="qFill" style="width:0%"></i></div>
+    </div>
+
+    <div class="found-row" id="slots"></div>
+  </div>
+
+  <div class="footer-cta">
+    <button class="btn btn-primary" id="botBtn" style="display:none;margin-bottom:8px">
+      <i class="ri-robot-2-fill"></i> Start now — fill with bots
+    </button>
+    <button class="btn btn-outline" onclick="quit()"><i class="ri-close-line"></i> Cancel Search</button>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+<script src="assets/maps.js"></script>
+<script src="assets/net.js"></script>
+<script src="assets/game.js"></script>
+<script>
+const M = TVG.state.match;
+if (!M) location.replace('match-type.html');
+ctx.textContent = M.type.toUpperCase() + ' · ' + TVG.map(M.map).name;
+
+const total = M.size * 2;
+let started = Date.now(), limit = 300, done = false;
+
+function drawSlots(names, bots) {
+  names = names || [];
+  let h = '';
+  for (let i = 0; i < total; i++) {
+    const n = names[i];
+    const you = n && n === (TVG.state.player.netName || TVG.state.player.name);
+    const isBot = bots && bots.includes(n);
+    h += `<div class="pslot ${n?'filled':''} ${you?'you':''} ${isBot?'bot':''}">${n?TVG.initials(n):'?'}</div>`;
+  }
+  slots.innerHTML = h;
+  found.textContent = names.length + '/' + total;
+}
+drawSlots([]);
+
+/* ---- clock ---- */
+setInterval(() => {
+  if (done) return;
+  const s = Math.floor((Date.now() - started) / 1000);
+  elapsed.textContent = Math.floor(s/60) + ':' + String(s%60).padStart(2,'0');
+  const left = Math.max(0, limit - s);
+  remain.textContent = Math.floor(left/60) + ':' + String(left%60).padStart(2,'0') + ' left';
+  qFill.style.width = Math.min(100, s/limit*100) + '%';
+}, 500);
+
+/* ---- net ---- */
+TVGNet.on('open', () => {
+  netPill.className = 'netpill ok';
+  netPill.innerHTML = '<i class="ri-circle-fill"></i> <span>Connected to server</span>';
+});
+TVGNet.on('close', () => {
+  if (done) return;
+  netPill.className = 'netpill bad';
+  netPill.innerHTML = '<i class="ri-circle-fill"></i> <span>Reconnecting…</span>';
+});
+TVGNet.on('latency', d => ping.textContent = d.ms + 'ms');
+
+TVGNet.on('authed', d => {
+  TVGNet.send('queue', {
+    matchType: M.type, size: M.size, map: M.map, gameMode: M.gameMode
+  });
+  mmSub.textContent = d.online + ' player' + (d.online===1?'':'s') + ' online · searching';
+});
+
+TVGNet.on('queue', d => {
+  drawSlots(d.names, []);
+  if (d.canBots) botBtn.style.display = 'flex';
+  if (d.names.length > 1) mmSub.textContent = 'Real players found — waiting for a full lobby';
+});
+
+TVGNet.on('queueTimeout', () => {
+  mmTitle.textContent = 'No match found';
+  mmSub.textContent = 'Nobody else queued for this mode in 5 minutes.';
+  botBtn.style.display = 'flex';
+  botBtn.innerHTML = '<i class="ri-robot-2-fill"></i> Play against bots instead';
+  botBtn.onclick = () => {
+    TVGNet.send('queue', { matchType: M.type, size: M.size, map: M.map, gameMode: M.gameMode });
+    setTimeout(() => TVGNet.send('fillBots', {}), 300);
+    started = Date.now(); mmTitle.textContent = 'Preparing bot match…';
+  };
+});
+
+TVGNet.on('matchFound', d => {
+  done = true;
+  drawSlots([...d.teamA, ...d.teamB].map(x => x.name), [...d.teamA, ...d.teamB].filter(x => x.bot).map(x => x.name));
+  mmTitle.textContent = 'Match found!';
+  mmSub.textContent = 'Preparing the arena…';
+  M.net = {
+    matchId: d.matchId, you: d.you, team: d.team,
+    teamA: d.teamA, teamB: d.teamB, target: d.target, duration: d.duration
+  };
+  M.roster = [...d.teamA, ...d.teamB].map(x => x.name);
+  M.teamA = d.teamA.map(x => x.name);
+  M.teamB = d.teamB.map(x => x.name);
+  TVG.state.match = M; TVG.save();
+  setTimeout(() => location.href = 'vs.html', 800);
+});
+
+TVGNet.on('neterror', () => {
+  netPill.className = 'netpill bad';
+  netPill.innerHTML = '<i class="ri-circle-fill"></i> <span>Server unreachable</span>';
+  mmSub.textContent = 'Cannot reach the match server. Check it is running.';
+});
+
+botBtn.onclick = () => { TVGNet.send('fillBots', {}); mmTitle.textContent = 'Preparing match…'; };
+
+function quit() { TVGNet.send('cancelQueue', {}); TVGNet.close(); location.href = 'game-hub.html'; }
+
+TVGNet.connect(TVG.state.player.name);
+</script>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a31b6308ebc102d5',t:'MTc4NzgzNjk2NQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"1954b47c125f43f8b4338b3c4f804e4f"}' crossorigin="anonymous"></script>
+</body>
+</html>

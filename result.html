@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Match Result — TaskVault</title>
+<link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="assets/game.css" rel="stylesheet">
+<style>
+.verdict {
+  text-align:center; padding:26px 20px 20px; color:#fff;
+  background:var(--gradient-orange); position:relative; overflow:hidden;
+}
+.verdict.loss { background:linear-gradient(135deg,#94A3B8,#64748B); }
+.verdict::after{content:'';position:absolute;top:-50px;right:-40px;width:170px;height:170px;background:rgba(255,255,255,.10);border-radius:50%}
+.verdict > *{position:relative;z-index:1}
+.verdict .crown{font-size:34px;margin-bottom:4px;animation:pop .5s cubic-bezier(.34,1.56,.64,1)}
+@keyframes pop{from{transform:scale(0)}}
+.verdict h2{font-size:26px;font-weight:900;letter-spacing:1px;text-transform:uppercase}
+.verdict p{font-size:11px;opacity:.9;margin-top:2px}
+.scoreline{display:flex;align-items:center;justify-content:center;gap:18px;margin-top:16px}
+.scoreline b{font-size:34px;font-weight:900;line-height:1}
+.scoreline small{display:block;font-size:9px;opacity:.85;letter-spacing:1px}
+.scoreline .divider{opacity:.5;font-size:18px}
+
+.stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;padding:0 20px}
+.sg{background:var(--white);border-radius:14px;padding:12px 13px;border:1px solid var(--line);box-shadow:var(--shadow-sm);display:flex;align-items:center;gap:10px}
+.sg .ic{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.sg b{font-size:15px;font-weight:800;color:var(--text-dark);display:block;line-height:1.1}
+.sg span{font-size:9px;color:var(--text-light)}
+@media (min-width:1024px){ .stat-grid{grid-template-columns:repeat(4,1fr)} }
+</style>
+</head>
+<body>
+<div class="app-container">
+
+  <div class="scroll-content" style="padding-bottom:120px">
+   <div class="desk-wrap">
+
+    <div class="verdict" id="verdict">
+      <div class="crown"><i class="ri-trophy-fill" id="vIcon"></i></div>
+      <h2 id="vTitle">Victory</h2>
+      <p id="vSub">Team Deathmatch · Warehouse</p>
+      <div class="scoreline">
+        <div><b id="sA">0</b><small>YOUR TEAM</small></div>
+        <span class="divider">—</span>
+        <div><b id="sB">0</b><small>ENEMY</small></div>
+      </div>
+    </div>
+
+    <div class="pad" style="padding-bottom:10px">
+      <div class="section-header" style="padding:0"><h3 class="section-title"><i class="ri-bar-chart-box-fill"></i> Your Performance</h3></div>
+    </div>
+
+    <div class="stat-grid fade-in delay-1">
+      <div class="sg"><div class="ic" style="background:#FEECEC;color:#EF4444"><i class="ri-crosshair-2-fill"></i></div><div><b id="mKills">0</b><span>Kills</span></div></div>
+      <div class="sg"><div class="ic" style="background:#F2F2F2;color:#888"><i class="ri-skull-2-fill"></i></div><div><b id="mDeaths">0</b><span>Deaths</span></div></div>
+      <div class="sg"><div class="ic" style="background:#EAF2FE;color:#3B82F6"><i class="ri-hand-heart-fill"></i></div><div><b id="mAssists">0</b><span>Assists</span></div></div>
+      <div class="sg"><div class="ic" style="background:#FFF0E6;color:#FF8C42"><i class="ri-percent-fill"></i></div><div><b id="mKd">0</b><span>K/D Ratio</span></div></div>
+      <div class="sg"><div class="ic" style="background:#F3EEFE;color:#8B5CF6"><i class="ri-focus-3-line"></i></div><div><b id="mHs">0</b><span>Headshots</span></div></div>
+      <div class="sg"><div class="ic" style="background:#E8F8F1;color:#10B981"><i class="ri-timer-flash-fill"></i></div><div><b id="mAcc">0%</b><span>Accuracy</span></div></div>
+    </div>
+
+    <div class="pad fade-in delay-2">
+      <div class="card">
+        <h4 style="font-size:12px;font-weight:700;color:var(--text-dark);margin-bottom:12px">Match Rewards</h4>
+        <div style="display:flex;gap:10px">
+          <div style="flex:1;background:var(--coin-soft);border-radius:12px;padding:12px;text-align:center">
+            <i class="ri-copper-coin-fill" style="font-size:20px;color:#F5A524"></i>
+            <b style="display:block;font-size:17px;font-weight:800;color:#B4761A;margin-top:3px" id="rCoins">0</b>
+            <span style="font-size:9px;color:#B4761A;opacity:.8">Coins</span>
+          </div>
+          <div style="flex:1;background:#EAF2FE;border-radius:12px;padding:12px;text-align:center">
+            <i class="ri-flashlight-fill" style="font-size:20px;color:#3B82F6"></i>
+            <b style="display:block;font-size:17px;font-weight:800;color:#2563EB;margin-top:3px" id="rXp">0</b>
+            <span style="font-size:9px;color:#2563EB;opacity:.8">Experience</span>
+          </div>
+        </div>
+      </div>
+    </div>
+   </div>
+  </div>
+
+  <div class="footer-cta">
+    <div class="btn-row">
+      <a href="game-hub.html" class="btn btn-outline" style="flex:1"><i class="ri-home-4-line"></i> Lobby</a>
+      <button class="btn btn-primary" style="flex:1.4" id="claimBtn"><i class="ri-gift-fill"></i> Claim Rewards</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+<script src="assets/game.js"></script>
+<script>
+const r = TVG.state.lastResult;
+if (!r) location.replace('game-hub.html');
+const mp = TVG.map(r.map);
+
+if (!r.won) { verdict.classList.add('loss'); vIcon.className = 'ri-shield-cross-fill'; }
+vTitle.textContent = r.forfeit ? 'Forfeit' : (r.won ? 'Victory' : 'Defeat');
+vSub.textContent = r.gameMode + ' · ' + mp.name + ' · ' + r.type.toUpperCase();
+sA.textContent = r.scoreA; sB.textContent = r.scoreB;
+mKills.textContent = r.kills; mDeaths.textContent = r.deaths;
+mAssists.textContent = r.assists; mKd.textContent = r.kd;
+mHs.textContent = r.headshots; mAcc.textContent = r.accuracy + '%';
+rCoins.textContent = TVG.fmt(r.coins); rXp.textContent = TVG.fmt(r.xp);
+
+claimBtn.onclick = () => location.href = 'rewards.html';
+</script>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a31b64ccbcaa02d5',t:'MTc4NzgzNzAzNw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"1954b47c125f43f8b4338b3c4f804e4f"}' crossorigin="anonymous"></script>
+</body>
+</html>

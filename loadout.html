@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Loadout — TaskVault</title>
+<link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="assets/game.css" rel="stylesheet">
+<style>
+.slot {
+  background: var(--white); border-radius: 16px; padding: 13px;
+  display: flex; align-items: center; gap: 12px;
+  box-shadow: var(--shadow-sm); border: 1px solid var(--line);
+  cursor: pointer; transition: all .2s ease;
+}
+.slot:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.slot + .slot { margin-top: 9px; }
+.slot .thumb {
+  width: 62px; height: 52px; border-radius: 13px;
+  background: linear-gradient(160deg,#FFF4EC,#FFE7D6);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; color: var(--orange-dark); flex-shrink: 0;
+}
+.slot .lbl { font-size: 9px; color: var(--text-light); text-transform: uppercase; letter-spacing: .8px; font-weight: 600; }
+.slot .nm { font-size: 13px; font-weight: 700; color: var(--text-dark); margin-top: 1px; }
+.slot .ds { font-size: 9.5px; color: var(--text-light); }
+
+.picker {
+  position: absolute; inset: 0; background: rgba(20,12,6,.42);
+  z-index: 2000; display: none; align-items: flex-end;
+}
+.picker.open { display: flex; }
+.sheet {
+  background: var(--silk-bg); width: 100%; max-height: 78%;
+  border-radius: 24px 24px 0 0; padding: 16px 0 24px;
+  overflow-y: auto; animation: up .3s cubic-bezier(.2,.8,.3,1);
+}
+@keyframes up { from { transform: translateY(100%);} }
+.sheet-grab { width: 38px; height: 4px; background: #E2DED7; border-radius: 3px; margin: 0 auto 14px; }
+@media (min-width:1024px){
+  .picker { align-items: center; justify-content: center; }
+  .sheet { max-width: 520px; border-radius: 20px; max-height: 70%; }
+}
+</style>
+</head>
+<body>
+<div class="app-container">
+
+  <header class="topbar">
+    <a href="map-select.html" class="icon-btn ghost"><i class="ri-arrow-left-s-line"></i></a>
+    <div class="topbar-title"><h1>Loadout</h1><p id="ctx">—</p></div>
+    <a href="store.html" class="wallet-row" id="walletLink" data-wallet style="text-decoration:none"></a>
+  </header>
+
+  <div class="scroll-content" style="padding-bottom:110px">
+   <div class="desk-wrap">
+
+    <div class="hero-card fade-in" style="display:flex;align-items:center;gap:14px">
+      <div id="heroArt" style="width:74px;height:74px;flex-shrink:0;border-radius:18px;overflow:hidden;background:rgba(255,255,255,.16);box-shadow:inset 0 1px 0 rgba(255,255,255,.35), inset 0 -8px 16px -8px rgba(0,0,0,.3)"></div>
+      <div style="flex:1">
+        <div class="eyebrow">Operator</div>
+        <h2 style="font-size:19px;font-weight:800" id="charName">Ranger</h2>
+        <p style="font-size:10.5px;opacity:.85" id="charDesc">Standard issue</p>
+      </div>
+      <a href="character-shop.html" class="icon-btn" style="background:rgba(255,255,255,.2);color:#fff"><i class="ri-repeat-2-line"></i></a>
+    </div>
+
+    <div class="pad" style="padding-bottom:10px">
+      <div class="section-header" style="padding:0">
+        <h3 class="section-title"><i class="ri-briefcase-4-fill"></i> Equipment</h3>
+        <a href="weapon-shop.html" class="section-link">Shop <i class="ri-arrow-right-s-line"></i></a>
+      </div>
+    </div>
+
+    <div class="list-wrap fade-in delay-1" id="slots"></div>
+
+    <div class="pad fade-in delay-2">
+      <div class="card">
+        <h4 style="font-size:12px;font-weight:700;color:var(--text-dark);margin-bottom:12px">Loadout Rating</h4>
+        <div id="stats"></div>
+      </div>
+    </div>
+   </div>
+  </div>
+
+  <div class="footer-cta">
+    <button class="btn btn-primary" id="goBtn"><i class="ri-sword-fill"></i> Confirm & Find Match</button>
+  </div>
+
+  <!-- PICKER SHEET -->
+  <div class="picker" id="picker">
+    <div class="sheet">
+      <div class="sheet-grab"></div>
+      <div class="section-header"><h3 class="section-title" id="pickTitle">Select</h3>
+        <button class="icon-btn ghost" onclick="closePicker()"><i class="ri-close-line"></i></button></div>
+      <div class="grid-2" id="pickGrid" style="padding-top:6px"></div>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+<script src="assets/art.js"></script>
+<script src="assets/game.js"></script>
+<script>
+const m = TVG.state.match;
+if (!m) location.replace('match-type.html');
+ctx.textContent = m.type.toUpperCase() + ' · ' + TVG.map(m.map).name;
+
+const SLOTS = [
+  { key:'primary',   label:'Primary' },
+  { key:'secondary', label:'Secondary' },
+  { key:'grenade',   label:'Grenade' },
+  { key:'melee',     label:'Melee' }
+];
+
+function render() {
+  const eq = TVG.state.equipped;
+  const c = TVG.character(eq.character);
+  charName.textContent = c.name;
+  charDesc.textContent = c.desc;
+  heroArt.innerHTML = TVGArt.characterSVG(c.id);
+  heroArt.querySelector('svg').style.cssText='width:100%;height:100%;transform:scale(1.18) translateY(8px)';
+
+  slots.innerHTML = SLOTS.map(s => {
+    const wsp = TVG.weapon(eq[s.key]);
+    return `<div class="slot" data-slot="${s.key}">
+      <div class="thumb">${TVGArt.weaponSVG(wsp.id)}</div>
+      <div style="flex:1">
+        <div class="lbl">${s.label}</div>
+        <div class="nm">${wsp.name}</div>
+        <div class="ds">${wsp.desc}</div>
+      </div>
+      <i class="ri-arrow-right-s-line" style="color:var(--text-light);font-size:18px"></i>
+    </div>`;
+  }).join('');
+
+  slots.querySelectorAll('.slot').forEach(el => el.onclick = () => openPicker(el.dataset.slot));
+
+  // aggregate stats
+  const ws = SLOTS.map(s => TVG.weapon(eq[s.key]));
+  const avg = k => Math.round(ws.reduce((a,x) => a + x[k], 0) / ws.length);
+  const rows = [['Damage', avg('dmg')],['Fire Rate', avg('fire')],['Range', avg('range')],['Control', avg('ctrl')]];
+  stats.innerHTML = rows.map(([n,v]) =>
+    `<div class="stat-line"><span>${n}</span><div class="bar"><i style="width:${v}%"></i></div><b>${v}</b></div>`).join('');
+}
+
+let activeSlot = null;
+function openPicker(slot) {
+  activeSlot = slot;
+  const owned = TVG.state.owned.weapons;
+  const list = TVG.WEAPONS.filter(x => x.slot === slot);
+  pickTitle.innerHTML = '<i class="ri-list-check-2"></i> Select ' + slot.charAt(0).toUpperCase() + slot.slice(1);
+  pickGrid.innerHTML = list.map(x => {
+    const has = owned.includes(x.id);
+    const eqd = TVG.state.equipped[slot] === x.id;
+    return `<div class="item-card ${eqd?'equipped':has?'owned':''}" data-id="${x.id}" data-has="${has}">
+      <div class="item-thumb r-${x.rarity}"><span class="rarity-tag ${x.rarity}">${x.rarity}</span>${TVGArt.weaponSVG(x.id)}</div>
+      <h4>${x.name}</h4>
+      <div class="item-sub">DMG ${x.dmg} · ${x.ammo} rds</div>
+      <div class="price-row">
+        ${has ? `<span class="state-tag ${eqd?'equipped':'owned'}">${eqd?'Equipped':'Owned'}</span>`
+              : `<span class="price ${x.cur==='gem'?'gem':''}"><i class="${x.cur==='gem'?'ri-vip-diamond-fill':'ri-copper-coin-fill'}"></i>${TVG.fmt(x.price)}</span>`}
+      </div>
+    </div>`;
+  }).join('');
+  pickGrid.querySelectorAll('.item-card').forEach(el => el.onclick = () => {
+    if (el.dataset.has !== 'true') { TVG.toast('Buy it in the Weapon Shop first', 'error'); return; }
+    TVG.state.equipped[activeSlot] = el.dataset.id;
+    TVG.save(); closePicker(); render();
+    TVG.toast('Equipped ' + TVG.weapon(el.dataset.id).name, 'success');
+  });
+  picker.classList.add('open');
+}
+function closePicker() { picker.classList.remove('open'); }
+picker.onclick = e => { if (e.target === picker) closePicker(); };
+
+goBtn.onclick = () => { location.href = 'matchmaking.html'; };
+render();
+</script>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a31b62484d3702d5',t:'MTc4NzgzNjkzNA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"1954b47c125f43f8b4338b3c4f804e4f"}' crossorigin="anonymous"></script>
+</body>
+</html>

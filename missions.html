@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Missions — TaskVault</title>
+<link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="assets/game.css" rel="stylesheet">
+<style>
+.ms{background:var(--white);border-radius:15px;padding:13px;border:1px solid var(--line);box-shadow:var(--shadow-sm)}
+.ms+.ms{margin-top:9px}
+.ms-top{display:flex;align-items:center;gap:11px;margin-bottom:9px}
+.ms-top .ic{width:36px;height:36px;border-radius:11px;background:var(--orange-light);color:var(--orange-main);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.ms-top h4{font-size:12px;font-weight:700;color:var(--text-dark)}
+.ms-top p{font-size:9.5px;color:var(--text-light)}
+.ms-rew{display:flex;gap:6px;flex-shrink:0}
+.ms-foot{display:flex;align-items:center;gap:9px}
+.ms-foot span{font-size:9.5px;color:var(--text-light);white-space:nowrap;font-weight:600}
+.ms.done{border-color:var(--success);background:#F7FDFB}
+@media (min-width:1024px){ .list-wrap{display:grid;grid-template-columns:repeat(2,1fr);gap:9px} .ms+.ms{margin-top:0} }
+</style>
+</head>
+<body>
+<div class="app-container">
+  <header class="topbar">
+    <a href="game-hub.html" class="icon-btn ghost"><i class="ri-arrow-left-s-line"></i></a>
+    <div class="topbar-title"><h1>Missions</h1><p id="refresh">Refresh in 10:25:30</p></div>
+    <a href="store.html" class="wallet-row" id="walletLink" data-wallet style="text-decoration:none"></a>
+  </header>
+
+  <div class="scroll-content">
+   <div class="desk-wrap">
+    <div class="tabs" style="margin-top:14px">
+      <button class="tab active" data-f="daily">Daily</button>
+      <button class="tab" data-f="weekly">Weekly</button>
+      <button class="tab" data-f="season">Season</button>
+    </div>
+    <div class="list-wrap" id="list"></div>
+    <div style="height:20px"></div>
+   </div>
+  </div>
+
+  <nav class="bottom-nav">
+    <a href="game-hub.html" class="nav-item"><i class="ri-gamepad-line"></i><span>Play</span></a>
+    <a href="weapon-shop.html" class="nav-item"><i class="ri-store-2-line"></i><span>Shop</span></a>
+    <a href="missions.html" class="nav-item active"><i class="ri-task-fill"></i><span>Missions</span></a>
+    <a href="leaderboard.html" class="nav-item"><i class="ri-bar-chart-2-line"></i><span>Ranks</span></a>
+    <a href="game-profile.html" class="nav-item"><i class="ri-user-3-line"></i><span>Profile</span></a>
+  </nav>
+</div>
+
+<div id="toast" class="toast"></div>
+<script src="assets/game.js"></script>
+<script>
+let tab = 'daily';
+function render() {
+  const prog = TVG.state.missionProgress;
+  list.innerHTML = TVG.MISSIONS[tab].map(m => {
+    const p = Math.min(m.goal, prog[m.id] || 0);
+    const done = p >= m.goal;
+    const claimed = prog['claim_' + m.id];
+    return `<div class="ms ${done?'done':''}">
+      <div class="ms-top">
+        <div class="ic" ${done?'style="background:#E8F8F1;color:#10B981"':''}><i class="${done?'ri-check-line':m.icon}"></i></div>
+        <div style="flex:1"><h4>${m.name}</h4><p>${done ? (claimed ? 'Reward claimed' : 'Ready to claim') : 'In progress'}</p></div>
+        <div class="ms-rew">
+          <span class="chip"><i class="ri-copper-coin-fill"></i>${TVG.fmt(m.coin)}</span>
+          <span class="chip" style="background:#EAF2FE;color:#2563EB"><i class="ri-flashlight-fill"></i>${m.xp}</span>
+        </div>
+      </div>
+      <div class="ms-foot">
+        <div class="progress thin" style="flex:1"><i style="width:${p/m.goal*100}%"></i></div>
+        <span>${TVG.fmt(p)}/${TVG.fmt(m.goal)}</span>
+        ${done && !claimed ? `<button class="btn btn-sm btn-primary" data-c="${m.id}" data-coin="${m.coin}" data-xp="${m.xp}">Claim</button>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+
+  list.querySelectorAll('[data-c]').forEach(b => b.onclick = () => {
+    TVG.addRewards(+b.dataset.coin, +b.dataset.xp);
+    TVG.state.missionProgress['claim_' + b.dataset.c] = 1;
+    TVG.save(); TVG.renderWallet();
+    TVG.toast('Claimed ' + TVG.fmt(b.dataset.coin) + ' coins', 'success');
+    render();
+  });
+}
+document.querySelectorAll('.tab').forEach(t => t.onclick = () => {
+  document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+  t.classList.add('active'); tab = t.dataset.f; render();
+});
+render();
+let s = 37530;
+setInterval(() => { s--; const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;
+  refresh.textContent='Refresh in '+[h,m,x].map(n=>String(n).padStart(2,'0')).join(':'); }, 1000);
+</script>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a31b632b1ef302d5',t:'MTc4NzgzNjk3MA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"1954b47c125f43f8b4338b3c4f804e4f"}' crossorigin="anonymous"></script>
+</body>
+</html>

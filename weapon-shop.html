@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Weapon Shop — TaskVault</title>
+<link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="assets/game.css" rel="stylesheet">
+<style>
+.detail{position:absolute;inset:0;background:rgba(20,12,6,.45);z-index:2000;display:none;align-items:flex-end}
+.detail.open{display:flex}
+.dsheet{background:var(--silk-bg);width:100%;border-radius:24px 24px 0 0;padding:16px 20px 24px;animation:up .3s cubic-bezier(.2,.8,.3,1)}
+@keyframes up{from{transform:translateY(100%)}}
+@media (min-width:1024px){.detail{align-items:center;justify-content:center}.dsheet{max-width:440px;border-radius:20px}}
+</style>
+</head>
+<body>
+<div class="app-container">
+  <header class="topbar">
+    <a href="game-hub.html" class="icon-btn ghost"><i class="ri-arrow-left-s-line"></i></a>
+    <div class="topbar-title"><h1>Weapon Shop</h1><p>Rifles, sidearms & gear</p></div>
+    <a href="store.html" class="wallet-row" id="walletLink" data-wallet style="text-decoration:none"></a>
+  </header>
+
+  <div class="scroll-content">
+   <div class="desk-wrap">
+    <div class="tabs" style="margin-top:14px">
+      <button class="tab active" data-f="all">All</button>
+      <button class="tab" data-f="primary">Weapons</button>
+      <button class="tab" data-f="secondary">Sidearms</button>
+      <button class="tab" data-f="gear">Gear</button>
+    </div>
+    <div class="grid-2" id="grid"></div>
+    <div style="height:20px"></div>
+   </div>
+  </div>
+
+  <div class="detail" id="detail">
+    <div class="dsheet">
+      <div style="width:38px;height:4px;background:#E2DED7;border-radius:3px;margin:0 auto 16px"></div>
+      <div style="display:flex;gap:14px;align-items:center;margin-bottom:16px">
+        <div class="item-thumb" style="width:112px;height:78px;margin:0;flex-shrink:0" id="dThumb"></div>
+        <div style="flex:1">
+          <h3 style="font-size:16px;font-weight:800;color:var(--text-dark)" id="dName">—</h3>
+          <p style="font-size:10.5px;color:var(--text-light)" id="dDesc">—</p>
+          <div style="margin-top:6px" id="dTag"></div>
+        </div>
+      </div>
+      <div id="dStats" style="margin-bottom:16px"></div>
+      <button class="btn btn-primary" id="dBtn">Buy</button>
+      <button class="btn btn-outline" style="margin-top:8px" onclick="document.getElementById('detail').classList.remove('open')">Close</button>
+    </div>
+  </div>
+
+  <nav class="bottom-nav">
+    <a href="game-hub.html" class="nav-item"><i class="ri-gamepad-line"></i><span>Play</span></a>
+    <a href="weapon-shop.html" class="nav-item active"><i class="ri-store-2-fill"></i><span>Shop</span></a>
+    <a href="missions.html" class="nav-item"><i class="ri-task-line"></i><span>Missions</span></a>
+    <a href="leaderboard.html" class="nav-item"><i class="ri-bar-chart-2-line"></i><span>Ranks</span></a>
+    <a href="game-profile.html" class="nav-item"><i class="ri-user-3-line"></i><span>Profile</span></a>
+  </nav>
+</div>
+
+<div id="toast" class="toast"></div>
+<script src="assets/art.js"></script>
+<script src="assets/game.js"></script>
+<script>
+let filter = 'all', current = null;
+
+function render() {
+  const owned = TVG.state.owned.weapons;
+  const eq = TVG.state.equipped;
+  const list = TVG.WEAPONS.filter(w => {
+    if (filter === 'all') return true;
+    if (filter === 'gear') return w.slot === 'grenade' || w.slot === 'melee';
+    return w.slot === filter;
+  });
+  grid.innerHTML = list.map(w => {
+    const has = owned.includes(w.id), on = eq[w.slot] === w.id;
+    return `<div class="item-card ${on?'equipped':has?'owned':''}" data-id="${w.id}">
+      <div class="item-thumb r-${w.rarity}"><span class="rarity-tag ${w.rarity}">${w.rarity}</span>${TVGArt.weaponSVG(w.id)}</div>
+      <h4>${w.name}</h4>
+      <div class="item-sub">DMG ${w.dmg} · ${w.slot}</div>
+      <div class="price-row">
+        ${has ? `<span class="state-tag ${on?'equipped':'owned'}">${on?'Equipped':'Owned'}</span>`
+              : `<span class="price ${w.cur==='gem'?'gem':''}"><i class="${w.cur==='gem'?'ri-vip-diamond-fill':'ri-copper-coin-fill'}"></i>${TVG.fmt(w.price)}</span>`}
+        <i class="ri-arrow-right-s-line" style="font-size:13px;color:var(--text-light)"></i>
+      </div>
+    </div>`;
+  }).join('');
+  grid.querySelectorAll('.item-card').forEach(el => el.onclick = () => open(el.dataset.id));
+}
+
+function open(id) {
+  current = TVG.weapon(id);
+  const w = current, has = TVG.state.owned.weapons.includes(w.id);
+  const on = TVG.state.equipped[w.slot] === w.id;
+  dThumb.className = 'item-thumb r-' + w.rarity;
+  dThumb.innerHTML = TVGArt.weaponSVG(w.id);
+  dName.textContent = w.name;
+  dDesc.textContent = w.desc;
+  dTag.innerHTML = `<span class="rarity-tag ${w.rarity}" style="position:static;display:inline-block">${w.rarity}</span>
+    <span style="font-size:9px;color:var(--text-light);margin-left:6px">${w.slot.toUpperCase()} · ${w.ammo} rounds</span>`;
+  dStats.innerHTML = [['Damage',w.dmg],['Fire Rate',w.fire],['Range',w.range],['Control',w.ctrl]]
+    .map(([n,v]) => `<div class="stat-line"><span>${n}</span><div class="bar"><i style="width:${v}%"></i></div><b>${v}</b></div>`).join('');
+
+  if (on) { dBtn.innerHTML = '<i class="ri-check-line"></i> Equipped'; dBtn.disabled = true; dBtn.className = 'btn btn-ghost'; }
+  else if (has) { dBtn.innerHTML = '<i class="ri-check-double-line"></i> Equip'; dBtn.disabled = false; dBtn.className = 'btn btn-primary'; }
+  else { dBtn.innerHTML = `<i class="ri-shopping-cart-2-fill"></i> Buy for ${TVG.fmt(w.price)} ${w.cur==='gem'?'gems':'coins'}`; dBtn.disabled = false; dBtn.className = 'btn btn-primary'; }
+  detail.classList.add('open');
+}
+
+dBtn.onclick = () => {
+  const w = current;
+  if (TVG.state.owned.weapons.includes(w.id)) {
+    TVG.state.equipped[w.slot] = w.id; TVG.save();
+    TVG.toast(w.name + ' equipped', 'success');
+  } else {
+    const res = TVG.buy('weapons', w.id, w.price, w.cur);
+    if (!res.ok) { TVG.toast(res.msg, 'error'); return; }
+    TVG.state.equipped[w.slot] = w.id; TVG.save();
+    TVG.toast(w.name + ' purchased & equipped', 'success');
+    TVG.renderWallet();
+  }
+  detail.classList.remove('open'); render();
+};
+detail.onclick = e => { if (e.target === detail) detail.classList.remove('open'); };
+
+document.querySelectorAll('.tab').forEach(t => t.onclick = () => {
+  document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+  t.classList.add('active'); filter = t.dataset.f; render();
+});
+render();
+</script>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a31b65920d4102d5',t:'MTc4NzgzNzA2OQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"1954b47c125f43f8b4338b3c4f804e4f"}' crossorigin="anonymous"></script>
+</body>
+</html>

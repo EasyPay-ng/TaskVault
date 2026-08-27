@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Rewards — TaskVault</title>
+<link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="assets/game.css" rel="stylesheet">
+<style>
+.stage{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;overflow-y:auto}
+.burst{
+  width:96px;height:96px;border-radius:50%;background:var(--orange-light);
+  display:flex;align-items:center;justify-content:center;font-size:42px;color:var(--orange-main);
+  margin-bottom:18px;animation:pop .55s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes pop{from{transform:scale(0) rotate(-30deg)}}
+.stage h2{font-size:19px;font-weight:800;color:var(--text-dark)}
+.stage .sub{font-size:11px;color:var(--text-light);margin-top:4px;margin-bottom:24px}
+.reward-row{
+  width:100%;max-width:360px;background:var(--white);border-radius:16px;
+  padding:15px;display:flex;align-items:center;gap:13px;
+  border:1px solid var(--line);box-shadow:var(--shadow-sm);
+  animation:slide .45s ease-out backwards;
+}
+.reward-row+.reward-row{margin-top:10px}
+@keyframes slide{from{opacity:0;transform:translateY(14px)}}
+.reward-row .ic{width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.reward-row .txt{flex:1;text-align:left}
+.reward-row .txt h4{font-size:12px;font-weight:700;color:var(--text-dark)}
+.reward-row .txt p{font-size:9.5px;color:var(--text-light)}
+.reward-row .amt{font-size:19px;font-weight:800}
+.lvl-card{width:100%;max-width:360px;margin-top:16px;animation:slide .45s .3s ease-out backwards}
+</style>
+</head>
+<body>
+<div class="app-container">
+
+  <header class="topbar">
+    <div class="topbar-title" style="text-align:center"><h1>Rewards Received</h1></div>
+  </header>
+
+  <div class="stage">
+    <div class="burst"><i class="ri-gift-2-fill"></i></div>
+    <h2>You Received</h2>
+    <div class="sub" id="sub">Match rewards have been added to your account</div>
+
+    <div class="reward-row" style="animation-delay:.05s">
+      <div class="ic" style="background:var(--coin-soft);color:#F5A524"><i class="ri-copper-coin-fill"></i></div>
+      <div class="txt"><h4>Coins</h4><p>Spend in the character & weapon shops</p></div>
+      <div class="amt" style="color:#B4761A">+<span id="rc">0</span></div>
+    </div>
+
+    <div class="reward-row" style="animation-delay:.15s">
+      <div class="ic" style="background:#EAF2FE;color:#3B82F6"><i class="ri-flashlight-fill"></i></div>
+      <div class="txt"><h4>Experience</h4><p>Progress toward your next level</p></div>
+      <div class="amt" style="color:#2563EB">+<span id="rx">0</span></div>
+    </div>
+
+    <div class="card lvl-card">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">
+        <span style="font-size:11px;font-weight:700;color:var(--text-dark)">Level <span id="lv">1</span></span>
+        <span style="font-size:10px;color:var(--text-light)" id="xpTxt">0 / 0 XP</span>
+      </div>
+      <div class="progress"><i id="xpBar" style="width:0%"></i></div>
+      <p style="font-size:9.5px;color:var(--text-light);margin-top:8px" id="lvNote">Keep playing to reach the next level.</p>
+    </div>
+  </div>
+
+  <div class="footer-cta">
+    <div class="btn-row">
+      <a href="loadout.html" class="btn btn-outline" style="flex:1"><i class="ri-repeat-2-line"></i> Play Again</a>
+      <a href="game-hub.html" class="btn btn-primary" style="flex:1.2"><i class="ri-arrow-right-line"></i> Continue</a>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+<script src="assets/game.js"></script>
+<script>
+const r = TVG.state.lastResult;
+if (!r) location.replace('game-hub.html');
+
+const before = TVG.state.player.level;
+
+if (!r.claimed) {
+  TVG.addRewards(r.coins, r.xp);
+  TVG.state.player.matches += 1;
+  if (r.won) TVG.state.player.wins += 1;
+  r.claimed = true;
+  TVG.state.lastResult = r;
+  TVG.save();
+}
+
+const p = TVG.state.player;
+rc.textContent = TVG.fmt(r.coins);
+rx.textContent = TVG.fmt(r.xp);
+lv.textContent = p.level;
+xpTxt.textContent = TVG.fmt(p.xp) + ' / ' + TVG.fmt(p.xpMax) + ' XP';
+setTimeout(() => xpBar.style.width = Math.min(100, p.xp/p.xpMax*100) + '%', 250);
+
+if (p.level > before) {
+  lvNote.innerHTML = '<b style="color:var(--success)">Level up!</b> You reached level ' + p.level + '.';
+  TVG.toast('Level up — you are now level ' + p.level, 'success');
+} else {
+  lvNote.textContent = TVG.fmt(p.xpMax - p.xp) + ' XP to level ' + (p.level+1) + '.';
+}
+sub.textContent = r.won ? 'Victory bonus applied to your account' : 'Participation rewards added to your account';
+</script>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"1954b47c125f43f8b4338b3c4f804e4f"}' crossorigin="anonymous"></script>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a31b64f3ce1302d5',t:'MTc4NzgzNzA0Mw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Leaderboard — TaskVault</title>
+<link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="assets/game.css" rel="stylesheet">
+<style>
+.lb-row{display:flex;align-items:center;gap:11px;background:var(--white);border-radius:14px;padding:10px 13px;border:1px solid var(--line);box-shadow:var(--shadow-sm)}
+.lb-row+.lb-row{margin-top:7px}
+.lb-row.me{border-color:var(--orange-main);background:#FFF9F4}
+.rk{width:24px;text-align:center;font-size:12px;font-weight:800;color:var(--text-light);flex-shrink:0}
+.rk.g{color:#F5A524} .rk.s{color:#94A3B8} .rk.b{color:#C2703C}
+.lb-row .nm{font-size:12px;font-weight:600;color:var(--text-dark)}
+.lb-row .tier{font-size:9.5px;color:var(--text-light)}
+.pts{font-size:12.5px;font-weight:800;color:var(--orange-main)}
+.podium{display:grid;grid-template-columns:1fr 1.15fr 1fr;gap:8px;align-items:end;padding:0 20px;margin-bottom:16px}
+.pod{background:var(--white);border-radius:16px;padding:12px 8px;text-align:center;border:1px solid var(--line);box-shadow:var(--shadow-sm)}
+.pod .m{font-size:18px;margin-bottom:2px}
+.pod .n{font-size:10px;font-weight:700;color:var(--text-dark);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pod .p{font-size:9.5px;color:var(--orange-main);font-weight:700}
+.pod.first{padding-top:18px;background:linear-gradient(160deg,#FFF8EE,#FFEFD9);border-color:#F7DCB0}
+</style>
+</head>
+<body>
+<div class="app-container">
+  <header class="topbar">
+    <a href="game-hub.html" class="icon-btn ghost"><i class="ri-arrow-left-s-line"></i></a>
+    <div class="topbar-title"><h1>Leaderboard</h1><p id="reset">Resets in 10:25:30</p></div>
+    <a href="store.html" class="wallet-row" id="walletLink" data-wallet style="text-decoration:none"></a>
+  </header>
+
+  <div class="scroll-content">
+   <div class="desk-wrap">
+    <div class="tabs" style="margin-top:14px">
+      <button class="tab active" data-f="global">Global</button>
+      <button class="tab" data-f="friends">Friends</button>
+      <button class="tab" data-f="season">Season</button>
+    </div>
+    <div class="podium" id="podium"></div>
+    <div class="list-wrap" id="list"></div>
+    <div style="height:20px"></div>
+   </div>
+  </div>
+
+  <nav class="bottom-nav">
+    <a href="game-hub.html" class="nav-item"><i class="ri-gamepad-line"></i><span>Play</span></a>
+    <a href="weapon-shop.html" class="nav-item"><i class="ri-store-2-line"></i><span>Shop</span></a>
+    <a href="missions.html" class="nav-item"><i class="ri-task-line"></i><span>Missions</span></a>
+    <a href="leaderboard.html" class="nav-item active"><i class="ri-bar-chart-2-fill"></i><span>Ranks</span></a>
+    <a href="game-profile.html" class="nav-item"><i class="ri-user-3-line"></i><span>Profile</span></a>
+  </nav>
+</div>
+
+<div id="toast" class="toast"></div>
+<script src="assets/game.js"></script>
+<script>
+const TIERS = ['Master','Diamond','Platinum','Gold','Silver'];
+function build(seed) {
+  const names = TVG.shuffle(TVG.BOT_NAMES).slice(0, 14);
+  const rows = names.map((n,i) => ({ name:n, tier: TIERS[Math.min(4, Math.floor(i/3))], pts: 5600 - i*seed*37 - TVG.rnd(0,90) }));
+  rows.push({ name: TVG.state.player.name, tier: TVG.state.player.rank.split(' ')[0], pts: 4200, me:true });
+  return rows.sort((a,b) => b.pts - a.pts);
+}
+let cache = {};
+function render(f) {
+  const seed = f === 'global' ? 3 : f === 'friends' ? 6 : 4;
+  if (!cache[f]) cache[f] = f === 'friends' ? build(seed).slice(0,7) : build(seed);
+  const rows = cache[f];
+  const medals = ['🥇','🥈','🥉'];
+  podium.innerHTML = [1,0,2].map(i => rows[i] ? `
+    <div class="pod ${i===0?'first':''}">
+      <div class="m">${medals[i]}</div>
+      <div class="av sm" style="margin:0 auto 5px">${TVG.initials(rows[i].name)}</div>
+      <div class="n">${rows[i].name}</div>
+      <div class="p">${TVG.fmt(rows[i].pts)}</div>
+    </div>` : '<div></div>').join('');
+  list.innerHTML = rows.slice(3).map((r,i) => {
+    const rank = i+4;
+    return `<div class="lb-row ${r.me?'me':''}">
+      <div class="rk">${rank}</div>
+      <div class="av sm">${TVG.initials(r.name)}</div>
+      <div style="flex:1;min-width:0"><div class="nm">${r.name}${r.me?' <span style="font-size:8px;color:var(--orange-main)">YOU</span>':''}</div><div class="tier">${r.tier}</div></div>
+      <div class="pts">${TVG.fmt(r.pts)}</div>
+    </div>`;
+  }).join('');
+}
+document.querySelectorAll('.tab').forEach(t => t.onclick = () => {
+  document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+  t.classList.add('active'); render(t.dataset.f);
+});
+render('global');
+
+let s = 37530;
+setInterval(() => {
+  s--; const h = Math.floor(s/3600), m = Math.floor(s%3600/60), sec = s%60;
+  reset.textContent = 'Resets in ' + [h,m,sec].map(x=>String(x).padStart(2,'0')).join(':');
+}, 1000);
+</script>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"1954b47c125f43f8b4338b3c4f804e4f"}' crossorigin="anonymous"></script>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a31b6218ef3f02d5',t:'MTc4NzgzNjkyNg=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
