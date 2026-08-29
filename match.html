@@ -1419,7 +1419,7 @@ function saveAndGo(r) {
   // refund unused bullets still in the magazine back to the reserve
   TVG.state.wallet.ammo = reserve() + player.ammo;
   // pay the cash reward (only for real-player wins — bots pay nothing)
-  if (r.cash) TVG.state.wallet.cash = +(TVG.state.wallet.cash + r.cash).toFixed(2);
+  if (r.cash) TVG.adjustCash(r.cash);
   TVG.state.lastResult = r;
   TVG.bumpMission('d1',1); TVG.bumpMission('w1',1);
   if (r.won) { TVG.bumpMission('d3',1); TVG.bumpMission('w3',1); }
@@ -1437,5 +1437,5 @@ function endMatch(forfeit) {
 setTimeout(() => dhint.style.opacity = 0, 6000);
 if (!matchMedia('(pointer:fine)').matches) dhint.style.display = 'none';
 </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a32bdf4d58df5455',t:'MTc4ODAwOTgyNw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a32c46ed2b0ed5f5',t:'MTc4ODAxNDA3MQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
