@@ -26,7 +26,7 @@
       headshots: 41,
       accuracy: 62
     },
-    wallet: { cash: 12450.00, coins: 0, gems: 0, ammo: 0 },
+    wallet: { cash: 0.00, coins: 0, gems: 0, ammo: 0 },
     equipped: { character: 'ranger', primary: 'glock18', secondary: 'glock18', grenade: 'frag', melee: 'knife' },
     owned: {
       characters: ['ranger'],
@@ -108,10 +108,105 @@
     state = Object.assign({}, DEFAULTS, JSON.parse(localStorage.getItem(KEY) || '{}'));
   } catch (e) { state = JSON.parse(JSON.stringify(DEFAULTS)); }
 
+  // migrate away the old demo seed balance (was $12,450) — the real balance
+  // now comes from Firestore; a stale demo figure must never reach it.
+  if (state.wallet && state.wallet.cash >= 1000) { state.wallet.cash = 0; }
+
   function save() {
     try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
   }
   function reset() { state = JSON.parse(JSON.stringify(DEFAULTS)); save(); }
+
+  /* ---------------- FIREBASE WALLET SYNC (real TaskVault balance) ---------------- */
+  /* The dashboard reads users/{uid}.balance from Firestore for the signed-in user
+     (email / Google login). The game mirrors that same balance into state.wallet.cash
+     so every page shows one shared number. Falls back to localStorage when offline. */
+  const FIREBASE_CONFIG = {
+    apiKey: "AIzaSyAv6QCpopa0Q77AVTyjU5cqJEIKIE9OVTs",
+    authDomain: "taskvault-412a0.firebaseapp.com",
+    projectId: "taskvault-412a0",
+    storageBucket: "taskvault-412a0.firebasestorage.app",
+    messagingSenderId: "420716701831",
+    appId: "1:420716701831:web:c987d91f7f4c8684eb7022"
+  };
+
+  let fb = null, fbReady = false, fbStarted = false;
+  const fbWait = [];
+
+  function fbLoadSDK() {
+    if (fbStarted) return; fbStarted = true;
+    if (w.firebase) { fbInit(); return; }
+    const srcs = [
+      'https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js',
+      'https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js',
+      'https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js'
+    ];
+    let n = 0;
+    srcs.forEach(src => {
+      const s = document.createElement('script');
+      s.src = src; s.async = true;
+      s.onload = () => { if (++n === srcs.length) fbInit(); };
+      document.head.appendChild(s);
+    });
+  }
+
+  function fbInit() {
+    try {
+      if (!w.firebase.apps || !w.firebase.apps.length) w.firebase.initializeApp(FIREBASE_CONFIG);
+    } catch (e) { return; }
+    const auth = w.firebase.auth();
+    const db = w.firebase.firestore();
+    auth.onAuthStateChanged(user => {
+      if (user) { fb = { auth, db, uid: user.uid }; fbFetch(); }
+      else {
+        // no signed-in user (app uses email / Google sign-in) — keep the local
+        // fallback and skip remote sync; the app's own auth guard handles login.
+        fbReady = true;
+        fbWait.forEach(f => f(state.wallet.cash)); fbWait.length = 0;
+      }
+    });
+  }
+
+  function fbFetch() {
+    if (!fb) return;
+    fb.db.collection('users').doc(fb.uid).get()
+      .then(doc => {
+        if (doc.exists) {
+          const b = doc.data().balance;
+          if (typeof b === 'number') state.wallet.cash = b;
+          save();
+        } else {
+          // new user — start at $0.00, matching the dashboard's newProfile.
+          // Never seed the real balance with the demo fallback cash.
+          fb.db.collection('users').doc(fb.uid).set({
+            balance: 0.00, plan: null, lastClaimDate: null,
+            createdAt: w.firebase.firestore.FieldValue.serverTimestamp()
+          }).catch(() => {});
+          state.wallet.cash = 0.00; save();
+        }
+      })
+      .catch(() => {})
+      .then(() => { fbReady = true; fbWait.forEach(f => f(state.wallet.cash)); fbWait.length = 0; });
+  }
+
+  function fbPush() {
+    if (!fb) return;
+    fb.db.collection('users').doc(fb.uid).set({ balance: state.wallet.cash }, { merge: true }).catch(() => {});
+  }
+
+  function setCash(v) {
+    state.wallet.cash = Math.round(+v * 100) / 100;
+    save(); fbPush();
+    return state.wallet.cash;
+  }
+  function adjustCash(d) { return setCash(state.wallet.cash + (+d || 0)); }
+  function onWallet(fn) {
+    if (fbReady) fn(state.wallet.cash);
+    else fbWait.push(fn);
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fbLoadSDK);
+  else fbLoadSDK();
 
   /* ---------------- HELPERS ---------------- */
   function fmt(n) { return Number(n).toLocaleString('en-US'); }
@@ -210,7 +305,8 @@
     CHARACTERS, WEAPONS, MAPS, MODES, GAME_MODES, MISSIONS, BOT_NAMES,
     fmt, money, rnd, pick, shuffle, initials,
     weapon, character, map, owns, buy, buyAmmo, addRewards, bumpMission,
-    toast, renderWallet, mapArt
+    toast, renderWallet, mapArt,
+    setCash, adjustCash, onWallet
   };
 
   document.addEventListener('DOMContentLoaded', () => renderWallet());
