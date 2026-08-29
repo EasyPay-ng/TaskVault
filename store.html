@@ -90,16 +90,16 @@
 <script>
 const PACKS = {
   coins: [
-    { id:'c1', amt:1000,  usd:0.99,  bonus:0,  r:'common' },
-    { id:'c2', amt:5500,  usd:4.99,  bonus:10, r:'rare'   },
-    { id:'c3', amt:12000, usd:9.99,  bonus:20, r:'epic'   },
-    { id:'c4', amt:32000, usd:24.99, bonus:28, r:'legend', best:1 }
+    { id:'c1', amt:1000,   usd:0.01, r:'common' },
+    { id:'c2', amt:5000,   usd:0.05, r:'rare'   },
+    { id:'c3', amt:10000,  usd:0.10, r:'epic'   },
+    { id:'c4', amt:100000, usd:1.00, r:'legend', best:1 }
   ],
   gems: [
-    { id:'g1', amt:80,   usd:0.99,  bonus:0,  r:'common' },
-    { id:'g2', amt:440,  usd:4.99,  bonus:10, r:'rare'   },
-    { id:'g3', amt:960,  usd:9.99,  bonus:20, r:'epic'   },
-    { id:'g4', amt:2560, usd:24.99, bonus:28, r:'legend', best:1 }
+    { id:'g1', amt:50,   usd:0.01, r:'common' },
+    { id:'g2', amt:500,  usd:0.10, r:'rare'   },
+    { id:'g3', amt:2500, usd:0.50, r:'epic'   },
+    { id:'g4', amt:5000, usd:1.00, r:'legend', best:1 }
   ]
 };
 
@@ -140,7 +140,7 @@ function render() {
         <div class="stack">${coinStack(Math.min(5, i+2), tab)}</div>
       </div>
       <h4>${TVG.fmt(p.amt)} ${tab === 'gems' ? 'Gems' : 'Coins'}</h4>
-      <div class="item-sub">${p.bonus ? `<span class="bonus">+${p.bonus}% bonus included</span>` : 'Starter pack'}</div>
+      <div class="item-sub">$${p.usd.toFixed(2)} · ${tab === 'gems' ? '$0.01 per 50 gems' : '$0.001 per 100 coins'}</div>
       <div class="price-row">
         <span class="usd">$${p.usd.toFixed(2)}</span>
         <i class="ri-shopping-cart-2-fill" style="font-size:13px;color:var(--orange-main)"></i>
@@ -196,6 +196,5 @@ document.querySelectorAll('.tab').forEach(t => t.onclick = () => {
 TVGArt.ensureDefs();
 render();
 </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a31b651eeb8902d5',t:'MTc4NzgzNzA1MA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"1954b47c125f43f8b4338b3c4f804e4f"}' crossorigin="anonymous"></script>
 </body>
 </html>
