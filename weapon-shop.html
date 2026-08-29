@@ -25,7 +25,25 @@
 
   <div class="scroll-content">
    <div class="desk-wrap">
-    <div class="tabs" style="margin-top:14px">
+
+    <!-- AMMO -->
+    <div class="pad" style="padding-top:14px">
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div>
+            <h4 style="font-size:12px;font-weight:700;color:var(--text-dark)">Ammo Reserve</h4>
+            <p style="font-size:9.5px;color:var(--text-light)">Bullets are consumed in battle — keep stocked</p>
+          </div>
+          <div style="text-align:center;background:#FFF0E6;border-radius:12px;padding:7px 14px">
+            <b style="font-size:18px;font-weight:800;color:var(--orange-main)" id="ammoCnt">0</b>
+            <div style="font-size:8px;color:var(--text-light);font-weight:600">BULLETS</div>
+          </div>
+        </div>
+        <div class="grid-3" id="ammoPacks" style="gap:8px"></div>
+      </div>
+    </div>
+
+    <div class="tabs" style="margin-top:6px">
       <button class="tab active" data-f="all">All</button>
       <button class="tab" data-f="primary">Weapons</button>
       <button class="tab" data-f="secondary">Sidearms</button>
@@ -67,6 +85,30 @@
 <script src="assets/game.js"></script>
 <script>
 let filter = 'all', current = null;
+
+/* ---- ammo packs (bought with coins) ---- */
+const AMMO_PACKS = [
+  { n:100,  cost:100 },
+  { n:500,  cost:450 },
+  { n:1000, cost:800 }
+];
+function renderAmmo() {
+  ammoCnt.textContent = TVG.fmt(TVG.state.wallet.ammo || 0);
+  ammoPacks.innerHTML = AMMO_PACKS.map(p =>
+    `<div class="item-card" data-n="${p.n}" data-c="${p.cost}" style="padding:10px;text-align:center">
+      <div style="font-size:15px;font-weight:800;color:var(--text-dark)">${TVG.fmt(p.n)}</div>
+      <div style="font-size:8px;color:var(--text-light);margin:2px 0 6px">bullets</div>
+      <span class="price" style="font-size:10px"><i class="ri-copper-coin-fill"></i>${TVG.fmt(p.cost)}</span>
+    </div>`).join('');
+  ammoPacks.querySelectorAll('.item-card').forEach(el => el.onclick = () => {
+    const n = +el.dataset.n, c = +el.dataset.c;
+    const res = TVG.buyAmmo(n, c);
+    if (!res.ok) { TVG.toast(res.msg, 'error'); setTimeout(() => location.href = 'store.html', 1200); return; }
+    TVG.toast('+' + TVG.fmt(n) + ' bullets added', 'success');
+    renderAmmo(); TVG.renderWallet();
+  });
+}
+renderAmmo();
 
 function render() {
   const owned = TVG.state.owned.weapons;
@@ -133,6 +175,5 @@ document.querySelectorAll('.tab').forEach(t => t.onclick = () => {
 });
 render();
 </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a31b65920d4102d5',t:'MTc4NzgzNzA2OQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"1954b47c125f43f8b4338b3c4f804e4f"}' crossorigin="anonymous"></script>
-</body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a32c4be768710153',t:'MTc4ODAxNDI3NQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
