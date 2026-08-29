@@ -5,7 +5,11 @@
 (function (w) {
   'use strict';
 
-  const KEY = 'tv_game_state_v1';
+  const KEY = 'tv_game_state_v2';
+
+  /* ---- economy constants (single source of truth) ---- */
+  const ENTRY_FEE = 0.10;    // $ charged from balance to enter a match
+  const WIN_REWARD = 0.30;   // $ paid to the winner of a real-player match
 
   const DEFAULTS = {
     player: {
@@ -22,13 +26,13 @@
       headshots: 41,
       accuracy: 62
     },
-    wallet: { cash: 12450.00, coins: 12450, gems: 320 },
-    equipped: { character: 'ranger', primary: 'ak47', secondary: 'glock18', grenade: 'frag', melee: 'knife' },
+    wallet: { cash: 12450.00, coins: 0, gems: 0, ammo: 0 },
+    equipped: { character: 'ranger', primary: 'glock18', secondary: 'glock18', grenade: 'frag', melee: 'knife' },
     owned: {
-      characters: ['ranger', 'scout'],
-      weapons: ['ak47', 'glock18', 'frag', 'knife', 'mp5']
+      characters: ['ranger'],
+      weapons: ['glock18', 'frag', 'knife']
     },
-    settings: { sound: true, music: true, vibration: true, graphics: 'medium', lang: 'en', sensitivity: 55 },
+    settings: { sound: true, music: true, vibration: true, graphics: 'medium', lang: 'en', sensitivity: 55, difficulty: 'normal' },
     match: null,
     lastResult: null,
     missionProgress: {}
@@ -94,8 +98,9 @@
     ]
   };
 
-  const BOT_NAMES = ['ShooterKing','ProGamer','HeadShotX','FireLegend','NoScope','SilentK','RushB','AimBotJr',
-                     'Vortex','Blaze','Nightowl','Reaper','Falcon','Kaiju','Zero','Havoc'];
+  const BOT_NAMES = ['ShadowStrike','NovaSniper','KingzKid','MysticFox','DarkViper','GhostRider',
+                     'NightHawk','IronWolf','RapidFire','ToxicAce','CrimsonX','SilentAssassin',
+                     'VortexK','BlazeFury','ZeroCool','PhantomZ','NeonRonin','BoltAction'];
 
   /* ---------------- STATE ---------------- */
   let state;
@@ -124,10 +129,18 @@
 
   function buy(kind, id, price, cur) {
     const bal = cur === 'gem' ? state.wallet.gems : state.wallet.coins;
-    if (bal < price) return { ok: false, msg: 'Not enough ' + (cur === 'gem' ? 'gems' : 'coins') };
+    if (bal < price) return { ok: false, msg: 'Not enough ' + (cur === 'gem' ? 'gems' : 'coins') + ' — buy more in the store' };
     if (cur === 'gem') state.wallet.gems -= price; else state.wallet.coins -= price;
     if (!state.owned[kind]) state.owned[kind] = [];
     state.owned[kind].push(id);
+    save();
+    return { ok: true };
+  }
+
+  function buyAmmo(count, coinCost) {
+    if (state.wallet.coins < coinCost) return { ok: false, msg: 'Not enough coins for ammo — top up in the store' };
+    state.wallet.coins -= coinCost;
+    state.wallet.ammo += count;
     save();
     return { ok: true };
   }
@@ -193,10 +206,10 @@
 
   /* ---------------- EXPORT ---------------- */
   w.TVG = {
-    state, save, reset, DEFAULTS,
+    state, save, reset, DEFAULTS, ENTRY_FEE, WIN_REWARD,
     CHARACTERS, WEAPONS, MAPS, MODES, GAME_MODES, MISSIONS, BOT_NAMES,
     fmt, money, rnd, pick, shuffle, initials,
-    weapon, character, map, owns, buy, addRewards, bumpMission,
+    weapon, character, map, owns, buy, buyAmmo, addRewards, bumpMission,
     toast, renderWallet, mapArt
   };
 
