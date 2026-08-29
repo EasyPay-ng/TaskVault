@@ -45,10 +45,10 @@
     <h2>You Received</h2>
     <div class="sub" id="sub">Match rewards have been added to your account</div>
 
-    <div class="reward-row" style="animation-delay:.05s">
-      <div class="ic" style="background:var(--coin-soft);color:#F5A524"><i class="ri-copper-coin-fill"></i></div>
-      <div class="txt"><h4>Coins</h4><p>Spend in the character & weapon shops</p></div>
-      <div class="amt" style="color:#B4761A">+<span id="rc">0</span></div>
+    <div class="reward-row" style="animation-delay:.05s" id="cashRow">
+      <div class="ic" style="background:#E8F8F1;color:#10B981"><i class="ri-money-dollar-circle-fill"></i></div>
+      <div class="txt"><h4>Cash Reward</h4><p>Paid to your balance when you beat real players</p></div>
+      <div class="amt" style="color:#067A55">+$<span id="rc">0.00</span></div>
     </div>
 
     <div class="reward-row" style="animation-delay:.15s">
@@ -84,7 +84,8 @@ if (!r) location.replace('game-hub.html');
 const before = TVG.state.player.level;
 
 if (!r.claimed) {
-  TVG.addRewards(r.coins, r.xp);
+  TVG.addRewards(0, r.xp);
+  if (r.cash) TVG.adjustCash(r.cash);
   TVG.state.player.matches += 1;
   if (r.won) TVG.state.player.wins += 1;
   r.claimed = true;
@@ -93,7 +94,8 @@ if (!r.claimed) {
 }
 
 const p = TVG.state.player;
-rc.textContent = TVG.fmt(r.coins);
+rc.textContent = (r.cash || 0).toFixed(2);
+if (!r.cash) cashRow.style.display = 'none';
 rx.textContent = TVG.fmt(r.xp);
 lv.textContent = p.level;
 xpTxt.textContent = TVG.fmt(p.xp) + ' / ' + TVG.fmt(p.xpMax) + ' XP';
@@ -107,6 +109,5 @@ if (p.level > before) {
 }
 sub.textContent = r.won ? 'Victory bonus applied to your account' : 'Participation rewards added to your account';
 </script>
-<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"1954b47c125f43f8b4338b3c4f804e4f"}' crossorigin="anonymous"></script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a31b64f3ce1302d5',t:'MTc4NzgzNzA0Mw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a32c47dbb82ad5f5',t:'MTc4ODAxNDExMA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
