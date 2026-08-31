@@ -149,7 +149,7 @@ canvas#cv{position:absolute;inset:0;width:100%;height:100%;display:block;touch-a
   <div id="cross"></div>
   <div id="dmg"></div>
   <div id="zoneWarn"><i class="ri-navigation-fill"></i> OUTSIDE THE ZONE — MOVE TO SAFETY</div>
-  <div id="dhint">WASD move · Mouse look · Click fire · R reload · Space jump · C crouch</div>
+  <div id="dhint">Mouse look · L-click fire · 1/2/3 or Q = swap weapon · G = grenade · Space = jump onto cover · R reload · C crouch</div>
 
   <div id="stick" class="hb"><div id="knob"></div></div>
 
@@ -166,7 +166,7 @@ canvas#cv{position:absolute;inset:0;width:100%;height:100%;display:block;touch-a
 
   <div id="pad">
     <div style="display:flex;flex-direction:column;gap:9px">
-      <div class="pb sm hb" id="btnMelee"><i class="ri-knife-blood-fill"></i></div>
+      <div class="pb sm hb" id="btnSwap"><i class="ri-shuffle-line"></i></div>
       <div class="pb sm hb" id="btnNade"><i class="ri-bomb-fill"></i></div>
       <div class="pb sm hb" id="btnCrouch"><i class="ri-arrow-down-s-fill"></i></div>
     </div>
@@ -189,9 +189,9 @@ canvas#cv{position:absolute;inset:0;width:100%;height:100%;display:block;touch-a
   </div>
 </div>
 
-<script src="assets/maps.js"></script>
-<script src="assets/game.js"></script>
-<script src="assets/engine3d.js"></script>
+<script src="assets/maps.js?v=5"></script>
+<script src="assets/game.js?v=5"></script>
+<script src="assets/engine3d.js?v=5"></script>
 <script>
 /* ============================================================
    MATCH — glue between the app state and the 3D engine
@@ -219,6 +219,10 @@ if (isBR) {
 /* ---------- HUD bridge ---------- */
 const hud = {
   ammo(n, max, res) { ammoNow.textContent = n; reserveTxt.textContent = ' · ' + res + ' res'; },
+  weapon(name, slot) {
+    gunName.textContent = name + (slot === 'melee' ? ' 🔪' : '');
+    ammoMax.textContent = slot === 'melee' ? '—' : ammoMax.textContent;
+  },
   hp(v) { hpTxt.textContent = v + '/100'; hpFill.style.width = v + '%'; hpFill.className = v < 35 ? 'low' : ''; },
   score(a, b) { if (!isBR) { scoreA.textContent = a; scoreB.textContent = b; } },
   clock(t) {
@@ -256,7 +260,7 @@ function hurtFlash() {
 function onEnd(r) {
   if (document.pointerLockElement) document.exitPointerLock();
   if (r.cash) TVG.adjustCash(r.cash);
-  TVG.recordOutcome(r.won);
+  if (typeof TVG.recordOutcome === 'function') TVG.recordOutcome(r.won);
   TVG.state.lastResult = r;
   TVG.bumpMission('d1', 1); TVG.bumpMission('w1', 1);
   if (r.won) { TVG.bumpMission('d3', 1); TVG.bumpMission('w3', 1); }
@@ -289,7 +293,7 @@ try {
     myName: TVG.state.player.name,
     gun: GUN,
     diff: DIFF_TABLE[TVG.state.settings.difficulty || 'normal'] || DIFF_TABLE.normal,
-    dda: TVG.ddaFactor(),
+    dda: typeof TVG.ddaFactor === 'function' ? TVG.ddaFactor() : 1,
     settings: TVG.state.settings,
     hud, feed: feedAdd, hitmark, hurtFlash, onEnd
   });
@@ -297,7 +301,12 @@ try {
   console.error('3D match failed:', err);
   const ng = document.getElementById('nogl');
   const h2 = ng.querySelector('h2'), p = ng.querySelector('p');
-  if (err.message === 'ENGINE_LOAD') {
+  if (/ddaFactor|chargeEntry|winRate|recordOutcome|addfactor/i.test(err.message || '')) {
+    h2.textContent = 'Old files are cached';
+    p.innerHTML = 'Your browser is running a previous version of the game files.<br><br>' +
+      'Open the browser menu → <b>History</b> → <b>Clear browsing data</b> → tick <b>Cached images and files</b>, then reload.<br>' +
+      'Or simply add <b>?v=5</b> to the page URL to force a fresh load.';
+  } else if (err.message === 'ENGINE_LOAD') {
     h2.textContent = '3D engine failed to load';
     p.innerHTML = '<b>assets/engine3d.js</b> is missing or unreadable on the server.<br><br>' +
       '1. Open <b>yoursite/assets/engine3d.js</b> in a new tab — you should see code, not a 404.<br>' +
@@ -331,8 +340,14 @@ addEventListener('keydown', e => {
   if (e.code === 'Escape') togglePause();
   if (e.code === 'Space') { e.preventDefault(); game.jump(); }
   if (e.code === 'KeyC' || e.code === 'ControlLeft') { e.preventDefault(); game.setCrouch(true); }
+  if (e.code === 'Digit1') game.equip('primary');
+  if (e.code === 'Digit2') game.equip('secondary');
+  if (e.code === 'Digit3') game.equip('melee');
+  if (e.code === 'KeyQ') game.cycleWeapon(1);
+  if (e.code === 'KeyG') game.nade();
   game.sfxUnlock();
 });
+addEventListener('wheel', e => { if (document.pointerLockElement === cv) game.cycleWeapon(e.deltaY > 0 ? 1 : -1); }, { passive: true });
 addEventListener('keyup', e => {
   keys[e.code] = false;
   if (e.code === 'KeyC' || e.code === 'ControlLeft') game.setCrouch(false);
@@ -352,18 +367,25 @@ function syncKeys() {
 setInterval(syncKeys, 40);
 
 const cv = document.getElementById('cv');
-cv.addEventListener('click', () => {
-  if (!document.pointerLockElement && matchMedia('(pointer:fine)').matches) cv.requestPointerLock();
-  else { game.fire(); game.sfxUnlock(); }
-});
+/* look works WITH or WITHOUT pointer lock — raw mouse deltas drive the view */
 addEventListener('mousemove', e => {
-  if (document.pointerLockElement === cv) {
+  if (e.movementX || e.movementY) {
     const k = TVG.state.settings.sensitivity / 55;
     game.look(e.movementX * k * 0.0022, e.movementY * k * 0.0022);
   }
 });
-addEventListener('mousedown', e => { if (document.pointerLockElement === cv) game.setFiring(true); });
+/* press on the canvas = fire; also locks the pointer for edge-to-edge aiming */
+cv.addEventListener('mousedown', e => {
+  if (e.button !== 0) return;
+  game.sfxUnlock();
+  if (!document.pointerLockElement && matchMedia('(pointer:fine)').matches) {
+    const p = cv.requestPointerLock();
+    if (p && p.catch) p.catch(() => {});
+  }
+  game.setFiring(true);
+});
 addEventListener('mouseup', () => game.setFiring(false));
+cv.addEventListener('contextmenu', e => e.preventDefault());
 
 /* ---------- INPUT: touch ---------- */
 const stick = document.getElementById('stick'), knob = document.getElementById('knob');
@@ -418,7 +440,7 @@ hold(btnSprint, () => game.setSprint(true), () => game.setSprint(false));
 hold(btnCrouch, () => game.setCrouch(true), () => game.setCrouch(false));
 btnReload.addEventListener('click', () => game.reload());
 btnNade.addEventListener('click', () => game.nade());
-btnMelee.addEventListener('click', () => game.melee());
+btnSwap.addEventListener('click', () => game.cycleWeapon(1));
 btnJump.addEventListener('click', () => game.jump());
 
 /* ---------- pause ---------- */
@@ -445,5 +467,5 @@ if (isBR) {
 setTimeout(() => dhint.style.opacity = 0, 6000);
 if (!matchMedia('(pointer:fine)').matches) dhint.style.display = 'none';
 </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a33cba4abe57d08a',t:'MTc4ODE4NjU2OQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a33d01807adcdacb',t:'MTc4ODE4OTQ4Ng=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
