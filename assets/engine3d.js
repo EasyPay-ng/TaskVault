@@ -2310,7 +2310,8 @@ function createGame(cfg) {
       }
 
       if (IN.firing) fire();
-      fireCd -= dt; nadeCd -= dt; meleeCd -= dt; switchCd -= dt;
+      /* clamped at zero — an unclamped switchCd went negative forever and kept drifting the view-model (the sinking/floating weapon bug) */
+      fireCd = Math.max(0, fireCd - dt); nadeCd = Math.max(0, nadeCd - dt); meleeCd = Math.max(0, meleeCd - dt); switchCd = Math.max(0, switchCd - dt);
       env.flashI = Math.max(0, env.flashI - dt * 8);
       recoil += (0 - recoil) * Math.min(1, dt * 14);
       shake = Math.max(0, shake - dt * 1.6);
