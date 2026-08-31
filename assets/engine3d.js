@@ -1069,6 +1069,42 @@ function createGame(cfg) {
   const music = makeMusic();
   if (cfg.music !== false) music.start();   // resumes on first gesture via sfxUnlock
 
+  /* ---------- networked rooms (WebRTC P2P · host-authoritative · 1v1/2v2/4v4) ----------
+     The room roster drives everything: the host simulates ALL bodies and
+     referees every shot; guests run true local physics for their own body
+     and render everyone else from 12Hz snapshots.
+     Rules: 5 minutes · 3 deaths and you are OUT (spectate teammates) ·
+     a team loses when every member is out · timeout = most kills.      */
+  const NET = cfg.net || null;
+  const NET_HOST = !!NET && NET.role === 'host', NET_GUEST = !!NET && NET.role === 'guest';
+  const ROSTER = NET ? NET.roster : [];                 /* [{name, team, slot}] — real teams */
+  const MYTEAM = NET ? ROSTER[NET.mySlot].team : 'A';
+  const relTeam = t => t === MYTEAM ? 'A' : 'B';        /* my side is always displayed as A */
+  let netIn = {};                                       /* slot → latest input */
+  let netHostFired = 0;
+  let netShotQ = [], netEvOut = [], netPup = null, netSnapT = 0, netInT = 0, netEndSeen = false;
+  let SPECT = null;                                     /* actor we follow once eliminated */
+  function enterSpectate() {
+    /* 3 deaths and you're out: follow a live teammate (guests pick from puppets) */
+    SPECT = actors.find(a => a.team === 'A' && !a.out && !a.dead && (NET_HOST ? a.remote : a.puppet)) || null;
+    if (HUD.spectate) HUD.spectate(SPECT ? SPECT.name : null);
+  }
+  if (NET) NET.node.bind((m, from) => {
+    if (!m) return;
+    if (NET_HOST) {
+      if (m.t === 'i') netIn[from] = m;
+      else if (m.t === 'shot') netShotQ.push([m, from]);
+    } else {
+      if (m.t === 's') netPup = m;
+      else if (m.t === 'ev') { if (m.hit) HUD.hitmark(); }
+      else if (m.t === 'end' && !netEndSeen) {
+        netEndSeen = true;
+        if (m.winTeam === 'DRAW') endMatch('DRAW', false);
+        else endMatch(m.winTeam === MYTEAM, false);
+      }
+    }
+  });
+
   /* ---------- environment ---------- */
   const sunDir = SUN.slice();
   function hexToRGB(h, k) {
@@ -1136,6 +1172,7 @@ function createGame(cfg) {
   const SLOTS = ['primary', 'secondary', 'melee'];
   function equip(slot) {
     if (!running || switchCd > 0 || slot === player.slot || !WPN[slot]) return;
+    if (NET && slot === 'melee') return;           /* no melee in live duels */
     if (player.slot !== 'melee') TVG.state.wallet.ammo = reserve() + player.ammo;  // bank current mag
     lastSlot = player.slot;
     player.slot = slot;
@@ -1205,12 +1242,23 @@ function createGame(cfg) {
   ((cfg.teamA || []).filter(n => n !== MYNAME)).forEach(n => {
     const a = mkActor(n, 'A'); a.foe = false; actors.push(a);
   });
+  if (NET) {                                        /* live room: one actor per remote player */
+    actors.length = 0;
+    ROSTER.forEach(r => {
+      if (r.slot === NET.mySlot) return;
+      const a = mkActor(r.name, relTeam(r.team));
+      a.slot = r.slot; a.realTeam = r.team; a.foe = relTeam(r.team) !== 'A';
+      a.netDeaths = 0; a.out = false;
+      if (NET_HOST) a.remote = true; else a.puppet = true;
+      actors.push(a);
+    });
+  }
   const foes = () => actors.filter(e => !e.dead && (FFA || e.team !== 'A'));
   const aliveCount = () => actors.filter(e => !e.dead).length + 1;
 
   /* ---------- match state ---------- */
   let scoreA = 0, scoreB = 0, time = cfg.mode === 'br' ? 420 : 300;
-  const TARGET = cfg.mode === 'br' ? 0 : (cfg.size === 1 ? 15 : cfg.size === 2 ? 25 : 40);
+  const TARGET = NET ? 0 : (cfg.mode === 'br' ? 0 : (cfg.size === 1 ? 15 : cfg.size === 2 ? 25 : 40));
   let running = true, ended = false, myPlace = 0;
   let shake = 0;
 
@@ -1375,7 +1423,7 @@ function createGame(cfg) {
   let bob = 0, stepAcc = 0, curVel = 0, playerVel = 0, swayX = 0, swayY = 0, hbT = 0;
 
   function meleeAttack() {
-    if (meleeCd > 0) return;
+    if (meleeCd > 0 || NET) return;             /* duels are rifle-only: melee has no net authority */
     meleeCd = 0.55;
     sfx.whoosh(WPN.melee && WPN.melee.id === 'machete');
     kickY = Math.max(kickY, 10); kickRot = 0.06;
@@ -1389,12 +1437,13 @@ function createGame(cfg) {
     }
   }
   function fire() {
-    if (!running || player.reloading || fireCd > 0 || switchCd > 0) return;
+    if (!running || player.reloading || fireCd > 0 || switchCd > 0 || player.out) return;
     if (player.slot === 'melee') { meleeAttack(); return; }
     if (player.ammo <= 0) { sfx.empty(); reload(); return; }
     player.ammo--; player.shots++;
     fireCd = Math.max(0.07, 1.1 - cfg.gun.fire / 100);
     muzzle = 1; recoil = -3.2; kickY = 14; kickX = -6; kickRot = 0.05;
+    if (NET_HOST) netHostFired = 1;
     sfx.shot(gunSfx(CUR.id));
     const fx = player.x + Math.cos(player.a) * 0.5, fz = player.z + Math.sin(player.a) * 0.5;
     env.flashPos = [fx, eyeY(), fz]; env.flashI = 1.5;
@@ -1418,6 +1467,12 @@ function createGame(cfg) {
       }
     }
     let best = null, bestD = dist, head = false, hy = 0;
+    if (NET_GUEST) {                                /* host referees damage; we send the shot */
+      tracers.push({ x1: fx, y1: eyeY() - 0.06, z1: fz, x2: player.x + dx * dist, y2: hitY, z2: player.z + dz * dist, life: 1, r: 1, g: 0.85, b: 0.55 });
+      if (muzzle > 0.8) sparks(fx + Math.cos(a) * 0.15, eyeY() - 0.05, fz + Math.sin(a) * 0.15, 2);
+      NET.node.send({ t: 'shot', a, pitch, x: player.x, z: player.z, y: eyeY(), d: cfg.gun.dmg, rg: cfg.gun.range });
+      return;
+    }
     for (const e of foes()) {
       const rx = e.x3 - player.x, rz = e.z3 - player.z;
       const along = rx * dx + rz * dz;
@@ -1452,6 +1507,12 @@ function createGame(cfg) {
       scoreA++;
       sfx.kill();
       HUD.feed(MYNAME, e.name, head, zoneKill);
+      if (NET) {
+        netEvOut.push({ k: [MYNAME, e.name, head ? 1 : 0] });
+        e.netDeaths = (e.netDeaths || 0) + 1;
+        if (e.netDeaths >= 3 && !e.out) { e.out = true; netEvOut.push({ out: e.slot }); }
+        checkTeamWipe();
+      }
       TVG.bumpMission('d2', 1); TVG.bumpMission('w2', 1);
     } else if (by) {
       if (by.team === 'A') scoreA++; else scoreB++;
@@ -1474,8 +1535,108 @@ function createGame(cfg) {
       if (cfg.mode === 'br') { myPlace = actors.filter(a => !a.dead).length + 1; endMatch(false, false); return; }
       scoreB++;
       HUD.feed(by ? by.name : null, MYNAME, false, !!zoneKill);
+      if (NET && by) netEvOut.push({ k: [by.name, MYNAME, 0] });
       respawnMe();
+      if (NET && player.deaths >= 3 && !player.out) { player.out = true; netEvOut.push({ out: NET.mySlot }); enterSpectate(); }
       checkEnd();
+    }
+  }
+
+  /* host: drive a guest's soldier from their inputs — same physics as the player */
+  function netStepRemote(e, dt) {
+    const n = netIn[e.slot] || {};
+    if (e.out) { e.dead = true; e.deadT += dt; e.y3 = 0; return; }   /* eliminated: stays down */
+    if (e.dead) {                                     /* deaths 1-2: normal respawn cycle */
+      e.deadT += dt; e.respawn -= dt;
+      if (e.respawn <= 0) {
+        const s1 = Maps.spawn(cfg.mapId, e.team);
+        e.x = s1.x + MARG + (Math.random() - 0.5); e.z = s1.y + MARG + (Math.random() - 0.5);
+        e.hp = 100; e.dead = false; e.deadT = 0; e.path = null;
+        netEvOut.push({ rs: e.slot });
+      }
+      return;
+    }
+    e.a = n.a || 0; e.aimP = (n.pitch || 0) * 0.6; e.crouch = !!n.crouch;
+    const spd = (n.crouch ? 1.8 : n.sprint ? 5.4 : 4.1) * dt;
+    const fw = -(n.mz || 0), st = n.mx || 0;
+    const nx = e.x + (Math.cos(e.a) * fw - Math.sin(e.a) * st) * spd;
+    const nz = e.z + (Math.sin(e.a) * fw + Math.cos(e.a) * st) * spd;
+    if (!blocked(nx, e.z, 0.3, e.jz || 0)) e.x = nx;
+    if (!blocked(e.x, nz, 0.3, e.jz || 0)) e.z = nz;
+    e.animSpd = (Math.abs(st) + Math.abs(fw)) > 0.1 ? 1 : 0;
+    if (e.animSpd) e.animPh += dt * (n.sprint ? 12 : 8);
+    e.jz = e.jz || 0; e.vz = e.vz || 0;
+    if (n.jz && e.jz <= 0.01) e.vz = 6.0;
+    e.vz -= 13 * dt; e.jz += e.vz * dt;
+    const gh = supportAt(e.x, e.z, e.jz);
+    if (e.jz <= gh) { e.jz = gh; e.vz = 0; }
+    e.y3 = e.jz;
+  }
+
+  /* host: ONE referee for every shot (guest trigger pulls arrive as 'shot') */
+  function hostResolveShot(s, fromSlot) {
+    const shooter = ROSTER[fromSlot];
+    const e = actors.find(a => a.slot === fromSlot);
+    if (!shooter || !e || e.dead || e.out) { if (fromSlot !== undefined) NET.node.send({ t: 'ev', hit: 0 }, fromSlot); return; }
+    const dx = Math.cos(s.a) * Math.cos(s.pitch), dz = Math.sin(s.a) * Math.cos(s.pitch), dy = Math.sin(s.pitch);
+    let wd = 60;
+    for (let i2 = 1; i2 < 240; i2++) if (wallHit(s.x + dx * i2 * 0.25, s.z + dz * i2 * 0.25, s.y, s.a)) { wd = i2 * 0.25; break; }
+    if (wd === 60) for (let i2 = 1; i2 < 240; i2++) if (wallHit(s.x + dx * i2 * 0.25, s.z + dz * i2 * 0.25, s.y)) { wd = i2 * 0.25; break; }
+    let best = null, bestD = wd, head = false, kind = null;
+    /* the host's own body */
+    if (relTeam(shooter.team) === 'B' && !SPECT && player.hp > 0) {
+      const along = (player.x - s.x) * dx + (player.z - s.z) * dz;
+      if (along > 0 && along < bestD) {
+        const cx = s.x + dx * along, cz = s.z + dz * along;
+        if (Math.hypot(player.x - cx, player.z - cz) < 0.38) { best = player; bestD = along; kind = 'player'; }
+      }
+    }
+    /* other soldiers */
+    for (const o of actors) {
+      if (o.dead || o.out || o.slot === fromSlot || o.team !== 'B') continue;   /* only shooter's enemies (relative B) */
+      const rx = o.x - s.x, rz = o.z - s.z;
+      const along = rx * dx + rz * dz;
+      if (along < 0 || along > bestD + 0.5) continue;
+      const cx = s.x + dx * along, cz = s.z + dz * along;
+      const lateral = Math.hypot(o.x - cx, o.z - cz);
+      const yy = s.y + dy * along, ck = o.crouch ? 0.75 : 1;
+      if (lateral < 0.34 && Math.abs(yy - (o.y3 + 0.95 * ck)) < 0.5 && along < bestD) { best = o; bestD = along; kind = 'actor'; head = false; }
+      if (lateral < 0.18 && Math.abs(yy - (o.y3 + 1.62 * ck)) < 0.24 && along < bestD) { best = o; bestD = along; kind = 'actor'; head = true; }
+    }
+    const fy = (e.crouch ? 1.05 : 1.5) + (e.jz || 0);
+    tracers.push({ x1: e.x + Math.cos(s.a) * 0.4, y1: fy - 0.06, z1: e.z + Math.sin(s.a) * 0.4, x2: s.x + dx * bestD, y2: s.y + dy * bestD, z2: s.z + dz * bestD, life: 1, r: 1, g: 0.8, b: 0.5 });
+    sfx.enemyShot(Math.hypot(e.x - player.x, e.z - player.z), gunSfx('ak47'));
+    let hit = false;
+    if (best && kind === 'player') {
+      damagePlayer(Math.max(6, Math.round((s.d || 22) * 0.55 * Math.max(0.45, 1 - bestD / 50))), { name: shooter.name, team: 'B' }, false);
+      hit = true;
+    } else if (best && kind === 'actor') {
+      best.hp -= Math.round(Math.max(4, s.d || 22) * Math.max(0.45, 1 - bestD / ((s.rg || 80) / 4)) * (head ? 1.9 : 1) * 0.55);
+      blood(best.x, 1.2, best.z);
+      hit = true;
+      if (best.hp <= 0) killActor(best, shooter.name, head, false);
+    }
+    NET.node.send({ t: 'ev', hit: hit ? 1 : 0 }, fromSlot);
+  }
+
+  /* guest: every other body is a puppet positioned by snapshots */
+  function netStepPuppet(e, dt) {
+    if (!netPup) return;
+    const P = netPup.E[e.slot];
+    if (!P) return;
+    const moved = Math.hypot(P[1] - (e.px === undefined ? P[1] : e.px), P[2] - (e.pz === undefined ? P[2] : e.pz));
+    e.px = P[1]; e.pz = P[2];
+    e.x += (P[1] - e.x) * Math.min(1, dt * 12); e.z += (P[2] - e.z) * Math.min(1, dt * 12);
+    e.a = P[3]; e.hp = P[4]; e.crouch = !!P[5]; e.jz = P[6] || 0; e.y3 = e.jz;
+    e.out = !!P[8]; e.netDeaths = P[9] || 0;
+    e.dead = e.out || e.hp <= 0;
+    if (e.dead) e.deadT = Math.max(e.deadT, 0.001);
+    e.animSpd = moved > 0.01 ? 1 : 0;
+    if (e.animSpd) e.animPh += dt * 8;
+    if (P[7]) {                                        /* fired since last snapshot */
+      const dx = Math.cos(e.a), dz = Math.sin(e.a);
+      tracers.push({ x1: e.x + dx * 0.4, y1: 1.45 + e.jz, z1: e.z + dz * 0.4, x2: e.x + dx * 40, y2: 1.45 + e.jz, z2: e.z + dz * 40, life: 1, r: 1, g: 0.8, b: 0.5 });
+      sfx.enemyShot(Math.hypot(e.x - player.x, e.z - player.z), gunSfx('ak47'));
     }
   }
 
@@ -1637,8 +1798,19 @@ function createGame(cfg) {
   /* ---------- end ---------- */
   function checkEnd() {
     if (ended) return;
+    if (NET) { checkTeamWipe(); return; }             /* rooms: only wipe or timeout end a match */
     if (cfg.mode === 'br') { if (aliveCount() <= 1) endMatch(true, false); return; }
     if (scoreA >= TARGET || scoreB >= TARGET) endMatch(scoreA >= TARGET, false);
+  }
+  function checkTeamWipe() {                          /* host only — absolute teams from the roster */
+    if (!NET_HOST || ended) return;
+    const out = t => ROSTER.filter(r => r.team === t).every(r => {
+      if (r.slot === NET.mySlot) return player.out || player.deaths >= 3;
+      const a = actors.find(x => x.slot === r.slot);
+      return !a || a.out || a.netDeaths >= 3;
+    });
+    if (out('B')) endMatch(true, false);
+    else if (out('A')) endMatch(false, false);
   }
   function buildResult(won, forfeit) {
     const acc = player.shots ? Math.round(player.hits / player.shots * 100) : 0;
@@ -1656,7 +1828,7 @@ function createGame(cfg) {
       placement: cfg.mode === 'br' ? (won ? 1 : myPlace) : 0,
       lobbySize: cfg.mode === 'br' ? actors.length + 1 : ((cfg.teamA || []).length + (cfg.teamB || []).length),
       coins: 0,
-      cash: won ? TVG.WIN_REWARD : 0,
+      cash: (NET && won && won !== 'DRAW') ? TVG.WIN_REWARD : 0,
       xp: forfeit ? 0 : (won ? 180 : 70) + player.kills * 6,
       duration: (cfg.mode === 'br' ? 420 : 300) - Math.floor(time)
     };
@@ -1664,7 +1836,9 @@ function createGame(cfg) {
   function endMatch(won, forfeit) {
     if (ended) return;
     ended = true; running = false;
+    const WINTEAM = NET ? (won === 'DRAW' ? 'DRAW' : won ? MYTEAM : (MYTEAM === 'A' ? 'B' : 'A')) : null;
     music.sting(won ? 'win' : 'lose');
+    if (NET_HOST) NET.node.send({ t: 'end', winTeam: WINTEAM });   /* guests resolve their own result */
     music.stop(2.4);
     TVG.state.wallet.ammo = reserve() + (player.slot === 'melee' ? 0 : player.ammo);
     const r = buildResult(won, forfeit);
@@ -1808,6 +1982,7 @@ function createGame(cfg) {
      MP5 (compact) · AWP (long barrel + scope) · SCAR (bulk) ·
      pistols (one hand) · blades (angled knife / machete) */
   function viewModel() {
+    if (player.out) return 0;                        /* eliminated: no weapon, spectating */
     let n = 0;
     const bobY = Math.abs(Math.cos(bob)) * 0.02;
     const bobX = Math.sin(bob) * 0.012;
@@ -2309,6 +2484,53 @@ function createGame(cfg) {
         }
       }
 
+      if (NET_HOST) {                              /* host: referee queued shots, then 12Hz snapshot */
+        while (netShotQ.length) hostResolveShot.apply(null, netShotQ.shift());
+        netSnapT -= dt;
+        if (netSnapT <= 0) {
+          netSnapT = 1 / 12;
+          const E = {};
+          E[0] = [netHostFired, +player.x.toFixed(2), +player.z.toFixed(2), +player.a.toFixed(2), Math.max(0, Math.round(player.hp)), player.crouch ? 1 : 0, +player.jz.toFixed(2), 0, player.out ? 1 : 0, player.deaths];
+          actors.forEach(a => {
+            if (!a.remote) return;
+            E[a.slot] = [a.snapFired || 0, +a.x.toFixed(2), +a.z.toFixed(2), +a.a.toFixed(2), Math.max(0, Math.round(a.hp)), a.crouch ? 1 : 0, +(a.jz || 0).toFixed(2), 0, a.out ? 1 : 0, a.netDeaths || 0];
+            a.snapFired = 0;
+          });
+          netHostFired = 0;
+          NET.node.send({ t: 's', E, sc: [scoreA, scoreB], tm: +time.toFixed(1), ev: netEvOut.splice(0) });
+        }
+      } else if (NET_GUEST) {                       /* guest: 15Hz inputs up, snapshot down */
+        netInT -= dt;
+        if (netInT <= 0) {
+          netInT = 1 / 15;
+          NET.node.send({ t: 'i', mx: IN.mv.x, mz: IN.mv.y, a: player.a, pitch: player.pitch, crouch: player.crouch ? 1 : 0, fire: 0, sprint: IN.sprint ? 1 : 0, jz: player.jz > 0.03 ? 1 : 0 });
+        }
+        if (netPup) {
+          const me = netPup.E[NET.mySlot];
+          if (me) {
+            if (player.hp !== me[4]) { player.hp = Math.max(0, me[4]); HUD.hp(); }
+            player.deaths = me[9] || player.deaths;
+            const dr = Math.hypot(me[1] - player.x, me[2] - player.z);
+            if (dr > 2) { player.x = me[1]; player.z = me[2]; player.jz = me[6] || 0; player.vz = 0; }
+            else if (dr > 0.6 && !player.out) { player.x += (me[1] - player.x) * Math.min(1, dt * 2.2); player.z += (me[2] - player.z) * Math.min(1, dt * 2.2); }
+            if (me[8] && !player.out) { player.out = true; player.hp = 0; HUD.hp(); enterSpectate(); }
+          }
+          scoreA = netPup.sc[0]; scoreB = netPup.sc[1]; time = netPup.tm;
+          for (const ev2 of netPup.ev || []) {
+            if (ev2.k) {
+              HUD.feed(ev2.k[0], ev2.k[1], !!ev2.k[2], false);
+              if (ev2.k[0] === MYNAME) { player.kills++; if (ev2.k[2]) player.hs++; sfx.kill(); }
+            }
+            if (ev2.rs === NET.mySlot) respawnMe();
+          }
+          netPup.ev = [];
+        }
+        if (player.out && !SPECT) enterSpectate();
+      }
+      if (NET && player.out && SPECT) {             /* eliminated: camera rides a live teammate */
+        player.x = SPECT.x; player.z = SPECT.z; player.jz = SPECT.y3 || 0; player.vz = 0;
+        if (SPECT.dead && SPECT.out === undefined) enterSpectate();
+      }
       if (IN.firing) fire();
       /* clamped at zero — an unclamped switchCd went negative forever and kept drifting the view-model (the sinking/floating weapon bug) */
       fireCd = Math.max(0, fireCd - dt); nadeCd = Math.max(0, nadeCd - dt); meleeCd = Math.max(0, meleeCd - dt); switchCd = Math.max(0, switchCd - dt);
@@ -2326,7 +2548,11 @@ function createGame(cfg) {
 
       player.x3 = player.x; player.z3 = player.z; player.y3 = 0; player.a3 = player.a; player.aimP = player.pitch;
 
-      actors.forEach(e => stepBot(e, dt));
+      actors.forEach(e => {
+        if (e.remote) { netStepRemote(e, dt); return; }   /* live guest, host-driven */
+        if (e.puppet) { netStepPuppet(e, dt); return; }   /* host's body seen by guest */
+        stepBot(e, dt);
+      });
       stepNades(dt);
       stepParts(dt);
       stepZone(dt);
@@ -2334,7 +2560,7 @@ function createGame(cfg) {
       time -= dt;
       HUD.clock(time);
       if (cfg.mode === 'br') HUD.alive();
-      if (time <= 0) { time = 0; endMatch(cfg.mode === 'br' ? aliveCount() <= 1 : scoreA >= scoreB, false); }
+      if (time <= 0) { time = 0; endMatch(NET ? (scoreA > scoreB ? MYTEAM : scoreB > scoreA ? (MYTEAM === 'A' ? 'B' : 'A') : 'DRAW') : (cfg.mode === 'br' ? aliveCount() <= 1 : scoreA >= scoreB), false); }
     }
     render(now);
     requestAnimationFrame(loop);
@@ -2377,7 +2603,7 @@ function createGame(cfg) {
     setMusic(v) { if (v) music.start(); else music.stop(0.5); },
     get state() { return player; },
     renderer: use2D ? '2d-canvas' : 'webgl',
-    debug: () => ({ actors, zone, score: [scoreA, scoreB], target: TARGET, grid: gridH, S, MARG, music: music.active() })
+    debug: () => ({ actors, zone, score: [scoreA, scoreB], target: TARGET, grid: gridH, S, MARG, music: music.active(), over: ended })
   };
 }
 
