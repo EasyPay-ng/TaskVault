@@ -345,6 +345,151 @@ function compile(gl, vs, fs) {
 }
 
 /* ================= AUDIO (synth, zero assets) ================= */
+/* per-weapon voice: f0/f1 = filter sweep, p = body punch, b = bass, d = decay, v = volume */
+const GUN_SFX = {
+  ak47:    { f0: 1900, f1: 420, p: 0.62, b: 150, d: 0.16, v: 0.60 },
+  m4a1:    { f0: 2700, f1: 640, p: 0.44, b: 120, d: 0.12, v: 0.54 },
+  mp5:     { f0: 3100, f1: 880, p: 0.30, b: 100, d: 0.09, v: 0.48 },
+  awp:     { f0: 1100, f1: 160, p: 0.95, b: 70,  d: 0.34, v: 0.88 },
+  scarh:   { f0: 1650, f1: 360, p: 0.72, b: 90,  d: 0.20, v: 0.70 },
+  glock18: { f0: 3400, f1: 1300, p: 0.20, b: 210, d: 0.06, v: 0.38 },
+  deagle:  { f0: 1500, f1: 280, p: 0.55, b: 80,  d: 0.17, v: 0.66 },
+  _default:{ f0: 2400, f1: 520, p: 0.5,  b: 150, d: 0.16, v: 0.60 }
+};
+const gunSfx = id => GUN_SFX[id] || GUN_SFX._default;
+
+/* ================ ADAPTIVE CINEMATIC SCORE (procedural — zero assets) ================
+   Layered war score on its own audio bus: sustained cello-ish drone in a brooding
+   progression, a generative minor-pentatonic motif, distant battle rumble, and a
+   taiko percussion layer that swells with live combat threat. Final-zone pulses
+   in BR. Win/lose stings on match end. Nothing to download — it's all synthesis. */
+function makeMusic() {
+  let AC = null, on = false, inten = 0, finalZone = false, bar = 0, nextBar = 0;
+  let bus = null, filt = null, voices = [], timer = null;
+  const BAR = 2.4;
+  const ROOTS = [73.42, 65.41, 82.41, 61.74];                 // D2 C2 E2 B1
+  const PENT = [0, 3, 5, 7, 10];                              // minor pentatonic
+  const nf = (root, deg, oct) => root * Math.pow(2, (PENT[((deg % 5) + 5) % 5] + 12 * oct) / 12);
+  const ctx = () => {
+    if (!AC) { try { AC = new (w.AudioContext || w.webkitAudioContext)(); } catch (err) { return null; } }
+    if (AC.state === 'suspended') AC.resume();
+    return AC;
+  };
+  function start() {
+    const c = ctx(); if (!c || on) return;
+    on = true;
+    bus = c.createGain(); bus.gain.value = 0.0001;
+    filt = c.createBiquadFilter(); filt.type = 'lowpass'; filt.frequency.value = 640; filt.Q.value = 0.6;
+    filt.connect(bus); bus.connect(c.destination);
+    bus.gain.exponentialRampToValueAtTime(0.8, c.currentTime + 2.5);
+    for (let i = 0; i < 3; i++) {                             // drone: triangle root + 2 detuned saws
+      const o = c.createOscillator(); o.type = i ? 'sawtooth' : 'triangle';
+      o.frequency.value = ROOTS[0] * (i ? 2 : 1); o.detune.value = (i - 1) * 11;
+      const g = c.createGain(); g.gain.value = i ? 0.045 : 0.075;
+      o.connect(g); g.connect(filt); o.start();
+      voices.push({ o, g });
+    }
+    const sub = c.createOscillator(); sub.type = 'sine'; sub.frequency.value = ROOTS[0] / 2;
+    const sg = c.createGain(); sg.gain.value = 0.11;
+    sub.connect(sg); sg.connect(filt); sub.start();
+    voices.push({ o: sub, g: sg });
+    nextBar = c.currentTime + 0.15;
+    timer = setInterval(schedule, 500);
+    schedule();
+  }
+  function stop(fade) {
+    if (!on) return; on = false;
+    const c = AC, fd = fade || 1.6;
+    clearInterval(timer); timer = null;
+    if (c && bus) {
+      bus.gain.cancelScheduledValues(c.currentTime);
+      bus.gain.setValueAtTime(Math.max(0.0001, bus.gain.value), c.currentTime);
+      bus.gain.exponentialRampToValueAtTime(0.0001, c.currentTime + fd);
+    }
+    const vs = voices; voices = [];
+    setTimeout(() => vs.forEach(v => { try { v.o.stop(); } catch (err) {} }), fd * 1000 + 200);
+  }
+  function note(t, freq, dur, vol, type) {                    // cello-ish bowed voice
+    const c = AC; if (!c || !on) return;
+    const o = c.createOscillator(); o.type = type || 'sawtooth'; o.frequency.value = freq;
+    const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 1100;
+    const g = c.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol, t + Math.min(0.5, dur * 0.35));
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(lp); lp.connect(g); g.connect(filt);
+    o.start(t); o.stop(t + dur + 0.05);
+  }
+  function rumble(t) {                                        // distant artillery / thunder
+    const c = AC; if (!c || !on) return;
+    const len = c.sampleRate * 1.4 | 0, buf = c.createBuffer(1, len, c.sampleRate), d = buf.getChannelData(0);
+    let last = 0;
+    for (let i = 0; i < len; i++) { last = (last + (Math.random() * 2 - 1) * 0.04) * 0.985; d[i] = last * 6; }
+    const n = c.createBufferSource(); n.buffer = buf;
+    const f = c.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 180;
+    const g = c.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.5, t + 0.28);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 1.3);
+    n.connect(f); f.connect(g); g.connect(filt); n.start(t); n.stop(t + 1.35);
+  }
+  function perc(t, kind, vol) {                               // taiko kit
+    const c = AC; if (!c || !on) return;
+    if (kind === 'kick') {
+      const o = c.createOscillator(); o.type = 'sine';
+      o.frequency.setValueAtTime(120, t); o.frequency.exponentialRampToValueAtTime(36, t + 0.26);
+      const g = c.createGain(); g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+      o.connect(g); g.connect(bus); o.start(t); o.stop(t + 0.32);
+    } else {
+      const o = c.createOscillator(); o.type = 'triangle';
+      o.frequency.setValueAtTime(kind === 'hi' ? 320 : 180, t);
+      o.frequency.exponentialRampToValueAtTime(kind === 'hi' ? 210 : 90, t + 0.16);
+      const g = c.createGain(); g.gain.setValueAtTime(vol * 0.6, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+      o.connect(g); g.connect(bus); o.start(t); o.stop(t + 0.2);
+    }
+  }
+  function schedule() {                                       // generative bar loop
+    const c = AC; if (!c || !on) return;
+    while (nextBar < c.currentTime + 1.3) {
+      const t = Math.max(nextBar, c.currentTime + 0.02), root = ROOTS[(bar >> 2) % ROOTS.length];
+      voices.forEach((v, i) => v.o.frequency.setTargetAtTime(root * (i === 3 ? 0.5 : i ? 2 : 1), t, 1.4));
+      note(t, nf(root, bar, 1), 2.1, 0.05);
+      if (bar % 2) note(t + BAR * 0.5, nf(root, bar * 3, 2), 1.0, 0.032);
+      if (bar % 4 === 3) note(t + BAR * 0.25, nf(root, bar + 2, 2) * 2, 1.6, 0.02, 'triangle');
+      if (Math.random() < 0.55) rumble(t + Math.random() * BAR);
+      if (inten > 0.12) {                                      // combat layer scales with threat
+        const hits = inten > 0.55 ? 8 : 4, v = 0.28 + inten * 0.5;
+        for (let i = 0; i < hits; i++)
+          if (i % 4 === 0 || Math.random() < 0.55)
+            perc(t + i * (BAR / hits), i === 0 ? 'kick' : (i % 2 ? 'hi' : 'lo'), v * (0.7 + Math.random() * 0.3));
+      }
+      if (finalZone && bar % 2 === 0) {                        // closing-zone urgency
+        for (let i = 0; i < 4; i++) perc(t + i * 0.3, 'lo', 0.34);
+        note(t, nf(root, bar, 1) * 2, 1.8, 0.045, 'square');
+      }
+      nextBar += BAR; bar++;
+    }
+  }
+  function sting(kind) {                                      // match-result cue
+    const c = ctx(); if (!c || !bus) return;
+    if (!on) { start(); }
+    const t = c.currentTime + 0.05;
+    if (kind === 'win') {
+      [0, 4, 7, 12].forEach((semi, i) => note(t + i * 0.16, 146.83 * Math.pow(2, semi / 12), 2.6 - i * 0.2, 0.085));
+      perc(t, 'kick', 0.7); rumble(t);
+    } else {
+      [0, -2, -5].forEach((semi, i) => note(t + i * 0.3, 130.81 * Math.pow(2, semi / 12), 1.8, 0.07));
+      perc(t, 'kick', 0.8); perc(t + 0.5, 'lo', 0.5);
+    }
+  }
+  return {
+    start, stop, sting,
+    drive(th, fin) { inten = Math.max(0, Math.min(1, th)); finalZone = !!fin; },
+    active: () => on,
+    resume: () => ctx()
+  };
+}
+
 function makeSFX(settings) {
   let AC = null;
   const ac = () => {
@@ -368,25 +513,34 @@ function makeSFX(settings) {
   };
   return {
     unlock: () => ac(),
-    shot() {
+    shot(prof) {
+      const P = prof || GUN_SFX._default;
       const c = ac(); if (!c) return; const t = c.currentTime;
-      let n = c.createBufferSource(); n.buffer = noiseBuf(c, 0.16);
-      let f = c.createBiquadFilter(); f.type = 'bandpass'; f.Q.value = 0.6;
-      f.frequency.setValueAtTime(2400, t); f.frequency.exponentialRampToValueAtTime(520, t + 0.12);
-      let g = c.createGain(); g.gain.setValueAtTime(0.6, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
-      n.connect(f); f.connect(g); g.connect(c.destination); n.start(t); n.stop(t + 0.16);
-      let o = c.createOscillator(); o.type = 'sine';
-      o.frequency.setValueAtTime(150, t); o.frequency.exponentialRampToValueAtTime(40, t + 0.12);
-      let g2 = c.createGain(); g2.gain.setValueAtTime(0.55, t); g2.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
-      o.connect(g2); g2.connect(c.destination); o.start(t); o.stop(t + 0.16);
+      const n = c.createBufferSource(); n.buffer = noiseBuf(c, P.d + 0.02);
+      const f = c.createBiquadFilter(); f.type = 'bandpass'; f.Q.value = 0.6;
+      f.frequency.setValueAtTime(P.f0, t); f.frequency.exponentialRampToValueAtTime(P.f1, t + P.d * 0.75);
+      const g = c.createGain(); g.gain.setValueAtTime(P.v, t); g.gain.exponentialRampToValueAtTime(0.001, t + P.d);
+      n.connect(f); f.connect(g); g.connect(c.destination); n.start(t); n.stop(t + P.d + 0.02);
+      const o = c.createOscillator(); o.type = 'sine';
+      o.frequency.setValueAtTime(P.b, t); o.frequency.exponentialRampToValueAtTime(P.b * 0.26, t + P.d * 0.75);
+      const g2 = c.createGain(); g2.gain.setValueAtTime(P.p, t); g2.gain.exponentialRampToValueAtTime(0.001, t + P.d);
+      o.connect(g2); g2.connect(c.destination); o.start(t); o.stop(t + P.d);
+      if (P.d > 0.25) {                                    // sniper echo tail
+        const n2 = c.createBufferSource(); n2.buffer = noiseBuf(c, 0.4);
+        const f2 = c.createBiquadFilter(); f2.type = 'lowpass'; f2.frequency.value = 500;
+        const g3 = c.createGain(); g3.gain.setValueAtTime(0.001, t + 0.08);
+        g3.gain.exponentialRampToValueAtTime(0.22, t + 0.14); g3.gain.exponentialRampToValueAtTime(0.001, t + 0.45);
+        n2.connect(f2); f2.connect(g3); g3.connect(c.destination); n2.start(t + 0.08); n2.stop(t + 0.46);
+      }
     },
-    enemyShot(dist) {
+    enemyShot(dist, prof) {
+      const P = prof || GUN_SFX._default;
       const c = ac(); if (!c) return; const t = c.currentTime;
-      const vol = Math.max(0.04, 0.3 - dist * 0.02);
-      const n = c.createBufferSource(); n.buffer = noiseBuf(c, 0.12);
-      const f = c.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 1100;
-      const g = c.createGain(); g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
-      n.connect(f); f.connect(g); g.connect(c.destination); n.start(t); n.stop(t + 0.13);
+      const vol = Math.max(0.04, 0.34 - dist * 0.012) * (0.5 + P.v * 0.8);
+      const n = c.createBufferSource(); n.buffer = noiseBuf(c, P.d + 0.02);
+      const f = c.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = Math.max(420, P.f0 * 0.5);
+      const g = c.createGain(); g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.001, t + P.d);
+      n.connect(f); f.connect(g); g.connect(c.destination); n.start(t); n.stop(t + P.d + 0.02);
     },
     step(run) {
       const c = ac(); if (!c) return; const t = c.currentTime;
@@ -394,6 +548,16 @@ function makeSFX(settings) {
       const f = c.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = run ? 680 : 420;
       const g = c.createGain(); g.gain.setValueAtTime(run ? 0.24 : 0.15, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.075);
       n.connect(f); f.connect(g); g.connect(c.destination); n.start(t); n.stop(t + 0.08);
+    },
+    heartbeat() {                                            // low-hp tension
+      const c = ac(); if (!c) return; const t = c.currentTime;
+      [0, 0.18].forEach((off, i) => {
+        const o = c.createOscillator(); o.type = 'sine';
+        o.frequency.setValueAtTime(58, t + off); o.frequency.exponentialRampToValueAtTime(40, t + off + 0.1);
+        const g = c.createGain(); g.gain.setValueAtTime(i ? 0.28 : 0.4, t + off);
+        g.gain.exponentialRampToValueAtTime(0.001, t + off + 0.14);
+        o.connect(g); g.connect(c.destination); o.start(t + off); o.stop(t + off + 0.15);
+      });
     },
     hurt() {
       const c = ac(); if (!c) return; const t = c.currentTime;
@@ -413,11 +577,11 @@ function makeSFX(settings) {
     reloadIn() { const c = ac(); if (c) click(c, 1100, .16); setTimeout(() => { const c2 = ac(); if (c2) click(c2, 850, .14); }, 200); },
     reloadOut() { const c = ac(); if (c) click(c, 1400, .18); setTimeout(() => { const c2 = ac(); if (c2) click(c2, 1000, .15); }, 160); },
     empty() { const c = ac(); if (c) click(c, 720, .12); },
-    whoosh() {
+    whoosh(deep) {
       const c = ac(); if (!c) return; const t = c.currentTime;
-      const n = c.createBufferSource(); n.buffer = noiseBuf(c, 0.14);
+      const n = c.createBufferSource(); n.buffer = noiseBuf(c, deep ? 0.2 : 0.14);
       const f = c.createBiquadFilter(); f.type = 'bandpass'; f.Q.value = 1.4;
-      f.frequency.setValueAtTime(360, t); f.frequency.exponentialRampToValueAtTime(2200, t + 0.13);
+      f.frequency.setValueAtTime(deep ? 190 : 360, t); f.frequency.exponentialRampToValueAtTime(deep ? 900 : 2200, t + (deep ? 0.18 : 0.13));
       const g = c.createGain(); g.gain.setValueAtTime(0.0001, t);
       g.gain.exponentialRampToValueAtTime(0.22, t + 0.05); g.gain.exponentialRampToValueAtTime(0.001, t + 0.14);
       n.connect(f); f.connect(g); g.connect(c.destination); n.start(t); n.stop(t + 0.15);
@@ -472,54 +636,65 @@ function buildWorld(E, mapId, S) {
   E.groundQuad(style.ground + 'Tex', -2, -2, S + 2, S + 2, 0.35);
   E.groundQuad(style.ground + 'Tex', -40, -40, S + 40, S + 40, 0.05);
 
-  const layout = E.layout;
+  const deco = E.deco, marg = E.marg, size0 = E.size0, gridH = E.grid;
+  const spA = w.TVGMaps.spawn(mapId, 'A'), spB = w.TVGMaps.spawn(mapId, 'B');
+  const nearSpawn = (x, y) =>
+    (Math.abs(x - marg - spA.x) < 4 && Math.abs(y - marg - spA.y) < 4) ||
+    (Math.abs(x - marg - spB.x) < 4 && Math.abs(y - marg - spB.y) < 4);
   for (let y = 0; y < S; y++) for (let x = 0; x < S; x++) {
-    const ch = layout[y][x];
+    const ch = deco[y][x];
+    const h = gridH[y][x];
     const px = x + 0.5, pz = y + 0.5;
-    if (ch === '.') {
+    const inArena = x >= marg && x < marg + size0 && y >= marg && y < marg + size0;
+    if (h === 0) {
       const r = rnd();
-      const nearSpawn = (x < 4 && y > S - 5) || (x > S - 5 && y < 4);
-      if (nearSpawn) continue;
-      if (style.props === 'indoor' && r < 0.10) {
+      if (nearSpawn(x, y)) continue;
+      if (inArena) {
+        if (style.props === 'indoor' && r < 0.10) {
+          E.box('crateTex', px, 0, pz, 0.9, 0.9, 0.9, 1);
+          if (r < 0.04) { E.box('crateTex', px + 0.06, 0.9, pz - 0.05, 0.7, 0.7, 0.7, 1); E.collider(px, pz, 0.55, 1.6); }
+          else E.collider(px, pz, 0.55, 0.9);
+        } else if (style.props === 'military' && r < 0.09) {
+          E.box('sandbagTex', px, 0, pz, 1.5, 0.75, 0.62, 1);
+          E.box('sandbagTex', px, 0.75, pz, 1.3, 0.4, 0.55, 1, 0.9);
+          E.collider(px, pz, 0.72, 1.15);
+        } else if (style.props === 'desert' && r < 0.07) {
+          E.box('crateTex', px, 0, pz, 1.0, 1.1, 1.0, 1);
+          E.collider(px, pz, 0.6, 1.1);
+        } else if (style.props === 'port' && r < 0.08) {
+          E.box('crateTex', px, 0, pz, 1.1, 1.1, 1.1, 1);
+          if (r < 0.035) { E.box('metalTex', px, 1.1, pz, 0.8, 0.6, 0.8, 1, 0.9); E.collider(px, pz, 0.62, 1.7); }
+          else E.collider(px, pz, 0.62, 1.1);
+        } else if (style.props === 'jungle' && r < 0.16) {
+          E.box('barkTex', px, 0, pz, 0.42, 2.6, 0.42, 2);
+          E.box('foliageTex', px, 2.3, pz, 2.4, 1.3, 2.4, 1, .96);
+          E.box('foliageTex', px + (r * 2 - 1) * .5, 3.3, pz - (r - .5), 1.6, 1.0, 1.6, 1, .9);
+          E.collider(px, pz, 0.35, 2.6);
+        } else if (style.props === 'trains' && r < 0.05) {
+          E.box('metalTex', px, 0.15, pz, 1.5, 2.4, 4.4, 1);
+          E.collider(px, pz, 0.9, 2.4);
+        }
+      } else if (r < 0.05) {
         E.box('crateTex', px, 0, pz, 0.9, 0.9, 0.9, 1);
-        if (r < 0.04) { E.box('crateTex', px + 0.06, 0.9, pz - 0.05, 0.7, 0.7, 0.7, 1); E.collider(px, pz, 0.55, 1.6); }
-        else E.collider(px, pz, 0.55, 0.9);
-      } else if (style.props === 'military' && r < 0.09) {
-        E.box('sandbagTex', px, 0, pz, 1.5, 0.75, 0.62, 1);
-        E.box('sandbagTex', px, 0.75, pz, 1.3, 0.4, 0.55, 1, 0.9);
-        E.collider(px, pz, 0.72, 1.15);
-      } else if (style.props === 'desert' && r < 0.07) {
-        E.box('crateTex', px, 0, pz, 1.0, 1.1, 1.0, 1);
-        E.collider(px, pz, 0.6, 1.1);
-      } else if (style.props === 'port' && r < 0.08) {
-        E.box('crateTex', px, 0, pz, 1.1, 1.1, 1.1, 1);
-        if (r < 0.035) { E.box('metalTex', px, 1.1, pz, 0.8, 0.6, 0.8, 1, 0.9); E.collider(px, pz, 0.62, 1.7); }
-        else E.collider(px, pz, 0.62, 1.1);
-      } else if (style.props === 'jungle' && r < 0.16) {
-        E.box('barkTex', px, 0, pz, 0.42, 2.6, 0.42, 2);
-        E.box('foliageTex', px, 2.3, pz, 2.4, 1.3, 2.4, 1, .96);
-        E.box('foliageTex', px + (r * 2 - 1) * .5, 3.3, pz - (r - .5), 1.6, 1.0, 1.6, 1, .9);
-        E.collider(px, pz, 0.35, 2.6);
-      } else if (style.props === 'trains' && r < 0.05) {
-        E.box('metalTex', px, 0.15, pz, 1.5, 2.4, 4.4, 1);
-        E.collider(px, pz, 0.9, 2.4);
+        E.collider(px, pz, 0.55, 0.9);
       }
       continue;
     }
-    const h = ch === '#' ? 3.4 : ch === '=' ? 2.3 : 1.15;
+    const uvS = Math.max(1, Math.round(h / 1.15));
     if (ch === 'x') {
       E.box('sandbagTex', px, 0, pz, 1.02, h, 1.02, 1);
+    } else if (ch === '=') {
+      E.box(style.struct, px, 0, pz, 1.0, h, 1.0, uvS);
+      E.box(style.struct, px, h, pz, 1.06, 0.14, 1.06, 1, 0.7);
     } else {
-      const uvS = Math.max(1, Math.round(h / 1.15));
-      E.box(ch === '#' ? style.wall : style.struct, px, 0, pz, 1.0, h, 1.0, uvS);
-      if (ch === '=') E.box(style.struct, px, h, pz, 1.06, 0.14, 1.06, 1, 0.7);
+      E.box(style.wall, px, 0, pz, 1.0, h, 1.0, uvS);
+      if (h < 4 && ch === '#') E.box(style.struct, px, h, pz, 1.04, 0.12, 1.04, 1, 0.72);
     }
   }
-  /* far skyline for depth */
-  for (let i = 0; i < 46; i++) {
-    const a = (i / 46) * TAU, d = 30 + rnd() * 26;
+  for (let i = 0; i < 60; i++) {
+    const a = (i / 60) * TAU, d = S * 0.8 + rnd() * 30;
     const bx = Math.cos(a) * d + S / 2, bz = Math.sin(a) * d + S / 2;
-    const bh = 3 + rnd() * 12, bw = 3 + rnd() * 6;
+    const bh = 4 + rnd() * 14, bw = 3 + rnd() * 7;
     E.box(style.wall, bx, 0, bz, bw, bh, bw, Math.max(1, bh / 3 | 0), 0.82);
   }
   E.endBatch();
@@ -691,28 +866,71 @@ function meshSoldier(arr, n, a, sun) {
   arm(1, 0.235, gunF - 0.10, gunY + 0.03);
   arm(-1, -0.235, gunF + 0.18, gunY + 0.03);
 
-  /* rifle: body, handguard, mag, optic, stock, muzzle */
-  p = P(gunF, 0.02, gunY);
-  n = partBox(arr, n, p[0], p[1], p[2], yaw, aimP * 0.4, 0, 0, 0, 0.05, 0.07, 0.46, ATLAS.gun, sun, tint * 1.1);
-  p = P(gunF + 0.30, 0.02, gunY - 0.005);
-  n = partBox(arr, n, p[0], p[1], p[2], yaw, aimP * 0.4, 0, 0, 0, 0.045, 0.055, 0.22, ATLAS.gun, sun, tint);
-  p = P(gunF - 0.02, 0.02, gunY - 0.10);
-  n = partBox(arr, n, p[0], p[1], p[2], yaw, aimP * 0.4 + 0.35, 0, 0, 0, 0.04, 0.14, 0.07, ATLAS.gun, sun, tint * 0.9);      // curved mag
-  p = P(gunF - 0.02, 0.02, gunY + 0.065);
-  n = partBox(arr, n, p[0], p[1], p[2], yaw, aimP * 0.4, 0, 0, 0, 0.035, 0.05, 0.09, ATLAS.gun, sun, tint * 1.15);          // optic sight
-  p = P(gunF - 0.30, 0.02, gunY - 0.01);
-  n = partBox(arr, n, p[0], p[1], p[2], yaw, aimP * 0.4, 0, 0, 0, 0.045, 0.06, 0.18, ATLAS.gun, sun, tint * 0.92);          // stock
-  p = P(gunF + 0.44, 0.02, gunY + 0.005);
-  n = partBox(arr, n, p[0], p[1], p[2], yaw, aimP * 0.4, 0, 0, 0, 0.03, 0.035, 0.10, ATLAS.gun, sun, tint * 0.85);          // muzzle
+  /* rifle by kind: 0 = AK (wood+curved mag) · 1 = SMG (compact) · 2 = sniper (scope+long barrel) */
+  if (a.gun === 1) {
+    p = P(gunF, 0.02, gunY);
+    n = partBox(arr, n, p[0], p[1], p[2], yaw, aimP * 0.4, 0, 0, 0, 0.045, 0.06, 0.34, ATLAS.gun, sun, tint * 1.1);
+    p = P(gunF + 0.20, 0.02, gunY);
+    n = partBox(arr, n, p[0], p[1], p[2], yaw, aimP * 0.4, 0, 0, 0, 0.04, 0.05, 0.14, ATLAS.gun, sun, tint);
+    p = P(gunF - 0.02, 0.02, gunY - 0.08);
+    n = partBox(arr, n, p[0], p[1], p[2], yaw, aimP * 0.4 + 0.25, 0, 0, 0, 0.035, 0.13, 0.055, ATLAS.gun, sun, tint * 0.9);
+  } else if (a.gun === 2) {
+    p = P(gunF, 0.02, gunY);
+    n = partBox(arr, n, p[0], p[1], p[2], yaw, aimP * 0.4, 0, 0, 0, 0.048, 0.065, 0.50, ATLAS.pantsA, sun, tint * 1.15);
+    p = P(gunF + 0.36, 0.02, gunY);
+    n = partBox(arr, n, p[0], p[1], p[2], yaw, aimP * 0.4, 0, 0, 0, 0.026, 0.03, 0.26, ATLAS.gun, sun, tint);
+    p = P(gunF + 0.02, 0.02, gunY + 0.07);
+    n = partBox(arr, n, p[0], p[1], p[2], yaw, aimP * 0.4, 0, 0, 0, 0.04, 0.045, 0.18, ATLAS.gun, sun, tint * 1.3);
+  } else {
+    p = P(gunF, 0.02, gunY);
+    n = partBox(arr, n, p[0], p[1], p[2], yaw, aimP * 0.4, 0, 0, 0, 0.05, 0.07, 0.46, ATLAS.gun, sun, tint * 1.1);
+    p = P(gunF + 0.30, 0.02, gunY - 0.005);
+    n = partBox(arr, n, p[0], p[1], p[2], yaw, aimP * 0.4, 0, 0, 0, 0.045, 0.055, 0.22, ATLAS.pantsA, sun, tint * 1.2);
+    p = P(gunF - 0.02, 0.02, gunY - 0.10);
+    n = partBox(arr, n, p[0], p[1], p[2], yaw, aimP * 0.4 + 0.35, 0, 0, 0, 0.04, 0.14, 0.07, ATLAS.gun, sun, tint * 0.9);
+    p = P(gunF - 0.02, 0.02, gunY + 0.065);
+    n = partBox(arr, n, p[0], p[1], p[2], yaw, aimP * 0.4, 0, 0, 0, 0.035, 0.05, 0.09, ATLAS.gun, sun, tint * 1.15);
+    p = P(gunF - 0.30, 0.02, gunY - 0.01);
+    n = partBox(arr, n, p[0], p[1], p[2], yaw, aimP * 0.4, 0, 0, 0, 0.045, 0.06, 0.18, ATLAS.gun, sun, tint * 0.92);
+  }
   return n;
 }
 
 /* ================= GAME FACTORY ================= */
 function createGame(cfg) {
   const TVG = w.TVG, Maps = w.TVGMaps;
-  const S = Maps.size();
+  /* bigger battlegrounds: the original layout sits inside a 48x48 world with
+     an outer cover ring, linked by gates carved through the arena wall */
+  const S0 = Maps.size();
+  const MARG = 12;
+  const S = S0 + MARG * 2;
   const layout = Maps.LAYOUTS[cfg.mapId] || Maps.LAYOUTS.warehouse;
-  const gridH = layout.map(r => r.split('').map(c => c === '#' ? 3.4 : c === '=' ? 2.3 : c === 'x' ? 1.15 : 0));
+  const CH = { '#': 3.4, '=': 2.3, 'x': 1.15 };
+  const deco = [], gridH = [];
+  const rndW = sRand((cfg.mapId.length * 131) ^ 0x9e37);
+  for (let y = 0; y < S; y++) { deco.push(new Array(S).fill('O')); gridH.push(new Float32Array(S)); }
+  for (let y = 0; y < S0; y++) for (let x = 0; x < S0; x++) {
+    const ch = layout[y][x];
+    deco[MARG + y][MARG + x] = ch;
+    gridH[MARG + y][MARG + x] = CH[ch] || 0;
+  }
+  const gates = [];
+  for (let i = 1; i <= 3; i++) {
+    const p = MARG + Math.round(S0 * i / 4);
+    gates.push([p, MARG], [p, MARG + 1], [p, MARG + S0 - 1], [p, MARG + S0 - 2]);
+    gates.push([MARG, p], [MARG + 1, p], [MARG + S0 - 1, p], [MARG + S0 - 2, p]);
+  }
+  gates.forEach(([gx, gy]) => { gridH[gy][gx] = 0; deco[gy][gx] = '.'; });
+  const nearGate = (x, y) => gates.some(([gx, gy]) => Math.abs(gx - x) + Math.abs(gy - y) < 3);
+  for (let y = 0; y < S; y++) for (let x = 0; x < S; x++) {
+    if (deco[y][x] !== 'O') continue;
+    if (x === 0 || y === 0 || x === S - 1 || y === S - 1) { gridH[y][x] = 4.6; deco[y][x] = '#'; continue; }
+    if (x < MARG - 2 || y < MARG - 2 || x >= MARG + S0 + 2 || y >= MARG + S0 + 2) continue;
+    if (nearGate(x, y)) continue;
+    const r = rndW();
+    if (r < 0.045) { gridH[y][x] = 2.3; deco[y][x] = '='; }
+    else if (r < 0.10) { gridH[y][x] = 1.15; deco[y][x] = 'x'; }
+  }
 
   /* ---------- GL setup ---------- */
   const cv = cfg.cv;
@@ -820,7 +1038,7 @@ function createGame(cfg) {
   const cpuBoxes = [];    // [{t:x,y,z,sx,sy,sz,ao}] — software renderer
   const cpuGrounds = [];  // [{t,x0,z0,x1,z1}]
   const worldAPI = {
-    layout, grid: gridH,
+    grid: gridH, deco, marg: MARG, size0: S0,
     setSun(v) { SUN[0] = v[0]; SUN[1] = v[1]; SUN[2] = v[2]; },
     beginBatch() { bb = {}; },
     endBatch() {
@@ -848,6 +1066,8 @@ function createGame(cfg) {
   }
 
   const sfx = makeSFX(cfg.settings);
+  const music = makeMusic();
+  if (cfg.music !== false) music.start();   // resumes on first gesture via sfxUnlock
 
   /* ---------- environment ---------- */
   const sunDir = SUN.slice();
@@ -856,7 +1076,7 @@ function createGame(cfg) {
   }
   const env = {
     sunDir, sunCol: [1.05, 0.97, 0.86], ambCol: [0.42, 0.45, 0.5],
-    fogCol: hexToRGB(style.sky[1], 0.92), fogD: style.fog,
+    fogCol: hexToRGB(style.sky[1], 0.92), fogD: style.fog * 0.72,
     flashPos: [0, 0, 0], flashCol: [1, 0.75, 0.4], flashI: 0
   };
 
@@ -895,7 +1115,8 @@ function createGame(cfg) {
   /* ---------- player ---------- */
   const FFA = cfg.mode === 'ffa' || cfg.mode === 'br';
   const MYNAME = cfg.myName;
-  const sp = Maps.spawn(cfg.mapId, 'A');
+  const spRaw = Maps.spawn(cfg.mapId, 'A');
+  const sp = { x: spRaw.x + MARG, y: spRaw.y + MARG };
   const player = {
     name: MYNAME, team: 'A', x: sp.x, z: sp.y, a: -0.8, pitch: 0,
     hp: 100, ammo: 0, kills: 0, deaths: 0, hs: 0, shots: 0, hits: 0,
@@ -960,7 +1181,8 @@ function createGame(cfg) {
   /* ---------- bots ---------- */
   const actors = [];
   function mkActor(name, team) {
-    const s = Maps.spawn(cfg.mapId, team);
+    const s0a = Maps.spawn(cfg.mapId, team);
+    const s = { x: s0a.x + MARG, y: s0a.y + MARG };
     let x = s.x, zz = s.y;
     if (cfg.mode === 'br') {
       for (let i = 0; i < 40; i++) {
@@ -975,7 +1197,7 @@ function createGame(cfg) {
       react: DIFF.react, mode: null, retreat: 0, patrol: null,
       strafe: Math.random() < .5 ? -1 : 1, strafeFlip: 0,
       x3: x, z3: zz, y3: 0, a3: 0, animPh: Math.random() * 6, animSpd: 0, aimP: 0,
-      deadT: 0, foe: true, crouch: false, tint: 0.92 + Math.random() * 0.16,
+      deadT: 0, foe: true, crouch: false, gun: (Math.random() * 3) | 0, tint: 0.92 + Math.random() * 0.16,
       skin: 0.88 + Math.random() * 0.24, look: 0
     };
   }
@@ -987,7 +1209,7 @@ function createGame(cfg) {
   const aliveCount = () => actors.filter(e => !e.dead).length + 1;
 
   /* ---------- match state ---------- */
-  let scoreA = 0, scoreB = 0, time = cfg.mode === 'br' ? 360 : 300;
+  let scoreA = 0, scoreB = 0, time = cfg.mode === 'br' ? 420 : 300;
   const TARGET = cfg.mode === 'br' ? 0 : (cfg.size === 1 ? 15 : cfg.size === 2 ? 25 : 40);
   let running = true, ended = false, myPlace = 0;
   let shake = 0;
@@ -1150,12 +1372,12 @@ function createGame(cfg) {
   /* ---------- combat ---------- */
   let fireCd = 0, nadeCd = 0, meleeCd = 0, muzzle = 0;
   let recoil = 0, kickX = 0, kickY = 0, kickRot = 0, reloadAnim = 0;
-  let bob = 0, stepAcc = 0, curVel = 0, playerVel = 0, swayX = 0, swayY = 0;
+  let bob = 0, stepAcc = 0, curVel = 0, playerVel = 0, swayX = 0, swayY = 0, hbT = 0;
 
   function meleeAttack() {
     if (meleeCd > 0) return;
     meleeCd = 0.55;
-    sfx.whoosh();
+    sfx.whoosh(WPN.melee && WPN.melee.id === 'machete');
     kickY = Math.max(kickY, 10); kickRot = 0.06;
     const mw = WPN.melee;
     for (const e of foes()) {
@@ -1173,7 +1395,7 @@ function createGame(cfg) {
     player.ammo--; player.shots++;
     fireCd = Math.max(0.07, 1.1 - cfg.gun.fire / 100);
     muzzle = 1; recoil = -3.2; kickY = 14; kickX = -6; kickRot = 0.05;
-    sfx.shot();
+    sfx.shot(gunSfx(CUR.id));
     const fx = player.x + Math.cos(player.a) * 0.5, fz = player.z + Math.sin(player.a) * 0.5;
     env.flashPos = [fx, eyeY(), fz]; env.flashI = 1.5;
     HUD.ammo();
@@ -1183,9 +1405,9 @@ function createGame(cfg) {
     const pitch = player.pitch + (Math.random() - 0.5) * spread;
     const dx = Math.cos(a) * Math.cos(pitch), dz = Math.sin(a) * Math.cos(pitch), dy = Math.sin(pitch);
 
-    let dist = 45, hitY = eyeY();
+    let dist = 60, hitY = eyeY();
     let x = player.x, z = player.z, y = eyeY();
-    for (let i = 0; i < 180; i++) {
+    for (let i = 0; i < 240; i++) {
       x += dx * 0.25; z += dz * 0.25; y += dy * 0.25;
       if (y <= 0.02) { dist = i * 0.25; hitY = 0.02; break; }
       if (wallHit(x, z, y)) {
@@ -1258,11 +1480,11 @@ function createGame(cfg) {
   }
 
   function respawnMe() {
-    const s = Maps.spawn(cfg.mapId, 'A');
+    const s2 = Maps.spawn(cfg.mapId, 'A');
     player.hp = 100;
     refillMag(); TVG.save();
-    player.x = s.x + (Math.random() - 0.5) * 0.6;
-    player.z = s.y + (Math.random() - 0.5) * 0.6;
+    player.x = s2.x + MARG + (Math.random() - 0.5) * 0.6;
+    player.z = s2.y + MARG + (Math.random() - 0.5) * 0.6;
     HUD.hp(); HUD.ammo();
   }
 
@@ -1327,7 +1549,7 @@ function createGame(cfg) {
   function fireBot(e, t, dist, moving) {
     if (e.cd > 0) return;
     e.cd = 0.8 + Math.random() * 1.4;
-    sfx.enemyShot(Math.hypot(e.x - player.x, e.z - player.z));
+    sfx.enemyShot(Math.hypot(e.x - player.x, e.z - player.z), [gunSfx('ak47'), gunSfx('mp5'), gunSfx('awp')][e.gun || 0]);
     const fx = e.x3 + Math.cos(e.a3) * 0.4, fz = e.z3 + Math.sin(e.a3) * 0.4;
     sparks(fx + Math.cos(e.a3) * 0.5, 1.35, fz + Math.sin(e.a3) * 0.5, 2);
     const tx = t === player ? player.x3 : t.x3, tz = t === player ? player.z3 : t.z3;
@@ -1345,8 +1567,8 @@ function createGame(cfg) {
       e.deadT += dt;
       e.respawn -= dt;
       if (e.respawn <= 0) {
-        const s = Maps.spawn(cfg.mapId, e.team);
-        e.x = s.x + (Math.random() - 0.5); e.z = s.y + (Math.random() - 0.5);
+        const s1 = Maps.spawn(cfg.mapId, e.team);
+        e.x = s1.x + MARG + (Math.random() - 0.5); e.z = s1.y + MARG + (Math.random() - 0.5);
         e.hp = 100; e.dead = false; e.deadT = 0;
         e.path = null; e.lastSeen = null; e.memory = 0; e.react = DIFF.react;
         e.mode = null; e.strafe = Math.random() < .5 ? -1 : 1;
@@ -1436,12 +1658,14 @@ function createGame(cfg) {
       coins: 0,
       cash: won ? TVG.WIN_REWARD : 0,
       xp: forfeit ? 0 : (won ? 180 : 70) + player.kills * 6,
-      duration: (cfg.mode === 'br' ? 360 : 300) - Math.floor(time)
+      duration: (cfg.mode === 'br' ? 420 : 300) - Math.floor(time)
     };
   }
   function endMatch(won, forfeit) {
     if (ended) return;
     ended = true; running = false;
+    music.sting(won ? 'win' : 'lose');
+    music.stop(2.4);
     TVG.state.wallet.ammo = reserve() + (player.slot === 'melee' ? 0 : player.ammo);
     const r = buildResult(won, forfeit);
     cfg.onEnd(r);
@@ -1579,24 +1803,93 @@ function createGame(cfg) {
     return n / 7;
   }
 
+  /* first-person weapon — silhouette differs per gun:
+     AK (wood tones + curved mag) · M4 (rails + straight mag + handle) ·
+     MP5 (compact) · AWP (long barrel + scope) · SCAR (bulk) ·
+     pistols (one hand) · blades (angled knife / machete) */
   function viewModel() {
     let n = 0;
     const bobY = Math.abs(Math.cos(bob)) * 0.02;
     const bobX = Math.sin(bob) * 0.012;
-    const dip = reloadAnim * reloadAnim * 0.24;
+    const dip = reloadAnim * reloadAnim * 0.24 + switchCd * 0.5;
     const yaw = player.a, pitch = player.pitch;
     const sideX = Math.cos(yaw + PI / 2), sideZ = Math.sin(yaw + PI / 2);
-    const ox = player.x + Math.cos(yaw) * 0.3 + sideX * (0.15 + bobX);
-    const oz = player.z + Math.sin(yaw) * 0.3 + sideZ * (0.15 + bobX);
-    const oy = eyeY() - 0.17 + bobY + dip;
+    const meleeMode = player.slot === 'melee';
+    const wid = meleeMode ? (WPN.melee && WPN.melee.id) : CUR.id;
+    const oneHand = wid === 'glock18' || wid === 'deagle';
+    const side = meleeMode || oneHand ? 0.20 : 0.15;
+    const ox = player.x + Math.cos(yaw) * 0.30 + sideX * (side + bobX);
+    const oz = player.z + Math.sin(yaw) * 0.30 + sideZ * (side + bobX);
+    const oy = eyeY() - (oneHand || meleeMode ? 0.13 : 0.17) + bobY + dip;
     const gy = PI / 2 - yaw - 0.05 - kickRot;
-    n = partBox(vmArr, n, ox, oy, oz, gy, -pitch, 0, 0, 0, 0.05, 0.085, 0.46, ATLAS.gun, sunDir, 1.12);
-    n = partBox(vmArr, n, ox, oy, oz, gy, -pitch, 0, 0.012, 0.3, 0.046, 0.062, 0.3, ATLAS.gun, sunDir, 1.06);
-    n = partBox(vmArr, n, ox, oy, oz, gy, -pitch, 0, 0.016, 0.52, 0.03, 0.036, 0.18, ATLAS.gun, sunDir, 1);
-    n = partBox(vmArr, n, ox, oy, oz, gy, -pitch, 0.012, -0.085, 0.05, 0.036, 0.15, 0.06, ATLAS.gun, sunDir, 0.85);
-    n = partBox(vmArr, n, ox, oy, oz, gy, -pitch, 0, -0.005, -0.3, 0.042, 0.075, 0.2, ATLAS.gun, sunDir, 0.9);
-    n = partBox(vmArr, n, ox, oy, oz, gy, -pitch, 0.02, -0.05, -0.08, 0.06, 0.075, 0.1, ATLAS.skin, sunDir, 1);
-    n = partBox(vmArr, n, ox, oy, oz, gy, -pitch, -0.01, -0.045, 0.3, 0.06, 0.075, 0.09, ATLAS.skin, sunDir, 1);
+    const G = ATLAS.gun, SK = ATLAS.skin, VT = ATLAS.vest;
+
+    if (meleeMode) {
+      const machete = wid === 'machete';
+      const bx = ox + Math.cos(yaw) * 0.18, bz = oz + Math.sin(yaw) * 0.18;
+      const by = oy + 0.02, sw = Math.sin(switchCd * 14) * 0.2;
+      // handle
+      n = partBox(vmArr, n, bx, by, bz, gy, -0.5 + pitch + sw, 0, 0, 0, 0.035, 0.16, 0.035, VT, sunDir, 0.9);
+      // guard
+      n = partBox(vmArr, n, bx, by, bz, gy, -0.5 + pitch + sw, 0, 0.1, 0, 0.10, 0.02, 0.035, G, sunDir, 1);
+      // blade: long angled slab (machete wide, knife slim) with edge highlight
+      const bl = machete ? 0.5 : 0.34, bwid = machete ? 0.075 : 0.04;
+      n = partBox(vmArr, n, bx, by, bz, gy, -0.5 + pitch + sw, 0, 0.1 + bl / 2, 0.01, bwid, 0.012, bl, G, sunDir, machete ? 1.18 : 1.3);
+      n = partBox(vmArr, n, bx, by, bz, gy, -0.5 + pitch + sw, 0.005, 0.1 + bl / 2, -0.008, bwid * 0.9, 0.006, bl * 0.9, G, sunDir, 1.6);
+      // gripping hand
+      n = partBox(vmArr, n, bx, by - 0.03, bz, gy, 0, 0, -0.02, 0, 0.07, 0.1, 0.08, SK, sunDir, 1);
+      return n / 6;
+    }
+
+    if (oneHand) {
+      const big = wid === 'deagle';
+      const bx = ox + Math.cos(yaw) * 0.14, bz = oz + Math.sin(yaw) * 0.14;
+      const by = oy + 0.04;
+      // slide
+      n = partBox(vmArr, n, bx, by, bz, gy, -pitch, 0.02, 0.02, 0.16, big ? 0.05 : 0.04, 0.045, 0.20, G, sunDir, big ? 1.15 : 1.05);
+      // barrel tip
+      n = partBox(vmArr, n, bx, by, bz, gy, -pitch, 0.02, 0.025, 0.28, 0.028, 0.03, 0.04, G, sunDir, 0.85);
+      // grip + hand wrapping it
+      n = partBox(vmArr, n, bx, by, bz, gy, -pitch, 0.03, -0.075, -0.05, 0.038, 0.13, 0.06, VT, sunDir, 0.9);
+      n = partBox(vmArr, n, bx, by, bz, gy, -pitch, 0.03, -0.07, -0.03, 0.065, 0.11, 0.09, SK, sunDir, 1);
+      return n / 6;
+    }
+
+    // rifles share a base pose; each id gets a distinct silhouette
+    if (wid === 'ak47') {
+      n = partBox(vmArr, n, ox, oy, oz, gy, -pitch, 0, 0, 0, 0.05, 0.085, 0.44, G, sunDir, 1.12);           // receiver
+      n = partBox(vmArr, n, ox, oy, oz, gy, -pitch, 0, 0.012, 0.30, 0.046, 0.06, 0.26, ATLAS.pantsA, sunDir, 1.25);  // wood handguard
+      n = partBox(vmArr, n, ox, oy, oz, gy, -pitch, 0, 0.016, 0.50, 0.028, 0.034, 0.16, G, sunDir, 1);      // barrel
+      n = partBox(vmArr, n, ox, oy, oz, gy, -pitch + 0.4, 0.012, -0.075, 0.06, 0.036, 0.15, 0.06, G, sunDir, 0.88);   // curved mag
+      n = partBox(vmArr, n, ox, oy, oz, gy, -pitch, 0, 0.045, -0.05, 0.03, 0.035, 0.07, G, sunDir, 1.2);    // rear sight
+      n = partBox(vmArr, n, ox, oy, oz, gy, -pitch, 0, -0.005, -0.28, 0.042, 0.075, 0.2, ATLAS.pantsA, sunDir, 1.1);  // wood stock
+    } else if (wid === 'm4a1') {
+      n = partBox(vmArr, n, ox, oy, oz, gy, -pitch, 0, 0, 0, 0.05, 0.085, 0.42, G, sunDir, 1.15);
+      n = partBox(vmArr, n, ox, oy, oz, gy, -pitch, 0, 0.012, 0.28, 0.048, 0.062, 0.28, G, sunDir, 1.0);    // rail handguard
+      n = partBox(vmArr, n, ox, oy, oz, gy, -pitch, 0, 0.055, 0.0, 0.028, 0.045, 0.30, G, sunDir, 1.3);     // carry handle
+      n = partBox(vmArr, n, ox, oy, oz, gy, -pitch, 0.012, -0.07, 0.05, 0.036, 0.14, 0.055, G, sunDir, 0.9);// straight mag
+      n = partBox(vmArr, n, ox, oy, oz, gy, -pitch, 0, 0.016, 0.48, 0.026, 0.03, 0.12, G, sunDir, 1);
+      n = partBox(vmArr, n, ox, oy, oz, gy, -pitch, 0, 0, -0.27, 0.045, 0.08, 0.17, G, sunDir, 0.95);       // buffer stock
+    } else if (wid === 'mp5') {
+      n = partBox(vmArr, n, ox, oy, oz, gy, -pitch, 0, 0, 0, 0.048, 0.08, 0.30, G, sunDir, 1.1);
+      n = partBox(vmArr, n, ox, oy, oz, gy, -pitch, 0, 0.01, 0.20, 0.044, 0.055, 0.14, G, sunDir, 1.05);
+      n = partBox(vmArr, n, ox, oy, oz, gy, -pitch, 0.015, -0.06, 0.03, 0.034, 0.16, 0.05, G, sunDir, 0.9); // long mag in grip
+      n = partBox(vmArr, n, ox, oy, oz, gy, -pitch, 0, 0.005, -0.20, 0.038, 0.06, 0.12, G, sunDir, 0.95);  // collapsed stock
+    } else if (wid === 'awp') {
+      n = partBox(vmArr, n, ox, oy, oz, gy, -pitch, 0, 0, 0, 0.052, 0.09, 0.50, ATLAS.pantsA, sunDir, 1.2); // long body
+      n = partBox(vmArr, n, ox, oy, oz, gy, -pitch, 0, 0.016, 0.55, 0.026, 0.03, 0.34, G, sunDir, 1);       // long barrel
+      n = partBox(vmArr, n, ox, oy, oz, gy, -pitch, 0, 0.075, 0.05, 0.042, 0.05, 0.20, G, sunDir, 1.35);    // big scope
+      n = partBox(vmArr, n, ox, oy, oz, gy, -pitch, 0.03, 0.075, -0.06, 0.02, 0.02, 0.02, G, sunDir, 0.8);  // bolt
+      n = partBox(vmArr, n, ox, oy, oz, gy, -pitch, 0, -0.01, -0.32, 0.046, 0.085, 0.22, ATLAS.pantsA, sunDir, 1.05);
+    } else {  // scarh + default
+      n = partBox(vmArr, n, ox, oy, oz, gy, -pitch, 0, 0, 0, 0.055, 0.095, 0.46, G, sunDir, 1.2);
+      n = partBox(vmArr, n, ox, oy, oz, gy, -pitch, 0, 0.012, 0.32, 0.052, 0.07, 0.26, ATLAS.pantsA, sunDir, 1.15);
+      n = partBox(vmArr, n, ox, oy, oz, gy, -pitch, 0.012, -0.075, 0.05, 0.04, 0.16, 0.06, G, sunDir, 0.88);
+      n = partBox(vmArr, n, ox, oy, oz, gy, -pitch, 0, 0, -0.29, 0.048, 0.085, 0.2, G, sunDir, 0.9);
+    }
+    // support hand under the handguard + trigger hand
+    n = partBox(vmArr, n, ox, oy, oz, gy, -pitch, -0.008, -0.045, 0.28, 0.06, 0.075, 0.09, SK, sunDir, 1);
+    n = partBox(vmArr, n, ox, oy, oz, gy, -pitch, 0.02, -0.05, -0.06, 0.06, 0.075, 0.10, SK, sunDir, 1);
     return n / 6;
   }
 
@@ -1989,6 +2282,16 @@ function createGame(cfg) {
         if (stepAcc >= (IN.sprint ? 2.5 : 2.1)) { stepAcc = 0; sfx.step(IN.sprint); }
       } else player.animSpd = 0;
       player.animPh += dt * (player.animSpd > 1.5 ? 12 : player.animSpd > 0.3 ? 8 : 1.4);
+      { /* adaptive score: nearest live enemy + low hp drive the music; heartbeat under 30hp */
+        let dmin = 1e9;
+        for (let k = 0; k < actors.length; k++) {
+          const e = actors[k];
+          if (e.hp > 0) { const dd = (e.x - player.x) * (e.x - player.x) + (e.z - player.z) * (e.z - player.z); if (dd < dmin) dmin = dd; }
+        }
+        music.drive(Math.max(0, 1 - Math.sqrt(dmin) / 26) + (player.hp < 35 ? 0.25 : 0),
+          cfg.mode === 'br' && (zone.r < 14 || time < 45));
+        if (player.hp > 0 && player.hp < 30) { hbT -= dt; if (hbT <= 0) { sfx.heartbeat(); hbT = 0.6 + player.hp / 50; } }
+      }
 
       {
         const gh = supportAt(player.x, player.z, player.jz);
@@ -2040,7 +2343,13 @@ function createGame(cfg) {
   /* ---------- public API ---------- */
   return {
     fire, reload,
-    jump() { if (!running || player.crouch || player.jz > supportAt(player.x, player.z, player.jz) + 0.02) return; player.vz = 6.0; sfx.jump(); },
+    jump() {
+      if (!running) return;
+      if (player.jz > supportAt(player.x, player.z, player.jz) + 0.02) return;
+      player.crouch = false;                         // spring up out of a crouch
+      player.vz = 6.0; sfx.jump();
+    },
+    isCrouched: () => !!player.crouch,
     setCrouch(on) { player.crouch = !!on; if (on) { player.z = 0; player.vz = 0; } },
     nade() {
       if (nadeCd > 0 || !running) return;
@@ -2063,10 +2372,11 @@ function createGame(cfg) {
     end(forfeit) { endMatch(false, !!forfeit); },
     pause() { running = false; },
     resume() { if (!ended) { running = true; last = performance.now(); } },
-    sfxUnlock: () => sfx.unlock(),
+    sfxUnlock: () => { sfx.unlock(); music.resume(); },
+    setMusic(v) { if (v) music.start(); else music.stop(0.5); },
     get state() { return player; },
     renderer: use2D ? '2d-canvas' : 'webgl',
-    debug: () => ({ actors, zone, score: [scoreA, scoreB], target: TARGET })
+    debug: () => ({ actors, zone, score: [scoreA, scoreB], target: TARGET, grid: gridH, S, MARG, music: music.active() })
   };
 }
 
