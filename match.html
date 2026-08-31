@@ -124,6 +124,7 @@ canvas#cv{position:absolute;inset:0;width:100%;height:100%;display:block;touch-a
     <i class="ri-error-warning-fill" style="font-size:44px;color:#FF8C42"></i>
     <h2>3D not supported</h2>
     <p>Your browser has WebGL disabled. Enable hardware acceleration or try Chrome / Safari.</p>
+    <a id="fallback2d" href="match-2d.html" style="display:none;margin-top:16px;background:linear-gradient(135deg,#FF8C42,#FF6B35);color:#fff;text-decoration:none;font-size:12.5px;font-weight:700;padding:12px 22px;border-radius:12px">Play 2D version instead</a>
   </div>
 </div>
 
@@ -266,6 +267,9 @@ function onEnd(r) {
 /* ---------- boot engine ---------- */
 let game = null;
 try {
+  if (typeof TVG3D === 'undefined' || typeof TVG3D.createGame !== 'function') {
+    throw new Error('ENGINE_LOAD');
+  }
   const DIFF_TABLE = {
     easy:   { react: .55, acc: .32, sight: 9,  speed: 1.35, dmgLo: 5,  dmgHi: 11, strafe: .5,  retreat: 40 },
     normal: { react: .30, acc: .50, sight: 12, speed: 1.5,  dmgLo: 7,  dmgHi: 15, strafe: .75, retreat: 35 },
@@ -290,11 +294,34 @@ try {
     hud, feed: feedAdd, hitmark, hurtFlash, onEnd
   });
 } catch (err) {
-  console.error(err);
-  document.getElementById('nogl').style.display = 'flex';
-  throw err;
+  console.error('3D match failed:', err);
+  const ng = document.getElementById('nogl');
+  const h2 = ng.querySelector('h2'), p = ng.querySelector('p');
+  if (err.message === 'ENGINE_LOAD') {
+    h2.textContent = '3D engine failed to load';
+    p.innerHTML = '<b>assets/engine3d.js</b> is missing or unreadable on the server.<br><br>' +
+      '1. Open <b>yoursite/assets/engine3d.js</b> in a new tab — you should see code, not a 404.<br>' +
+      '2. Check the name is exactly <b>engine3d.js</b> (all lowercase — hosting is case-sensitive).<br>' +
+      '3. Then hard-refresh with Ctrl+Shift+R.';
+  } else {
+    h2.textContent = 'Could not start match';
+    p.textContent = err.message;
+  }
+  ng.style.display = 'flex';
+  document.getElementById('fallback2d').style.display = 'inline-block';
 }
 window.__game = game;   // debug/testing handle
+
+/* software-render badge when WebGL is unavailable */
+if (game.renderer === '2d-canvas') {
+  const tag = document.createElement('div');
+  tag.textContent = 'SOFTWARE 3D · NO WEBGL';
+  tag.style.cssText = 'position:absolute;left:50%;transform:translateX(-50%);bottom:calc(60px + env(safe-area-inset-bottom));' +
+    'background:rgba(0,0,0,.55);color:#ffd9a8;font-size:8.5px;font-weight:700;letter-spacing:.8px;' +
+    'padding:4px 10px;border-radius:7px;pointer-events:none;z-index:5';
+  document.getElementById('hud').appendChild(tag);
+  console.info('TaskVault: WebGL unavailable — running the software 3D renderer (Canvas2D).');
+}
 
 /* ---------- INPUT: desktop ---------- */
 const keys = {};
@@ -418,5 +445,5 @@ if (isBR) {
 setTimeout(() => dhint.style.opacity = 0, 6000);
 if (!matchMedia('(pointer:fine)').matches) dhint.style.display = 'none';
 </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a33c64ede8fb803e',t:'MTc4ODE4MzA3Mg=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a33cba4abe57d08a',t:'MTc4ODE4NjU2OQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
