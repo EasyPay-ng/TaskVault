@@ -3,199 +3,204 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Matchmaking — TaskVault</title>
+<title>Finding Match — TaskVault</title>
+<link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" type="image/jpeg">
 <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link href="assets/game.css" rel="stylesheet">
 <style>
-.center-stage{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 26px;text-align:center;overflow-y:auto}
-.radar{width:138px;height:138px;border-radius:50%;background:var(--orange-light);display:flex;align-items:center;justify-content:center;font-size:46px;color:var(--orange-main);margin-bottom:20px;position:relative}
-.radar::after{content:'';position:absolute;inset:-14px;border-radius:50%;border:2px solid var(--orange-main);opacity:.25;animation:ripple 2s ease-out infinite}
-@keyframes ripple{0%{transform:scale(.85);opacity:.5}100%{transform:scale(1.25);opacity:0}}
-.sweep{position:absolute;inset:0;border-radius:50%;overflow:hidden}
-.sweep::before{content:'';position:absolute;top:50%;left:50%;width:50%;height:50%;transform-origin:0 0;background:conic-gradient(from 0deg,rgba(255,140,66,.35),rgba(255,140,66,0) 70%);animation:sweep 1.6s linear infinite}
-.radar.stalled{background:#F2F2F2;color:#B0B0B0;animation:none}
-.radar.stalled::after{display:none}
-.radar.stalled .sweep{display:none}
-@keyframes sweep{to{transform:rotate(360deg)}}
-.mm-title{font-size:16px;font-weight:800;color:var(--text-dark)}
-.mm-sub{font-size:11px;color:var(--text-light);margin-top:4px}
-.mm-stats{display:flex;gap:9px;margin:20px 0 16px;width:100%;max-width:360px}
-.mm-stat{flex:1;background:var(--white);border-radius:14px;padding:12px 6px}
-.mm-stat b{display:block;font-size:16px;font-weight:800;color:var(--orange-main)}
-.mm-stat span{font-size:8.5px;color:var(--text-light)}
-.found-row{display:flex;gap:7px;flex-wrap:wrap;justify-content:center;max-width:360px;margin-bottom:14px}
-.pslot{width:40px;height:40px;border-radius:12px;background:#F1EFEB;border:1.5px dashed #DDD8D0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#BFB9B0;transition:all .35s cubic-bezier(.34,1.56,.64,1);position:relative}
-.pslot.filled{background:var(--gradient-orange);color:#fff;border:none;transform:scale(1.06);box-shadow:var(--shadow-md)}
-.pslot.you::after{content:'YOU';position:absolute;bottom:-13px;font-size:7px;font-weight:800;color:var(--orange-main)}
-.pslot.filled:not(.you)::after{content:attr(data-lv);position:absolute;bottom:-13px;font-size:7px;font-weight:700;color:var(--text-light)}
-.pslot.filled::before{content:attr(data-flag);position:absolute;top:-7px;right:-4px;font-size:11px;line-height:1}
-.qbar{width:100%;max-width:360px;margin-bottom:14px}
-.qbar .progress{height:5px}
-.qbar .row{display:flex;justify-content:space-between;font-size:9px;color:var(--text-light);margin-bottom:5px;font-weight:600}
-.netpill{display:inline-flex;align-items:center;gap:5px;font-size:9.5px;font-weight:700;padding:4px 10px;border-radius:8px;margin-bottom:14px}
-.netpill.ok{background:#E8F8F1;color:#067A55}
-.netpill.bad{background:#FEECEC;color:#B91C1C}
-.netpill i{font-size:8px}
+body { background: #120D08; }
+.mm { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 26px 22px; text-align: center; }
+.radar {
+  width: 168px; height: 168px; border-radius: 50%; position: relative;
+  background: radial-gradient(circle, rgba(255,140,66,.10) 0%, rgba(255,140,66,.03) 60%, transparent 70%),
+              repeating-radial-gradient(circle, rgba(255,140,66,.16) 0 1px, transparent 1px 28px);
+  border: 1.5px solid rgba(255,140,66,.35);
+  box-shadow: 0 0 44px rgba(255,140,66,.16), inset 0 0 34px rgba(255,140,66,.08);
+}
+.radar .sweep {
+  position: absolute; inset: 0; border-radius: 50%;
+  background: conic-gradient(from 0deg, rgba(255,140,66,.5), transparent 72deg, transparent);
+  animation: spin 1.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.radar .core {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
+  width: 54px; height: 54px; border-radius: 50%; background: var(--gradient-orange);
+  display: flex; align-items: center; justify-content: center; color: #fff; font-size: 24px;
+  box-shadow: 0 6px 20px rgba(255,107,53,.45);
+}
+.mm h2 { margin-top: 22px; font-size: 17px; font-weight: 800; color: #fff; letter-spacing: .4px; }
+.mm .sub { font-size: 11px; color: rgba(255,255,255,.6); margin-top: 4px; }
+.dotx i { color: #FF8C42; font-size: 7px; animation: blink 1.2s infinite; }
+.dotx i:nth-child(2){ animation-delay:.2s } .dotx i:nth-child(3){ animation-delay:.4s }
+@keyframes blink { 0%,100%{opacity:.25} 50%{opacity:1} }
+
+.roster { width: 100%; max-width: 380px; margin-top: 24px; display: flex; flex-direction: column; gap: 7px; }
+.slot-row {
+  display: flex; align-items: center; gap: 11px;
+  background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.09);
+  border-radius: 13px; padding: 10px 13px;
+  animation: fillin .35s ease-out backwards;
+}
+@keyframes fillin { from { opacity: 0; transform: translateY(8px); } }
+.slot-row .av {
+  width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 800; color: #fff;
+}
+.slot-row .av.me { background: var(--gradient-orange); }
+.slot-row .av.b1 { background: #3B82F6; } .slot-row .av.b2 { background: #8B5CF6; }
+.slot-row .av.b3 { background: #10B981; } .slot-row .av.b4 { background: #64748B; }
+.slot-row .nm { flex: 1; text-align: left; font-size: 12px; font-weight: 600; color: rgba(255,255,255,.92); }
+.slot-row .nm small { display: block; font-size: 8.5px; font-weight: 600; color: rgba(255,255,255,.45); letter-spacing: .6px; }
+.slot-row .st { font-size: 9px; font-weight: 700; color: #4ADE80; }
+.slot-row .st.wait { color: rgba(255,255,255,.35); }
+
+.econ {
+  width: 100%; max-width: 380px; margin-top: 20px;
+  background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.09);
+  border-radius: 14px; padding: 12px 15px;
+  display: flex; justify-content: space-between; text-align: left;
+}
+.econ div b { display: block; font-size: 13px; font-weight: 800; color: #fff; }
+.econ div span { font-size: 8.5px; color: rgba(255,255,255,.5); font-weight: 600; letter-spacing: .5px; }
+.fee-paid { margin-top: 14px; font-size: 10px; color: rgba(255,255,255,.55); }
+.fee-paid b { color: #F87171; }
+.ready-bar {
+  position: fixed; left: 0; right: 0; bottom: 0; padding: 14px 20px calc(14px + env(safe-area-inset-bottom));
+  background: rgba(10,7,4,.8); backdrop-filter: blur(8px); border-top: 1px solid rgba(255,255,255,.08);
+  display: none;
+}
+.ready-bar.show { display: block; animation: fillin .3s ease-out; }
+.ready-bar .btn { width: 100%; }
 </style>
 </head>
 <body>
-<div class="app-container">
-  <header class="topbar">
-    <button class="icon-btn ghost" onclick="quit()"><i class="ri-arrow-left-s-line"></i></button>
-    <div class="topbar-title"><h1>Matchmaking</h1><p id="ctx">—</p></div>
+<div class="app-container" style="background:#120D08">
+
+  <header class="topbar" style="background:rgba(18,13,8,.9)">
+    <a href="loadout.html" class="icon-btn ghost" id="backBtn" style="color:#fff"><i class="ri-arrow-left-s-line"></i></a>
+    <div class="topbar-title"><h1 style="color:#fff">Matchmaking</h1><p id="flowTxt" style="color:rgba(255,255,255,.55)">—</p></div>
+    <a href="store.html" class="wallet-row" id="walletLink" data-wallet style="text-decoration:none"></a>
   </header>
 
-  <div class="center-stage">
-    <div class="radar pulse-ring"><div class="sweep"></div><i class="ri-global-line" style="position:relative"></i></div>
+  <div class="scroll-content" style="display:flex;flex-direction:column">
+    <div class="mm">
+      <div class="radar"><div class="sweep"></div><div class="core"><i class="ri-crosshair-2-fill"></i></div></div>
+      <h2 id="statusTxt">Searching for players<span class="dotx"><i>.</i><i>.</i><i>.</i></span></h2>
+      <div class="sub" id="subTxt">Entry $0.10 · Win $0.30</div>
 
-    <div class="netpill ok" id="netPill"><i class="ri-circle-fill"></i> <span>Connected · <b id="serverTag">EU West</b></span></div>
+      <div class="roster" id="roster"></div>
 
-    <div class="mm-title" id="mmTitle">Searching for players…</div>
-    <div class="mm-sub" id="mmSub">Matching you with players of similar skill</div>
-
-    <div class="mm-stats">
-      <div class="mm-stat"><b id="found">0/2</b><span>Players Found</span></div>
-      <div class="mm-stat"><b id="elapsed">0:00</b><span>Time Searching</span></div>
-      <div class="mm-stat"><b id="ping">—</b><span>Your Ping</span></div>
+      <div class="econ">
+        <div><b>$0.10</b><span>ENTRY FEE</span></div>
+        <div><b>$0.30</b><span>WIN REWARD</span></div>
+        <div><b id="wrTxt">—</b><span>YOUR WIN RATE</span></div>
+        <div><b id="tierTxt">—</b><span>LOBBY SKILL</span></div>
+      </div>
+      <div class="fee-paid">Entry fee paid: <b>$0.10</b> · forfeits are not refunded</div>
     </div>
-
-    <div class="qbar">
-      <div class="row"><span>Search window</span><span id="remain">5:00 left</span></div>
-      <div class="progress"><i id="qFill" style="width:0%"></i></div>
-    </div>
-
-    <div class="found-row" id="slots"></div>
   </div>
 
-  <div class="footer-cta">
-    <button class="btn btn-primary" id="botBtn" style="display:none;margin-bottom:8px">
-      <i class="ri-flashlight-fill"></i> Start now
-    </button>
-    <button class="btn btn-outline" onclick="quit()"><i class="ri-close-line"></i> Cancel Search</button>
+  <div class="ready-bar" id="readyBar">
+    <button class="btn btn-primary" id="deployBtn"><i class="ri-sword-fill"></i> Deploy Now</button>
   </div>
 </div>
 
 <div id="toast" class="toast"></div>
-<script src="assets/maps.js"></script>
 <script src="assets/game.js"></script>
 <script>
 const M = TVG.state.match;
-if (!M) location.replace('match-type.html');
-ctx.textContent = M.type.toUpperCase() + ' · ' + TVG.map(M.map).name;
+if (!M || !M.map) location.replace('game-hub.html');
 
-const total = M.size * 2;
-let started = Date.now(), limit = 300, done = false, offline = false;
+const isBR = M.gameMode === 'Battle Royale';
+flowTxt.textContent = (isBR ? 'Battle Royale · ' : M.type.toUpperCase() + ' · ') + TVG.map(M.map).name;
 
-/* fake "other player" profiles — level + country flag + ping, so the lobby feels alive */
-const FLAGS = ['🇳🇬','🇬🇭','🇿🇦','🇰🇪','🇬🇧','🇺🇸','🇧🇷','🇮🇳','🇫🇷','🇩🇪','🇪🇬','🇲🇦'];
-const profileOf = {};
-function randProfile(n) {
-  if (!profileOf[n]) {
-    profileOf[n] = { lv: TVG.rnd(4, 68), flag: TVG.pick(FLAGS), p: TVG.rnd(18, 88) };
+/* ---- 1. charge the entry fee up front ---- */
+if (!M.feePaid) {
+  const r = TVG.chargeEntry();
+  if (!r.ok) {
+    TVG.toast(r.msg, 'error');
+    setTimeout(() => location.href = 'deposit.html', 1300);
+    throw new Error('no-balance');
   }
-  return profileOf[n];
+  M.feePaid = true;
+  TVG.state.match = M;
+  TVG.save();
 }
 
-function drawSlots(names) {
-  names = names || [];
-  let h = '';
-  for (let i = 0; i < total; i++) {
-    const n = names[i];
-    const you = n && n === TVG.state.player.name;
-    const pr = n && !you ? randProfile(n) : null;
-    h += `<div class="pslot ${n?'filled':''} ${you?'you':''}" ${n&&!you?`data-lv="Lv ${pr.lv}" data-flag="${pr.flag}"`:''}>${n?TVG.initials(n):'?'}</div>`;
-  }
-  slots.innerHTML = h;
-  found.textContent = names.length + '/' + total;
+/* ---- 2. lobby stats ---- */
+const wr = TVG.winRate();
+wrTxt.textContent = wr === null ? '40%' : Math.round(wr * 100) + '%';
+const dda = TVG.ddaFactor();
+tierTxt.textContent = dda >= 1.35 ? 'HARD' : dda >= 1.1 ? 'TOUGH' : dda > 0.9 ? 'FAIR' : dda > 0.75 ? 'EASY' : 'CASUAL';
+
+/* ---- 3. build the roster ---- */
+const ME = TVG.state.player.name;
+const names = TVG.shuffle(TVG.BOT_NAMES.filter(n => n !== ME));
+const squadSize = isBR ? 1 : M.size;                    // BR = solos
+const lobbySize = isBR ? 12 : squadSize * 2;            // BR = 12 players
+
+let roster = [];
+if (isBR) {
+  roster = [ME, ...names.slice(0, lobbySize - 1)];
+} else {
+  const teamA = [ME, ...names.slice(0, squadSize - 1)];
+  const teamB = names.slice(squadSize - 1, squadSize * 2 - 1);
+  roster = teamA.concat(teamB);
 }
-drawSlots([]);
 
-/* ---- clock + fake ping ---- */
-setInterval(() => {
-  if (done || offline) return;
-  const s = Math.floor((Date.now() - started) / 1000);
-  elapsed.textContent = Math.floor(s/60) + ':' + String(s%60).padStart(2,'0');
-  const left = Math.max(0, limit - s);
-  remain.textContent = Math.floor(left/60) + ':' + String(left%60).padStart(2,'0') + ' left';
-  qFill.style.width = Math.min(100, s/limit*100) + '%';
-  ping.textContent = TVG.rnd(22, 52) + 'ms';
-}, 500);
+const rows = roster.map((n, i) => {
+  const me = n === ME;
+  const team = !isBR && (i >= squadSize ? 'ENEMY' : 'ALLY');
+  const cls = me ? 'me' : 'b' + ((i % 4) + 1);
+  return { n, me, team, cls, delay: .25 + i * .16 };
+});
 
-/* ---- lobby ---- */
-function startOffline(instant) {
-  if (done) return;
-  const wal = TVG.state.wallet;
+function renderRows(count) {
+  roster.innerHTML = rows.slice(0, count).map(r => `
+    <div class="slot-row" style="animation-delay:${r.delay}s">
+      <div class="av ${r.cls}">${r.me ? '<i class="ri-user-3-fill"></i>' : TVG.initials(r.n)}</div>
+      <div class="nm">${r.n}${r.me ? ' (YOU)' : ''}<small>${isBR ? 'SOLO' : r.team}</small></div>
+      <div class="st">${r.me || count > rows.indexOf(r) + 1 ? 'READY' : ''}</div>
+    </div>`).join('');
+}
 
-  // entry fee — $0.10 from balance
-  if (!M.entryPaid) {
-    if (wal.cash < TVG.ENTRY_FEE) {
-      done = true;
-      mmTitle.textContent = 'Insufficient balance';
-      mmSub.textContent = 'You need $' + TVG.ENTRY_FEE.toFixed(2) + ' to enter a match';
-      TVG.toast('Not enough balance for the $' + TVG.ENTRY_FEE.toFixed(2) + ' entry fee', 'error');
-      setTimeout(() => location.href = 'store.html', 1400);
-      return;
-    }
-    TVG.adjustCash(-TVG.ENTRY_FEE);
-    M.entryPaid = true;
+let filled = 1;
+renderRows(1);
+backBtn.onclick = () => location.href = 'loadout.html';
+
+/* fill the lobby one by one */
+const fillTimer = setInterval(() => {
+  filled++;
+  renderRows(filled);
+  if (filled >= rows.length) {
+    clearInterval(fillTimer);
+    setTimeout(() => {
+      statusTxt.innerHTML = 'Match found!';
+      subTxt.textContent = (isBR ? lobbySize : squadSize * 2) + ' players · ' + TVG.map(M.map).name;
+      readyBar.classList.add('show');
+    }, 500);
   }
+}, 420);
 
-  // bullets check — need ammo to fight
-  if ((wal.ammo || 0) <= 0) {
-    done = true;
-    mmTitle.textContent = 'Out of ammo';
-    mmSub.textContent = 'Buy bullets in the weapon shop before deploying';
-    TVG.toast('You have no bullets — buy ammo first', 'error');
-    setTimeout(() => location.href = 'weapon-shop.html', 1400);
-    return;
+deployBtn.onclick = () => {
+  /* hand the roster to the match */
+  if (isBR) {
+    M.teamA = [ME];
+    M.teamB = rows.filter(r => !r.me).map(r => r.n);
+    M.type = 'br'; M.size = 1;
+  } else {
+    M.teamA = roster.slice(0, squadSize);
+    M.teamB = roster.slice(squadSize);
   }
-
-  done = true;
-  const me = TVG.state.player.name;
-  const bots = TVG.shuffle(TVG.BOT_NAMES.slice()).slice(0, M.size * 2 - 1);
-  const all = [me, ...bots];
-  M.net = null;
   M.vsBots = true;
-  M.roster = all;
-  M.teamA = all.slice(0, M.size);
-  M.teamB = all.slice(M.size);
-  TVG.state.match = M; TVG.save();
-  mmTitle.textContent = 'Match found!';
-  mmSub.textContent = 'Preparing the arena…';
-  drawSlots(all);
-  setTimeout(() => location.href = 'vs.html', instant ? 250 : 700);
-}
-
-/* simulate the lobby filling up, then drop into the match */
-ping.textContent = TVG.rnd(22, 52) + 'ms';
-mmTitle.textContent = 'Searching for players…';
-mmSub.textContent = 'Matching you with players of similar skill';
-const qbar = document.querySelector('.qbar');
-if (qbar) qbar.style.display = 'none';
-
-const me = TVG.state.player.name;
-const pool = TVG.shuffle(TVG.BOT_NAMES.slice()).slice(0, total - 1);
-const filled = [me];
-drawSlots(filled);
-
-botBtn.style.display = 'flex';
-botBtn.innerHTML = '<i class="ri-flashlight-fill"></i> Start now';
-botBtn.onclick = () => startOffline(true);
-
-(function fill() {
-  if (done) return;
-  if (filled.length >= total) { startOffline(false); return; }
-  const name = pool[filled.length - 1];
-  filled.push(name);
-  drawSlots(filled);
-  const pr = randProfile(name);
-  mmSub.textContent = 'Player found · ' + pr.flag + ' Lv ' + pr.lv + ' · skill matched';
-  setTimeout(fill, 600 + Math.random() * 900);
-})();
-
-window.quit = function () { location.href = 'game-hub.html'; };
-
+  M.roster = roster;
+  TVG.state.match = M;
+  TVG.save();
+  location.href = 'match.html';
+};
 </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a32c44358e45d093',t:'MTc4ODAxMzk2MA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a33c69ce1b82d913',t:'MTc4ODE4MzI3Mg=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
