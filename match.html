@@ -190,9 +190,9 @@ canvas#cv{position:absolute;inset:0;width:100%;height:100%;display:block;touch-a
   </div>
 </div>
 
-<script src="assets/maps.js?v=6"></script>
-<script src="assets/game.js?v=6"></script>
-<script src="assets/engine3d.js?v=6"></script>
+<script src="assets/maps.js?v=7"></script>
+<script src="assets/game.js?v=7"></script>
+<script src="assets/engine3d.js?v=7"></script>
 <script>
 /* ============================================================
    MATCH — glue between the app state and the 3D engine
@@ -307,7 +307,7 @@ try {
     h2.textContent = 'Old files are cached';
     p.innerHTML = 'Your browser is running a previous version of the game files.<br><br>' +
       'Open the browser menu → <b>History</b> → <b>Clear browsing data</b> → tick <b>Cached images and files</b>, then reload.<br>' +
-      'Or simply add <b>?v=6</b> to the page URL to force a fresh load.';
+      'Or simply add <b>?v=7</b> to the page URL to force a fresh load.';
   } else if (err.message === 'ENGINE_LOAD') {
     h2.textContent = '3D engine failed to load';
     p.innerHTML = '<b>assets/engine3d.js</b> is missing or unreadable on the server.<br><br>' +
@@ -495,5 +495,5 @@ if (isBR) {
 setTimeout(() => dhint.style.opacity = 0, 6000);
 if (!matchMedia('(pointer:fine)').matches) dhint.style.display = 'none';
 </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a33d2e2a98666fbd',t:'MTc4ODE5MTMxNQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a33d44793e1ef9af',t:'MTc4ODE5MjIyOQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
