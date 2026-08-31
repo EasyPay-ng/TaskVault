@@ -7,7 +7,7 @@
 <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" type="image/jpeg">
 <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<link href="assets/game.css" rel="stylesheet">
+<link href="assets/game.css?v=4" rel="stylesheet">
 <style>
 body { background: #120D08; }
 .mm { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 26px 22px; text-align: center; }
@@ -89,17 +89,11 @@ body { background: #120D08; }
     <div class="mm">
       <div class="radar"><div class="sweep"></div><div class="core"><i class="ri-crosshair-2-fill"></i></div></div>
       <h2 id="statusTxt">Searching for players<span class="dotx"><i>.</i><i>.</i><i>.</i></span></h2>
-      <div class="sub" id="subTxt">Entry $0.10 · Win $0.30</div>
+      <div class="sub" id="subTxt">Finding the best lobby…</div>
 
       <div class="roster" id="roster"></div>
 
-      <div class="econ">
-        <div><b>$0.10</b><span>ENTRY FEE</span></div>
-        <div><b>$0.30</b><span>WIN REWARD</span></div>
-        <div><b id="wrTxt">—</b><span>YOUR WIN RATE</span></div>
-        <div><b id="tierTxt">—</b><span>LOBBY SKILL</span></div>
-      </div>
-      <div class="fee-paid">Entry fee paid: <b>$0.10</b> · forfeits are not refunded</div>
+
     </div>
   </div>
 
@@ -109,7 +103,7 @@ body { background: #120D08; }
 </div>
 
 <div id="toast" class="toast"></div>
-<script src="assets/game.js"></script>
+<script src="assets/game.js?v=4"></script>
 <script>
 const M = TVG.state.match;
 if (!M || !M.map) { location.replace('game-hub.html'); throw new Error('no match state'); }
@@ -135,11 +129,7 @@ if (!M.feePaid) {
   TVG.save();
 }
 
-/* ---- 2. lobby stats ---- */
-const wr = TVG.winRate();
-wrTxt.textContent = wr === null ? '40%' : Math.round(wr * 100) + '%';
-const dda = TVG.ddaFactor();
-tierTxt.textContent = dda >= 1.35 ? 'HARD' : dda >= 1.1 ? 'TOUGH' : dda > 0.9 ? 'FAIR' : dda > 0.75 ? 'EASY' : 'CASUAL';
+
 
 /* ---- 3. build the roster ---- */
 const ME = TVG.state.player.name;
@@ -211,5 +201,5 @@ deployBtn.onclick = () => {
   location.href = 'match.html';
 };
 </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a33c8aeb4a11b843',t:'MTc4ODE4NDYyOQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a33ce053f82ab843',t:'MTc4ODE4ODEyNw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
