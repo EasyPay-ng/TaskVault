@@ -124,7 +124,6 @@ canvas#cv{position:absolute;inset:0;width:100%;height:100%;display:block;touch-a
     <i class="ri-error-warning-fill" style="font-size:44px;color:#FF8C42"></i>
     <h2>3D not supported</h2>
     <p>Your browser has WebGL disabled. Enable hardware acceleration or try Chrome / Safari.</p>
-    <a id="fallback2d" href="match-2d.html" style="display:none;margin-top:16px;background:linear-gradient(135deg,#FF8C42,#FF6B35);color:#fff;text-decoration:none;font-size:12.5px;font-weight:700;padding:12px 22px;border-radius:12px">Play 2D version instead</a>
   </div>
 </div>
 
@@ -190,13 +189,15 @@ canvas#cv{position:absolute;inset:0;width:100%;height:100%;display:block;touch-a
   </div>
 </div>
 
-<script src="assets/maps.js?v=8"></script>
-<script src="assets/game.js?v=8"></script>
-<script src="assets/engine3d.js?v=8"></script>
+<script src="assets/maps.js?v=10"></script>
+<script src="assets/game.js?v=10"></script>
+<script src="assets/p2p.js?v=10"></script>
+<script src="assets/engine3d.js?v=10"></script>
 <script>
 /* ============================================================
    MATCH — glue between the app state and the 3D engine
    ========================================================== */
+(async () => {          /* async boot: live duels connect to the peer before the engine starts */
 const M = TVG.state.match;
 if (!M || !M.roster) location.replace('match-type.html');
 
@@ -225,6 +226,16 @@ const hud = {
     ammoMax.textContent = slot === 'melee' ? '—' : ammoMax.textContent;
   },
   hp(v) { hpTxt.textContent = v + '/100'; hpFill.style.width = v + '%'; hpFill.className = v < 35 ? 'low' : ''; },
+  spectate(name) {
+    let el = document.getElementById('specMsg');
+    if (!el) {
+      el = document.createElement('div'); el.id = 'specMsg';
+      el.style.cssText = 'position:absolute;top:22%;left:50%;transform:translateX(-50%);background:rgba(120,20,20,.88);color:#fff;padding:9px 16px;border-radius:10px;font:700 11px system-ui;letter-spacing:.6px;z-index:8;text-align:center;pointer-events:none';
+      document.getElementById('hud').appendChild(el);
+    }
+    el.style.display = 'block';
+    el.innerHTML = 'ELIMINATED · 3 DEATHS' + (name ? '<br><span style="font-weight:600;opacity:.85">SPECTATING ' + name.toUpperCase() + '</span>' : '');
+  },
   score(a, b) { if (!isBR) { scoreA.textContent = a; scoreB.textContent = b; } },
   clock(t) {
     const mm = Math.floor(t / 60), ss = Math.floor(t % 60);
@@ -262,6 +273,7 @@ function onEnd(r) {
   if (document.pointerLockElement) document.exitPointerLock();
   if (r.cash) TVG.adjustCash(r.cash);
   if (typeof TVG.recordOutcome === 'function') TVG.recordOutcome(r.won);
+  try { if (window.__netNode) { window.__netNode.close(); } clearInterval(window.__p2pWatch); } catch (err) {}
   TVG.state.lastResult = r;
   TVG.bumpMission('d1', 1); TVG.bumpMission('w1', 1);
   if (r.won) { TVG.bumpMission('d3', 1); TVG.bumpMission('w3', 1); }
@@ -281,6 +293,56 @@ try {
     hard:   { react: .18, acc: .66, sight: 15, speed: 1.65, dmgLo: 8,  dmgHi: 18, strafe: .9,  retreat: 30 },
     insane: { react: .10, acc: .82, sight: 20, speed: 1.8,  dmgLo: 9,  dmgHi: 21, strafe: 1.0, retreat: 25 }
   };
+  /* ---------- peer helpers ---------- */
+  function p2pWait(label) {
+    return new Promise(res => {
+      const ov = document.createElement('div');
+      ov.style.cssText = 'position:absolute;inset:0;z-index:50;background:rgba(8,10,14,.88);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;font:600 13px system-ui;color:#e8e8f0';
+      ov.innerHTML = '<div style="font-size:22px">⚔️</div><div>' + (label || 'Connecting…') + '</div>' +
+        '<div style="width:120px;height:3px;background:#262b36;border-radius:2px;overflow:hidden">' +
+        '<div style="width:40%;height:100%;background:#ffb35c;animation:p2pspin 1s infinite alternate"></div></div>' +
+        '<style>@keyframes p2pspin{from{transform:translateX(-100%)}to{transform:translateX(280%)}}</style>';
+      document.body.appendChild(ov);
+      const link = (window.__P2P_TEST !== undefined)
+        ? Promise.resolve(window.__P2P_TEST)                       /* test loopback */
+        : TVGP2P.starMesh(M.room.roomId, M.room.roster, M.room.mySlot);   /* WebRTC star via Firestore signaling */
+      link.then(node => { ov.remove(); res(node); }).catch(() => {
+        ov.innerHTML = '<div style="font-size:22px">📡</div><div>Could not reach the opponent.</div>' +
+          '<button style="margin-top:6px;padding:10px 18px;border:0;border-radius:9px;background:#ffb35c;color:#1a1408;font:700 13px system-ui">Play vs bots instead</button>';
+        ov.querySelector('button').onclick = () => {
+          M.vsBots = true; delete M.p2p; M.roster = [TVG.state.player.name, 'Recon']; M.teamB = ['Recon'];
+          TVG.save(); location.reload();
+        };
+      });
+    });
+  }
+  function watchDrop(node) {
+    window.__p2pWatch = setInterval(() => {
+      if (!node.open) {
+        clearInterval(window.__p2pWatch);
+        if (game && !game.debug().over) {
+          const t = document.createElement('div');
+          t.textContent = 'Opponent disconnected — match ended';
+          t.style.cssText = 'position:absolute;top:46%;left:50%;transform:translate(-50%,-50%);background:rgba(120,20,20,.9);color:#fff;padding:10px 16px;border-radius:9px;font:700 12px system-ui;z-index:60';
+          document.getElementById('hud').appendChild(t);
+          try { game.end(true); } catch (err) {}
+        }
+      }
+    }, 2000);
+  }
+
+  /* ---------- live room match: connect the star mesh before the engine starts ---------- */
+  let netCfg = null;
+  if (M.room && M.room.roster && M.room.roster.length > 1) {
+    const node = await p2pWait('Connecting to the room…');
+    netCfg = { role: M.room.mySlot === 0 ? 'host' : 'guest', roster: M.room.roster, mySlot: M.room.mySlot, node };
+    window.__netNode = node;
+    watchDrop(node);
+    const live = document.createElement('div');
+    live.textContent = 'LIVE ' + (M.type || 'ROOM').toUpperCase() + ' · ROOM ' + (M.room.roomId || '') + ' · 3 LIVES';
+    live.style.cssText = 'position:absolute;top:10px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.5);color:#9fe870;font-size:8.5px;font-weight:700;letter-spacing:.8px;padding:4px 10px;border-radius:7px;pointer-events:none;z-index:5';
+    document.getElementById('hud').appendChild(live);
+  }
   game = TVG3D.createGame({
     cv: document.getElementById('cv'),
     mini: document.getElementById('mini'),
@@ -297,6 +359,7 @@ try {
     dda: typeof TVG.ddaFactor === 'function' ? TVG.ddaFactor() : 1,
     settings: TVG.state.settings,
     music: !(TVG.state.settings && TVG.state.settings.music === false),
+    net: netCfg,
     hud, feed: feedAdd, hitmark, hurtFlash, onEnd
   });
 } catch (err) {
@@ -307,7 +370,7 @@ try {
     h2.textContent = 'Old files are cached';
     p.innerHTML = 'Your browser is running a previous version of the game files.<br><br>' +
       'Open the browser menu → <b>History</b> → <b>Clear browsing data</b> → tick <b>Cached images and files</b>, then reload.<br>' +
-      'Or simply add <b>?v=8</b> to the page URL to force a fresh load.';
+      'Or simply add <b>?v=10</b> to the page URL to force a fresh load.';
   } else if (err.message === 'ENGINE_LOAD') {
     h2.textContent = '3D engine failed to load';
     p.innerHTML = '<b>assets/engine3d.js</b> is missing or unreadable on the server.<br><br>' +
@@ -319,7 +382,6 @@ try {
     p.textContent = err.message;
   }
   ng.style.display = 'flex';
-  document.getElementById('fallback2d').style.display = 'inline-block';
 }
 window.__game = game;   // debug/testing handle
 
@@ -347,7 +409,7 @@ addEventListener('keydown', e => {
   if (e.code === 'Digit2') game.equip('secondary');
   if (e.code === 'Digit3') game.equip('melee');
   if (e.code === 'KeyQ') game.cycleWeapon(1);
-  if (e.code === 'KeyG') game.nade();
+  if (e.code === 'KeyG' && !M.room) game.nade();
   game.sfxUnlock();
 });
 addEventListener('wheel', e => { if (document.pointerLockElement === cv) game.cycleWeapon(e.deltaY > 0 ? 1 : -1); }, { passive: true });
@@ -453,7 +515,7 @@ setInterval(() => {
   btnCrouch.style.background = crouched ? 'rgba(255,140,66,.55)' : '';
 }, 200);
 btnReload.addEventListener('click', () => game.reload());
-btnNade.addEventListener('click', () => game.nade());
+btnNade.addEventListener('click', () => { if (!M.room) game.nade(); });
 btnSwap.addEventListener('click', () => game.cycleWeapon(1));
 /* cinematic score toggle — persists with the player's settings */
 const btnMusic = document.getElementById('btnMusic');
@@ -494,6 +556,7 @@ if (isBR) {
 
 setTimeout(() => dhint.style.opacity = 0, 6000);
 if (!matchMedia('(pointer:fine)').matches) dhint.style.display = 'none';
+})();
 </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a33d53c0fd839ee5',t:'MTc4ODE5Mjg1NQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a33dcbc22f8dd11c',t:'MTc4ODE5Nzc3MA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
