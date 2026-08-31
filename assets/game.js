@@ -11,7 +11,7 @@
 
   /* ---- economy constants (single source of truth) ---- */
   const ENTRY_FEE = 0.10;    // $ charged from balance to enter a match
-  const WIN_REWARD = 0.30;   // $ paid for a win
+  const WIN_REWARD = 0.20;   // $ paid to EACH member of the winning team (rooms only)
   const TARGET_WIN_RATE = 0.40;
 
   const DEFAULTS = {
