@@ -568,8 +568,11 @@ function partBox(arr, n, cx, cy, cz, yaw, pitch, ox, oy, oz, sx, sy, sz, uv, sun
   return n;
 }
 
-/* jointed humanoid: 2-segment legs w/ knees, 2-segment arms w/ elbows,
-   layered torso (abdomen/chest/vest/pack), helmet + visor, per-actor tint */
+/* humanoid v3 — segmented limbs with knees/elbows, layered gear:
+   soles+boots, knee pads, thigh rig, belt, abdomen+chest, vest plate with
+   pouches, backpack with radio antenna + bedroll, shoulder pads, gloves,
+   neck, face with eye-strip, helmet dome+brim+NVG mount, team armband,
+   articulated rifle (body/handguard/mag/optic/stock/muzzle). */
 function meshSoldier(arr, n, a, sun) {
   const dead = a.deadT > 0;
   const ph = a.animPh || 0, speed = a.animSpd || 0;
@@ -579,9 +582,10 @@ function meshSoldier(arr, n, a, sun) {
   const fallK = dead ? Math.min(1, a.deadT * 2.6) : 0;
   const fy = a.a3, yaw = PI / 2 - fy;
   const CF = Math.cos(fy), SF = Math.sin(fy);
-  const tint = a.tint || 1;
+  const tint = a.tint || 1, skinK = a.skin || 1;
   const shirt = a.foe ? ATLAS.shirtA : ATLAS.shirtB;
   const P = (fwd, lat, y) => [a.x3 + CF * fwd - SF * lat, y, a.z3 + SF * fwd + CF * lat];
+  const breathe = speed < 0.3 && !dead ? Math.sin(ph * 2.2) * 0.008 : 0;
 
   const sink = crouch ? 0.30 : 0;
   const droop = dead ? fallK * 0.5 : 0;
@@ -593,9 +597,10 @@ function meshSoldier(arr, n, a, sun) {
   const headY = baseY + 1.64 - sink * 1.22 - droop * 0.9;
   const bob = Math.abs(Math.sin(ph)) * 0.026 * (speed > 0.3 ? 1 : 0);
   const sway = Math.sin(ph) * 0.06 * (speed > 0.3 ? 1 : 0);
-  const thighL = 0.42, shinL = 0.38, upArmL = 0.28, foArmL = 0.26;
+  const thighL = 0.42, shinL = 0.38, upArmL = 0.28;
+  const hy = yaw + (a.look || 0) * 0.7;   // head glances
 
-  /* ---- legs: thigh rotates from hip, shin bends at the knee ---- */
+  /* legs: thigh + shin + kneepad + boot(upper+sole) */
   const leg = (sgn, sw) => {
     const lat = sgn * 0.105;
     const th1 = sw * 0.85 + (crouch ? 0.55 : 0) + (dead ? sgn * 0.25 : 0);
@@ -603,69 +608,102 @@ function meshSoldier(arr, n, a, sun) {
     const th2 = th1 - bend;
     const kneeY = legY0 - thighL * Math.cos(th1), kneeF = thighL * Math.sin(th1);
     let p = P(0, lat, legY0);
-    n = partBox(arr, n, p[0], p[1], p[2], yaw, th1, 0, 0, -thighL / 2, 0, 0.16, thighL, 0.20, ATLAS.pantsA, sun, tint);
+    n = partBox(arr, n, p[0], p[1], p[2], yaw, th1, 0, 0, -thighL / 2, 0, 0.155, thighL, 0.19, ATLAS.pantsA, sun, tint);
+    p = P(kneeF / 2 + 0.02, lat, kneeY + thighL * Math.cos(th1) / 2);
+    n = partBox(arr, n, p[0], p[1], p[2], yaw, th1, 0.135, -thighL / 2, 0, 0.09, 0.10, 0.06, ATLAS.vest, sun, tint * 0.95);   // thigh rig
+    p = P(kneeF, lat, kneeY);
+    n = partBox(arr, n, p[0], p[1], p[2], yaw, th1 + 1.57, 0.02, 0, 0, 0.10, 0.075, 0.10, ATLAS.vest, sun, tint);             // knee pad
     const scy = kneeY - (shinL / 2) * Math.cos(th2), scf = kneeF + (shinL / 2) * Math.sin(th2);
     p = P(scf, lat, scy);
-    n = partBox(arr, n, p[0], p[1], p[2], yaw, th2, 0, 0, 0, 0.145, shinL, 0.175, ATLAS.pantsB, sun, tint * 0.96);
-    const bY = kneeY - shinL * Math.cos(th2) + 0.075, bF = kneeF + shinL * Math.sin(th2) + 0.035;
+    n = partBox(arr, n, p[0], p[1], p[2], yaw, th2, 0, 0, 0, 0.135, shinL, 0.165, ATLAS.pantsB, sun, tint * 0.96);
+    const bY = kneeY - shinL * Math.cos(th2) + 0.09, bF = kneeF + shinL * Math.sin(th2) + 0.03;
     p = P(bF, lat, bY);
-    n = partBox(arr, n, p[0], p[1], p[2], yaw, th2 * 0.25, 0, 0.02, 0, 0.175, 0.14, 0.31, ATLAS.boot, sun, tint);
+    n = partBox(arr, n, p[0], p[1], p[2], yaw, th2 * 0.25, 0.025, 0, 0, 0.165, 0.13, 0.29, ATLAS.boot, sun, tint);
+    p = P(bF - 0.01, lat, bY - 0.075);
+    n = partBox(arr, n, p[0], p[1], p[2], yaw, th2 * 0.25, 0.02, 0, 0, 0.185, 0.045, 0.31, ATLAS.gun, sun, tint * 0.8);       // sole
   };
   leg(1, swing); leg(-1, counter);
 
-  /* ---- pelvis + torso layers (sway counter-rotates) ---- */
+  /* pelvis + belt */
   let p = P(0, 0, hipY + 0.03 + bob);
-  n = partBox(arr, n, p[0], p[1], p[2], yaw, 0, 0, 0.01, 0, 0.35, 0.17, 0.25, ATLAS.gear, sun, tint * 0.92);
+  n = partBox(arr, n, p[0], p[1], p[2], yaw, 0, 0, 0.01, 0, 0.35, 0.16, 0.24, ATLAS.gear, sun, tint * 0.92);
+  p = P(0.03, 0, hipY + 0.10 + bob);
+  n = partBox(arr, n, p[0], p[1], p[2], yaw, 0, 0, 0, 0, 0.37, 0.07, 0.26, ATLAS.boot, sun, tint * 0.9);                     // belt
+
+  /* torso: abdomen + chest + vest + pouches + pack + antenna + roll */
   p = P(0.01, 0, hipY + 0.21 + bob);
-  n = partBox(arr, n, p[0], p[1], p[2], yaw + sway * 0.4, 0, 0, 0.05, 0, 0.38, 0.26, 0.23, shirt, sun, tint);
-  p = P(0.02, 0, chestY + bob);
-  n = partBox(arr, n, p[0], p[1], p[2], yaw + sway * 0.4, 0, 0, 0.06, 0, 0.46, 0.34, 0.26, shirt, sun, tint);
-  p = P(0.025, 0, chestY + 0.01 + bob);
-  n = partBox(arr, n, p[0], p[1], p[2], yaw + sway * 0.4, 0, 0, 0.05, 0.005, 0.43, 0.31, 0.30, ATLAS.vest, sun, tint * 1.05);
-  p = P(-0.15, 0, chestY - 0.01 + bob);
-  n = partBox(arr, n, p[0], p[1], p[2], yaw + sway * 0.4, 0, 0, 0, 0, 0.33, 0.36, 0.15, ATLAS.gear, sun, tint * 0.88);
-  p = P(0.05, 0.255, shY - 0.02 + bob);
-  n = partBox(arr, n, p[0], p[1], p[2], yaw + sway * 0.4, 0, 0, -0.02, 0, 0.15, 0.13, 0.22, shirt, sun, tint * 1.06);
-  p = P(0.05, -0.255, shY - 0.02 + bob);
-  n = partBox(arr, n, p[0], p[1], p[2], yaw + sway * 0.4, 0, 0, -0.02, 0, 0.15, 0.13, 0.22, shirt, sun, tint * 1.06);
+  n = partBox(arr, n, p[0], p[1], p[2], yaw + sway * 0.4, 0, 0, 0.05, 0, 0.36, 0.24, 0.22, shirt, sun, tint);
+  p = P(0.02, 0, chestY + bob + breathe);
+  n = partBox(arr, n, p[0], p[1], p[2], yaw + sway * 0.4, 0, 0, 0.06, 0, 0.44, 0.32, 0.25, shirt, sun, tint);
+  p = P(0.03, 0, chestY + 0.01 + bob + breathe);
+  n = partBox(arr, n, p[0], p[1], p[2], yaw + sway * 0.4, 0, 0, 0.05, 0.005, 0.41, 0.29, 0.29, ATLAS.vest, sun, tint * 1.05);
+  p = P(0.10, -0.13, chestY - 0.04 + bob);
+  n = partBox(arr, n, p[0], p[1], p[2], yaw + sway * 0.4, 0, 0, 0, 0, 0.10, 0.13, 0.09, ATLAS.gear, sun, tint * 0.95);       // mag pouch L
+  p = P(0.10, 0.13, chestY - 0.04 + bob);
+  n = partBox(arr, n, p[0], p[1], p[2], yaw + sway * 0.4, 0, 0, 0, 0, 0.10, 0.13, 0.09, ATLAS.gear, sun, tint * 0.95);       // mag pouch R
+  p = P(-0.13, 0, chestY + bob);
+  n = partBox(arr, n, p[0], p[1], p[2], yaw + sway * 0.4, 0, 0, 0, 0, 0.30, 0.34, 0.14, ATLAS.gear, sun, tint * 0.88);       // backpack
+  p = P(-0.17, 0, chestY + 0.20 + bob);
+  n = partBox(arr, n, p[0], p[1], p[2], yaw + sway * 0.4, 0, 0, 0, 0, 0.22, 0.09, 0.22, ATLAS.pantsB, sun, tint * 0.9);      // bedroll
+  p = P(-0.26, 0.10, chestY + 0.05 + bob);
+  n = partBox(arr, n, p[0], p[1], p[2], yaw + sway * 0.4, 0, 0, 0, 0, 0.02, 0.26, 0.02, ATLAS.gun, sun, tint);               // radio antenna
 
-  /* ---- head: skin + visor + helmet + brim ---- */
-  p = P(0.03, 0, headY - 0.02 + bob * 1.2);
-  n = partBox(arr, n, p[0], p[1], p[2], yaw, 0, 0, 0.02, 0, 0.205, 0.23, 0.21, ATLAS.skin, sun, tint);
-  p = P(0.135, 0, headY + 0.02 + bob * 1.2);
-  n = partBox(arr, n, p[0], p[1], p[2], yaw, 0, 0, 0, 0, 0.055, 0.055, 0.15, ATLAS.gun, sun, tint * 0.9);          // visor
-  p = P(0.115, 0, headY - 0.075 + bob * 1.2);
-  n = partBox(arr, n, p[0], p[1], p[2], yaw, 0, 0, 0, 0, 0.075, 0.10, 0.14, ATLAS.skin, sun, tint * 0.95);          // jaw
+  /* shoulder pads + armband */
+  p = P(0.05, 0.245, shY + 0.005 + bob);
+  n = partBox(arr, n, p[0], p[1], p[2], yaw + sway * 0.4, 0, 0, -0.015, 0, 0.16, 0.10, 0.24, shirt, sun, tint * 1.08);
+  p = P(0.05, -0.245, shY + 0.005 + bob);
+  n = partBox(arr, n, p[0], p[1], p[2], yaw + sway * 0.4, 0, 0, -0.015, 0, 0.16, 0.10, 0.24, shirt, sun, tint * 1.08);
+  p = P(0.09, 0.245, shY - 0.10 + bob);
+  n = partBox(arr, n, p[0], p[1], p[2], yaw, 0, 0, 0, 0, 0.085, 0.05, 0.085, ATLAS.helmetB, sun, tint * 1.25);               // team armband
+
+  /* head: neck, face, eye strip, jaw, helmet dome+brim, NVG mount */
+  p = P(0, 0, headY - 0.11 + bob * 1.2);
+  n = partBox(arr, n, p[0], p[1], p[2], yaw, 0, 0, 0, 0, 0.10, 0.07, 0.10, ATLAS.skin, sun, skinK * 0.8);
+  p = P(0.03, 0, headY - 0.01 + bob * 1.2);
+  n = partBox(arr, n, p[0], p[1], p[2], hy, 0, 0, 0.02, 0, 0.20, 0.22, 0.205, ATLAS.skin, sun, skinK);
+  p = P(0.125, 0, headY + 0.035 + bob * 1.2);
+  n = partBox(arr, n, p[0], p[1], p[2], hy, 0, 0, 0, 0, 0.045, 0.045, 0.17, ATLAS.gun, sun, tint * 0.85);                    // eye strip
+  p = P(0.115, 0, headY - 0.065 + bob * 1.2);
+  n = partBox(arr, n, p[0], p[1], p[2], hy, 0, 0, 0, 0, 0.07, 0.09, 0.13, ATLAS.skin, sun, skinK * 0.95);                   // jaw
   p = P(0.03, 0, headY + 0.115 + bob * 1.2);
-  n = partBox(arr, n, p[0], p[1], p[2], yaw, 0, 0, 0.02, 0.01, 0.245, 0.13, 0.25, ATLAS.helmetA, sun, tint * 1.07);
-  p = P(0.075, 0, headY + 0.05 + bob * 1.2);
-  n = partBox(arr, n, p[0], p[1], p[2], yaw, 0, 0, 0.02, 0.01, 0.23, 0.055, 0.235, ATLAS.helmetB, sun, tint);
+  n = partBox(arr, n, p[0], p[1], p[2], hy, 0, 0, 0.02, 0.01, 0.24, 0.12, 0.245, ATLAS.helmetA, sun, tint * 1.07);
+  p = P(0.085, 0, headY + 0.045 + bob * 1.2);
+  n = partBox(arr, n, p[0], p[1], p[2], hy, 0, 0, 0.02, 0.01, 0.22, 0.05, 0.235, ATLAS.helmetB, sun, tint);
+  p = P(0.145, 0.03, headY + 0.09 + bob * 1.2);
+  n = partBox(arr, n, p[0], p[1], p[2], hy, 0, 0, 0, 0, 0.045, 0.05, 0.045, ATLAS.gun, sun, tint * 0.9);                    // NVG mount
 
-  /* ---- arms: shoulder → elbow → hands on the rifle ---- */
+  /* arms: shoulder→elbow→gloved hands on the rifle */
   const aimP = a.aimP || 0;
   const arm = (sgn, lat, gripF, gripY) => {
-    const th1 = 0.95 - aimP * 0.4 + (dead ? 0.6 : 0);          // upper arm, down-forward
+    const th1 = 0.95 - aimP * 0.4 + (dead ? 0.6 : 0);
     const elY = shY - 0.03 - upArmL * Math.cos(th1), elF = upArmL * Math.sin(th1) + 0.03;
     let q = P(elF / 2 + 0.015, lat, shY - 0.03 - (upArmL / 2) * Math.cos(th1));
-    n = partBox(arr, n, q[0], q[1], q[2], yaw, th1, 0, 0, -0.02, 0.085, upArmL, 0.085, shirt, sun, tint);
-    // forearm aims from elbow toward the grip point
+    n = partBox(arr, n, q[0], q[1], q[2], yaw, th1, 0, 0, -0.02, 0.08, upArmL, 0.08, shirt, sun, tint);
     const gf = gripF - elF, gy = gripY - elY;
     const L2 = Math.hypot(gf, gy) || 0.01;
-    const fth = Math.atan2(gf, -gy);                            // pitch that points the box at the grip
+    const fth = Math.atan2(gf, -gy);
     q = P(elF + (gf / 2), lat * 0.72, elY + (gy / 2));
-    n = partBox(arr, n, q[0], q[1], q[2], yaw, fth, 0, 0, 0, 0.075, L2, 0.075, shirt, sun, tint * 0.98);
+    n = partBox(arr, n, q[0], q[1], q[2], yaw, fth, 0, 0, 0, 0.07, L2, 0.07, shirt, sun, tint * 0.98);
     q = P(gripF, lat * 0.5, gripY);
-    n = partBox(arr, n, q[0], q[1], q[2], yaw, 0, 0, 0, 0, 0.075, 0.09, 0.085, ATLAS.skin, sun, tint);  // hand
+    n = partBox(arr, n, q[0], q[1], q[2], yaw, 0, 0, 0, 0, 0.075, 0.09, 0.085, ATLAS.boot, sun, tint);                      // glove
   };
   const gunF = 0.34, gunY = shY - 0.10 + aimP * 0.12;
   arm(1, 0.235, gunF - 0.10, gunY + 0.03);
   arm(-1, -0.235, gunF + 0.18, gunY + 0.03);
 
-  /* ---- rifle ---- */
+  /* rifle: body, handguard, mag, optic, stock, muzzle */
   p = P(gunF, 0.02, gunY);
-  n = partBox(arr, n, p[0], p[1], p[2], yaw, aimP * 0.4, 0, 0, 0, 0.05, 0.07, 0.74, ATLAS.gun, sun, tint * 1.1);
+  n = partBox(arr, n, p[0], p[1], p[2], yaw, aimP * 0.4, 0, 0, 0, 0.05, 0.07, 0.46, ATLAS.gun, sun, tint * 1.1);
+  p = P(gunF + 0.30, 0.02, gunY - 0.005);
+  n = partBox(arr, n, p[0], p[1], p[2], yaw, aimP * 0.4, 0, 0, 0, 0.045, 0.055, 0.22, ATLAS.gun, sun, tint);
+  p = P(gunF - 0.02, 0.02, gunY - 0.10);
+  n = partBox(arr, n, p[0], p[1], p[2], yaw, aimP * 0.4 + 0.35, 0, 0, 0, 0.04, 0.14, 0.07, ATLAS.gun, sun, tint * 0.9);      // curved mag
+  p = P(gunF - 0.02, 0.02, gunY + 0.065);
+  n = partBox(arr, n, p[0], p[1], p[2], yaw, aimP * 0.4, 0, 0, 0, 0.035, 0.05, 0.09, ATLAS.gun, sun, tint * 1.15);          // optic sight
   p = P(gunF - 0.30, 0.02, gunY - 0.01);
-  n = partBox(arr, n, p[0], p[1], p[2], yaw, aimP * 0.4, 0, 0, 0, 0.045, 0.055, 0.16, ATLAS.gun, sun, tint);
+  n = partBox(arr, n, p[0], p[1], p[2], yaw, aimP * 0.4, 0, 0, 0, 0.045, 0.06, 0.18, ATLAS.gun, sun, tint * 0.92);          // stock
+  p = P(gunF + 0.44, 0.02, gunY + 0.005);
+  n = partBox(arr, n, p[0], p[1], p[2], yaw, aimP * 0.4, 0, 0, 0, 0.03, 0.035, 0.10, ATLAS.gun, sun, tint * 0.85);          // muzzle
   return n;
 }
 
@@ -861,12 +899,44 @@ function createGame(cfg) {
   const player = {
     name: MYNAME, team: 'A', x: sp.x, z: sp.y, a: -0.8, pitch: 0,
     hp: 100, ammo: 0, kills: 0, deaths: 0, hs: 0, shots: 0, hits: 0,
-    reloading: false, jz: 0, vz: 0, crouch: false,   // jz = jump height
+    reloading: false, jz: 0, vz: 0, crouch: false, slot: 'primary',   // jz = jump height
     x3: sp.x, z3: sp.y, y3: 0, a3: -0.8, animPh: 0, animSpd: 0, aimP: 0, foe: false
   };
   player.ammo = Math.min(cfg.gun.ammo, TVG.state.wallet.ammo | 0);
   TVG.state.wallet.ammo = (TVG.state.wallet.ammo | 0) - player.ammo;
   const reserve = () => TVG.state.wallet.ammo | 0;
+  /* ---- multi-slot equipment: swap guns / machete mid-match ---- */
+  const WPN = {
+    primary: cfg.gun,
+    secondary: TVG.weapon(TVG.state.equipped.secondary) || cfg.gun,
+    melee: TVG.weapon(TVG.state.equipped.melee) || TVG.WEAPONS.find(x => x.slot === 'melee')
+  };
+  let CUR = cfg.gun, switchCd = 0, lastSlot = 'secondary';
+  const SLOTS = ['primary', 'secondary', 'melee'];
+  function equip(slot) {
+    if (!running || switchCd > 0 || slot === player.slot || !WPN[slot]) return;
+    if (player.slot !== 'melee') TVG.state.wallet.ammo = reserve() + player.ammo;  // bank current mag
+    lastSlot = player.slot;
+    player.slot = slot;
+    player.reloading = false;
+    if (slot === 'melee') {
+      player.ammo = 0;
+    } else {
+      CUR = WPN[slot]; cfg.gun = CUR;
+      player.ammo = Math.min(CUR.ammo, reserve());
+      TVG.state.wallet.ammo = reserve() - player.ammo;
+    }
+    switchCd = 0.45;
+    reloadAnim = Math.max(reloadAnim, 0.55);       // raise-the-weapon dip
+    sfx.whoosh();
+    HUD.weapon && HUD.weapon(CUR.name, slot);
+    HUD.ammo(); HUD.reloadTxt(slot === 'melee' ? 'BLADE READY' : 'READY');
+    TVG.save();
+  }
+  function cycleWeapon(dir) {
+    const i = SLOTS.indexOf(player.slot);
+    equip(SLOTS[(i + (dir || 1) + SLOTS.length) % SLOTS.length]);
+  }
   function refillMag() {
     const take = Math.min(cfg.gun.ammo - player.ammo, reserve());
     player.ammo += take; TVG.state.wallet.ammo -= take;
@@ -905,7 +975,8 @@ function createGame(cfg) {
       react: DIFF.react, mode: null, retreat: 0, patrol: null,
       strafe: Math.random() < .5 ? -1 : 1, strafeFlip: 0,
       x3: x, z3: zz, y3: 0, a3: 0, animPh: Math.random() * 6, animSpd: 0, aimP: 0,
-      deadT: 0, foe: true, crouch: false, tint: 0.92 + Math.random() * 0.16
+      deadT: 0, foe: true, crouch: false, tint: 0.92 + Math.random() * 0.16,
+      skin: 0.88 + Math.random() * 0.24, look: 0
     };
   }
   (cfg.teamB || []).forEach(n => actors.push(mkActor(n, 'B')));
@@ -1081,8 +1152,23 @@ function createGame(cfg) {
   let recoil = 0, kickX = 0, kickY = 0, kickRot = 0, reloadAnim = 0;
   let bob = 0, stepAcc = 0, curVel = 0, playerVel = 0, swayX = 0, swayY = 0;
 
+  function meleeAttack() {
+    if (meleeCd > 0) return;
+    meleeCd = 0.55;
+    sfx.whoosh();
+    kickY = Math.max(kickY, 10); kickRot = 0.06;
+    const mw = WPN.melee;
+    for (const e of foes()) {
+      if (Math.hypot(e.x - player.x, e.z - player.z) < 1.7) {
+        e.hp -= mw.dmg; blood(e.x3, 1.1, e.z3);
+        if (e.hp <= 0) killActor(e, MYNAME, false);
+        break;
+      }
+    }
+  }
   function fire() {
-    if (!running || player.reloading || fireCd > 0) return;
+    if (!running || player.reloading || fireCd > 0 || switchCd > 0) return;
+    if (player.slot === 'melee') { meleeAttack(); return; }
     if (player.ammo <= 0) { sfx.empty(); reload(); return; }
     player.ammo--; player.shots++;
     fireCd = Math.max(0.07, 1.1 - cfg.gun.fire / 100);
@@ -1181,6 +1267,7 @@ function createGame(cfg) {
   }
 
   function reload() {
+    if (player.slot === 'melee') return;
     if (player.reloading || player.ammo === cfg.gun.ammo || !running) return;
     if (reserve() <= 0) {
       if (player.ammo <= 0) {
@@ -1242,6 +1329,7 @@ function createGame(cfg) {
     e.cd = 0.8 + Math.random() * 1.4;
     sfx.enemyShot(Math.hypot(e.x - player.x, e.z - player.z));
     const fx = e.x3 + Math.cos(e.a3) * 0.4, fz = e.z3 + Math.sin(e.a3) * 0.4;
+    sparks(fx + Math.cos(e.a3) * 0.5, 1.35, fz + Math.sin(e.a3) * 0.5, 2);
     const tx = t === player ? player.x3 : t.x3, tz = t === player ? player.z3 : t.z3;
     tracers.push({ x1: fx, y1: 1.35, z1: fz, x2: tx, y2: 1.1 + (Math.random() - .5) * .3, z2: tz, life: 1, r: 1, g: 0.8, b: 0.5 });
     const dk = Math.max(0, 1 - dist / (DIFF.sight * 1.4));
@@ -1321,6 +1409,7 @@ function createGame(cfg) {
     }
     e.x3 = e.x; e.z3 = e.z; e.y3 = 0;
     e.animPh += dt * (e.animSpd > 1.5 ? 11 : e.animSpd > 0.4 ? 7.5 : 1.2);
+    e.look = see ? 0 : Math.sin(e.animPh * 0.23 + e.x3) * 0.5;   // glances around while patrolling
   }
 
   /* ---------- end ---------- */
@@ -1353,7 +1442,7 @@ function createGame(cfg) {
   function endMatch(won, forfeit) {
     if (ended) return;
     ended = true; running = false;
-    TVG.state.wallet.ammo = reserve() + player.ammo;
+    TVG.state.wallet.ammo = reserve() + (player.slot === 'melee' ? 0 : player.ammo);
     const r = buildResult(won, forfeit);
     cfg.onEnd(r);
   }
@@ -1861,7 +1950,8 @@ function createGame(cfg) {
 
   /* ---------- HUD bridge ---------- */
   const HUD = {
-    ammo: () => cfg.hud.ammo(player.ammo, cfg.gun.ammo, reserve()),
+    ammo: () => cfg.hud.ammo(player.ammo, player.slot === 'melee' ? 0 : cfg.gun.ammo, reserve()),
+    weapon: (name, slot) => cfg.hud.weapon && cfg.hud.weapon(name, slot),
     hp: () => cfg.hud.hp(Math.max(0, Math.round(player.hp))),
     score: () => cfg.hud.score(cfg.mode === 'br' ? aliveCount() : scoreA, scoreB),
     clock: t => cfg.hud.clock(t),
@@ -1917,7 +2007,7 @@ function createGame(cfg) {
       }
 
       if (IN.firing) fire();
-      fireCd -= dt; nadeCd -= dt; meleeCd -= dt;
+      fireCd -= dt; nadeCd -= dt; meleeCd -= dt; switchCd -= dt;
       env.flashI = Math.max(0, env.flashI - dt * 8);
       recoil += (0 - recoil) * Math.min(1, dt * 14);
       shake = Math.max(0, shake - dt * 1.6);
@@ -1959,18 +2049,9 @@ function createGame(cfg) {
       nades.push({ x: player.x + Math.cos(player.a) * 0.4, y: 1.5, z: player.z + Math.sin(player.a) * 0.4, vx: Math.cos(player.a) * 8.5, vy: 3.4, vz: Math.sin(player.a) * 8.5, fuse: 2.1, mine: true });
       TVG.toast(TVG.weapon(TVG.state.equipped.grenade).name + ' thrown', 'info');
     },
-    melee() {
-      if (meleeCd > 0 || !running) return;
-      meleeCd = 1.2; sfx.whoosh();
-      const mw = TVG.weapon(TVG.state.equipped.melee);
-      for (const e of foes()) {
-        if (Math.hypot(e.x - player.x, e.z - player.z) < 1.6) {
-          e.hp -= mw.dmg; blood(e.x3, 1.1, e.z3);
-          if (e.hp <= 0) killActor(e, MYNAME, false);
-          break;
-        }
-      }
-    },
+    melee: () => meleeAttack(),
+    equip, cycleWeapon,
+    get slot() { return player.slot; },
     look(dx, dy) {
       player.a += dx;
       player.pitch = clamp(player.pitch - dy, -1.15, 1.15);
