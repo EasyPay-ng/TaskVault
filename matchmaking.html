@@ -112,7 +112,12 @@ body { background: #120D08; }
 <script src="assets/game.js"></script>
 <script>
 const M = TVG.state.match;
-if (!M || !M.map) location.replace('game-hub.html');
+if (!M || !M.map) { location.replace('game-hub.html'); throw new Error('no match state'); }
+if (typeof TVG.chargeEntry !== 'function' || typeof TVG.winRate !== 'function') {
+  statusTxt.textContent = 'Please update assets/game.js to the new version';
+  TVG.toast('assets/game.js is outdated — replace it first', 'error');
+  throw new Error('game.js outdated');
+}
 
 const isBR = M.gameMode === 'Battle Royale';
 flowTxt.textContent = (isBR ? 'Battle Royale · ' : M.type.toUpperCase() + ' · ') + TVG.map(M.map).name;
@@ -158,8 +163,12 @@ const rows = roster.map((n, i) => {
   return { n, me, team, cls, delay: .25 + i * .16 };
 });
 
+/* rosterEl = the DOM list (the local `roster` array below shadows the
+   id-global, so we must NOT rely on the bare `roster` global here) */
+const rosterEl = document.getElementById('roster');
+
 function renderRows(count) {
-  roster.innerHTML = rows.slice(0, count).map(r => `
+  rosterEl.innerHTML = rows.slice(0, count).map(r => `
     <div class="slot-row" style="animation-delay:${r.delay}s">
       <div class="av ${r.cls}">${r.me ? '<i class="ri-user-3-fill"></i>' : TVG.initials(r.n)}</div>
       <div class="nm">${r.n}${r.me ? ' (YOU)' : ''}<small>${isBR ? 'SOLO' : r.team}</small></div>
@@ -202,5 +211,5 @@ deployBtn.onclick = () => {
   location.href = 'match.html';
 };
 </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a33c69ce1b82d913',t:'MTc4ODE4MzI3Mg=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a33c8aeb4a11b843',t:'MTc4ODE4NDYyOQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
