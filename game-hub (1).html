@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>2D Shooter — TaskVault</title>
+<link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" type="image/jpeg">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="assets/game.css" rel="stylesheet">
+<style>
+.banner {
+    margin: 14px 20px; border-radius: 20px; overflow: hidden;
+    position: relative; height: 168px; box-shadow: var(--shadow-lg);
+}
+.banner .art { position: absolute; inset: 0; }
+.banner .txt {
+    position: absolute; inset: 0; padding: 18px;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    background: linear-gradient(to top, rgba(20,12,6,.82), rgba(20,12,6,.15) 65%);
+    color: #fff;
+}
+.banner h2 { font-size: 20px; font-weight: 800; letter-spacing: -.3px; }
+.banner p { font-size: 11px; opacity: .88; margin-top: 3px; max-width: 260px; }
+.live-dot {
+    position: absolute; top: 14px; left: 14px;
+    background: rgba(0,0,0,.45); backdrop-filter: blur(4px);
+    color: #fff; font-size: 9px; font-weight: 700;
+    padding: 5px 9px; border-radius: 8px;
+    display: flex; align-items: center; gap: 5px;
+}
+.live-dot i { color: #4ADE80; font-size: 8px; }
+
+.action-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 20px; }
+.act {
+    background: var(--white); border-radius: 16px; padding: 14px;
+    box-shadow: var(--shadow-sm); border: 1px solid var(--line);
+    cursor: pointer; transition: all .22s ease; text-decoration: none; display: block;
+}
+.act:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+.act .ic {
+    width: 40px; height: 40px; border-radius: 12px; color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; margin-bottom: 10px;
+}
+.act h4 { font-size: 12px; font-weight: 700; color: var(--text-dark); }
+.act p { font-size: 9.5px; color: var(--text-light); margin-top: 2px; line-height: 1.4; }
+.act .go { margin-top: 10px; font-size: 10px; font-weight: 700; color: var(--orange-main); }
+
+.stats-strip {
+    display: grid; grid-template-columns: repeat(3,1fr);
+    gap: 8px; padding: 0 20px; margin-top: 14px;
+}
+.st { background: var(--white); border-radius: 14px; padding: 12px 10px; text-align: center; border: 1px solid var(--line); box-shadow: var(--shadow-sm); }
+.st b { display: block; font-size: 16px; font-weight: 800; color: var(--text-dark); }
+.st span { font-size: 9px; color: var(--text-light); }
+
+@media (min-width:1024px){
+  .banner { height: 240px; }
+  .banner h2 { font-size: 28px; }
+  .action-cards { grid-template-columns: repeat(4,1fr); }
+  .stats-strip { grid-template-columns: repeat(6,1fr); }
+}
+</style>
+</head>
+<body>
+<div class="app-container">
+
+  <header class="topbar">
+    <a href="dashboard.html" class="icon-btn ghost"><i class="ri-arrow-left-s-line"></i></a>
+    <div class="topbar-title">
+      <h1>2D Shooter</h1>
+      <p>Play matches · earn coins · climb ranks</p>
+    </div>
+    <a href="store.html" class="wallet-row" id="walletLink" data-wallet style="text-decoration:none"></a>
+  </header>
+
+  <div class="scroll-content">
+   <div class="desk-wrap">
+
+    <!-- HERO BANNER -->
+    <div class="banner fade-in">
+      <div class="art">
+        <svg viewBox="0 0 400 168" preserveAspectRatio="xMidYMid slice" style="width:100%;height:100%;display:block">
+          <defs>
+            <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#FFB877"/><stop offset="55%" stop-color="#FF8C42"/><stop offset="100%" stop-color="#C9541F"/>
+            </linearGradient>
+          </defs>
+          <rect width="400" height="168" fill="url(#sky)"/>
+          <circle cx="322" cy="42" r="24" fill="#fff" opacity=".25"/>
+          <path d="M0 128 L52 92 L96 128 L140 78 L196 128 L246 96 L300 128 L352 84 L400 128 L400 168 L0 168Z" fill="#7A3512" opacity=".55"/>
+          <path d="M0 142 L44 118 L88 142 L136 108 L188 142 L240 120 L292 142 L344 112 L400 142 L400 168 L0 168Z" fill="#4A1F0A" opacity=".7"/>
+          <rect x="24" y="120" width="18" height="48" fill="#331506" opacity=".8"/>
+          <rect x="352" y="112" width="22" height="56" fill="#331506" opacity=".8"/>
+        </svg>
+      </div>
+      <div class="live-dot"><i class="ri-circle-fill"></i> 2,418 ONLINE</div>
+      <div class="txt">
+        <h2>2D Shooter</h2>
+        <p>Play online matches, win rewards and climb the leaderboard.</p>
+      </div>
+    </div>
+
+    <!-- PRIMARY ACTIONS -->
+    <div class="action-cards fade-in delay-1">
+      <a href="match-type.html?flow=quick" class="act">
+        <div class="ic" style="background:var(--gradient-orange)"><i class="ri-flashlight-fill"></i></div>
+        <h4>Quick Match</h4>
+        <p>Jump into a random match instantly</p>
+        <div class="go">PLAY <i class="ri-arrow-right-line"></i></div>
+      </a>
+      <a href="match-type.html?flow=custom" class="act">
+        <div class="ic" style="background:linear-gradient(135deg,#8B5CF6,#7C3AED)"><i class="ri-add-box-fill"></i></div>
+        <h4>Custom Room</h4>
+        <p>Create a room and invite friends</p>
+        <div class="go" style="color:#7C3AED">CREATE <i class="ri-arrow-right-line"></i></div>
+      </a>
+    </div>
+
+    <!-- QUICK STATS -->
+    <div class="stats-strip fade-in delay-2">
+      <div class="st"><b id="sMatches">0</b><span>Matches</span></div>
+      <div class="st"><b id="sWins">0</b><span>Wins</span></div>
+      <div class="st"><b id="sKd">0</b><span>K/D Ratio</span></div>
+    </div>
+
+    <!-- MENU -->
+    <div class="pad fade-in delay-3">
+      <div class="section-header" style="padding:0">
+        <h3 class="section-title"><i class="ri-menu-search-line"></i> Game Menu</h3>
+      </div>
+    </div>
+    <div class="list-wrap fade-in delay-3" style="margin-top:10px">
+      <a href="missions.html" class="row-item">
+        <div class="row-icon" style="background:#E8F8F1;color:#10B981"><i class="ri-task-fill"></i></div>
+        <div class="row-body"><h4>Missions</h4><p>Daily, weekly & season objectives</p></div>
+        <span class="chip" id="missionChip"><i class="ri-copper-coin-fill"></i>470</span>
+        <i class="ri-arrow-right-s-line" style="color:var(--text-light)"></i>
+      </a>
+      <a href="leaderboard.html" class="row-item">
+        <div class="row-icon" style="background:#FEF6E7;color:#F5A524"><i class="ri-bar-chart-2-fill"></i></div>
+        <div class="row-body"><h4>Leaderboard</h4><p>Top players ranking</p></div>
+        <i class="ri-arrow-right-s-line" style="color:var(--text-light)"></i>
+      </a>
+      <a href="character-shop.html" class="row-item">
+        <div class="row-icon" style="background:#F3EEFE;color:#8B5CF6"><i class="ri-shirt-fill"></i></div>
+        <div class="row-body"><h4>Character Shop</h4><p>Operators, skins & bundles</p></div>
+        <i class="ri-arrow-right-s-line" style="color:var(--text-light)"></i>
+      </a>
+      <a href="weapon-shop.html" class="row-item">
+        <div class="row-icon" style="background:#FFF0E6;color:#FF8C42"><i class="ri-crosshair-2-fill"></i></div>
+        <div class="row-body"><h4>Weapon Shop</h4><p>Rifles, sidearms & gear</p></div>
+        <i class="ri-arrow-right-s-line" style="color:var(--text-light)"></i>
+      </a>
+      <a href="store.html" class="row-item">
+        <div class="row-icon" style="background:#FEF6E7;color:#F5A524"><i class="ri-copper-coin-fill"></i></div>
+        <div class="row-body"><h4>Get Coins &amp; Gems</h4><p>Top up with your TaskVault balance</p></div>
+        <span class="chip cash"><i class="ri-wallet-3-line"></i>$<span id="cashChip">0</span></span>
+        <i class="ri-arrow-right-s-line" style="color:var(--text-light)"></i>
+      </a>
+      <a href="how-to-play.html" class="row-item">
+        <div class="row-icon" style="background:#EAF2FE;color:#3B82F6"><i class="ri-question-fill"></i></div>
+        <div class="row-body"><h4>How to Play</h4><p>Game rules & controls</p></div>
+        <i class="ri-arrow-right-s-line" style="color:var(--text-light)"></i>
+      </a>
+      <a href="game-settings.html" class="row-item">
+        <div class="row-icon" style="background:#F2F2F2;color:#666"><i class="ri-settings-3-fill"></i></div>
+        <div class="row-body"><h4>Settings</h4><p>Audio, graphics & controls</p></div>
+        <i class="ri-arrow-right-s-line" style="color:var(--text-light)"></i>
+      </a>
+    </div>
+
+   </div>
+  </div>
+
+  <nav class="bottom-nav">
+    <a href="game-hub.html" class="nav-item active"><i class="ri-gamepad-fill"></i><span>Play</span></a>
+    <a href="weapon-shop.html" class="nav-item"><i class="ri-store-2-line"></i><span>Shop</span></a>
+    <a href="missions.html" class="nav-item"><i class="ri-task-line"></i><span>Missions</span></a>
+    <a href="leaderboard.html" class="nav-item"><i class="ri-bar-chart-2-line"></i><span>Ranks</span></a>
+    <a href="game-profile.html" class="nav-item"><i class="ri-user-3-line"></i><span>Profile</span></a>
+  </nav>
+</div>
+
+<div id="toast" class="toast"></div>
+<script src="assets/game.js"></script>
+<script>
+  const p = TVG.state.player;
+  sMatches.textContent = TVG.fmt(p.matches);
+  sWins.textContent = TVG.fmt(p.wins);
+  sKd.textContent = p.kd.toFixed(2);
+  cashChip.textContent = TVG.state.wallet.cash.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+</script>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"1954b47c125f43f8b4338b3c4f804e4f"}' crossorigin="anonymous"></script>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a31b60e08fa1f100',t:'MTc4NzgzNjg3Ng=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a32be9080f93d3dc',t:'MTc4ODAxMDIyNQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a33ded713f370cd3',t:'MTc4ODE5OTE1MA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v3d52b47920f24c319d37e2661827c42b1787588026925" integrity="sha512-d9sL6GJLXn6fInD1+TVXhTcQOsmxeHfmHAvwGDIxp5TO+uo1fiWW7mHomMj4MLRlCsJDTqXzWLHJFFlPCEIj/A==" data-cf-beacon='{"version":"2024.11.0","token":"1954b47c125f43f8b4338b3c4f804e4f"}' crossorigin="anonymous"></script>
+</body>
+</html>
