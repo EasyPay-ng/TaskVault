@@ -1820,7 +1820,7 @@ function createGame(cfg) {
     const side = meleeMode || oneHand ? 0.20 : 0.15;
     const ox = player.x + Math.cos(yaw) * 0.30 + sideX * (side + bobX);
     const oz = player.z + Math.sin(yaw) * 0.30 + sideZ * (side + bobX);
-    const oy = eyeY() - (oneHand || meleeMode ? 0.13 : 0.17) + bobY + dip;
+    const oy = eyeY() - (oneHand || meleeMode ? 0.13 : 0.17) + bobY - dip;   // draw rises from the hip, never drops from above
     const gy = PI / 2 - yaw - 0.05 - kickRot;
     const G = ATLAS.gun, SK = ATLAS.skin, VT = ATLAS.vest;
 
