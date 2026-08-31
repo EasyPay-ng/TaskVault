@@ -1,6 +1,8 @@
 /* ============================================================
    TASKVAULT GAME — shared state + helpers
-   Local-first. Swap TVG.save/load for Firestore later.
+   Server-backed economy: coins / gems / ammo / balance and the
+   whole game profile live in Firestore on users/{uid}.
+   localStorage is only an offline cache now.
    ============================================================ */
 (function (w) {
   'use strict';
@@ -9,7 +11,8 @@
 
   /* ---- economy constants (single source of truth) ---- */
   const ENTRY_FEE = 0.10;    // $ charged from balance to enter a match
-  const WIN_REWARD = 0.30;   // $ paid to the winner of a real-player match
+  const WIN_REWARD = 0.30;   // $ paid for a win
+  const TARGET_WIN_RATE = 0.40;
 
   const DEFAULTS = {
     player: {
@@ -24,7 +27,9 @@
       wins: 198,
       kd: 2.57,
       headshots: 41,
-      accuracy: 62
+      accuracy: 62,
+      recent: [],            // last match outcomes, 1 = win (drives difficulty)
+      dda: 1                 // bot skill multiplier, nudged toward 40% win rate
     },
     wallet: { cash: 0.00, coins: 0, gems: 0, ammo: 0 },
     equipped: { character: 'ranger', primary: 'glock18', secondary: 'glock18', grenade: 'frag', melee: 'knife' },
@@ -35,7 +40,8 @@
     settings: { sound: true, music: true, vibration: true, graphics: 'medium', lang: 'en', sensitivity: 55, difficulty: 'normal' },
     match: null,
     lastResult: null,
-    missionProgress: {}
+    missionProgress: {},
+    topups: []
   };
 
   /* ---------------- CATALOG ---------------- */
@@ -77,7 +83,7 @@
     { id:'4v4', name:'Team Battle', sub:'4 Players vs 4 Players',icon:'ri-group-fill',       cls:'green',  size:4 }
   ];
 
-  const GAME_MODES = ['Team Deathmatch', 'Domination', 'Search & Destroy', 'Free For All'];
+  const GAME_MODES = ['Team Deathmatch', 'Domination', 'Search & Destroy', 'Free For All', 'Battle Royale'];
 
   const MISSIONS = {
     daily: [
@@ -108,19 +114,22 @@
     state = Object.assign({}, DEFAULTS, JSON.parse(localStorage.getItem(KEY) || '{}'));
   } catch (e) { state = JSON.parse(JSON.stringify(DEFAULTS)); }
 
+  // lazily created collections (older saves may not have them)
+  if (!Array.isArray(state.topups)) state.topups = [];
+
   // migrate away the old demo seed balance (was $12,450) — the real balance
   // now comes from Firestore; a stale demo figure must never reach it.
   if (state.wallet && state.wallet.cash >= 1000) { state.wallet.cash = 0; }
 
-  function save() {
-    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
-  }
-  function reset() { state = JSON.parse(JSON.stringify(DEFAULTS)); save(); }
-
-  /* ---------------- FIREBASE WALLET SYNC (real TaskVault balance) ---------------- */
-  /* The dashboard reads users/{uid}.balance from Firestore for the signed-in user
-     (email / Google login). The game mirrors that same balance into state.wallet.cash
-     so every page shows one shared number. Falls back to localStorage when offline. */
+  /* ============================================================
+     FIREBASE — full server-side game profile
+     users/{uid}:
+       balance          ($)  — existing TaskVault field, kept
+       coins, gems, ammo     — NEW flat wallet fields
+       game                 — { player, equipped, owned, missionProgress,
+                                topups, stats }
+       walletUpdatedAt / gameUpdatedAt — millis, last-writer-wins
+     ============================================================ */
   const FIREBASE_CONFIG = {
     apiKey: "AIzaSyAv6QCpopa0Q77AVTyjU5cqJEIKIE9OVTs",
     authDomain: "taskvault-412a0.firebaseapp.com",
@@ -130,11 +139,41 @@
     appId: "1:420716701831:web:c987d91f7f4c8684eb7022"
   };
 
-  let fb = null, fbReady = false, fbStarted = false;
-  const fbWait = [];
+  let fb = null;                 // { auth, db, uid } once signed in
+  let fbPhase = 'local';         // local → syncing → synced
+  const syncListeners = [];
+
+  /* snapshots of what the server last saw — used to detect local
+     mutations (pages edit state.wallet directly) and stamp timestamps */
+  let walletSnap = '', gameSnap = '';
+  let walletMts = 0, gameMts = 0;
+  let pushTimer = null, pushQueued = { wallet: false, game: false };
+
+  const walletOf = s => JSON.stringify([s.wallet.cash, s.wallet.coins, s.wallet.gems, s.wallet.ammo]);
+  const gameOf   = s => JSON.stringify([s.player, s.equipped, s.owned, s.missionProgress, s.topups]);
+
+  function walletSection() {
+    return {
+      balance: Math.round(state.wallet.cash * 100) / 100,
+      coins: Math.round(state.wallet.coins) || 0,
+      gems: Math.round(state.wallet.gems) || 0,
+      ammo: Math.round(state.wallet.ammo) || 0,
+      walletUpdatedAt: walletMts
+    };
+  }
+  function gameSection() {
+    return {
+      player: state.player,
+      equipped: state.equipped,
+      owned: state.owned,
+      missionProgress: state.missionProgress,
+      topups: state.topups.slice(0, 30),
+      gameUpdatedAt: gameMts
+    };
+  }
 
   function fbLoadSDK() {
-    if (fbStarted) return; fbStarted = true;
+    if (w.__tvFbStarted) return; w.__tvFbStarted = true;
     if (w.firebase) { fbInit(); return; }
     const srcs = [
       'https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js',
@@ -150,63 +189,141 @@
     });
   }
 
+  function setPhase(p) {
+    fbPhase = p;
+    syncListeners.forEach(f => { try { f(p, fb && fb.uid); } catch (e) {} });
+  }
+
   function fbInit() {
+    let auth, db;
     try {
       if (!w.firebase.apps || !w.firebase.apps.length) w.firebase.initializeApp(FIREBASE_CONFIG);
-    } catch (e) { return; }
-    const auth = w.firebase.auth();
-    const db = w.firebase.firestore();
+      auth = w.firebase.auth(); db = w.firebase.firestore();
+    } catch (e) { setPhase('local'); return; }
     auth.onAuthStateChanged(user => {
-      if (user) { fb = { auth, db, uid: user.uid }; fbFetch(); }
-      else {
-        // no signed-in user (app uses email / Google sign-in) — keep the local
-        // fallback and skip remote sync; the app's own auth guard handles login.
-        fbReady = true;
-        fbWait.forEach(f => f(state.wallet.cash)); fbWait.length = 0;
+      if (user) {
+        fb = { auth, db, uid: user.uid };
+        setPhase('syncing');
+        fbFetch();
+      } else {
+        // not signed in — the app's own auth guard handles login.
+        // stay in local mode; nothing leaves the device.
+        fb = null;
+        setPhase('local');
       }
     });
   }
 
   function fbFetch() {
-    if (!fb) return;
     fb.db.collection('users').doc(fb.uid).get()
       .then(doc => {
+        const now = Date.now();
         if (doc.exists) {
-          const b = doc.data().balance;
-          if (typeof b === 'number') state.wallet.cash = b;
+          const d = doc.data();
+
+          /* ---- wallet merge ----
+             cash/balance: the website owns it (deposits) → server always wins.
+             coins/gems/ammo: the game owns them → remote wins per-field when
+             present; anything missing server-side is uploaded from local.     */
+          if (typeof d.balance === 'number') state.wallet.cash = d.balance;
+          let lacked = false;
+          ['coins', 'gems', 'ammo'].forEach(k => {
+            if (typeof d[k] === 'number') state.wallet[k] = d[k];
+            else lacked = true;
+          });
+          const rWalletMts = d.walletUpdatedAt || 0;
+          walletMts = Math.max(walletMts, rWalletMts);
+          if (lacked || walletMts > rWalletMts) queuePush('wallet');   // push merged wallet up
+
+          /* ---- game profile: last-writer-wins by timestamp ---- */
+          if (d.game && typeof d.game.gameUpdatedAt === 'number') {
+            if (gameMts > d.game.gameUpdatedAt) queuePush('game');
+            else {
+              state.player          = Object.assign({}, DEFAULTS.player, d.game.player);
+              state.equipped        = Object.assign({}, DEFAULTS.equipped, d.game.equipped);
+              state.owned           = Object.assign({}, DEFAULTS.owned, d.game.owned);
+              state.missionProgress = d.game.missionProgress || {};
+              state.topups          = Array.isArray(d.game.topups) ? d.game.topups : [];
+              gameMts = d.game.gameUpdatedAt;
+            }
+          } else {
+            if (!gameMts) gameMts = now;
+            queuePush('game');
+          }
           save();
         } else {
-          // new user — start at $0.00, matching the dashboard's newProfile.
-          // Never seed the real balance with the demo fallback cash.
-          fb.db.collection('users').doc(fb.uid).set({
+          // brand-new user doc — create it with the game fields included
+          walletMts = now; gameMts = now;
+          fb.db.collection('users').doc(fb.uid).set(Object.assign({
             balance: 0.00, plan: null, lastClaimDate: null,
             createdAt: w.firebase.firestore.FieldValue.serverTimestamp()
-          }).catch(() => {});
-          state.wallet.cash = 0.00; save();
+          }, walletSection(), { game: gameSection() })).catch(() => {});
+          state.wallet.cash = 0.00;
+          save();
         }
+        walletSnap = walletOf(state); gameSnap = gameOf(state);
+        setPhase('synced');
+        renderWallet();
       })
-      .catch(() => {})
-      .then(() => { fbReady = true; fbWait.forEach(f => f(state.wallet.cash)); fbWait.length = 0; });
+      .catch(() => { setPhase('local'); });
   }
 
-  function fbPush() {
+  function queuePush(which) {
     if (!fb) return;
-    fb.db.collection('users').doc(fb.uid).set({ balance: state.wallet.cash }, { merge: true }).catch(() => {});
+    pushQueued[which] = true;
+    clearTimeout(pushTimer);
+    pushTimer = setTimeout(flushPush, 1200);   // batch rapid changes into one write
   }
 
+  function flushPush() {
+    if (!fb) return;
+    const patch = {};
+    if (pushQueued.wallet) { Object.assign(patch, walletSection()); pushQueued.wallet = false; }
+    if (pushQueued.game)   { patch.game = gameSection(); pushQueued.game = false; }
+    if (Object.keys(patch).length) {
+      fb.db.collection('users').doc(fb.uid).set(patch, { merge: true }).catch(() => {});
+    }
+  }
+  // don't lose a queued write when the page closes
+  addEventListener('pagehide', flushPush);
+  addEventListener('visibilitychange', () => { if (document.hidden) flushPush(); });
+
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+    if (!fb) return;
+    const w2 = walletOf(state), g2 = gameOf(state);
+    if (w2 !== walletSnap) { walletSnap = w2; walletMts = Date.now(); queuePush('wallet'); }
+    if (g2 !== gameSnap)   { gameSnap   = g2; gameMts   = Date.now(); queuePush('game');   }
+  }
+
+  function reset() {
+    state = JSON.parse(JSON.stringify(DEFAULTS));
+    save();                                      // queues a full re-upload
+    if (fb) queuePush('wallet'), queuePush('game');
+  }
+
+  /* ---- cash helpers (unchanged API) ---- */
   function setCash(v) {
     state.wallet.cash = Math.round(+v * 100) / 100;
-    save(); fbPush();
+    save();
     return state.wallet.cash;
   }
   function adjustCash(d) { return setCash(state.wallet.cash + (+d || 0)); }
-  function onWallet(fn) {
-    if (fbReady) fn(state.wallet.cash);
-    else fbWait.push(fn);
-  }
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fbLoadSDK);
-  else fbLoadSDK();
+  /* ---- wallet change listener — fires once sync settles, and on every
+         push, so pages always show the server-backed number ---- */
+  let lastBroadcast = null;
+  function broadcast() {
+    const v = state.wallet;
+    const sig = v.cash + '|' + v.coins + '|' + v.gems;
+    if (sig !== lastBroadcast) { lastBroadcast = sig; walletWaiters.forEach(f => f(v.cash)); }
+  }
+  const walletWaiters = [];
+  function onWallet(fn) {
+    walletWaiters.push(fn);
+    if (fbPhase !== 'syncing') fn(state.wallet.cash);
+  }
+  setInterval(broadcast, 900);   // lightweight: pages poll the shared state
 
   /* ---------------- HELPERS ---------------- */
   function fmt(n) { return Number(n).toLocaleString('en-US'); }
@@ -228,7 +345,7 @@
     if (cur === 'gem') state.wallet.gems -= price; else state.wallet.coins -= price;
     if (!state.owned[kind]) state.owned[kind] = [];
     state.owned[kind].push(id);
-    save();
+    save();                                       // → Firestore push is queued automatically
     return { ok: true };
   }
 
@@ -255,6 +372,41 @@
     const p = state.missionProgress;
     p[id] = (p[id] || 0) + (by || 1);
     save();
+  }
+
+  /* ---------------- MATCH ECONOMY + DYNAMIC DIFFICULTY ----------------
+     Entry $0.10 · Win $0.30 · target win rate 40%.
+     After every match the rolling win rate (last 15) is compared to the
+     target: win too much → bots sharpen; lose too much → bots ease off.
+     dda is a plain multiplier on bot accuracy, reaction, damage & speed. */
+  function recordOutcome(won) {
+    const p = state.player;
+    p.recent = Array.isArray(p.recent) ? p.recent : [];
+    p.recent.push(won ? 1 : 0);
+    if (p.recent.length > 15) p.recent.shift();
+    if (p.recent.length >= 5) {
+      const wr = p.recent.reduce((a, b) => a + b, 0) / p.recent.length;
+      const err = wr - TARGET_WIN_RATE;
+      if (err >  0.08)      p.dda = Math.min(1.6, (p.dda || 1) + 0.06);
+      else if (err < -0.08) p.dda = Math.max(0.7, (p.dda || 1) - 0.06);
+    }
+    save();
+  }
+  function winRate() {
+    const r = state.player.recent || [];
+    return r.length ? r.reduce((a, b) => a + b, 0) / r.length : null;
+  }
+  function ddaFactor() {
+    const f = state.player.dda;
+    return (typeof f === 'number' && isFinite(f)) ? Math.min(1.6, Math.max(0.7, f)) : 1;
+  }
+  /* charge the entry fee; returns {ok, msg} */
+  function chargeEntry() {
+    if (state.wallet.cash < ENTRY_FEE) {
+      return { ok: false, msg: 'Need ' + money(ENTRY_FEE) + ' to enter — deposit to keep playing' };
+    }
+    adjustCash(-ENTRY_FEE);
+    return { ok: true };
   }
 
   /* ---------------- TOAST ---------------- */
@@ -306,8 +458,18 @@
     fmt, money, rnd, pick, shuffle, initials,
     weapon, character, map, owns, buy, buyAmmo, addRewards, bumpMission,
     toast, renderWallet, mapArt,
-    setCash, adjustCash, onWallet
+    recordOutcome, winRate, ddaFactor, chargeEntry, TARGET_WIN_RATE,
+    setCash, adjustCash, onWallet,
+    /* new: sync observability */
+    onSync(fn) { syncListeners.push(fn); fn(fbPhase, fb && fb.uid); },
+    get syncPhase() { return fbPhase; },
+    get signedIn()  { return !!fb; },
+    flushPush
   };
+
+  walletSnap = walletOf(state); gameSnap = gameOf(state);
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fbLoadSDK);
+  else fbLoadSDK();
 
   document.addEventListener('DOMContentLoaded', () => renderWallet());
 })(window);
