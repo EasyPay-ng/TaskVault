@@ -482,27 +482,27 @@ function buildWorld(E, mapId, S) {
       if (nearSpawn) continue;
       if (style.props === 'indoor' && r < 0.10) {
         E.box('crateTex', px, 0, pz, 0.9, 0.9, 0.9, 1);
-        if (r < 0.04) E.box('crateTex', px + 0.06, 0.9, pz - 0.05, 0.7, 0.7, 0.7, 1);
-        E.collider(px, pz, 0.55);
+        if (r < 0.04) { E.box('crateTex', px + 0.06, 0.9, pz - 0.05, 0.7, 0.7, 0.7, 1); E.collider(px, pz, 0.55, 1.6); }
+        else E.collider(px, pz, 0.55, 0.9);
       } else if (style.props === 'military' && r < 0.09) {
         E.box('sandbagTex', px, 0, pz, 1.5, 0.75, 0.62, 1);
         E.box('sandbagTex', px, 0.75, pz, 1.3, 0.4, 0.55, 1, 0.9);
-        E.collider(px, pz, 0.72);
+        E.collider(px, pz, 0.72, 1.15);
       } else if (style.props === 'desert' && r < 0.07) {
         E.box('crateTex', px, 0, pz, 1.0, 1.1, 1.0, 1);
-        E.collider(px, pz, 0.6);
+        E.collider(px, pz, 0.6, 1.1);
       } else if (style.props === 'port' && r < 0.08) {
         E.box('crateTex', px, 0, pz, 1.1, 1.1, 1.1, 1);
-        if (r < 0.035) E.box('metalTex', px, 1.1, pz, 0.8, 0.6, 0.8, 1, 0.9);
-        E.collider(px, pz, 0.62);
+        if (r < 0.035) { E.box('metalTex', px, 1.1, pz, 0.8, 0.6, 0.8, 1, 0.9); E.collider(px, pz, 0.62, 1.7); }
+        else E.collider(px, pz, 0.62, 1.1);
       } else if (style.props === 'jungle' && r < 0.16) {
         E.box('barkTex', px, 0, pz, 0.42, 2.6, 0.42, 2);
         E.box('foliageTex', px, 2.3, pz, 2.4, 1.3, 2.4, 1, .96);
         E.box('foliageTex', px + (r * 2 - 1) * .5, 3.3, pz - (r - .5), 1.6, 1.0, 1.6, 1, .9);
-        E.collider(px, pz, 0.35);
+        E.collider(px, pz, 0.35, 2.6);
       } else if (style.props === 'trains' && r < 0.05) {
         E.box('metalTex', px, 0.15, pz, 1.5, 2.4, 4.4, 1);
-        E.collider(px, pz, 0.9);
+        E.collider(px, pz, 0.9, 2.4);
       }
       continue;
     }
@@ -568,51 +568,104 @@ function partBox(arr, n, cx, cy, cz, yaw, pitch, ox, oy, oz, sx, sy, sz, uv, sun
   return n;
 }
 
+/* jointed humanoid: 2-segment legs w/ knees, 2-segment arms w/ elbows,
+   layered torso (abdomen/chest/vest/pack), helmet + visor, per-actor tint */
 function meshSoldier(arr, n, a, sun) {
   const dead = a.deadT > 0;
-  const ph = a.animPh || 0;
-  const speed = a.animSpd || 0;
-  const swing = dead ? 0 : Math.sin(ph) * (speed > 1.5 ? 0.72 : speed > 0.4 ? 0.5 : 0.05);
-  const counter = -swing * 0.8;
+  const ph = a.animPh || 0, speed = a.animSpd || 0;
+  const amp = dead ? 0 : (speed > 1.5 ? 0.72 : speed > 0.4 ? 0.48 : 0.04);
+  const swing = Math.sin(ph) * amp, counter = -swing * 0.85;
   const crouch = a.crouch && !dead;
   const fallK = dead ? Math.min(1, a.deadT * 2.6) : 0;
-  const baseY = a.y3 + (dead ? 0.1 : 0);
-  const fy = a.a3;                 // facing angle (movement convention)
-  const yaw = PI / 2 - fy;         // render yaw: local +Z box axis points along facing
+  const fy = a.a3, yaw = PI / 2 - fy;
   const CF = Math.cos(fy), SF = Math.sin(fy);
-  const sink = crouch ? 0.34 : 0;
-  const hipY = baseY + 0.86 - sink - (dead ? 0.5 * fallK : 0);
-  const shY = baseY + 1.48 - sink * 1.2 - (dead ? 0.45 * fallK : 0);
-  const headY = baseY + 1.62 - sink * 1.3 - (dead ? 0.4 * fallK : 0);
-  const bob = Math.abs(Math.sin(ph)) * 0.03 * (speed > 0.3 ? 1 : 0);
+  const tint = a.tint || 1;
   const shirt = a.foe ? ATLAS.shirtA : ATLAS.shirtB;
+  const P = (fwd, lat, y) => [a.x3 + CF * fwd - SF * lat, y, a.z3 + SF * fwd + CF * lat];
 
-  const legL = 0.86 - sink;
-  n = partBox(arr, n, a.x3, hipY + bob, a.z3, yaw, swing, 0, -legL / 2, 0, 0.2, legL, 0.23, ATLAS.pantsA, sun, 1);
-  n = partBox(arr, n, a.x3, hipY + bob, a.z3, yaw, counter, 0.02, -legL / 2, 0, 0.2, legL, 0.23, ATLAS.pantsA, sun, 1);
-  if (!dead) {
-    /* boots track the leg swing */
-    const sw = Math.sin(ph) * (speed > 0.3 ? 1 : 0);
-    n = partBox(arr, n, a.x3 + CF * (0.11 + sw * 0.2), baseY + 0.07 + sw * 0.1, a.z3 + SF * (0.11 + sw * 0.2), yaw, 0, 0, 0, 0, 0.22, 0.14, 0.33, ATLAS.boot, sun, 1);
-    n = partBox(arr, n, a.x3 - CF * (0.11 + sw * 0.2), baseY + 0.07 - sw * 0.1, a.z3 - SF * (0.11 + sw * 0.2), yaw, 0, 0, 0, 0, 0.22, 0.14, 0.33, ATLAS.boot, sun, 1);
-  }
-  n = partBox(arr, n, a.x3, shY - 0.31 + bob, a.z3, yaw, 0, 0, 0.05, 0, 0.46, 0.64, 0.27, shirt, sun, 1);
-  n = partBox(arr, n, a.x3, shY - 0.26 + bob, a.z3, yaw, 0, 0, 0.04, 0.005, 0.42, 0.44, 0.3, ATLAS.vest, sun, 1.05);
-  n = partBox(arr, n, a.x3, shY - 0.33 + bob, a.z3, yaw, 0, 0, -0.14, 0, 0.36, 0.4, 0.18, ATLAS.gear, sun, 0.9);
-  const hb = bob * 1.2;
-  n = partBox(arr, n, a.x3, headY + hb, a.z3, yaw, 0, 0, 0.02, 0, 0.21, 0.24, 0.22, ATLAS.skin, sun, 1);
-  n = partBox(arr, n, a.x3, headY + hb, a.z3, yaw, 0, 0, 0.02, 0.02, 0.25, 0.13, 0.25, ATLAS.helmetA, sun, 1.06);
-  n = partBox(arr, n, a.x3, headY + hb, a.z3, yaw, 0, 0, 0.02, 0.06, 0.24, 0.09, 0.24, ATLAS.helmetB, sun, 1);
-  const aimP = (a.aimP || 0);
-  const armY = shY - 0.08 + bob;
-  /* arms reach toward the rifle grip / handguard (offsets along facing) */
-  n = partBox(arr, n, a.x3 + CF * 0.28, armY, a.z3 + SF * 0.28, yaw, -1.15 + aimP, 0, -0.12, 0.12, 0.09, 0.5, 0.09, shirt, sun, 1);
-  n = partBox(arr, n, a.x3 + CF * 0.44 - SF * 0.24, armY, a.z3 + SF * 0.44 + CF * 0.24, yaw, -1.35 + aimP, 0, -0.1, 0, 0.09, 0.55, 0.09, shirt, sun, 1);
-  const gx = a.x3 + CF * 0.34, gz = a.z3 + SF * 0.34;
-  const gy = armY + 0.1 + aimP * 0.15;
-  n = partBox(arr, n, gx, gy, gz, yaw, aimP * 0.5, 0, 0, 0, 0.05, 0.07, 0.72, ATLAS.gun, sun, 1.1);
-  n = partBox(arr, n, gx, gy, gz, yaw, aimP * 0.5, 0.16, -0.02, 0, 0.07, 0.09, 0.09, ATLAS.skin, sun, 1);
-  n = partBox(arr, n, gx, gy, gz, yaw, aimP * 0.5, -0.2, -0.03, 0.02, 0.07, 0.09, 0.09, ATLAS.skin, sun, 1);
+  const sink = crouch ? 0.30 : 0;
+  const droop = dead ? fallK * 0.5 : 0;
+  const baseY = a.y3 + (dead ? 0.06 : 0);
+  const legY0 = baseY + 0.88 - sink * 0.7 - droop;
+  const hipY = legY0 + 0.05;
+  const chestY = baseY + 1.30 - sink * 1.1 - droop * 1.05;
+  const shY = baseY + 1.46 - sink * 1.15 - droop;
+  const headY = baseY + 1.64 - sink * 1.22 - droop * 0.9;
+  const bob = Math.abs(Math.sin(ph)) * 0.026 * (speed > 0.3 ? 1 : 0);
+  const sway = Math.sin(ph) * 0.06 * (speed > 0.3 ? 1 : 0);
+  const thighL = 0.42, shinL = 0.38, upArmL = 0.28, foArmL = 0.26;
+
+  /* ---- legs: thigh rotates from hip, shin bends at the knee ---- */
+  const leg = (sgn, sw) => {
+    const lat = sgn * 0.105;
+    const th1 = sw * 0.85 + (crouch ? 0.55 : 0) + (dead ? sgn * 0.25 : 0);
+    const bend = Math.max(0, -sw) * 1.15 + (crouch ? 1.15 : 0.15) + (dead ? 0.5 : 0);
+    const th2 = th1 - bend;
+    const kneeY = legY0 - thighL * Math.cos(th1), kneeF = thighL * Math.sin(th1);
+    let p = P(0, lat, legY0);
+    n = partBox(arr, n, p[0], p[1], p[2], yaw, th1, 0, 0, -thighL / 2, 0, 0.16, thighL, 0.20, ATLAS.pantsA, sun, tint);
+    const scy = kneeY - (shinL / 2) * Math.cos(th2), scf = kneeF + (shinL / 2) * Math.sin(th2);
+    p = P(scf, lat, scy);
+    n = partBox(arr, n, p[0], p[1], p[2], yaw, th2, 0, 0, 0, 0.145, shinL, 0.175, ATLAS.pantsB, sun, tint * 0.96);
+    const bY = kneeY - shinL * Math.cos(th2) + 0.075, bF = kneeF + shinL * Math.sin(th2) + 0.035;
+    p = P(bF, lat, bY);
+    n = partBox(arr, n, p[0], p[1], p[2], yaw, th2 * 0.25, 0, 0.02, 0, 0.175, 0.14, 0.31, ATLAS.boot, sun, tint);
+  };
+  leg(1, swing); leg(-1, counter);
+
+  /* ---- pelvis + torso layers (sway counter-rotates) ---- */
+  let p = P(0, 0, hipY + 0.03 + bob);
+  n = partBox(arr, n, p[0], p[1], p[2], yaw, 0, 0, 0.01, 0, 0.35, 0.17, 0.25, ATLAS.gear, sun, tint * 0.92);
+  p = P(0.01, 0, hipY + 0.21 + bob);
+  n = partBox(arr, n, p[0], p[1], p[2], yaw + sway * 0.4, 0, 0, 0.05, 0, 0.38, 0.26, 0.23, shirt, sun, tint);
+  p = P(0.02, 0, chestY + bob);
+  n = partBox(arr, n, p[0], p[1], p[2], yaw + sway * 0.4, 0, 0, 0.06, 0, 0.46, 0.34, 0.26, shirt, sun, tint);
+  p = P(0.025, 0, chestY + 0.01 + bob);
+  n = partBox(arr, n, p[0], p[1], p[2], yaw + sway * 0.4, 0, 0, 0.05, 0.005, 0.43, 0.31, 0.30, ATLAS.vest, sun, tint * 1.05);
+  p = P(-0.15, 0, chestY - 0.01 + bob);
+  n = partBox(arr, n, p[0], p[1], p[2], yaw + sway * 0.4, 0, 0, 0, 0, 0.33, 0.36, 0.15, ATLAS.gear, sun, tint * 0.88);
+  p = P(0.05, 0.255, shY - 0.02 + bob);
+  n = partBox(arr, n, p[0], p[1], p[2], yaw + sway * 0.4, 0, 0, -0.02, 0, 0.15, 0.13, 0.22, shirt, sun, tint * 1.06);
+  p = P(0.05, -0.255, shY - 0.02 + bob);
+  n = partBox(arr, n, p[0], p[1], p[2], yaw + sway * 0.4, 0, 0, -0.02, 0, 0.15, 0.13, 0.22, shirt, sun, tint * 1.06);
+
+  /* ---- head: skin + visor + helmet + brim ---- */
+  p = P(0.03, 0, headY - 0.02 + bob * 1.2);
+  n = partBox(arr, n, p[0], p[1], p[2], yaw, 0, 0, 0.02, 0, 0.205, 0.23, 0.21, ATLAS.skin, sun, tint);
+  p = P(0.135, 0, headY + 0.02 + bob * 1.2);
+  n = partBox(arr, n, p[0], p[1], p[2], yaw, 0, 0, 0, 0, 0.055, 0.055, 0.15, ATLAS.gun, sun, tint * 0.9);          // visor
+  p = P(0.115, 0, headY - 0.075 + bob * 1.2);
+  n = partBox(arr, n, p[0], p[1], p[2], yaw, 0, 0, 0, 0, 0.075, 0.10, 0.14, ATLAS.skin, sun, tint * 0.95);          // jaw
+  p = P(0.03, 0, headY + 0.115 + bob * 1.2);
+  n = partBox(arr, n, p[0], p[1], p[2], yaw, 0, 0, 0.02, 0.01, 0.245, 0.13, 0.25, ATLAS.helmetA, sun, tint * 1.07);
+  p = P(0.075, 0, headY + 0.05 + bob * 1.2);
+  n = partBox(arr, n, p[0], p[1], p[2], yaw, 0, 0, 0.02, 0.01, 0.23, 0.055, 0.235, ATLAS.helmetB, sun, tint);
+
+  /* ---- arms: shoulder → elbow → hands on the rifle ---- */
+  const aimP = a.aimP || 0;
+  const arm = (sgn, lat, gripF, gripY) => {
+    const th1 = 0.95 - aimP * 0.4 + (dead ? 0.6 : 0);          // upper arm, down-forward
+    const elY = shY - 0.03 - upArmL * Math.cos(th1), elF = upArmL * Math.sin(th1) + 0.03;
+    let q = P(elF / 2 + 0.015, lat, shY - 0.03 - (upArmL / 2) * Math.cos(th1));
+    n = partBox(arr, n, q[0], q[1], q[2], yaw, th1, 0, 0, -0.02, 0.085, upArmL, 0.085, shirt, sun, tint);
+    // forearm aims from elbow toward the grip point
+    const gf = gripF - elF, gy = gripY - elY;
+    const L2 = Math.hypot(gf, gy) || 0.01;
+    const fth = Math.atan2(gf, -gy);                            // pitch that points the box at the grip
+    q = P(elF + (gf / 2), lat * 0.72, elY + (gy / 2));
+    n = partBox(arr, n, q[0], q[1], q[2], yaw, fth, 0, 0, 0, 0.075, L2, 0.075, shirt, sun, tint * 0.98);
+    q = P(gripF, lat * 0.5, gripY);
+    n = partBox(arr, n, q[0], q[1], q[2], yaw, 0, 0, 0, 0, 0.075, 0.09, 0.085, ATLAS.skin, sun, tint);  // hand
+  };
+  const gunF = 0.34, gunY = shY - 0.10 + aimP * 0.12;
+  arm(1, 0.235, gunF - 0.10, gunY + 0.03);
+  arm(-1, -0.235, gunF + 0.18, gunY + 0.03);
+
+  /* ---- rifle ---- */
+  p = P(gunF, 0.02, gunY);
+  n = partBox(arr, n, p[0], p[1], p[2], yaw, aimP * 0.4, 0, 0, 0, 0.05, 0.07, 0.74, ATLAS.gun, sun, tint * 1.1);
+  p = P(gunF - 0.30, 0.02, gunY - 0.01);
+  n = partBox(arr, n, p[0], p[1], p[2], yaw, aimP * 0.4, 0, 0, 0, 0.045, 0.055, 0.16, ATLAS.gun, sun, tint);
   return n;
 }
 
@@ -744,7 +797,7 @@ function createGame(cfg) {
       bb = null;
     },
     box, groundQuad,
-    collider(x, z, r) { cols.push({ x, z, r }); }
+    collider(x, z, r, h) { cols.push({ x, z, r, h: h || 3 }); }
   };
   const style = buildWorld(worldAPI, cfg.mapId, S);
 
@@ -771,14 +824,33 @@ function createGame(cfg) {
 
   /* ---------- collision ---------- */
   const solidAt = (x, z) => x < 0 || z < 0 || x >= S || z >= S || gridH[z | 0][x | 0] > 0;
-  function blocked(x, z, r) {
+  const STEP = 0.55;   // max ledge you can walk/land up onto
+  function blocked(x, z, r, footY) {
+    const fy = footY || 0;
     if (x - r < 0.3 || z - r < 0.3 || x + r > S - 0.3 || z + r > S - 0.3) return true;
-    if (solidAt(x - r, z - r) || solidAt(x + r, z - r) || solidAt(x - r, z + r) || solidAt(x + r, z + r)) return true;
+    const hAt = (cx, cz) => (cx < 0 || cz < 0 || cx >= S || cz >= S) ? 99 : gridH[cz | 0][cx | 0] || 0;
+    if (hAt(x - r, z - r) > fy + STEP || hAt(x + r, z - r) > fy + STEP ||
+        hAt(x - r, z + r) > fy + STEP || hAt(x + r, z + r) > fy + STEP) {
+      // any corner hitting a too-tall cell?  still pass if that cell is low enough
+      if (Math.max(hAt(x - r, z - r), hAt(x + r, z - r), hAt(x - r, z + r), hAt(x + r, z + r)) > fy + STEP) return true;
+    }
     for (let i = 0; i < cols.length; i++) {
       const dx = cols[i].x - x, dz = cols[i].z - z, rr = cols[i].r + r;
-      if (dx * dx + dz * dz < rr * rr) return true;
+      if (dx * dx + dz * dz < rr * rr && cols[i].h > fy + STEP) return true;
     }
     return false;
+  }
+  /* highest walkable surface under the player (ground, low cover, crates) */
+  function supportAt(x, z, footY) {
+    let h = 0;
+    const hAt = (cx, cz) => (cx < 0 || cz < 0 || cx >= S || cz >= S) ? 0 : gridH[cz | 0][cx | 0] || 0;
+    const hs = [hAt(x - 0.2, z - 0.2), hAt(x + 0.2, z - 0.2), hAt(x - 0.2, z + 0.2), hAt(x + 0.2, z + 0.2)];
+    for (const v of hs) if (v > h && v <= footY + STEP) h = v;
+    for (let i = 0; i < cols.length; i++) {
+      const c = cols[i], dx = c.x - x, dz = c.z - z, rr = c.r + 0.22;
+      if (dx * dx + dz * dz < rr * rr && c.h > h && c.h <= footY + STEP) h = c.h;
+    }
+    return h;
   }
   const wallHit = (x, z, y) => x < 0 || z < 0 || x >= S || z >= S || gridH[z | 0][x | 0] > y;
 
@@ -833,7 +905,7 @@ function createGame(cfg) {
       react: DIFF.react, mode: null, retreat: 0, patrol: null,
       strafe: Math.random() < .5 ? -1 : 1, strafeFlip: 0,
       x3: x, z3: zz, y3: 0, a3: 0, animPh: Math.random() * 6, animSpd: 0, aimP: 0,
-      deadT: 0, foe: true, crouch: false
+      deadT: 0, foe: true, crouch: false, tint: 0.92 + Math.random() * 0.16
     };
   }
   (cfg.teamB || []).forEach(n => actors.push(mkActor(n, 'B')));
@@ -1819,8 +1891,8 @@ function createGame(cfg) {
         const fw = -iz, st = ix;
         const nx = player.x + (Math.cos(player.a) * fw - Math.sin(player.a) * st) * spd;
         const nz = player.z + (Math.sin(player.a) * fw + Math.cos(player.a) * st) * spd;
-        if (!blocked(nx, player.z, 0.3)) player.x = nx;
-        if (!blocked(player.x, nz, 0.3)) player.z = nz;
+        if (!blocked(nx, player.z, 0.3, player.jz)) player.x = nx;
+        if (!blocked(player.x, nz, 0.3, player.jz)) player.z = nz;
         bob += dt * (IN.sprint ? 13 : 8);
         player.animSpd = IN.sprint ? 2 : 1;
         stepAcc += Math.abs(spd);
@@ -1828,12 +1900,20 @@ function createGame(cfg) {
       } else player.animSpd = 0;
       player.animPh += dt * (player.animSpd > 1.5 ? 12 : player.animSpd > 0.3 ? 8 : 1.4);
 
-      if (player.crouch) { player.jz = 0; player.vz = 0; }
-      else {
-        const wasAir = player.jz > 0.02;
-        player.vz -= 9.5 * dt;
-        player.jz += player.vz * dt;
-        if (player.jz <= 0) { if (wasAir) sfx.land(); player.jz = 0; player.vz = 0; }
+      {
+        const gh = supportAt(player.x, player.z, player.jz);
+        if (player.crouch) { player.vz = 0; player.jz = gh; }
+        else {
+          const wasAir = player.jz > gh + 0.02;
+          player.vz -= 13 * dt;
+          player.jz += player.vz * dt;
+          if (player.jz <= gh) {
+            if (wasAir && player.vz < -2.5) sfx.land();
+            player.jz = gh; player.vz = 0;
+          } else if (player.vz === 0 && player.jz < gh) {
+            player.jz = gh;   // walk-step onto a low ledge
+          }
+        }
       }
 
       if (IN.firing) fire();
@@ -1870,7 +1950,7 @@ function createGame(cfg) {
   /* ---------- public API ---------- */
   return {
     fire, reload,
-    jump() { if (!running || player.crouch || player.jz > 0.01) return; player.vz = 2.75; sfx.jump(); },
+    jump() { if (!running || player.crouch || player.jz > supportAt(player.x, player.z, player.jz) + 0.02) return; player.vz = 6.0; sfx.jump(); },
     setCrouch(on) { player.crouch = !!on; if (on) { player.z = 0; player.vz = 0; } },
     nade() {
       if (nadeCd > 0 || !running) return;
