@@ -6,14 +6,14 @@
 <title>Select Match Type — TaskVault</title>
 <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<link href="assets/game.css?v=10" rel="stylesheet">
+<link href="assets/game.css" rel="stylesheet">
 </head>
 <body>
 <div class="app-container">
 
   <header class="topbar">
     <a href="game-hub.html" class="icon-btn ghost"><i class="ri-arrow-left-s-line"></i></a>
-    <div class="topbar-title"><h1>Training</h1><p id="flowLabel">Vs bots · free</p></div>
+    <div class="topbar-title"><h1>Select Match Type</h1><p id="flowLabel">Quick Match</p></div>
     <a href="store.html" class="wallet-row" id="walletLink" data-wallet style="text-decoration:none"></a>
   </header>
 
@@ -28,7 +28,7 @@
     <div class="select-list fade-in delay-1" id="modeList"></div>
 
     <div class="pad fade-in delay-2">
-      <div class="card" style="display:none">
+      <div class="card">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
           <h4 style="font-size:12px;font-weight:700;color:var(--text-dark)">Game Mode</h4>
           <i class="ri-swap-box-line" style="color:var(--orange-main);font-size:14px"></i>
@@ -58,11 +58,11 @@
 </div>
 
 <div id="toast" class="toast"></div>
-<script src="assets/game.js?v=10"></script>
+<script src="assets/game.js"></script>
 <script>
 const params = new URLSearchParams(location.search);
-const flow = 'training';
-flowLabel.textContent = 'Vs bots · free · XP only';
+const flow = params.get('flow') || 'quick';
+flowLabel.textContent = flow === 'custom' ? 'Custom Room' : 'Quick Match';
 
 let picked = null;
 
@@ -81,10 +81,9 @@ const DESCS = {
   'Team Deathmatch':'First team to reach the score limit wins the match.',
   'Domination':'Capture and hold zones to accumulate points over time.',
   'Search & Destroy':'One life per round. Plant or defuse to win the round.',
-  'Free For All':'Every player for themselves. Highest kills wins.',
-  'Battle Royale':'12 players drop in. The zone shrinks. Last one standing takes $0.30.'
+  'Free For All':'Every player for themselves. Highest kills wins.'
 };
-const REW = { '1v1':[0,180], '2v2':[0,260], '4v4':[0,420] };   /* training: XP only */
+const REW = { '1v1':[250,180], '2v2':[400,260], '4v4':[650,420] };
 
 gameMode.onchange = () => modeDesc.textContent = DESCS[gameMode.value];
 
@@ -95,28 +94,22 @@ modeList.querySelectorAll('.select-item').forEach(el => {
     picked = el.dataset.id;
     confirmBtn.disabled = false;
     const r = REW[picked];
-    rewardHint.textContent = `Free training · no cash reward · ${r[1]} XP`;
+    rewardHint.textContent = `Win: ${TVG.fmt(r[0])} coins · ${r[1]} XP`;
   };
 });
 
 confirmBtn.onclick = () => {
   if (!picked) return;
-  /* TRAINING: free bot match — no entry fee, no cash reward, XP only */
-  const ME = TVG.state.player.name;
-  const names = TVG.shuffle(TVG.BOT_NAMES.filter(n => n !== ME));
-  const squad = TVG.MODES.find(m => m.id === picked).size;
-  const teamA = [ME, ...names.slice(0, squad - 1)];
-  const teamB = names.slice(squad - 1, squad * 2 - 1);
   TVG.state.match = {
-    flow: 'training', type: picked,
-    size: squad, gameMode: 'Training', map: null,
-    feePaid: true, vsBots: true,
-    roster: teamA.concat(teamB), teamA, teamB
+    flow, type: picked,
+    size: TVG.MODES.find(m => m.id === picked).size,
+    gameMode: gameMode.value,
+    map: null
   };
   TVG.save();
-  location.href = 'map-select.html?flow=training';
+  location.href = 'map-select.html';
 };
 </script>
 <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"1954b47c125f43f8b4338b3c4f804e4f"}' crossorigin="anonymous"></script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a31b62c5ae8902d5',t:'MTc4NzgzNjk1NA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a33dca37df46698a',t:'MTc4ODE5NzcwNw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a31b62c5ae8902d5',t:'MTc4NzgzNjk1NA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a3454cf3e85e3cce',t:'MTc4ODI3NjQ2Mg=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
