@@ -7,7 +7,7 @@
 <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" type="image/jpeg">
 <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<link href="assets/game.css?v=10" rel="stylesheet">
+<link href="assets/game.css?v=11" rel="stylesheet">
 <style>
 body { background: #120D08; }
 .rm { flex: 1; display: flex; flex-direction: column; gap: 12px; padding: 18px 16px 26px; max-width: 460px; margin: 0 auto; width: 100%; }
@@ -107,13 +107,27 @@ input:focus, select:focus { border-color: var(--orange-main); }
 </div>
 
 <div id="toast" class="toast"></div>
-<script src="assets/game.js?v=10"></script>
-<script src="assets/p2p.js?v=10"></script>
+<script src="assets/game.js?v=11"></script>
+<script src="assets/p2p.js?v=11"></script>
 <script>
 /* ============ Room Match — create or join, fee per player ============ */
 const errBox = document.getElementById('errBox');
 const showErr = msg => { errBox.textContent = msg; errBox.style.display = 'block'; setTimeout(() => errBox.style.display = 'none', 5200); };
-const ME = TVG.state.player.name;
+const me = () => TVG.state.player.name;   /* re-read: may be uniquified at room time */
+
+/* identity: signed-in players ARE their Firestore account (uid + real username).
+   Guests who never signed in and still carry the default name get a one-time
+   unique suffix so two devices can't collide as the same player. */
+async function identityReady() {
+  for (let i = 0; i < 24; i++) { if (TVG.uid && TVG.uid()) break; await new Promise(rs => setTimeout(rs, 125)); }
+  if (!(TVG.uid && TVG.uid()) && TVG.state.player.name === 'Tasker123') {
+    const NC2 = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+    let suf = '';
+    for (let i = 0; i < 3; i++) suf += NC2[(Math.random() * NC2.length) | 0];
+    TVG.state.player.name = 'Tasker-' + suf;
+    TVG.save();
+  }
+}
 
 /* map picker (level-gated like the rest of the app) */
 const mapSel = document.getElementById('mapSel');
@@ -163,7 +177,7 @@ function renderSlots(players, slots) {
     const p = players[i];
     el.insertAdjacentHTML('beforeend', p
       ? '<div class="slot"><div class="av" style="background:' + (TEAMC[p.team] || '#999') + '">' + TVG.initials(p.name) + '</div>' +
-        '<div class="nm">' + p.name + (p.name === ME ? ' (YOU)' : '') + '<small>' + (p.slot === 0 ? 'HOST · TEAM ' + p.team : 'TEAM ' + p.team) + '</small></div></div>'
+        '<div class="nm">' + p.name + (p.name === me() ? ' (YOU)' : '') + '<small>' + (p.slot === 0 ? 'HOST · TEAM ' + p.team : 'TEAM ' + p.team) + '</small></div></div>'
       : '<div class="slot empty"><div class="av" style="background:#EAE7E1;color:#B3ACA4"><i class="ri-user-add-line"></i></div><div class="nm">Open slot<small>WAITING</small></div></div>');
   }
 }
@@ -188,6 +202,7 @@ function enterWaiting(roomId, code, mode, map, mySlot) {
   TVGP2P.waitStart(roomId).then(r => {
     if (started) return;
     if (!r.ok || !r.roster || r.roster.length < 2) { refundEntry(); showErr('Room closed before it filled.'); leave(); return; }
+    if (started && ROOM && ROOM.mySlot === 0) setTimeout(() => { try { TVGP2P.killRoom(ROOM.roomId); } catch (e) {} }, 1000);   /* stale doc sweep */
     started = true;
     try { if (unWatch) unWatch(); } catch (e) {}
     const roster = r.roster.slice().sort((a, b) => a.slot - b.slot);
@@ -209,6 +224,7 @@ function leave() {
   started = true;
   try { if (unWatch) unWatch(); } catch (e) {}
   if (ROOM && ROOM.mySlot === 0) TVGP2P.killRoom(ROOM.roomId);
+  else if (ROOM) TVGP2P.leaveRoom(ROOM.roomId, me());   /* guest: free the slot for someone else */
   location.href = 'game-hub.html';
 }
 document.getElementById('leaveBtn').onclick = leave;
@@ -216,6 +232,7 @@ document.getElementById('leaveBtn').onclick = leave;
 /* create: pay $0.10 → register the room */
 document.getElementById('createBtn').onclick = async () => {
   if (typeof TVGP2P === 'undefined') { showErr('assets/p2p.js failed to load — clear your cache'); return; }
+  await identityReady();
   const btn = document.getElementById('createBtn');
   btn.disabled = true; btn.textContent = 'Creating…';
   const r = await TVGP2P.createRoom({ mode, map: mapSel.value });
@@ -234,22 +251,36 @@ document.getElementById('joinBtn').onclick = async () => {
   if (rid.length < 6) { showErr('Enter the 6-character Room ID (like KTV-9XZ).'); return; }
   if (code.length !== 4) { showErr('Enter the 4-digit room code.'); return; }
   if (TVG.state.wallet.cash < 0.10) { showErr('Entry is $0.10 — deposit to join.'); setTimeout(() => location.href = 'deposit.html', 1400); return; }
+  await identityReady();
   const btn = document.getElementById('joinBtn');
   btn.disabled = true; btn.textContent = 'Joining…';
-  const r = await TVGP2P.joinRoom(rid, code);
+  let r = await TVGP2P.joinRoom(rid, code);
+  if (r.why === 'name-taken') {              /* same display name, different account — become unique, retry once */
+    const NC3 = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+    let suf = '';
+    for (let i = 0; i < 2; i++) suf += NC3[(Math.random() * NC3.length) | 0];
+    TVG.state.player.name = TVG.state.player.name + '-' + suf;
+    TVG.save();
+    r = await TVGP2P.joinRoom(rid, code);
+  }
   if (!r.ok) {
     btn.disabled = false; btn.innerHTML = '<i class="ri-sword-fill"></i> JOIN ROOM — $0.10';
     showErr(r.why === 'not-found' ? 'Room not found — check the ID.' :
             r.why === 'wrong-code' ? 'Wrong room code.' :
             r.why === 'full' || r.why === 'Room already full or closed' ? 'That room is already full.' :
-            r.why === 'already-in' ? 'You are already in that room.' :
+            r.why === 'already-in' ? 'Someone with your name is in that room — rejoining should work now.' :
             r.why === 'no-firebase' ? 'Could not reach the room service — check your connection.' :
             'Could not join: ' + r.why);
     return;
   }
-  if (!payEntry()) return;                       /* fee once the seat is ours */
-  FEE_PAID = true;
-  TVG.toast('Joined ' + r.roomId + ' — $0.10 entry paid', 'success');
+  if (r.rejoin) {
+    FEE_PAID = true;
+    TVG.toast('Room found — rejoining ' + r.roomId, 'success');   /* same player returning: no double fee */
+  } else {
+    if (!payEntry()) return;                     /* fee once the seat is ours */
+    FEE_PAID = true;
+    TVG.toast('Room found! Joined ' + r.roomId + ' — $0.10 entry paid', 'success');
+  }
   enterWaiting(r.roomId, null, r.mode || '1v1', r.map || 'warehouse', r.slot);
 };
 
@@ -259,5 +290,5 @@ const cpy = (txt, okMsg) => {
 };
 document.getElementById('cpyCode').onclick = () => cpy(document.getElementById('wCode').textContent, 'Code copied');
 </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a33dc2c04fbc46b2',t:'MTc4ODE5NzQwMQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a34541a1d92a9ec0',t:'MTc4ODI3NTk5OQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
