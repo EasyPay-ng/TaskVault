@@ -121,6 +121,8 @@
   // now comes from Firestore; a stale demo figure must never reach it.
   if (state.wallet && state.wallet.cash >= 1000) { state.wallet.cash = 0; }
 
+
+
   /* ============================================================
      FIREBASE — full server-side game profile
      users/{uid}:
@@ -240,6 +242,8 @@
             if (gameMts > d.game.gameUpdatedAt) queuePush('game');
             else {
               state.player          = Object.assign({}, DEFAULTS.player, d.game.player);
+              if (typeof d.username === 'string' && d.username) state.player.name = d.username;        /* real username from the site */
+              else if (typeof d.displayName === 'string' && d.displayName) state.player.name = d.displayName;
               state.equipped        = Object.assign({}, DEFAULTS.equipped, d.game.equipped);
               state.owned           = Object.assign({}, DEFAULTS.owned, d.game.owned);
               state.missionProgress = d.game.missionProgress || {};
@@ -453,6 +457,7 @@
 
   /* ---------------- EXPORT ---------------- */
   w.TVG = {
+    uid: () => (fb && fb.uid) || null,
     state, save, reset, DEFAULTS, ENTRY_FEE, WIN_REWARD,
     CHARACTERS, WEAPONS, MAPS, MODES, GAME_MODES, MISSIONS, BOT_NAMES,
     fmt, money, rnd, pick, shuffle, initials,
