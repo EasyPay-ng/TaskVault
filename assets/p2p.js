@@ -271,97 +271,163 @@
   }
 
   /* ---------------------------------------------------------------
-     starMesh(roomId, roster, mySlot) → Promise<node>
-     node: { send(m[, slot]), broadcast(m), bind(fn(m, fromSlot)), open, close() }
-     host: one channel per guest (bind reports each sender's slot)
-     guest: single channel to the host (fromSlot is always 0)
+     starMesh(roomId, roster, mySlot) → Promise<node>   (HARDENED)
+     • TURN relay fallback (some mobile carriers block direct UDP)
+     • session id: every signal doc carries sid — stale docs from a failed
+       earlier attempt can never corrupt a fresh handshake
+     • early ICE candidates are buffered until the remote description is set
+     • guest retries its offer once with a version bump before giving up
+     node: { send(m[, slot]), broadcast(m), bind(fn(m, fromSlot)), open, peers(), close() }
      --------------------------------------------------------------- */
+  const ICE_FULL = ICE.concat([
+    { urls: 'turn:openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' },
+    { urls: 'turn:openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject' },
+    { urls: 'turn:openrelay.metered.ca:443?transport=tcp', username: 'openrelayproject', credential: 'openrelayproject' }
+  ]);
+
   function starMesh(roomId, roster, mySlot) {
     return new Promise((resolve, reject) => {
       const db = fs(); if (!db) return reject(new Error('no-firebase'));
       const sig = db.collection('tv_p2p_rooms').doc(normRoom(roomId)).collection('sig');
       const isHost = mySlot === 0;
-      const chans = {};                     /* slot → datachannel */
-      let bound = null, settled = false;
-      const need = isHost ? roster.length - 1 : 1;
-      const done = setTimeout(() => { if (!settled) { settled = true; reject(new Error('mesh-timeout')); } }, 15000);
-      const wire = (slot, c) => {
-        chans[slot] = c;
-        c.onmessage = ev => { if (bound) { try { bound(JSON.parse(ev.data), slot); } catch (e) {} } };
-        c.onopen = () => {
-          if (settled) return;
-          if (isHost && Object.keys(chans).filter(k => chans[k].readyState === 'open').length >= need) {
-            settled = true; clearTimeout(done); resolve(mkNode());
-          }
-          if (!isHost) { settled = true; clearTimeout(done); resolve(mkNode()); }
-        };
-        c.onclose = () => { if (chans[slot] === c) delete chans[slot]; };
+      const chans = {}, pcs = [], unsubs = [];
+      let bound = null, settled = false, SID = '', ver = 1;
+      let timer = null;
+
+      const finish = ok => {
+        clearTimeout(timer);
+        unsubs.forEach(u => { try { u(); } catch (e) {} });
+        unsubs.length = 0;
+        if (ok) resolve(mkNode());
+        else {
+          for (const k in chans) { try { chans[k].close(); } catch (e) {} }
+          pcs.forEach(pc => { try { pc.close(); } catch (e) {} });
+          reject(new Error('mesh-timeout'));
+        }
       };
       const mkNode = () => ({
         send: (m, slot) => {
-          const s = slot === undefined ? null : chans[slot];
           const j = JSON.stringify(m);
-          if (s && s.readyState === 'open') { try { s.send(j); } catch (e) {} }
-          else if (slot === undefined) for (const k in chans) { const c2 = chans[k]; if (c2.readyState === 'open') { try { c2.send(j); } catch (e) {} } }
+          if (slot !== undefined) { const c2 = chans[slot]; if (c2 && c2.readyState === 'open') { try { c2.send(j); } catch (e) {} } }
+          else for (const k in chans) { const c3 = chans[k]; if (c3.readyState === 'open') { try { c3.send(j); } catch (e) {} } }
         },
         broadcast(m) { this.send(m); },
         bind: fn => { bound = fn; },
         get open() { return Object.keys(chans).some(k => chans[k].readyState === 'open'); },
         peers: () => Object.keys(chans).filter(k => chans[k].readyState === 'open').map(Number),
-        close() { for (const k in chans) { try { chans[k].close(); } catch (e) {} } pcs.forEach(pc => { try { pc.close(); } catch (e) {} }); }
+        close() {
+          settled = true;                                      /* stop retries */
+          for (const k in chans) { try { chans[k].close(); } catch (e) {} }
+          pcs.forEach(pc => { try { pc.close(); } catch (e) {} });
+          cleanupMyDocs();
+        }
       });
-      const pcs = [];
-      const mkPC = () => {
-        const pc = new (w.RTCPeerConnection || w.webkitRTCPeerConnection)({ iceServers: ICE });
+      const cleanupMyDocs = () => {
+        try {
+          sig.where('by', '==', mySlot).get().then(q => q.forEach(dd => dd.ref.delete().catch(() => {}))).catch(() => {});
+        } catch (e) {}
+      };
+      const wire = (slot, c) => {
+        chans[slot] = c;
+        c.onmessage = ev => { if (bound) { try { bound(JSON.parse(ev.data), slot); } catch (e) {} } };
+        c.onopen = () => {
+          if (settled) return;
+          const need = roster.length - 1;
+          if (!isHost) { settled = true; finish(true); }
+          else if (Object.keys(chans).filter(k => chans[k].readyState === 'open').length >= need) { settled = true; finish(true); }
+        };
+        c.onclose = () => { if (chans[slot] === c) delete chans[slot]; };
+      };
+      const mkPC = slot => {
+        const pc = new (w.RTCPeerConnection || w.webkitRTCPeerConnection)({ iceServers: ICE_FULL });
         pcs.push(pc);
+        pc.pendingIce = [];
+        pc.remoteSet = false;
         pc.onicecandidate = ev => {
           if (ev.candidate) sig.doc('p' + mySlot + '-ice-' + Math.random().toString(36).slice(2, 7))
-            .set({ v: ev.candidate.toJSON(), by: mySlot }).catch(() => {});
+            .set({ v: ev.candidate.toJSON(), by: mySlot, sid: SID }).catch(() => {});
         };
+        pc.addIce = cand => {
+          if (!pc.remoteSet) pc.pendingIce.push(cand);
+          else pc.addIceCandidate(cand).catch(() => {});
+        };
+        pc.drainIce = () => { pc.remoteSet = true; const q = pc.pendingIce.splice(0); q.forEach(c2 => pc.addIceCandidate(c2).catch(() => {})); };
         return pc;
       };
+
+      const armTimeout = ms => { clearTimeout(timer); timer = setTimeout(() => {
+        if (settled) return;
+        if (!isHost && ver === 1) {                            /* guest: one fresh retry */
+          ver = 2;
+          try {
+            const pc0 = pcs[0]; if (pc0) { try { pc0.close(); } catch (e) {} }
+            pcs.length = 0;
+            startGuest();
+          } catch (e) { finish(false); }
+          armTimeout(18000);
+          return;
+        }
+        finish(false);
+      }, ms); };
+
+      const route = doc => {                                   /* one listener routes every signal doc */
+        const id = doc.id, d = doc.data();
+        if (!d || d.sid !== SID) return;                       /* stale session — ignore */
+        if (isHost) {
+          const m = /^p(\d+)-(offer|answer|ice-)/.exec(id);
+          if (!m) return;
+          const s = +m[1];
+          if (m[2] === 'offer') hostAnswer(s, d);
+        } else {
+          if (id === 'p' + mySlot + '-answer' && pcs[0] && pcs[0].signalingState !== 'stable') {
+            pcs[0].setRemoteDescription(d.v).then(() => pcs[0].drainIce()).catch(() => {});
+          } else if (id.indexOf('p0-ice-') === 0 && pcs[0]) pcs[0].addIce(d.v);
+        }
+      };
+
+      let lastOfferVer = {};
+      function hostAnswer(s, d) {
+        if (chans[s] && chans[s].readyState === 'open') return;
+        if ((d.ver || 1) <= (lastOfferVer[s] || 0)) return;
+        lastOfferVer[s] = d.ver || 1;
+        const pc = mkPC(s);
+        pc.ondatachannel = ev => wire(s, ev.channel);
+        pc.setRemoteDescription(d.v)
+          .then(() => { pc.drainIce(); return pc.createAnswer(); })
+          .then(ans => pc.setLocalDescription(ans))
+          .then(() => sig.doc('p' + s + '-answer').set({ v: pc.localDescription.toJSON(), by: mySlot, sid: SID, ver: d.ver || 1 }))
+          .catch(() => {});
+      }
+
+      function startGuest() {
+        const pc = mkPC(0);
+        wire(0, pc.createDataChannel('duel-' + mySlot + '-' + ver, { ordered: false, maxRetransmits: 0 }));
+        pc.createOffer().then(off => pc.setLocalDescription(off))
+          .then(() => sig.doc('p' + mySlot + '-offer').set({ v: pc.localDescription.toJSON(), by: mySlot, sid: SID, ver }))
+          .catch(() => {});
+      }
+
+      /* session id: host publishes, guests await (stale signaling is ignored) */
       if (isHost) {
-        roster.forEach(r => {
-          if (r.slot === 0) return;
-          const s = r.slot;
-          const off = sig.doc('p' + s + '-offer');
-          let pc = null, answered = false;
-          const un = off.onSnapshot(os => {
-            const d = os.data();
-            if (!d || answered) return;
-            answered = true;
-            pc = mkPC();
-            pc.ondatachannel = ev => wire(s, ev.channel);
-            pc.setRemoteDescription(d.v)
-              .then(() => pc.createAnswer()).then(ans => pc.setLocalDescription(ans))
-              .then(() => sig.doc('p' + s + '-answer').set({ v: pc.localDescription.toJSON() })).catch(reject);
-            sig.doc('p' + s + '-answer');
-            const unIce = sig.where('by', '==', s).onSnapshot(is2 => {   /* guest ICE */
-              is2.docChanges().forEach(ch => {
-                const dd = ch.doc.data();
-                if (dd.v && dd.v.candidate && pc && pc.remoteDescription) pc.addIceCandidate(dd.v).catch(() => {});
-              });
-            });
-            setTimeout(() => unIce(), 20000);
-          }, () => {});
-          setTimeout(() => un(), 16000);
-        });
+        SID = 'S' + Math.random().toString(36).slice(2, 9);
+        sig.doc('sess').set({ sid: SID, by: 0 }).catch(() => {});
+        unsubs.push(sig.onSnapshot(s2 => s2.docChanges().forEach(ch2 => { if (ch2.type === 'added' || ch2.doc.id.indexOf('-offer') > 0) route(ch2.doc); }), () => {}));
+        armTimeout(22000);
       } else {
-        const pc = mkPC();
-        wire(0, pc.createDataChannel('duel-' + mySlot, { ordered: false, maxRetransmits: 0 }));
-        pc.createOffer().then(off2 => pc.setLocalDescription(off2))
-          .then(() => sig.doc('p' + mySlot + '-offer').set({ v: pc.localDescription.toJSON() })).catch(reject);
-        const unA = sig.doc('p' + mySlot + '-answer').onSnapshot(as => {
-          const d = as.data();
-          if (d && pc.signalingState !== 'stable') pc.setRemoteDescription(d.v).catch(() => {});
-        }, () => {});
-        const unIce = sig.where('by', '==', 0).onSnapshot(is2 => {       /* host ICE */
-          is2.docChanges().forEach(ch => {
-            const dd = ch.doc.data();
-            if (dd.v && dd.v.candidate && pc.remoteDescription) pc.addIceCandidate(dd.v).catch(() => {});
-          });
-        });
-        setTimeout(() => { unA(); unIce(); }, 20000);
+        const t0 = now();
+        const waitSess = setInterval(() => {
+          sig.doc('sess').get().then(dd => {
+            if (settled) { clearInterval(waitSess); return; }
+            if (dd.exists && dd.data() && dd.data().sid) {
+              clearInterval(waitSess);
+              SID = dd.data().sid;
+              unsubs.push(sig.onSnapshot(s2 => s2.docChanges().forEach(ch2 => { if (ch2.type === 'added' || ch2.doc.id.indexOf('-answer') > 0 || ch2.doc.id.indexOf('p0-ice') === 0) route(ch2.doc); }), () => {}));
+              startGuest();
+              armTimeout(22000);
+            }
+          }).catch(() => {});
+          if (now() - t0 > 12000) { clearInterval(waitSess); finish(false); }
+        }, 700);
       }
     });
   }
