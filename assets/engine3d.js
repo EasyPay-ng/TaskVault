@@ -616,6 +616,8 @@ function makeSFX(settings) {
   };
 }
 
+let use2D = false;   /* true when this device renders in software (no WebGL) */
+
 /* ================= MAP STYLES ================= */
 const MAP_STYLE = {
   warehouse: { wall: 'concreteTex', struct: 'metalTex', cover: 'crateTex', ground: 'concrete', sky: ['#7fa8c9', '#d8e2ea'], sun: [.35, .75, .55], fog: .030, props: 'indoor' },
@@ -637,6 +639,7 @@ function buildWorld(E, mapId, S) {
   E.groundQuad(style.ground + 'Tex', -40, -40, S + 40, S + 40, 0.05);
 
   const deco = E.deco, marg = E.marg, size0 = E.size0, gridH = E.grid;
+  const D = use2D ? 1 : 1.3;   /* WebGL draws ~30% richer scatter */
   const spA = w.TVGMaps.spawn(mapId, 'A'), spB = w.TVGMaps.spawn(mapId, 'B');
   const nearSpawn = (x, y) =>
     (Math.abs(x - marg - spA.x) < 4 && Math.abs(y - marg - spA.y) < 4) ||
@@ -650,31 +653,31 @@ function buildWorld(E, mapId, S) {
       const r = rnd();
       if (nearSpawn(x, y)) continue;
       if (inArena) {
-        if (style.props === 'indoor' && r < 0.10) {
+        if (style.props === 'indoor' && r < 0.10 * D) {
           E.box('crateTex', px, 0, pz, 0.9, 0.9, 0.9, 1);
           if (r < 0.04) { E.box('crateTex', px + 0.06, 0.9, pz - 0.05, 0.7, 0.7, 0.7, 1); E.collider(px, pz, 0.55, 1.6); }
           else E.collider(px, pz, 0.55, 0.9);
-        } else if (style.props === 'military' && r < 0.09) {
+        } else if (style.props === 'military' && r < 0.09 * D) {
           E.box('sandbagTex', px, 0, pz, 1.5, 0.75, 0.62, 1);
           E.box('sandbagTex', px, 0.75, pz, 1.3, 0.4, 0.55, 1, 0.9);
           E.collider(px, pz, 0.72, 1.15);
-        } else if (style.props === 'desert' && r < 0.07) {
+        } else if (style.props === 'desert' && r < 0.07 * D) {
           E.box('crateTex', px, 0, pz, 1.0, 1.1, 1.0, 1);
           E.collider(px, pz, 0.6, 1.1);
-        } else if (style.props === 'port' && r < 0.08) {
+        } else if (style.props === 'port' && r < 0.08 * D) {
           E.box('crateTex', px, 0, pz, 1.1, 1.1, 1.1, 1);
           if (r < 0.035) { E.box('metalTex', px, 1.1, pz, 0.8, 0.6, 0.8, 1, 0.9); E.collider(px, pz, 0.62, 1.7); }
           else E.collider(px, pz, 0.62, 1.1);
-        } else if (style.props === 'jungle' && r < 0.16) {
+        } else if (style.props === 'jungle' && r < 0.16 * D) {
           E.box('barkTex', px, 0, pz, 0.42, 2.6, 0.42, 2);
           E.box('foliageTex', px, 2.3, pz, 2.4, 1.3, 2.4, 1, .96);
           E.box('foliageTex', px + (r * 2 - 1) * .5, 3.3, pz - (r - .5), 1.6, 1.0, 1.6, 1, .9);
           E.collider(px, pz, 0.35, 2.6);
-        } else if (style.props === 'trains' && r < 0.05) {
+        } else if (style.props === 'trains' && r < 0.05 * D) {
           E.box('metalTex', px, 0.15, pz, 1.5, 2.4, 4.4, 1);
           E.collider(px, pz, 0.9, 2.4);
         }
-      } else if (r < 0.05) {
+      } else if (r < 0.05 * D) {
         E.box('crateTex', px, 0, pz, 0.9, 0.9, 0.9, 1);
         E.collider(px, pz, 0.55, 0.9);
       }
@@ -893,6 +896,33 @@ function meshSoldier(arr, n, a, sun) {
     p = P(gunF - 0.30, 0.02, gunY - 0.01);
     n = partBox(arr, n, p[0], p[1], p[2], yaw, aimP * 0.4, 0, 0, 0, 0.045, 0.06, 0.18, ATLAS.gun, sun, tint * 0.92);
   }
+  /* ---- v4 detail pass — WebGL only (software renderer keeps the lean v3 list):
+     collar, vest side-pouches, pack side pouches, hydration tube, chin strap,
+     helmet side rails, headset ears, rifle sling ---- */
+  if (!use2D) {
+    p = P(0.03, 0, chestY + 0.16 + bob);                       // collar
+    n = partBox(arr, n, p[0], p[1], p[2], yaw + sway * 0.4, 0, 0, 0.04, 0, 0.30, 0.05, 0.24, shirt, sun, tint * 1.02);
+    p = P(0.03, 0, chestY + 0.012 + bob);                      // vest side pouch row
+    n = partBox(arr, n, p[0], p[1], p[2], yaw + sway * 0.4, 0, 0, 0.055, 0, 0.45, 0.10, 0.30, ATLAS.gear, sun, tint * 0.92);
+    p = P(-0.15, 0.10, chestY + 0.02 + bob);                   // pack side pouch R
+    n = partBox(arr, n, p[0], p[1], p[2], yaw + sway * 0.4, 0, 0, 0, 0, 0.09, 0.17, 0.11, ATLAS.pantsB, sun, tint * 0.88);
+    p = P(-0.15, -0.10, chestY + 0.02 + bob);                  // pack side pouch L
+    n = partBox(arr, n, p[0], p[1], p[2], yaw + sway * 0.4, 0, 0, 0, 0, 0.09, 0.17, 0.11, ATLAS.pantsB, sun, tint * 0.88);
+    p = P(-0.06, 0.14, chestY + 0.13 + bob);                   // hydration tube
+    n = partBox(arr, n, p[0], p[1], p[2], yaw + sway * 0.4 + 0.5, 0, 0, 0, 0, 0.02, 0.24, 0.02, ATLAS.gun, sun, tint * 0.8);
+    p = P(0.05, 0, chestY + 0.02 + bob);                       // rifle sling across chest
+    n = partBox(arr, n, p[0], p[1], p[2], yaw + sway * 0.4 - 0.65, 0, 0, 0, 0, 0.025, 0.52, 0.03, ATLAS.pantsB, sun, tint * 0.85);
+    p = P(0.105, 0, headY - 0.095 + bob * 1.2);                // chin strap
+    n = partBox(arr, n, p[0], p[1], p[2], hy, 0, 0, 0, 0, 0.03, 0.03, 0.17, ATLAS.gun, sun, tint * 0.7);
+    p = P(0.02, 0.132, headY + 0.055 + bob * 1.2);             // helmet rail R
+    n = partBox(arr, n, p[0], p[1], p[2], hy, 0, 0, 0.01, 0, 0.02, 0.045, 0.15, ATLAS.helmetB, sun, tint * 0.95);
+    p = P(0.02, -0.132, headY + 0.055 + bob * 1.2);            // helmet rail L
+    n = partBox(arr, n, p[0], p[1], p[2], hy, 0, 0, 0.01, 0, 0.02, 0.045, 0.15, ATLAS.helmetB, sun, tint * 0.95);
+    p = P(0.045, 0.128, headY - 0.005 + bob * 1.2);            // headset R
+    n = partBox(arr, n, p[0], p[1], p[2], hy, 0, 0, 0, 0, 0.04, 0.065, 0.075, ATLAS.gun, sun, tint * 0.75);
+    p = P(0.045, -0.128, headY - 0.005 + bob * 1.2);           // headset L
+    n = partBox(arr, n, p[0], p[1], p[2], hy, 0, 0, 0, 0, 0.04, 0.065, 0.075, ATLAS.gun, sun, tint * 0.75);
+  }
   return n;
 }
 
@@ -934,10 +964,10 @@ function createGame(cfg) {
 
   /* ---------- GL setup ---------- */
   const cv = cfg.cv;
-  const gl = cv.getContext('webgl', { antialias: false, alpha: false })
+  const gl = cv.getContext('webgl', { antialias: true, alpha: false })
           || cv.getContext('experimental-webgl')
           || null;
-  const use2D = !gl;   // no WebGL? render the SAME 3D game in software on Canvas2D
+  use2D = !gl;   // no WebGL? render the SAME 3D game in software on Canvas2D
   let pMain = null, pSky = null, pPart = null, L = null, SKYU = null, PA = null;
   let skyBuf = null, partBuf = null, dynBuf = null;
   if (gl) {
@@ -1302,6 +1332,7 @@ function createGame(cfg) {
   /* ---------- particles / tracers ---------- */
   const parts = [], tracers = [];
   function puff(x, y, z, col, n, spd, size, grav) {
+    n = use2D ? n : Math.round(n * 1.45);   /* fuller smoke/muzzle on WebGL */
     for (let i = 0; i < n; i++) {
       const a = Math.random() * TAU, v = Math.random() * spd;
       parts.push({
@@ -1312,6 +1343,7 @@ function createGame(cfg) {
     }
   }
   function sparks(x, y, z, n) {
+    n = use2D ? n : Math.round(n * 1.4);
     for (let i = 0; i < n; i++) {
       const a = Math.random() * TAU, v = 2 + Math.random() * 5;
       parts.push({
