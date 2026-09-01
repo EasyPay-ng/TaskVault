@@ -178,6 +178,7 @@
   const normRoom = r => String(r || '').toUpperCase().trim().replace(/[\s]/g, '').replace(/^TV/, '');
   const SLOTS = { '1v1': 2, '2v2': 4, '4v4': 8 };
   const myName = () => (w.TVG && TVG.state && TVG.state.player && TVG.state.player.name) || 'Player';
+  const myId = () => (w.TVG && TVG.uid) ? (TVG.uid() || '') : '';   /* Firestore uid = true identity */
 
   function createRoom(o) {
     o = o || {};
@@ -190,7 +191,7 @@
       return fs().collection('tv_p2p_rooms').doc(roomId).set({
         status: 'waiting', mode, slots: SLOTS[mode], map: o.map || '',
         host: me, hostName: me, codeHash: hash(code),
-        players: [{ name: me, team: 'A', slot: 0, joinedAt: now() }],
+        players: [{ uid: myId(), name: me, team: 'A', slot: 0, joinedAt: now() }],
         createdAt: now(), createdAtSrv: w.firebase.firestore.FieldValue.serverTimestamp()
       }).then(() => ({ ok: true, roomId, code, mode, map: o.map || '' }));
     });
@@ -207,14 +208,17 @@
         if (!d.exists) throw new Error('Room not found — check the ID');
         const v = d.data();
         if (v.status !== 'waiting') throw new Error('Room already full or closed');
-        if (now() - (v.createdAt || 0) > 10 * 60 * 1000) throw new Error('Room expired');
+        if (now() - (v.createdAt || 0) > 10 * 60 * 1000) { await tx.delete(ref); throw new Error('Room expired'); }   /* self-cleaning */
         if (v.codeHash !== hash(code)) throw new Error('Wrong room code');
         const ps = v.players || [];
         if (ps.length >= (v.slots || 2)) throw new Error('Room already full');
-        if (ps.some(x => x.name === me)) throw new Error('already-in');
+        const muid = myId();
+        const mine = ps.findIndex(x => (muid && x.uid === muid) || (!muid && !x.uid && x.name === me));
+        if (mine >= 0) return { rejoin: true, slot: ps[mine].slot, mode: v.mode, map: v.map };   /* same player tapping Join again */
+        if (ps.some(x => x.name === me)) throw new Error('name-taken');                          /* different account, same display name */
         const nA = ps.filter(x => x.team === 'A').length, nB = ps.filter(x => x.team === 'B').length;
         const team = nA <= nB ? 'A' : 'B';            /* auto-balance; host anchors team A */
-        ps.push({ name: me, team, slot: ps.length, joinedAt: now() });
+        ps.push({ uid: muid, name: me, team, slot: ps.length, joinedAt: now() });
         const full = ps.length >= (v.slots || 2);
         await tx.update(ref, { players: ps, status: full ? 'starting' : 'waiting', guestName: me });
         return { mode: v.mode, map: v.map, slot: ps.length - 1 };
@@ -251,6 +255,20 @@
   }
 
   const killRoom = roomId => { if (fs()) { try { fs().collection('tv_p2p_rooms').doc(normRoom(roomId)).delete(); } catch (e) {} } };
+
+  /* guest leaves while waiting: free the slot (fee is refunded by room.html) */
+  function leaveRoom(roomId, name) {
+    if (!fs()) return;
+    const ref = fs().collection('tv_p2p_rooms').doc(normRoom(roomId));
+    fs().runTransaction(async tx => {
+      const d = await tx.get(ref);
+      if (!d.exists) return;
+      const v = d.data();
+      const ps = (v.players || []).filter(x => x.name !== name);
+      if (!ps.length) await tx.delete(ref);
+      else await tx.update(ref, { players: ps, status: ps.length >= (v.slots || 2) ? v.status : 'waiting' });
+    }).catch(() => {});
+  }
 
   /* ---------------------------------------------------------------
      starMesh(roomId, roster, mySlot) → Promise<node>
@@ -348,5 +366,5 @@
     });
   }
 
-  w.TVGP2P = { findOpponent, connect, fsReady, createRoom, joinRoom, waitStart, watchRoom, killRoom, starMesh };
+  w.TVGP2P = { findOpponent, connect, fsReady, createRoom, joinRoom, waitStart, watchRoom, killRoom, leaveRoom, starMesh };
 })(window);
