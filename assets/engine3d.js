@@ -13,6 +13,11 @@
 
 const PI = Math.PI, TAU = PI * 2;
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+function hsl2rgb(h, s, l) {
+  h = ((h % 360) + 360) % 360 / 360; s /= 100; l /= 100;
+  const f = n => { const k = (n + h * 12) % 12; return l - s * Math.min(l, 1 - l) * Math.max(-1, Math.min(k - 3, 9 - k, 1)); };
+  return [f(0) * 255 | 0, f(8) * 255 | 0, f(4) * 255 | 0];
+}
 
 /* ================= MATH ================= */
 const M4 = {
@@ -222,13 +227,15 @@ const ATLAS = {
   helmetA: [.52, .26, .76, .50], helmetB: [.78, .26, 1, .50], boot: [.00, .52, .24, .76],
   gun: [.26, .52, .76, .70], gear: [.78, .52, 1, .76]
 };
-function soldierAtlas(teamHue, foe) {
+function soldierAtlas(teamHue, foe, allyHue) {
   return texCanvas(256, (x, s) => {
     const reg = (r, fn) => { x.save(); x.beginPath(); x.rect(r[0] * s, r[1] * s, (r[2] - r[0]) * s, (r[3] - r[1]) * s); x.clip(); fn(); x.restore(); };
     const spots = ['rgba(20,26,18,.5)', 'rgba(90,96,70,.45)', 'rgba(0,0,0,.35)'];
+    const allyShirt = foe ? '#8a4a3c' : (allyHue != null ? `hsl(${allyHue},34%,32%)` : '#3f5a8a');
+    const allyHelm = foe ? '#7d3b30' : (allyHue != null ? `hsl(${allyHue},30%,24%)` : '#31456e');
     reg(ATLAS.skin, () => { x.fillStyle = '#c58e63'; x.fillRect(0, 0, s, s); noiseOver(x, s, 150, .08, true); });
     reg(ATLAS.shirtA, () => camoFill(x, s, foe ? `hsl(${teamHue},30%,44%)` : `hsl(${teamHue},36%,38%)`, spots));
-    reg(ATLAS.shirtB, () => camoFill(x, s, foe ? '#8a4a3c' : '#3f5a8a', ['rgba(0,0,0,.4)', 'rgba(255,255,255,.12)']));
+    reg(ATLAS.shirtB, () => camoFill(x, s, allyShirt, ['rgba(0,0,0,.4)', 'rgba(255,255,255,.12)']));
     reg(ATLAS.pantsA, () => camoFill(x, s, '#4c5238', ['rgba(0,0,0,.45)', 'rgba(120,118,86,.4)']));
     reg(ATLAS.pantsB, () => camoFill(x, s, '#3a4030', ['rgba(0,0,0,.45)']));
     reg(ATLAS.vest, () => {
@@ -246,7 +253,7 @@ function soldierAtlas(teamHue, foe) {
       x.fillStyle = 'rgba(255,255,255,.08)'; x.fillRect(0, 0, s, 26);
     });
     reg(ATLAS.helmetB, () => {
-      x.fillStyle = foe ? '#7d3b30' : '#31456e'; x.fillRect(0, 0, s, s); noiseOver(x, s, 260, .2, true);
+      x.fillStyle = allyHelm; x.fillRect(0, 0, s, s); noiseOver(x, s, 260, .2, true);
       x.fillStyle = 'rgba(255,255,255,.08)'; x.fillRect(0, 0, s, 26);
     });
     reg(ATLAS.boot, () => {
@@ -1021,8 +1028,16 @@ function createGame(cfg) {
   makeTex('foliageTex', TEXGEN.foliage());
   makeTex('sandbagTex', TEXGEN.sandbag());
   ['concrete', 'asphalt', 'sand', 'grass', 'dirt', 'steel'].forEach(k => makeTex(k + 'Tex', TEXGEN.ground(k)));
+  /* the player's equipped operator tints their whole squad (allies) and
+     applies the character perks (scout +8% speed · viper faster reload) */
+  const CHAR = w.TVG && TVG.character(TVG.state.equipped.character);
+  const allyHue = CHAR ? CHAR.hue : 210;
+  const charMoveK = CHAR && CHAR.id === 'scout' ? 1.08 : 1;
+  const reloadMs = CHAR && CHAR.id === 'viper' ? 1100 : 1500;
   makeTex('soldierFoe', soldierAtlas(8, true));
-  makeTex('soldierAlly', soldierAtlas(210, false));
+  makeTex('soldierAlly', soldierAtlas(210, false, allyHue));
+  SOLDIER_COL.shirtB_ally = hsl2rgb(allyHue, 34, 32);
+  SOLDIER_COL.helmetB_ally = hsl2rgb(allyHue, 30, 24);
 
   /* ---------- world geometry batching ---------- */
   const SUN = [0.35, 0.75, 0.55];
@@ -1186,7 +1201,7 @@ function createGame(cfg) {
   const player = {
     name: MYNAME, team: 'A', x: sp.x, z: sp.y, a: -0.8, pitch: 0,
     hp: 100, ammo: 0, kills: 0, deaths: 0, hs: 0, shots: 0, hits: 0,
-    reloading: false, jz: 0, vz: 0, crouch: false, slot: 'primary',   // jz = jump height
+    reloading: false, jz: 0, vz: 0, crouch: false, crouchT: 0, slot: 'primary',   // jz = jump height
     x3: sp.x, z3: sp.y, y3: 0, a3: -0.8, animPh: 0, animSpd: 0, aimP: 0, foe: false
   };
   player.ammo = Math.min(cfg.gun.ammo, TVG.state.wallet.ammo | 0);
@@ -1230,7 +1245,7 @@ function createGame(cfg) {
     player.ammo += take; TVG.state.wallet.ammo -= take;
     return take;
   }
-  const eyeY = () => 1.58 * (player.crouch ? 0.74 : 1) + player.jz;
+  const eyeY = () => 1.58 * (1 - (player.crouchT || 0) * 0.26) + player.jz;
 
   /* ---------- difficulty (base × DDA toward 40% win rate) ---------- */
   const base = Object.assign({ react: .3, acc: .5, sight: 12, speed: 1.5, dmgLo: 7, dmgHi: 15, strafe: .75, retreat: 35 }, cfg.diff);
@@ -1454,6 +1469,20 @@ function createGame(cfg) {
   let recoil = 0, kickX = 0, kickY = 0, kickRot = 0, reloadAnim = 0;
   let bob = 0, stepAcc = 0, curVel = 0, playerVel = 0, swayX = 0, swayY = 0, hbT = 0;
 
+  /* ---------- ADS (aim down sights) ---------- */
+  let ads = false, adsF = 0;   // adsF animates 0→1 (zoom + tighter spread)
+
+  /* ---------- ambient environment particles (per-map atmosphere) ---------- */
+  const AMBIENT = {
+    warehouse: { c: [0.72, 0.70, 0.66], size: 0.05,  spd: 0.25, fall: -0.02, rate: 0.5 },
+    military:  { c: [0.55, 0.58, 0.52], size: 0.30,  spd: 0.18, fall: 0.10,  rate: 0.12 },
+    desert:    { c: [0.86, 0.72, 0.48], size: 0.035, spd: 0.55, fall: -0.05, rate: 0.75 },
+    port:      { c: [0.75, 0.84, 0.92], size: 0.06,  spd: 0.35, fall: -0.08, rate: 0.4 },
+    jungle:    { c: [0.42, 0.62, 0.34], size: 0.05,  spd: 0.30, fall: 0.10,  rate: 0.5 },
+    trainyard: { c: [0.80, 0.70, 0.55], size: 0.04,  spd: 0.30, fall: -0.03, rate: 0.55 }
+  };
+  let ambT = 0;
+
   function meleeAttack() {
     if (meleeCd > 0 || NET) return;             /* duels are rifle-only: melee has no net authority */
     meleeCd = 0.55;
@@ -1481,10 +1510,18 @@ function createGame(cfg) {
     env.flashPos = [fx, eyeY(), fz]; env.flashI = 1.5;
     HUD.ammo();
 
-    const spread = 0.012 + curVel * 0.006 + (player.crouch ? -0.004 : 0) + (player.jz > 0.05 ? 0.03 : 0);
+    const spread = (0.012 + curVel * 0.006 + (player.crouch ? -0.004 : 0) + (player.jz > 0.05 ? 0.03 : 0)) * (1 - adsF * 0.55);
     const a = player.a + (Math.random() - 0.5) * spread * 2;
     const pitch = player.pitch + (Math.random() - 0.5) * spread;
     const dx = Math.cos(a) * Math.cos(pitch), dz = Math.sin(a) * Math.cos(pitch), dy = Math.sin(pitch);
+
+    /* muzzle flash core + ejected shell casing */
+    const fy0 = eyeY() - 0.14;
+    parts.push({ x: fx + Math.cos(a) * 0.17, y: fy0, z: fz + Math.sin(a) * 0.17, vx: 0, vy: 0, vz: 0,
+      life: 0.055, tl: 0, size: 0.13 + Math.random() * 0.07, r: 1, g: 0.86, b: 0.5, a: 0.95, grav: 0 });
+    const sideA = player.a + (Math.random() < .5 ? 1.57 : -1.57);
+    parts.push({ x: fx, y: fy0 + 0.04, z: fz, vx: Math.cos(sideA) * 1.5 + (Math.random() - .5) * .6, vy: 1.7, vz: Math.sin(sideA) * 1.5,
+      life: 0.8, tl: 0, size: 0.021, r: 0.95, g: 0.78, b: 0.35, a: 1, grav: -9 });
 
     let dist = 60, hitY = eyeY();
     let x = player.x, z = player.z, y = eyeY();
@@ -1538,6 +1575,7 @@ function createGame(cfg) {
       player.kills++; if (head) player.hs++;
       scoreA++;
       sfx.kill();
+      shake = Math.max(shake, head ? 0.5 : 0.38);   // kill confirmation kick
       HUD.feed(MYNAME, e.name, head, zoneKill);
       if (NET) {
         netEvOut.push({ k: [MYNAME, e.name, head ? 1 : 0] });
@@ -1699,7 +1737,7 @@ function createGame(cfg) {
       player.reloading = false;
       HUD.reloadTxt('READY'); HUD.ammo();
       sfx.reloadOut();
-    }, 1500);
+    }, reloadMs);
   }
 
   /* ---------- BOT AI ---------- */
@@ -1860,7 +1898,7 @@ function createGame(cfg) {
       placement: cfg.mode === 'br' ? (won ? 1 : myPlace) : 0,
       lobbySize: cfg.mode === 'br' ? actors.length + 1 : ((cfg.teamA || []).length + (cfg.teamB || []).length),
       coins: 0,
-      cash: (NET && won && won !== 'DRAW') ? TVG.WIN_REWARD : 0,
+      cash: (cfg.paid && !forfeit && won === true) ? TVG.WIN_REWARD : 0,
       xp: forfeit ? 0 : (won ? 180 : 70) + player.kills * 6,
       duration: (cfg.mode === 'br' ? 420 : 300) - Math.floor(time)
     };
@@ -1880,6 +1918,7 @@ function createGame(cfg) {
   /* ---------- rendering ---------- */
   const FOV_BASE = PI / 3;
   let fov = FOV_BASE;
+  let curFov = FOV_BASE;   // fov + ADS zoom, recomputed every frame
   const foeArr = new Float32Array(6 * 6 * 1500);
   const allyArr = new Float32Array(6 * 6 * 1500);
   const vmArr = new Float32Array(6 * 6 * 60);
@@ -2018,17 +2057,19 @@ function createGame(cfg) {
     let n = 0;
     const bobY = Math.abs(Math.cos(bob)) * 0.02;
     const bobX = Math.sin(bob) * 0.012;
-    const dip = reloadAnim * reloadAnim * 0.24 + switchCd * 0.5;
+    const swT = switchCd > 0 ? 1 - switchCd / 0.45 : 0;   // 0→1 across the swap window
+    const swK = Math.sin(swT * PI);                        // bell curve: swing out & back
+    const dip = reloadAnim * reloadAnim * 0.24 + swK * 0.30;
     const yaw = player.a, pitch = player.pitch;
     const sideX = Math.cos(yaw + PI / 2), sideZ = Math.sin(yaw + PI / 2);
     const meleeMode = player.slot === 'melee';
     const wid = meleeMode ? (WPN.melee && WPN.melee.id) : CUR.id;
     const oneHand = wid === 'glock18' || wid === 'deagle';
-    const side = meleeMode || oneHand ? 0.20 : 0.15;
+    const side = (meleeMode || oneHand ? 0.20 : 0.15) + swK * 0.12;
     const ox = player.x + Math.cos(yaw) * 0.30 + sideX * (side + bobX);
     const oz = player.z + Math.sin(yaw) * 0.30 + sideZ * (side + bobX);
     const oy = eyeY() - (oneHand || meleeMode ? 0.13 : 0.17) + bobY - dip;   // draw rises from the hip, never drops from above
-    const gy = PI / 2 - yaw - 0.05 - kickRot;
+    const gy = PI / 2 - yaw - 0.05 - kickRot + swK * 0.8;
     const G = ATLAS.gun, SK = ATLAS.skin, VT = ATLAS.vest;
 
     if (meleeMode) {
@@ -2193,12 +2234,12 @@ function createGame(cfg) {
     const shx = (Math.random() - 0.5) * shake * 0.05;
     const shp = (Math.random() - 0.5) * shake * 0.04;
     const eye = [player.x, eyeY(), player.z];
-    const vp = M4.mul(M4.persp(fov, asp, 0.05, 140), M4.view(eye[0], eye[1], eye[2], player.pitch + shp, player.a + shx));
+    const vp = M4.mul(M4.persp(curFov, asp, 0.05, 140), M4.view(eye[0], eye[1], eye[2], player.pitch + shp, player.a + shx));
     const cy = Math.cos(player.a), sy = Math.sin(player.a), cp = Math.cos(player.pitch), sp = Math.sin(player.pitch);
     const fwd = [cy * cp, sp, sy * cp];
     const right = [-sy, 0, cy];
     const up = [-cy * sp, cp, -sy * sp];
-    const tanF = Math.tan(fov / 2);
+    const tanF = Math.tan(curFov / 2);
 
     const PRJ = (px, py, pz) => {
       const x = vp[0] * px + vp[4] * py + vp[8] * pz + vp[12];
@@ -2383,7 +2424,7 @@ function createGame(cfg) {
     const shx = (Math.random() - 0.5) * shake * 0.05;
     const shp = (Math.random() - 0.5) * shake * 0.04;
     const eye = [player.x, eyeY(), player.z];
-    const vp = M4.mul(M4.persp(fov, asp, 0.05, 140), M4.view(eye[0], eye[1], eye[2], player.pitch + shp, player.a + shx));
+    const vp = M4.mul(M4.persp(curFov, asp, 0.05, 140), M4.view(eye[0], eye[1], eye[2], player.pitch + shp, player.a + shx));
 
     const cy = Math.cos(player.a), sy = Math.sin(player.a), cp = Math.cos(player.pitch), sp = Math.sin(player.pitch);
     const fwd = [cy * cp, sp, sy * cp];
@@ -2458,6 +2499,7 @@ function createGame(cfg) {
     alive: () => cfg.hud.alive && cfg.hud.alive(aliveCount(), Math.max(0, zone.next), zone.state,
       Math.hypot(player.x - zone.cx, player.z - zone.cz) > zone.r),
     reloadTxt: s => cfg.hud.reloadTxt(s),
+    spread: k => cfg.hud.spread && cfg.hud.spread(k),
     feed: (a, b, head, z) => cfg.feed(a, b, head, z),
     hitmark: cfg.hitmark,
     hurt: cfg.hurtFlash
@@ -2474,8 +2516,10 @@ function createGame(cfg) {
     if (running) {
       const ix = IN.mv.x + IN.kx, iz = IN.mv.y + IN.ky;
       const moving = Math.abs(ix) > 0.1 || Math.abs(iz) > 0.1;
-      const moveSpd = (IN.sprint ? 4.3 : 2.8) * (player.crouch ? 0.55 : 1);
-      curVel += (moving ? moveSpd - curVel : -curVel) * Math.min(1, dt * 10);
+      const airborne = player.jz > supportAt(player.x, player.z, player.jz) + 0.05;
+      const sprintK = (IN.sprint && adsF < 0.5) ? 1.55 : 1;
+      const moveSpd = 2.8 * sprintK * charMoveK * (player.crouch ? 0.55 : 1) * (1 - adsF * 0.38) * (airborne ? 0.72 : 1);
+      curVel += (moving ? moveSpd - curVel : -curVel) * Math.min(1, dt * (airborne ? 6 : 10));
       const spd = curVel * dt;
       if (moving) {
         const fw = -iz, st = ix;
@@ -2502,6 +2546,7 @@ function createGame(cfg) {
 
       {
         const gh = supportAt(player.x, player.z, player.jz);
+        player.crouchT += ((player.crouch ? 1 : 0) - player.crouchT) * Math.min(1, dt * 12);   // smooth duck
         if (player.crouch) { player.vz = 0; player.jz = gh; }
         else {
           const wasAir = player.jz > gh + 0.02;
@@ -2570,6 +2615,22 @@ function createGame(cfg) {
       recoil += (0 - recoil) * Math.min(1, dt * 14);
       shake = Math.max(0, shake - dt * 1.6);
       fov += (((IN.sprint && moving) ? FOV_BASE * 1.08 : FOV_BASE) - fov) * Math.min(1, dt * 8);
+      adsF += ((ads && player.slot !== 'melee' ? 1 : 0) - adsF) * Math.min(1, dt * 11);
+      curFov = fov - adsF * ((player.slot !== 'melee' && CUR && CUR.id === 'awp') ? 0.62 : 0.31);
+      HUD.spread(0.85 + curVel * 0.12 + (player.jz > 0.05 ? 0.3 : 0) + adsF * 0.3 + kickY * 0.012);
+      /* per-map ambient atmosphere (dust, leaves, smoke, spray…) */
+      ambT -= dt;
+      if (ambT <= 0 && parts.length < 600) {
+        ambT = 0.16;
+        const A = AMBIENT[cfg.mapId] || AMBIENT.warehouse;
+        const ang = Math.random() * TAU, rr = 4 + Math.random() * 14;
+        parts.push({
+          x: player.x + Math.cos(ang) * rr, y: 0.3 + Math.random() * 4.5, z: player.z + Math.sin(ang) * rr,
+          vx: (Math.random() - .5) * A.spd * 2, vy: A.fall, vz: (Math.random() - .5) * A.spd * 2,
+          life: 2.5 + Math.random() * 3, tl: 0, size: A.size * (0.7 + Math.random() * 0.8),
+          r: A.c[0], g: A.c[1], b: A.c[2], a: 0.15, grav: 0
+        });
+      }
       swayX += (0 - swayX) * Math.min(1, dt * 7);
       swayY += (0 - swayY) * Math.min(1, dt * 7);
       kickX += (0 - kickX) * Math.min(1, dt * 11);
@@ -2609,7 +2670,11 @@ function createGame(cfg) {
       player.vz = 6.0; sfx.jump();
     },
     isCrouched: () => !!player.crouch,
-    setCrouch(on) { player.crouch = !!on; if (on) { player.z = 0; player.vz = 0; } },
+    setCrouch(on) {
+      player.crouch = !!on;
+      if (on) { player.vz = 0; player.jz = Math.min(player.jz, supportAt(player.x, player.z, player.jz) + 0.01); }
+    },
+    setAds(v) { ads = !!v; },
     nade() {
       if (nadeCd > 0 || !running) return;
       nadeCd = 8;

@@ -42,8 +42,9 @@
       <div class="card" style="display:flex;gap:12px;align-items:center">
         <div class="row-icon" style="background:#FEF6E7;color:#F5A524"><i class="ri-copper-coin-fill"></i></div>
         <div style="flex:1">
-          <h4 style="font-size:11.5px;font-weight:700;color:var(--text-dark)">Estimated reward</h4>
-          <p style="font-size:10px;color:var(--text-light)" id="rewardHint">Win: 250 coins · 180 XP</p>
+          <h4 style="font-size:11.5px;font-weight:700;color:var(--text-dark)" id="rewardTitle">Entry &amp; reward</h4>
+          <p style="font-size:10px;color:var(--text-light)" id="rewardHint">Pick a match type…</p>
+          <p style="font-size:10px;color:var(--text-light);margin-top:4px" id="feeHint"></p>
         </div>
       </div>
     </div>
@@ -84,6 +85,21 @@ const DESCS = {
   'Free For All':'Every player for themselves. Highest kills wins.'
 };
 const REW = { '1v1':[250,180], '2v2':[400,260], '4v4':[650,420] };
+const isTraining = flow === 'training';
+
+function setReward(id) {
+  const r = REW[id] || REW['1v1'];
+  rewardTitle.textContent = isTraining ? 'Training reward' : 'Entry & reward';
+  rewardHint.textContent = isTraining
+    ? `Free: ${TVG.fmt(r[0])} coins · ${r[1]} XP`
+    : `Win: $${TVG.WIN_REWARD.toFixed(2)} to balance · ${TVG.fmt(r[0])} coins · ${r[1]} XP`;
+  feeHint.textContent = isTraining
+    ? 'No entry fee · no cash — perfect for practice.'
+    : `Entry fee $${TVG.ENTRY_FEE.toFixed(2)} · win pays $${TVG.WIN_REWARD.toFixed(2)} to your TaskVault balance (recorded in your history).`;
+}
+feeHint.textContent = isTraining
+  ? 'Training is free — no entry fee, no cash.'
+  : `Entry fee $${TVG.ENTRY_FEE.toFixed(2)} · win pays $${TVG.WIN_REWARD.toFixed(2)} to your TaskVault balance.`;
 
 gameMode.onchange = () => modeDesc.textContent = DESCS[gameMode.value];
 
@@ -93,8 +109,7 @@ modeList.querySelectorAll('.select-item').forEach(el => {
     el.classList.add('selected');
     picked = el.dataset.id;
     confirmBtn.disabled = false;
-    const r = REW[picked];
-    rewardHint.textContent = `Win: ${TVG.fmt(r[0])} coins · ${r[1]} XP`;
+    setReward(picked);
   };
 });
 

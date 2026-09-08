@@ -149,7 +149,7 @@ canvas#cv{position:absolute;inset:0;width:100%;height:100%;display:block;touch-a
   <div id="cross"></div>
   <div id="dmg"></div>
   <div id="zoneWarn"><i class="ri-navigation-fill"></i> OUTSIDE THE ZONE — MOVE TO SAFETY</div>
-  <div id="dhint">Mouse look · L-click fire · 1/2/3 or Q = swap weapon · G = grenade · Space = jump onto cover · R reload · C crouch</div>
+  <div id="dhint">Mouse look · L-click fire · RMB = aim · 1/2/3 or Q = swap weapon · G = grenade · Space = jump · R reload · C crouch</div>
 
   <div id="stick" class="hb"><div id="knob"></div></div>
 
@@ -167,6 +167,7 @@ canvas#cv{position:absolute;inset:0;width:100%;height:100%;display:block;touch-a
   <div id="pad">
     <div style="display:flex;flex-direction:column;gap:9px">
       <div class="pb sm hb" id="btnSwap"><i class="ri-shuffle-line"></i></div>
+      <div class="pb sm hb" id="btnAds" title="Aim"><i class="ri-focus-3-fill"></i></div>
       <div class="pb sm hb" id="btnNade"><i class="ri-bomb-fill"></i></div>
       <div class="pb sm hb" id="btnCrouch"><i class="ri-arrow-down-s-fill"></i></div>
       <div class="pb sm hb" id="btnMusic" title="Music on/off"><i class="ri-music-2-line"></i></div>
@@ -190,17 +191,18 @@ canvas#cv{position:absolute;inset:0;width:100%;height:100%;display:block;touch-a
   </div>
 </div>
 
-<script src="assets/maps.js?v=12"></script>
-<script src="assets/game.js?v=12"></script>
-<script src="assets/p2p.js?v=12"></script>
-<script src="assets/engine3d.js?v=12"></script>
+<script src="assets/maps.js?v=13"></script>
+<script src="assets/game.js?v=13"></script>
+<script src="assets/p2p.js?v=13"></script>
+<script src="assets/engine3d.js?v=13"></script>
 <script>
 /* ============================================================
    MATCH — glue between the app state and the 3D engine
    ========================================================== */
-(async () => {          /* async boot: live duels connect to the peer before the engine starts */
+(async () => {          /* bot-only boot: every match is player vs AI (fixed hard) */
 const M = TVG.state.match;
 if (!M || !M.roster) location.replace('match-type.html');
+delete M.room;          /* live rooms retired — matches are fully player vs AI now */
 
 const MAPDEF = TVG.map(M.map);
 const GUN = TVG.weapon(TVG.state.equipped.primary);
@@ -221,7 +223,14 @@ if (isBR) {
 
 /* ---------- HUD bridge ---------- */
 const hud = {
-  ammo(n, max, res) { ammoNow.textContent = n; reserveTxt.textContent = ' · ' + res + ' res'; },
+  ammo(n, max, res) {
+    ammoNow.textContent = n; reserveTxt.textContent = ' · ' + res + ' res';
+    ammoNow.style.color = (max > 0 && n <= Math.ceil(max * 0.25)) ? '#EF4444' : '#333';
+  },
+  spread(k) {
+    const s = Math.round(22 * Math.min(3, Math.max(0.7, k)));
+    cross.style.width = s + 'px'; cross.style.height = s + 'px';
+  },
   weapon(name, slot) {
     gunName.textContent = name + (slot === 'melee' ? ' 🔪' : '');
     ammoMax.textContent = slot === 'melee' ? '—' : ammoMax.textContent;
@@ -272,9 +281,12 @@ function hurtFlash() {
 /* ---------- end-of-match → economy ---------- */
 function onEnd(r) {
   if (document.pointerLockElement) document.exitPointerLock();
-  if (r.cash) TVG.adjustCash(r.cash);
-  if (typeof TVG.recordOutcome === 'function') TVG.recordOutcome(r.won);
-  try { if (window.__netNode) { window.__netNode.close(); } clearInterval(window.__p2pWatch); } catch (err) {}
+  if (r.cash) {
+    TVG.adjustCash(r.cash);
+    TVG.logActivity('game', 'Match win reward', r.cash);   /* → Recent Activity on the dashboard */
+    TVG.toast('+' + TVG.money(r.cash) + ' credited to your balance', 'success');
+  }
+  if (typeof TVG.recordOutcome === 'function') TVG.recordOutcome(r.won === true);
   TVG.state.lastResult = r;
   TVG.bumpMission('d1', 1); TVG.bumpMission('w1', 1);
   if (r.won) { TVG.bumpMission('d3', 1); TVG.bumpMission('w3', 1); }
@@ -282,88 +294,14 @@ function onEnd(r) {
   setTimeout(() => location.href = 'result.html', 500);
 }
 
-/* ---------- boot engine ---------- */
+/* ---------- boot engine (fully player vs AI · fixed hard difficulty) ---------- */
 let game = null;
 try {
   if (typeof TVG3D === 'undefined' || typeof TVG3D.createGame !== 'function') {
     throw new Error('ENGINE_LOAD');
   }
-  const DIFF_TABLE = {
-    easy:   { react: .55, acc: .32, sight: 9,  speed: 1.35, dmgLo: 5,  dmgHi: 11, strafe: .5,  retreat: 40 },
-    normal: { react: .30, acc: .50, sight: 12, speed: 1.5,  dmgLo: 7,  dmgHi: 15, strafe: .75, retreat: 35 },
-    hard:   { react: .18, acc: .66, sight: 15, speed: 1.65, dmgLo: 8,  dmgHi: 18, strafe: .9,  retreat: 30 },
-    insane: { react: .10, acc: .82, sight: 20, speed: 1.8,  dmgLo: 9,  dmgHi: 21, strafe: 1.0, retreat: 25 }
-  };
-  /* ---------- peer helpers ---------- */
-  function p2pWait(label) {
-    return new Promise(res => {
-      const ov = document.createElement('div');
-      ov.style.cssText = 'position:absolute;inset:0;z-index:50;background:rgba(8,10,14,.88);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;font:600 13px system-ui;color:#e8e8f0';
-      ov.innerHTML = '<div style="font-size:22px">⚔️</div><div>' + (label || 'Connecting…') + '</div>' +
-        '<div style="width:120px;height:3px;background:#262b36;border-radius:2px;overflow:hidden">' +
-        '<div style="width:40%;height:100%;background:#ffb35c;animation:p2pspin 1s infinite alternate"></div></div>' +
-        '<style>@keyframes p2pspin{from{transform:translateX(-100%)}to{transform:translateX(280%)}}</style>';
-      document.body.appendChild(ov);
-      const link = (window.__P2P_TEST !== undefined)
-        ? Promise.resolve(window.__P2P_TEST)                       /* test loopback */
-        : TVGP2P.starMesh(M.room.roomId, M.room.roster, M.room.mySlot);   /* WebRTC star via Firestore signaling */
-      link.then(node => { ov.remove(); res(node); }).catch(() => {
-        /* direct link failed (both sides blocked). Refund the entry — never dump a
-           room match into a silent bot game. */
-        try { TVG.adjustCash(0.10); } catch (err) {}
-        ov.innerHTML = '<div style="font-size:22px">📡</div><div>Could not reach the other players.</div>' +
-          '<div style="font-size:11px;opacity:.8;max-width:270px;text-align:center">A network on either side blocked the direct connection. Your $0.10 entry has been refunded.</div>' +
-          '<div style="display:flex;gap:10px;margin-top:6px">' +
-          '<button id="p2retry" style="padding:10px 18px;border:0;border-radius:9px;background:#ffb35c;color:#1a1408;font:700 13px system-ui">Try again</button>' +
-          '<button id="p2leave" style="padding:10px 18px;border:0;border-radius:9px;background:#2a3040;color:#e8e8f0;font:700 13px system-ui">Back to hub</button></div>';
-        ov.querySelector('#p2retry').onclick = () => location.reload();
-        ov.querySelector('#p2leave').onclick = () => {
-          delete M.room; M.vsBots = false; M.flow = 'room';
-          TVG.state.match = M; TVG.save();
-          location.href = 'game-hub.html';
-        };
-      });
-    });
-  }
-  function watchDrop(node) {
-    window.__p2pWatch = setInterval(() => {
-      if (!node.open) {
-        clearInterval(window.__p2pWatch);
-        if (!connectedOnce) return;                     /* boot-phase failure handled by p2pWait */
-        if (game && !game.debug().over) {
-          const t = document.createElement('div');
-          t.textContent = 'Opponent left — you win the room';
-          t.style.cssText = 'position:absolute;top:46%;left:50%;transform:translate(-50%,-50%);background:rgba(120,20,20,.9);color:#fff;padding:10px 16px;border-radius:9px;font:700 12px system-ui;z-index:60';
-          document.getElementById('hud').appendChild(t);
-          try { game.end(true); } catch (err) {}
-        }
-      }
-    }, 2000);
-  }
-
-  /* ---------- live room match: connect the star mesh before the engine starts ---------- */
-  let netCfg = null, connectedOnce = false;
-  if (M.room && M.room.roster && M.room.roster.length > 1) {
-    if (typeof TVGP2P === 'undefined' || typeof TVGP2P.starMesh !== 'function') {
-      /* new room state + old cached files = would silently spawn a bot match. hard stop. */
-      const ov = document.createElement('div');
-      ov.style.cssText = 'position:absolute;inset:0;z-index:60;background:rgba(8,10,14,.94);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;font:600 13px system-ui;color:#e8e8f0;text-align:center;padding:20px';
-      ov.innerHTML = '<div style="font-size:22px">⚠️</div><div>Old files are cached.</div>' +
-        '<div style="font-size:11px;opacity:.8;max-width:260px">This room match needs the new engine. Hard-refresh the page (Ctrl+Shift+R) or add <b>?v=12</b> to the URL, then rejoin the room.</div>';
-      document.body.appendChild(ov);
-      throw new Error('stale-files');
-    }
-    const node = await p2pWait('Reaching the other players…');
-    connectedOnce = true;
-    netCfg = { role: M.room.mySlot === 0 ? 'host' : 'guest', roster: M.room.roster, mySlot: M.room.mySlot, node };
-    if (M.room.mySlot === 0) setTimeout(() => { try { TVGP2P.killRoom(M.room.roomId); } catch (err) {} }, 9000);   /* signaling done → room doc can go */
-    window.__netNode = node;
-    watchDrop(node);
-    const live = document.createElement('div');
-    live.textContent = 'LIVE ' + (M.type || 'ROOM').toUpperCase() + ' · ROOM ' + (M.room.roomId || '') + ' · 3 LIVES';
-    live.style.cssText = 'position:absolute;top:10px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.5);color:#9fe870;font-size:8.5px;font-weight:700;letter-spacing:.8px;padding:4px 10px;border-radius:7px;pointer-events:none;z-index:5';
-    document.getElementById('hud').appendChild(live);
-  }
+  /* bots always run the HARD profile — never shown to the player, never adapted */
+  const DIFF_HARD = { react: .18, acc: .66, sight: 15, speed: 1.65, dmgLo: 8, dmgHi: 18, strafe: .9, retreat: 30 };
   game = TVG3D.createGame({
     cv: document.getElementById('cv'),
     mini: document.getElementById('mini'),
@@ -376,11 +314,13 @@ try {
     teamB: M.teamB || [],
     myName: TVG.state.player.name,
     gun: GUN,
-    diff: DIFF_TABLE[TVG.state.settings.difficulty || 'normal'] || DIFF_TABLE.normal,
-    dda: typeof TVG.ddaFactor === 'function' ? TVG.ddaFactor() : 1,
+    diff: DIFF_HARD,
+    dda: 1,
+    character: TVG.state.equipped.character,
+    paid: !!M.feePaid,
+    training: M.flow === 'training',
     settings: TVG.state.settings,
     music: !(TVG.state.settings && TVG.state.settings.music === false),
-    net: netCfg,
     hud, feed: feedAdd, hitmark, hurtFlash, onEnd
   });
 } catch (err) {
@@ -391,7 +331,7 @@ try {
     h2.textContent = 'Old files are cached';
     p.innerHTML = 'Your browser is running a previous version of the game files.<br><br>' +
       'Open the browser menu → <b>History</b> → <b>Clear browsing data</b> → tick <b>Cached images and files</b>, then reload.<br>' +
-      'Or simply add <b>?v=12</b> to the page URL to force a fresh load.';
+      'Or simply add <b>?v=13</b> to the page URL to force a fresh load.';
   } else if (err.message === 'ENGINE_LOAD') {
     h2.textContent = '3D engine failed to load';
     p.innerHTML = '<b>assets/engine3d.js</b> is missing or unreadable on the server.<br><br>' +
@@ -401,6 +341,12 @@ try {
   } else {
     h2.textContent = 'Could not start match';
     p.textContent = err.message;
+  }
+  /* the match never started — return the entry fee to the balance */
+  if (M.feePaid) {
+    TVG.adjustCash(TVG.ENTRY_FEE);
+    TVG.logActivity('game', 'Match entry refunded', TVG.ENTRY_FEE);
+    TVG.toast(TVG.money(TVG.ENTRY_FEE) + ' entry refunded', 'info');
   }
   ng.style.display = 'flex';
 }
@@ -430,7 +376,7 @@ addEventListener('keydown', e => {
   if (e.code === 'Digit2') game.equip('secondary');
   if (e.code === 'Digit3') game.equip('melee');
   if (e.code === 'KeyQ') game.cycleWeapon(1);
-  if (e.code === 'KeyG' && !M.room) game.nade();
+  if (e.code === 'KeyG') game.nade();
   game.sfxUnlock();
 });
 addEventListener('wheel', e => { if (document.pointerLockElement === cv) game.cycleWeapon(e.deltaY > 0 ? 1 : -1); }, { passive: true });
@@ -460,8 +406,9 @@ addEventListener('mousemove', e => {
     game.look(e.movementX * k * 0.0022, e.movementY * k * 0.0022);
   }
 });
-/* press on the canvas = fire; also locks the pointer for edge-to-edge aiming */
+/* left press on the canvas = fire · right press = aim down sights (ADS) */
 cv.addEventListener('mousedown', e => {
+  if (e.button === 2) { game.setAds(true); return; }
   if (e.button !== 0) return;
   game.sfxUnlock();
   if (!document.pointerLockElement && matchMedia('(pointer:fine)').matches) {
@@ -470,7 +417,10 @@ cv.addEventListener('mousedown', e => {
   }
   game.setFiring(true);
 });
-addEventListener('mouseup', () => game.setFiring(false));
+addEventListener('mouseup', e => {
+  if (e.button === 2) { game.setAds(false); return; }
+  game.setFiring(false);
+});
 cv.addEventListener('contextmenu', e => e.preventDefault());
 
 /* ---------- INPUT: touch ---------- */
@@ -540,8 +490,9 @@ setInterval(() => {
   btnCrouch.style.background = crouched ? 'rgba(255,140,66,.55)' : '';
 }, 200);
 btnReload.addEventListener('click', () => game.reload());
-btnNade.addEventListener('click', () => { if (!M.room) game.nade(); });
+btnNade.addEventListener('click', () => game.nade());
 btnSwap.addEventListener('click', () => game.cycleWeapon(1));
+hold(btnAds, () => game.setAds(true), () => game.setAds(false));
 /* cinematic score toggle — persists with the player's settings */
 const btnMusic = document.getElementById('btnMusic');
 let musicOn = !(TVG.state.settings && TVG.state.settings.music === false);

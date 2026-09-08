@@ -76,6 +76,11 @@
             <b style="display:block;font-size:17px;font-weight:800;color:#2563EB;margin-top:3px" id="rXp">0</b>
             <span style="font-size:9px;color:#2563EB;opacity:.8">Experience</span>
           </div>
+          <div style="flex:1;background:#E8F8F1;border-radius:12px;padding:12px;text-align:center">
+            <i class="ri-money-dollar-circle-fill" style="font-size:20px;color:#10B981"></i>
+            <b style="display:block;font-size:17px;font-weight:800;color:#059669;margin-top:3px" id="rCash">—</b>
+            <span style="font-size:9px;color:#059669;opacity:.8">Balance</span>
+          </div>
         </div>
       </div>
     </div>
@@ -111,6 +116,7 @@ mKills.textContent = r.kills; mDeaths.textContent = r.deaths;
 mAssists.textContent = r.assists; mKd.textContent = r.kd;
 mHs.textContent = r.headshots; mAcc.textContent = r.accuracy + '%';
 rCoins.textContent = TVG.fmt(r.coins); rXp.textContent = TVG.fmt(r.xp);
+rCash.textContent = r.cash > 0 ? '+' + TVG.money(r.cash) : '—';
 
 claimBtn.onclick = () => location.href = 'rewards.html';
 </script>

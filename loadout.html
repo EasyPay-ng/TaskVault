@@ -6,7 +6,7 @@
 <title>Loadout — TaskVault</title>
 <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<link href="assets/game.css?v=12" rel="stylesheet">
+<link href="assets/game.css?v=13" rel="stylesheet">
 <style>
 .slot {
   background: var(--white); border-radius: 16px; padding: 13px;
@@ -100,8 +100,8 @@
 </div>
 
 <div id="toast" class="toast"></div>
-<script src="assets/art.js?v=12"></script>
-<script src="assets/game.js?v=12"></script>
+<script src="assets/art.js?v=13"></script>
+<script src="assets/game.js?v=13"></script>
 <script>
 const m = TVG.state.match;
 if (!m) location.replace('match-type.html');
@@ -175,7 +175,38 @@ function openPicker(slot) {
 function closePicker() { picker.classList.remove('open'); }
 picker.onclick = e => { if (e.target === picker) closePicker(); };
 
-goBtn.onclick = () => { location.href = (TVG.state.match && TVG.state.match.flow === 'training') ? 'match.html?v=12' : 'room.html'; };
+goBtn.onclick = () => {
+  const m = TVG.state.match;
+  const myName = TVG.state.player.name;
+  /* fully player vs AI: build a complete bot roster —
+     (size-1) AI teammates + (size) AI opponents */
+  const pool = TVG.shuffle(TVG.BOT_NAMES.slice());
+  const allies = [], enemies = [];
+  for (let i = 0; i < m.size - 1; i++) allies.push(pool[i]);
+  for (let i = 0; i < m.size; i++) enemies.push(pool[m.size + i]);
+  m.teamA = [myName].concat(allies);
+  m.teamB = enemies;
+  m.roster = m.teamA.concat(m.teamB);
+  delete m.room;
+  if (m.flow === 'training') {
+    delete m.feePaid;
+    TVG.state.match = m; TVG.save();
+    location.href = 'match.html?v=13';
+    return;
+  }
+  /* charged match: $0.10 entry from the TaskVault balance (refunded if the
+     match never starts); winning pays $0.30 back with a history record */
+  const r = TVG.chargeEntry();
+  if (!r.ok) { TVG.toast(r.msg, 'error'); setTimeout(() => location.href = 'deposit.html', 1500); return; }
+  m.feePaid = true;
+  TVG.state.match = m; TVG.save();
+  TVG.logActivity('game', 'Match entry fee', -TVG.ENTRY_FEE);
+  TVG.toast('Entry ' + TVG.money(TVG.ENTRY_FEE) + ' paid — win ' + TVG.money(TVG.WIN_REWARD), 'success');
+  location.href = 'match.html?v=13';
+};
+if (TVG.state.match && TVG.state.match.flow !== 'training') {
+  goBtn.innerHTML = '<i class="ri-sword-fill"></i> Confirm &amp; Deploy — $0.10';
+}
 render();
 </script>
 <script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a31b62484d3702d5',t:'MTc4NzgzNjkzNA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"1954b47c125f43f8b4338b3c4f804e4f"}' crossorigin="anonymous"></script>
