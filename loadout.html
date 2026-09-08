@@ -6,7 +6,7 @@
 <title>Loadout — TaskVault</title>
 <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<link href="assets/game.css?v=13" rel="stylesheet">
+<link href="assets/game.css?v=14" rel="stylesheet">
 <style>
 .slot {
   background: var(--white); border-radius: 16px; padding: 13px;
@@ -100,8 +100,8 @@
 </div>
 
 <div id="toast" class="toast"></div>
-<script src="assets/art.js?v=13"></script>
-<script src="assets/game.js?v=13"></script>
+<script src="assets/art.js?v=14"></script>
+<script src="assets/game.js?v=14"></script>
 <script>
 const m = TVG.state.match;
 if (!m) location.replace('match-type.html');
@@ -191,7 +191,7 @@ goBtn.onclick = () => {
   if (m.flow === 'training') {
     delete m.feePaid;
     TVG.state.match = m; TVG.save();
-    location.href = 'match.html?v=13';
+    location.href = 'match.html?v=14';
     return;
   }
   /* charged match: $0.10 entry from the TaskVault balance (refunded if the
@@ -202,7 +202,7 @@ goBtn.onclick = () => {
   TVG.state.match = m; TVG.save();
   TVG.logActivity('game', 'Match entry fee', -TVG.ENTRY_FEE);
   TVG.toast('Entry ' + TVG.money(TVG.ENTRY_FEE) + ' paid — win ' + TVG.money(TVG.WIN_REWARD), 'success');
-  location.href = 'match.html?v=13';
+  location.href = 'match.html?v=14';
 };
 if (TVG.state.match && TVG.state.match.flow !== 'training') {
   goBtn.innerHTML = '<i class="ri-sword-fill"></i> Confirm &amp; Deploy — $0.10';

@@ -2530,7 +2530,7 @@ function createGame(cfg) {
         bob += dt * (IN.sprint ? 13 : 8);
         player.animSpd = IN.sprint ? 2 : 1;
         stepAcc += Math.abs(spd);
-        if (stepAcc >= (IN.sprint ? 2.5 : 2.1)) { stepAcc = 0; sfx.step(IN.sprint); }
+        if (stepAcc >= (IN.sprint ? 2.5 : 2.1)) { stepAcc = 0; sfx.step(IN.sprint); if (!airborne) puff(player.x, 0.04, player.z, [0.42, 0.37, 0.3], 2, 0.9, 0.06, -0.5); }
       } else player.animSpd = 0;
       player.animPh += dt * (player.animSpd > 1.5 ? 12 : player.animSpd > 0.3 ? 8 : 1.4);
       { /* adaptive score: nearest live enemy + low hp drive the music; heartbeat under 30hp */
@@ -2553,7 +2553,7 @@ function createGame(cfg) {
           player.vz -= 13 * dt;
           player.jz += player.vz * dt;
           if (player.jz <= gh) {
-            if (wasAir && player.vz < -2.5) sfx.land();
+            if (wasAir && player.vz < -2.5) { sfx.land(); puff(player.x, 0.06, player.z, [0.42, 0.37, 0.3], 8, 1.6, 0.09, -0.4); }   // landing dust
             player.jz = gh; player.vz = 0;
           } else if (player.vz === 0 && player.jz < gh) {
             player.jz = gh;   // walk-step onto a low ledge
