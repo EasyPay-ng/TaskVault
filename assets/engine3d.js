@@ -1036,8 +1036,6 @@ function createGame(cfg) {
   const reloadMs = CHAR && CHAR.id === 'viper' ? 1100 : 1500;
   makeTex('soldierFoe', soldierAtlas(8, true));
   makeTex('soldierAlly', soldierAtlas(210, false, allyHue));
-  SOLDIER_COL.shirtB_ally = hsl2rgb(allyHue, 34, 32);
-  SOLDIER_COL.helmetB_ally = hsl2rgb(allyHue, 30, 24);
 
   /* ---------- world geometry batching ---------- */
   const SUN = [0.35, 0.75, 0.55];
@@ -2211,6 +2209,9 @@ function createGame(cfg) {
     shirtB_foe: [138, 74, 60], shirtB_ally: [63, 90, 138],
     helmetB_foe: [125, 59, 48], helmetB_ally: [49, 69, 110]
   };
+  // Apply the equipped operator tint only after the palette is initialized.
+  SOLDIER_COL.shirtB_ally = hsl2rgb(allyHue, 34, 32);
+  SOLDIER_COL.helmetB_ally = hsl2rgb(allyHue, 30, 24);
   function regionKey(u, v) {
     for (const k in ATLAS) {
       const r = ATLAS[k];
