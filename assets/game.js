@@ -11,7 +11,7 @@
 
   /* ---- economy constants (single source of truth) ---- */
   const ENTRY_FEE = 0.10;    // $ charged from balance to enter a match
-  const WIN_REWARD = 0.20;   // $ paid to EACH member of the winning team (rooms only)
+  const WIN_REWARD = 0.30;   // $ paid to the winner on their TaskVault balance
   const TARGET_WIN_RATE = 0.40;
 
   const DEFAULTS = {
@@ -28,8 +28,8 @@
       kd: 2.57,
       headshots: 41,
       accuracy: 62,
-      recent: [],            // last match outcomes, 1 = win (drives difficulty)
-      dda: 1                 // bot skill multiplier, nudged toward 40% win rate
+      recent: [],            // last match outcomes, 1 = win (stats only — bots are pinned HARD)
+      dda: 1                 // bot skill multiplier — fixed at 1 (hard difficulty, never shown)
     },
     wallet: { cash: 0.00, coins: 0, gems: 0, ammo: 0 },
     equipped: { character: 'ranger', primary: 'glock18', secondary: 'glock18', grenade: 'frag', melee: 'knife' },
@@ -378,22 +378,17 @@
     save();
   }
 
-  /* ---------------- MATCH ECONOMY + DYNAMIC DIFFICULTY ----------------
-     Entry $0.10 · Win $0.30 · target win rate 40%.
-     After every match the rolling win rate (last 15) is compared to the
-     target: win too much → bots sharpen; lose too much → bots ease off.
-     dda is a plain multiplier on bot accuracy, reaction, damage & speed. */
+  /* ---------------- MATCH ECONOMY ----------------
+     Entry $0.10 · Win $0.30 (credited to the TaskVault balance).
+     Every match is player vs AI bots at a FIXED hard difficulty — the
+     difficulty is never shown to the player and never adapts. `recent`
+     is kept purely for win-rate stats on the profile. */
   function recordOutcome(won) {
     const p = state.player;
     p.recent = Array.isArray(p.recent) ? p.recent : [];
     p.recent.push(won ? 1 : 0);
     if (p.recent.length > 15) p.recent.shift();
-    if (p.recent.length >= 5) {
-      const wr = p.recent.reduce((a, b) => a + b, 0) / p.recent.length;
-      const err = wr - TARGET_WIN_RATE;
-      if (err >  0.08)      p.dda = Math.min(1.6, (p.dda || 1) + 0.06);
-      else if (err < -0.08) p.dda = Math.max(0.7, (p.dda || 1) - 0.06);
-    }
+    p.dda = 1;                 // pinned — bots always play hard
     save();
   }
   function winRate() {
@@ -401,8 +396,24 @@
     return r.length ? r.reduce((a, b) => a + b, 0) / r.length : null;
   }
   function ddaFactor() {
-    const f = state.player.dda;
-    return (typeof f === 'number' && isFinite(f)) ? Math.min(1.6, Math.max(0.7, f)) : 1;
+    return 1;                  // hard, fixed
+  }
+
+  /* ---- TaskVault balance history ----
+     Appends a record to users/{uid}/activities — the same "Recent
+     Activity" feed the dashboard renders (deposits, claims, game cash).
+     No-op when not signed in (local-only session). */
+  function logActivity(type, title, amount) {
+    if (!fb || !w.firebase) return;
+    fb.db.collection('users').doc(fb.uid)
+      .collection('activities')
+      .add({
+        type: type,
+        title: title,
+        amount: Math.round(amount * 1000) / 1000,
+        timestamp: w.firebase.firestore.FieldValue.serverTimestamp()
+      })
+      .catch(() => {});
   }
   /* charge the entry fee; returns {ok, msg} */
   function chargeEntry() {
@@ -464,7 +475,7 @@
     weapon, character, map, owns, buy, buyAmmo, addRewards, bumpMission,
     toast, renderWallet, mapArt,
     recordOutcome, winRate, ddaFactor, chargeEntry, TARGET_WIN_RATE,
-    setCash, adjustCash, onWallet,
+    setCash, adjustCash, onWallet, logActivity,
     /* new: sync observability */
     onSync(fn) { syncListeners.push(fn); fn(fbPhase, fb && fb.uid); },
     get syncPhase() { return fbPhase; },

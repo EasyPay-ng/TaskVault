@@ -72,7 +72,7 @@ function renderSummary() {
     row('Match type', m.type.toUpperCase()) +
     row('Game mode', m.gameMode) +
     row('Map', picked ? TVG.map(picked).name : 'Not selected') +
-    row('Entry', 'Free');
+    row('Entry', m.flow === 'training' ? 'Free' : '$0.10');
 }
 renderSummary();
 

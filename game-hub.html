@@ -7,7 +7,7 @@
 <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" type="image/jpeg">
 <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<link href="assets/game.css?v=11" rel="stylesheet">
+<link href="assets/game.css?v=14" rel="stylesheet">
 <style>
 .banner {
     margin: 14px 20px; border-radius: 20px; overflow: hidden;
@@ -104,10 +104,10 @@
 
     <!-- PRIMARY ACTIONS -->
     <div class="action-cards fade-in delay-1">
-      <a href="room.html" class="act">
-        <div class="ic" style="background:var(--gradient-orange)"><i class="ri-team-fill"></i></div>
-        <h4>Room Match</h4>
-        <p>Create or join a room · 1v1 · 2v2 · 4v4 · $0.20 to win</p>
+      <a href="match-type.html?flow=quick" class="act">
+        <div class="ic" style="background:var(--gradient-orange)"><i class="ri-sword-fill"></i></div>
+        <h4>Match</h4>
+        <p>1v1 · 2v2 · 4v4 vs elite AI · $0.10 entry · $0.30 to win</p>
         <div class="go">PLAY <i class="ri-arrow-right-line"></i></div>
       </a>
       <a href="match-type.html?flow=training" class="act">
@@ -184,7 +184,7 @@
 </div>
 
 <div id="toast" class="toast"></div>
-<script src="assets/game.js?v=11"></script>
+<script src="assets/game.js?v=14"></script>
 <script>
   const p = TVG.state.player;
   sMatches.textContent = TVG.fmt(p.matches);

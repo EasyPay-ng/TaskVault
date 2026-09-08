@@ -214,6 +214,172 @@ header img{height:50px;}
   color:#666;font-size:15px;line-height:1.7;
 }
 
+/* GAMES CAROUSEL (AD BANNER) */
+.games-carousel-section{
+  padding:70px 8%;
+  background:linear-gradient(135deg,#fff,#fff5ec);
+}
+.games-carousel-section h2{
+  text-align:center;
+  font-size:28px;
+  margin-bottom:10px;
+}
+.games-carousel-section h2 span{color:#ff7a00;}
+.carousel-sub{
+  text-align:center;
+  color:#666;
+  font-size:16px;
+  margin-bottom:40px;
+}
+.games-carousel{
+  position:relative;
+  max-width:1000px;
+  margin:0 auto;
+  border-radius:18px;
+  overflow:hidden;
+  box-shadow:0 20px 50px rgba(0,0,0,0.12);
+}
+.carousel-track{
+  display:flex;
+  transition:transform .6s cubic-bezier(.4,0,.2,1);
+}
+.game-slide{
+  min-width:100%;
+  height:400px;
+  position:relative;
+  display:flex;
+  align-items:center;
+  color:#fff;
+  text-decoration:none;
+}
+.slide-bg{
+  position:absolute;
+  inset:0;
+  background-size:cover;
+  background-position:center;
+}
+.slide-art{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  display:block;
+}
+.slide-overlay{
+  position:absolute;
+  inset:0;
+  background:linear-gradient(90deg,rgba(15,10,5,.8) 0%,rgba(15,10,5,.45) 55%,rgba(15,10,5,.1) 100%);
+}
+.slide-content{
+  position:relative;
+  z-index:2;
+  padding:40px;
+  max-width:560px;
+}
+.slide-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  background:rgba(255,255,255,.92);
+  color:#e2591c;
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:.5px;
+  padding:6px 12px;
+  border-radius:8px;
+  margin-bottom:14px;
+}
+.slide-content h3{
+  font-size:36px;
+  font-weight:700;
+  margin-bottom:10px;
+  color:#fff;
+}
+.slide-content p{
+  font-size:16px;
+  color:rgba(255,255,255,.85);
+  line-height:1.6;
+  margin-bottom:20px;
+}
+.slide-cta{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  background:#ff7a00;
+  color:#fff;
+  font-size:15px;
+  font-weight:600;
+  padding:12px 26px;
+  border-radius:8px;
+  transition:.3s;
+}
+.game-slide:hover .slide-cta{
+  background:#e66a00;
+  transform:translateY(-2px);
+}
+.carousel-arrow{
+  position:absolute;
+  top:50%;
+  transform:translateY(-50%);
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  background:rgba(255,255,255,.9);
+  color:#ff7a00;
+  border:none;
+  font-size:15px;
+  cursor:pointer;
+  z-index:5;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:.3s;
+}
+.carousel-arrow:hover{
+  background:#ff7a00;
+  color:#fff;
+}
+.carousel-arrow.prev{left:14px;}
+.carousel-arrow.next{right:14px;}
+.carousel-dots{
+  position:absolute;
+  bottom:16px;
+  left:50%;
+  transform:translateX(-50%);
+  display:flex;
+  gap:8px;
+  z-index:5;
+}
+.carousel-dot{
+  width:9px;
+  height:9px;
+  border-radius:10px;
+  border:none;
+  padding:0;
+  background:rgba(255,255,255,.5);
+  cursor:pointer;
+  transition:.3s;
+}
+.carousel-dot.active{
+  width:26px;
+  background:#fff;
+}
+.carousel-footer{
+  text-align:center;
+  margin-top:22px;
+}
+.carousel-footer a{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  color:#ff7a00;
+  font-weight:600;
+  font-size:15px;
+  text-decoration:none;
+  transition:.3s;
+}
+.carousel-footer a:hover{gap:12px;}
+
 /* REFERRAL SECTION */
 .referral-section{
   padding:70px 8%;
@@ -444,6 +610,17 @@ footer{
     margin:10px auto;
     width:80%;
   }
+
+  .games-carousel{
+    max-width:100%;
+    border-radius:14px;
+  }
+  .game-slide{height:300px;}
+  .slide-content{padding:24px;max-width:100%;}
+  .slide-content h3{font-size:26px;}
+  .slide-content p{font-size:14px;margin-bottom:16px;}
+  .slide-cta{padding:11px 22px;font-size:14px;}
+  .carousel-arrow{display:none;}
 }
 </style>
 </head>
@@ -554,6 +731,87 @@ footer{
   </div>
 </section>
 
+<!-- GAMES CAROUSEL (AD BANNER) -->
+<section class="games-carousel-section">
+  <h2>Games You Can <span>Play &amp; Earn</span></h2>
+  <p class="carousel-sub">Swipe through our game library — every match, streak and win can earn you real rewards.</p>
+
+  <div class="games-carousel" data-carousel>
+    <div class="carousel-track">
+
+      <!-- SLIDE 1: VAULT RUSH -->
+      <a href="login.html" class="game-slide">
+        <div class="slide-bg" style="background-image:url('https://res.cloudinary.com/dq7fpxfbc/image/upload/v1779538679/1779536970293_u0gh7x.png')"></div>
+        <div class="slide-overlay"></div>
+        <div class="slide-content">
+          <span class="slide-badge"><i class="fas fa-fire"></i> HOT</span>
+          <h3>Vault Rush</h3>
+          <p>Dash through neon-lit vault corridors, collect coins, dodge traps and race against the clock. The faster you go, the bigger the rewards!</p>
+          <span class="slide-cta">Play Now <i class="fas fa-play"></i></span>
+        </div>
+      </a>
+
+      <!-- SLIDE 2: VAULT DEFENDER -->
+      <a href="login.html" class="game-slide">
+        <div class="slide-bg" style="background-image:url('https://res.cloudinary.com/dq7fpxfbc/image/upload/v1779538676/1779537052555_v10ryr.png')"></div>
+        <div class="slide-overlay"></div>
+        <div class="slide-content">
+          <span class="slide-badge"><i class="fas fa-shield-halved"></i> STRATEGY</span>
+          <h3>Vault Defender</h3>
+          <p>Build towers, deploy defenses and protect the vault from waves of intruders. Strategic thinking earns you massive bonus payouts!</p>
+          <span class="slide-cta">Play Now <i class="fas fa-play"></i></span>
+        </div>
+      </a>
+
+      <!-- SLIDE 3: SUBWAY RUNNER -->
+      <a href="login.html" class="game-slide">
+        <div class="slide-bg" style="background-image:url('https://res.cloudinary.com/dq7fpxfbc/image/upload/v1779538965/1779538917772_ahdaow.png')"></div>
+        <div class="slide-overlay"></div>
+        <div class="slide-content">
+          <span class="slide-badge"><i class="fas fa-train-subway"></i> ENDLESS</span>
+          <h3>Subway Runner</h3>
+          <p>Run through subway tunnels, dodge trains and collect power-ups. Endless fun with endless earning potential!</p>
+          <span class="slide-cta">Play Now <i class="fas fa-play"></i></span>
+        </div>
+      </a>
+
+      <!-- SLIDE 4: 2D SHOOTER -->
+      <a href="login.html" class="game-slide">
+        <svg class="slide-art" viewBox="0 0 1000 400" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <defs>
+            <linearGradient id="shooterGradIndex" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#FFB877"/>
+              <stop offset="55%" stop-color="#FF8C42"/>
+              <stop offset="100%" stop-color="#E2591C"/>
+            </linearGradient>
+          </defs>
+          <rect width="1000" height="400" fill="url(#shooterGradIndex)"/>
+          <circle cx="820" cy="80" r="52" fill="#fff" opacity=".25"/>
+          <circle cx="120" cy="330" r="90" fill="#fff" opacity=".08"/>
+          <path d="M0 300 L120 240 L220 300 L330 230 L470 300 L580 250 L720 300 L850 235 L1000 300 L1000 400 L0 400Z" fill="#7A3512" opacity=".5"/>
+          <path d="M0 345 L110 305 L220 345 L340 285 L465 345 L585 310 L710 345 L840 300 L1000 345 L1000 400 L0 400Z" fill="#4A1F0A" opacity=".65"/>
+        </svg>
+        <div class="slide-overlay"></div>
+        <div class="slide-content">
+          <span class="slide-badge"><i class="fas fa-sparkles"></i> NEW</span>
+          <h3>2D Shooter</h3>
+          <p>Play online room matches, win real rewards and climb the leaderboard. 1v1, 2v2 and 4v4 — your rank, your glory!</p>
+          <span class="slide-cta">Play Now <i class="fas fa-play"></i></span>
+        </div>
+      </a>
+
+    </div>
+
+    <button class="carousel-arrow prev" aria-label="Previous game"><i class="fas fa-chevron-left"></i></button>
+    <button class="carousel-arrow next" aria-label="Next game"><i class="fas fa-chevron-right"></i></button>
+    <div class="carousel-dots"></div>
+  </div>
+
+  <div class="carousel-footer">
+    <a href="games.html">View all games <i class="fas fa-arrow-right"></i></a>
+  </div>
+</section>
+
 <section class="referral-section">
   <h2>Referral Commission Structure</h2>
   <div class="referral-grid">
@@ -643,6 +901,58 @@ function toggleFAQ(el){
   });
   el.classList.toggle("active");
 }
+
+/* ==================== GAMES CAROUSEL ==================== */
+function initGamesCarousel(root){
+  const track = root.querySelector('.carousel-track');
+  const slides = track ? Array.from(track.children) : [];
+  const dotsWrap = root.querySelector('.carousel-dots');
+  if(slides.length === 0) return;
+
+  let index = 0;
+  let timer = null;
+  const AUTOPLAY = 4500;
+
+  slides.forEach((_, i) => {
+    const dot = document.createElement('button');
+    dot.className = 'carousel-dot' + (i === 0 ? ' active' : '');
+    dot.setAttribute('aria-label', 'Show slide ' + (i + 1));
+    dot.addEventListener('click', () => { goTo(i); restart(); });
+    dotsWrap.appendChild(dot);
+  });
+  const dots = Array.from(dotsWrap.children);
+
+  function goTo(i){
+    index = (i + slides.length) % slides.length;
+    track.style.transform = 'translateX(-' + (index * 100) + '%)';
+    dots.forEach((d, j) => d.classList.toggle('active', j === index));
+  }
+  const next = () => goTo(index + 1);
+  const prev = () => goTo(index - 1);
+
+  function restart(){
+    if(timer) clearInterval(timer);
+    timer = setInterval(next, AUTOPLAY);
+  }
+
+  const prevBtn = root.querySelector('.carousel-arrow.prev');
+  const nextBtn = root.querySelector('.carousel-arrow.next');
+  if(prevBtn) prevBtn.addEventListener('click', () => { prev(); restart(); });
+  if(nextBtn) nextBtn.addEventListener('click', () => { next(); restart(); });
+
+  let startX = 0;
+  root.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; }, { passive: true });
+  root.addEventListener('touchend', (e) => {
+    const dx = e.changedTouches[0].clientX - startX;
+    if(Math.abs(dx) > 40){ dx < 0 ? next() : prev(); restart(); }
+  }, { passive: true });
+
+  root.addEventListener('mouseenter', () => { if(timer) clearInterval(timer); });
+  root.addEventListener('mouseleave', restart);
+
+  restart();
+}
+document.querySelectorAll('[data-carousel]').forEach(initGamesCarousel);
 </script>
 
 </body>
