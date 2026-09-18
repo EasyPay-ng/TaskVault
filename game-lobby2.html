@@ -260,7 +260,7 @@
     }
     .prizes-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(auto-fit, minmax(88px, 1fr));
       gap: .75rem;
     }
     .prize-card {
@@ -285,6 +285,8 @@
     .rank-1 { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #78350f; }
     .rank-2 { background: linear-gradient(135deg, #e2e8f0, #94a3b8); color: #334155; }
     .rank-3 { background: linear-gradient(135deg, #fdba74, #ea580c); color: #7c2d12; }
+    .rank-4 { background: linear-gradient(135deg, #94a3b8, #475569); color: #0f172a; }
+    .rank-5 { background: linear-gradient(135deg, #64748b, #1e293b); color: #e2e8f0; }
     .prize-amount { font-size: 1.25rem; font-weight: 800; color: var(--white); }
     .prize-label { font-size: .75rem; color: var(--gray-500); margin-top: .25rem; }
 
@@ -495,7 +497,7 @@
       <div class="countdown">
         <div class="countdown-label" id="countdownLabel">Time Remaining</div>
         <div class="countdown-time" id="countdownTime">--:--:--</div>
-        <div class="countdown-sub" id="countdownSub">or until 20 entries reached</div>
+        <div class="countdown-sub" id="countdownSub">or until the round is full</div>
       </div>
 
       <div class="entries-bar">
@@ -520,7 +522,7 @@
           <span class="fee">$0.05</span>
         </button>
         <div class="entries-used">
-          Your entries: <span id="yourEntries">0</span> / 20 used
+          Your entries: <span id="yourEntries">0</span> / <span id="maxEntriesText">20</span> used
           <br>
           Best score: <span id="yourBestScore">—</span>
         </div>
@@ -534,18 +536,28 @@
       <div class="prizes-grid">
         <div class="prize-card">
           <div class="prize-rank rank-1">🥇</div>
-          <div class="prize-amount">$0.40</div>
+          <div class="prize-amount" id="prizeAmount1">$0.40</div>
           <div class="prize-label">1st Place</div>
         </div>
         <div class="prize-card">
           <div class="prize-rank rank-2">🥈</div>
-          <div class="prize-amount">$0.30</div>
+          <div class="prize-amount" id="prizeAmount2">$0.30</div>
           <div class="prize-label">2nd Place</div>
         </div>
         <div class="prize-card">
           <div class="prize-rank rank-3">🥉</div>
-          <div class="prize-amount">$0.15</div>
+          <div class="prize-amount" id="prizeAmount3">$0.15</div>
           <div class="prize-label">3rd Place</div>
+        </div>
+        <div class="prize-card">
+          <div class="prize-rank rank-4">4</div>
+          <div class="prize-amount" id="prizeAmount4">$0.10</div>
+          <div class="prize-label">4th Place</div>
+        </div>
+        <div class="prize-card">
+          <div class="prize-rank rank-5">5</div>
+          <div class="prize-amount" id="prizeAmount5">$0.05</div>
+          <div class="prize-label">5th Place</div>
         </div>
       </div>
     </div>
@@ -614,6 +626,64 @@
   let userEntries = [];
   let unsubscribeLeaderboard = null;
   let countdownInterval = null;
+  let transitioningRound = false;
+
+  // ========== GAME CONFIG (this game) ==========
+  const GAME_KEY = 'vaultDefender';
+  const ROUNDS_COLLECTION = 'vaultDefenderRounds';
+
+  // Fallbacks only — the admin sets the real values in
+  // Admin > Game Management (gameSettings collection).
+  const DEFAULT_SETTINGS = {
+    entryFee: 0.05,
+    maxEntries: 20,
+    duration: 24,
+    prize1: 0.40,
+    prize2: 0.30,
+    prize3: 0.15,
+    prize4: 0.10,
+    prize5: 0.05,
+    gameStatus: 'active'
+  };
+
+  let G = { ...DEFAULT_SETTINGS };
+
+  async function loadSettings() {
+    try {
+      let data = null;
+
+      const own = await getDoc(doc(db, 'gameSettings', GAME_KEY));
+      if (own.exists()) {
+        data = own.data();
+      } else {
+        const legacy = await getDoc(doc(db, 'gameSettings', 'default'));
+        if (legacy.exists()) data = legacy.data();
+      }
+
+      if (data) {
+        G = {
+          entryFee: Number(data.entryFee) > 0 ? Number(data.entryFee) : DEFAULT_SETTINGS.entryFee,
+          maxEntries: Number(data.maxEntries) >= 2 ? Number(data.maxEntries) : DEFAULT_SETTINGS.maxEntries,
+          duration: Number(data.duration) >= 1 ? Number(data.duration) : DEFAULT_SETTINGS.duration,
+          prize1: Number(data.prize1) || 0,
+          prize2: Number(data.prize2) || 0,
+          prize3: Number(data.prize3) || 0,
+          prize4: data.prize4 !== undefined ? (Number(data.prize4) || 0) : DEFAULT_SETTINGS.prize4,
+          prize5: data.prize5 !== undefined ? (Number(data.prize5) || 0) : DEFAULT_SETTINGS.prize5,
+          gameStatus: data.gameStatus || 'active'
+        };
+      }
+    } catch (err) {
+      console.error('Settings load error:', err);
+      G = { ...DEFAULT_SETTINGS };
+    }
+
+    const prizes = [G.prize1, G.prize2, G.prize3, G.prize4, G.prize5];
+    prizes.forEach((p, i) => {
+      const el = document.getElementById('prizeAmount' + (i + 1));
+      if (el) el.textContent = `$${Number(p).toFixed(2)}`;
+    });
+  }
 
   const mainHeader = document.getElementById('mainHeader');
   const mainContainer = document.getElementById('mainContainer');
@@ -662,6 +732,7 @@
 
   async function initialize() {
     try {
+      await loadSettings();
       await getOrCreateRound();
       await loadUserEntries();
       await loadUserStats();
@@ -680,7 +751,7 @@
 
   async function getOrCreateRound() {
     const roundsQuery = query(
-      collection(db, 'vaultDefenderRounds'),
+      collection(db, ROUNDS_COLLECTION),
       where('status', '==', 'active')
     );
 
@@ -703,7 +774,7 @@
       const hoursPassed = (now - createdAt) / (1000 * 60 * 60);
       const entryCount = currentRound.entryCount || 0;
 
-      if (entryCount >= 20 || hoursPassed >= 24) {
+      if (entryCount >= G.maxEntries || hoursPassed >= G.duration) {
         await endRound(currentRound.id);
         await createNewRound();
       }
@@ -715,16 +786,17 @@
   }
 
   async function createNewRound() {
-    const allRoundsSnap = await getDocs(collection(db, 'vaultDefenderRounds'));
+    const allRoundsSnap = await getDocs(collection(db, ROUNDS_COLLECTION));
     let maxRound = 0;
     allRoundsSnap.forEach(d => {
       const num = d.data().roundNumber || 0;
       if (num > maxRound) maxRound = num;
     });
 
-    const roundRef = doc(collection(db, 'vaultDefenderRounds'));
+    const roundRef = doc(collection(db, ROUNDS_COLLECTION));
     const roundData = {
       roundNumber: maxRound + 1,
+      game: GAME_KEY,
       status: 'active',
       entryCount: 0,
       prizePool: 0,
@@ -738,8 +810,14 @@
   }
 
   async function endRound(roundId) {
+    // GUARD: only ever end a round that is still active so two
+    // clients can never double-pay the prizes.
+    const freshSnap = await getDoc(doc(db, ROUNDS_COLLECTION, roundId));
+    if (!freshSnap.exists() || freshSnap.data().status !== 'active') return;
+    const freshRoundData = freshSnap.data();
+
     const entriesQuery = query(
-      collection(db, 'vaultDefenderRounds', roundId, 'entries')
+      collection(db, ROUNDS_COLLECTION, roundId, 'entries')
     );
     const entriesSnap = await getDocs(entriesQuery);
 
@@ -756,10 +834,12 @@
     const uniqueEntries = Array.from(bestByUser.values());
     uniqueEntries.sort((a, b) => (b.score || 0) - (a.score || 0));
 
+    // Rewards for 1st-5th place, set by the admin
+    const prizes = [G.prize1, G.prize2, G.prize3, G.prize4, G.prize5];
     const winners = [];
-    for (let i = 0; i < Math.min(3, uniqueEntries.length); i++) {
+    for (let i = 0; i < Math.min(5, uniqueEntries.length); i++) {
       const entry = uniqueEntries[i];
-      const prize = i === 0 ? 0.40 : i === 1 ? 0.30 : 0.15;
+      const prize = prizes[i] || 0;
       winners.push({
         rank: i + 1,
         userId: entry.userId,
@@ -768,29 +848,31 @@
         prize: prize
       });
 
-      const userRef = doc(db, 'users', entry.userId);
-      await updateDoc(userRef, {
-        balance: increment(prize),
-        totalGameWon: increment(prize)
-      });
+      if (prize > 0) {
+        const userRef = doc(db, 'users', entry.userId);
+        await updateDoc(userRef, {
+          balance: increment(prize),
+          totalGameWon: increment(prize)
+        });
 
-      await addDoc(collection(db, 'gameHistory'), {
-        userId: entry.userId,
-        roundId: roundId,
-        game: 'vaultDefender',
-        type: 'prize',
-        amount: prize,
-        rank: i + 1,
-        score: entry.score,
-        timestamp: serverTimestamp()
-      });
+        await addDoc(collection(db, 'gameHistory'), {
+          userId: entry.userId,
+          roundId: roundId,
+          game: GAME_KEY,
+          type: 'prize',
+          amount: prize,
+          rank: i + 1,
+          score: entry.score,
+          timestamp: serverTimestamp()
+        });
+      }
     }
 
-    await updateDoc(doc(db, 'vaultDefenderRounds', roundId), {
-      status: 'complete',
+    await updateDoc(doc(db, ROUNDS_COLLECTION, roundId), {
+      status: 'completed',
       endsAt: serverTimestamp(),
       winners: winners,
-      prizePool: currentRound?.prizePool || 0
+      prizePool: freshRoundData.prizePool || 0
     });
   }
 
@@ -800,41 +882,50 @@
     roundNumber.textContent = `Round #${currentRound.roundNumber || '—'}`;
 
     const entryCount = currentRound.entryCount || 0;
-    const progress = Math.min((entryCount / 20) * 100, 100);
+    const maxEntries = G.maxEntries;
+    const progress = Math.min((entryCount / maxEntries) * 100, 100);
 
-    entriesText.textContent = `${entryCount} / 20`;
+    entriesText.textContent = `${entryCount} / ${maxEntries}`;
     entriesFill.style.width = `${progress}%`;
 
-    const pool = entryCount * 0.05;
+    const pool = entryCount * G.entryFee;
     prizePool.textContent = `$${pool.toFixed(2)}`;
 
-    if (entryCount >= 15) {
+    if (entryCount >= Math.max(1, maxEntries - 5)) {
       roundStatus.className = 'round-status status-ending';
       roundStatus.innerHTML = '<i class="ri-time-fill"></i> Ending Soon';
       countdownLabel.textContent = 'Ending When Full';
-      countdownSub.textContent = `${20 - entryCount} spots left!`;
+      countdownSub.textContent = `${maxEntries - entryCount} spots left!`;
     } else {
       roundStatus.className = 'round-status status-active';
       roundStatus.innerHTML = '<i class="ri-checkbox-circle-fill"></i> Live';
       countdownLabel.textContent = 'Time Remaining';
-      countdownSub.textContent = 'or until 20 entries reached';
+      countdownSub.textContent = 'or until the round is full';
     }
 
     const userEntryCount = userEntries.length;
-    const hasBalance = (currentUserData?.balance || 0) >= 0.05;
+    const hasBalance = (currentUserData?.balance || 0) >= G.entryFee;
 
-    if (userEntryCount >= 20) {
+    if (G.gameStatus !== 'active') {
+      playBtn.disabled = true;
+      playBtn.innerHTML = '<i class="ri-error-warning-fill"></i> <span>GAME UNDER MAINTENANCE</span>';
+    } else if (entryCount >= maxEntries) {
+      playBtn.disabled = true;
+      playBtn.innerHTML = '<i class="ri-time-fill"></i> <span>ROUND FULL — WAITING FOR NEXT ROUND</span>';
+    } else if (userEntryCount >= maxEntries) {
       playBtn.disabled = true;
       playBtn.innerHTML = '<i class="ri-lock-fill"></i> <span>MAX ENTRIES REACHED</span>';
     } else if (!hasBalance) {
       playBtn.disabled = true;
-      playBtn.innerHTML = '<i class="ri-error-warning-fill"></i> <span>INSUFFICIENT BALANCE</span>';
+      playBtn.innerHTML = `<i class="ri-error-warning-fill"></i> <span>INSUFFICIENT BALANCE</span>`;
     } else {
       playBtn.disabled = false;
-      playBtn.innerHTML = `<i class="ri-shield-flash-fill"></i> <span>DEFEND THE VAULT</span> <span class="fee">$0.05</span>`;
+      playBtn.innerHTML = `<i class="ri-shield-flash-fill"></i> <span>DEFEND THE VAULT</span> <span class="fee">$${G.entryFee.toFixed(2)}</span>`;
     }
 
     yourEntries.textContent = userEntryCount;
+    const maxEntriesTextEl = document.getElementById('maxEntriesText');
+    if (maxEntriesTextEl) maxEntriesTextEl.textContent = maxEntries;
     const bestScore = userEntries.length > 0 ? Math.max(...userEntries.map(e => e.score || 0)) : null;
     yourBestScore.textContent = bestScore !== null ? bestScore.toLocaleString() : '—';
   }
@@ -848,7 +939,7 @@
       const now = new Date();
       const createdAt = currentRound.createdAt?.toDate?.() || new Date();
       const elapsed = now - createdAt;
-      const remaining = Math.max(0, (24 * 60 * 60 * 1000) - elapsed);
+      const remaining = Math.max(0, (G.duration * 60 * 60 * 1000) - elapsed);
 
       const hours = Math.floor(remaining / (1000 * 60 * 60));
       const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
@@ -856,9 +947,9 @@
 
       countdownTime.textContent = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 
-      if (remaining <= 0 && currentRound.status === 'active') {
+      if (remaining <= 0 && currentRound.status === 'active' && !transitioningRound) {
         clearInterval(countdownInterval);
-        getOrCreateRound();
+        transitionToNextRound();
       }
     };
 
@@ -866,11 +957,40 @@
     countdownInterval = setInterval(updateTimer, 1000);
   }
 
+  // End the current round (pays 1st-5th place), create a fresh one,
+  // then re-subscribe the leaderboard so players see the new round.
+  async function transitionToNextRound() {
+    if (transitioningRound || !currentRound) return;
+    transitioningRound = true;
+    const endedRoundId = currentRound.id;
+
+    try {
+      if (unsubscribeLeaderboard) { unsubscribeLeaderboard(); unsubscribeLeaderboard = null; }
+      if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
+
+      await endRound(endedRoundId);
+      await createNewRound();
+      await loadUserEntries();
+      updateRoundUI();
+      subscribeLeaderboard();
+      startCountdown();
+      showToast('New round started — previous prizes paid out!', 'success');
+    } catch (err) {
+      console.error('Round transition error:', err);
+      await getOrCreateRound();
+      updateRoundUI();
+      subscribeLeaderboard();
+      startCountdown();
+    } finally {
+      transitioningRound = false;
+    }
+  }
+
   async function loadUserEntries() {
     if (!currentRound) return;
 
     const entriesQuery = query(
-      collection(db, 'vaultDefenderRounds', currentRound.id, 'entries'),
+      collection(db, ROUNDS_COLLECTION, currentRound.id, 'entries'),
       where('userId', '==', currentUser.uid)
     );
 
@@ -883,7 +1003,7 @@
     if (unsubscribeLeaderboard) unsubscribeLeaderboard();
 
     const entriesQuery = query(
-      collection(db, 'vaultDefenderRounds', currentRound.id, 'entries')
+      collection(db, ROUNDS_COLLECTION, currentRound.id, 'entries')
     );
 
     unsubscribeLeaderboard = onSnapshot(entriesQuery, (snap) => {
@@ -907,7 +1027,20 @@
       if (currentRound) {
         currentRound.entryCount = entries.length;
         updateRoundUI();
+
+        // Auto-end the round live (without a page reload) once
+        // the admin-set entry limit is reached, then start the
+        // next round so the leaderboard keeps working.
+        if (
+          !transitioningRound &&
+          currentRound.status === 'active' &&
+          entries.length >= G.maxEntries
+        ) {
+          transitionToNextRound();
+        }
       }
+    }, (err) => {
+      console.error('Leaderboard listener error:', err);
     });
   }
 
@@ -978,14 +1111,24 @@
   window.enterGame = async function() {
     if (!currentRound || !currentUserData) return;
 
-    const userEntryCount = userEntries.length;
-    if (userEntryCount >= 20) {
-      showToast('Maximum 20 entries per round', 'error');
+    if (G.gameStatus !== 'active') {
+      showToast('Game is under maintenance right now', 'error');
       return;
     }
 
-    if ((currentUserData.balance || 0) < 0.05) {
-      showToast('Insufficient balance. Need $0.05', 'error');
+    const userEntryCount = userEntries.length;
+    if ((currentRound.entryCount || 0) >= G.maxEntries) {
+      showToast('This round is full — wait for the next round', 'error');
+      return;
+    }
+
+    if (userEntryCount >= G.maxEntries) {
+      showToast(`Maximum ${G.maxEntries} entries per round`, 'error');
+      return;
+    }
+
+    if ((currentUserData.balance || 0) < G.entryFee) {
+      showToast(`Insufficient balance. Need $${G.entryFee.toFixed(2)}`, 'error');
       return;
     }
 
@@ -995,15 +1138,16 @@
     try {
       const userRef = doc(db, 'users', currentUser.uid);
       await updateDoc(userRef, {
-        balance: increment(-0.05)
+        balance: increment(-G.entryFee)
       });
 
-      const entryRef = doc(collection(db, 'vaultDefenderRounds', currentRound.id, 'entries'));
+      const entryRef = doc(collection(db, ROUNDS_COLLECTION, currentRound.id, 'entries'));
       const entryData = {
         userId: currentUser.uid,
         username: currentUserData.username || currentUserData.displayName || 'Unknown',
         score: 0,
         attemptNumber: userEntryCount + 1,
+        game: GAME_KEY,
         timestamp: serverTimestamp()
       };
       await setDoc(entryRef, entryData);
@@ -1012,18 +1156,18 @@
         userId: currentUser.uid,
         roundId: currentRound.id,
         entryId: entryRef.id,
-        game: 'vaultDefender',
+        game: GAME_KEY,
         type: 'entry',
-        amount: -0.05,
+        amount: -G.entryFee,
         timestamp: serverTimestamp()
       });
 
-      await updateDoc(doc(db, 'vaultDefenderRounds', currentRound.id), {
+      await updateDoc(doc(db, ROUNDS_COLLECTION, currentRound.id), {
         entryCount: increment(1),
-        prizePool: increment(0.05)
+        prizePool: increment(G.entryFee)
       });
 
-      currentUserData.balance = (currentUserData.balance || 0) - 0.05;
+      currentUserData.balance = (currentUserData.balance || 0) - G.entryFee;
 
       sessionStorage.setItem('vdEntryId', entryRef.id);
       sessionStorage.setItem('vdRoundId', currentRound.id);
@@ -1054,5 +1198,5 @@
   }
 </script>
 
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a2f27d1f3e6957fe',t:'MTc4NzQwODExNw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</body>
 </html>
