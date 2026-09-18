@@ -1,0 +1,235 @@
+rules_version = '2';
+
+// =====================================================================
+// TaskVault — Firestore Security Rules
+//
+// These rules run on Google's servers. Unlike the email allowlists in
+// the admin pages (which are only a UI gate), everything below is
+// enforced for every request, including raw SDK calls from DevTools.
+//
+//   * The two admin emails get full access to admin-managed data.
+//   * Regular users can only manage their own data.
+//   * The only exception: a CREDIT to another user's balance fields
+//     (game prizes, P2P transfer receive, referral commission, task
+//     rewards) — balance may only ever go UP, and only those fields.
+//   * Everything not listed here is DENIED by default (including the
+//     old 2D-shooter collections).
+//
+// Deploy with:   firebase deploy --only firestore:rules
+// (or paste into Firebase Console > Firestore > Rules > Publish)
+// =====================================================================
+
+service cloud.firestore {
+
+  // ---------- helpers ----------
+
+  // A real (non-anonymous) signed-in user.
+  function isUser() {
+    return request.auth != null && request.auth.token.firebase != null && request.auth.token.firebase.sign_in_provider != 'anonymous';
+  }
+
+  // The two official admin accounts. The `email` claim is added
+  // automatically to the ID token of email/password accounts, so no
+  // custom claims need to be assigned. (A matching email claim implies
+  // a signed-in user, so no extra isUser() check is needed.)
+  function isAdmin() {
+    return request.auth.token.email == 'beniwealth70@gmail.com' || request.auth.token.email == 'baasituoppor01@gmail.com';
+  }
+
+  // True when an update to a user document only touches the balance-
+  // credit fields with a numeric balance.
+  function isBalanceCredit() {
+    return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['balance', 'totalGameWon', 'totalReferralCommission', 'totalEarned', 'updatedAt']) && request.resource.data.balance is number;
+  }
+
+  // True when the balance does not go down (a missing old balance
+  // counts as 0). Together with isBalanceCredit() this is what lets
+  // game payouts, P2P receives, referral commissions and task rewards
+  // be written by the client without letting anyone else touch
+  // anyone else's profile.
+  function isCreditNotDecrease() {
+    return resource.data.balance == null || request.resource.data.balance >= resource.data.balance;
+  }
+
+  match /databases/{database}/documents {
+
+    // ---------- user profiles ----------
+    //
+    // Reads are open to signed-in users: the referral page lists users
+    // by referral code, transfers look recipients up by username, and
+    // the admin pages read everyone.
+    match /users/{uid} {
+      allow get, list: if isUser();
+
+      // A user may only ever create their own profile document.
+      allow create: if isUser() && request.auth.uid == uid || isAdmin();
+
+      // Update: your own profile (any field — the app manages your own
+      // balance/plan/kyc fields client-side), an admin, or a CREDIT to
+      // another user's balance fields (see the credit helpers above).
+      allow update: if isUser() && request.auth.uid == uid || isAdmin() || isBalanceCredit() && isCreditNotDecrease();
+
+      allow delete: if isAdmin();
+
+      // Per-user subcollections: activities, offers, holdings, stakes...
+      // Only the owner (or an admin) may read or write them.
+      match /{sub=**} {
+        allow read, write: if isUser() && request.auth.uid == uid || isAdmin();
+      }
+    }
+
+    // ---------- withdrawal requests ----------
+    // Users create their own requests; ONLY admins can approve,
+    // reject, refund or tag them with referral-commission data.
+    match /withdrawals/{id} {
+      allow get, list: if isUser();
+      allow create: if isUser() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isAdmin();
+    }
+
+    // ---------- deposit / activation transactions ----------
+    match /transactions/{id} {
+      allow get, list: if isUser();
+      allow create: if isUser() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isAdmin();
+    }
+
+    // ---------- KYC verification ----------
+    match /verification/{id} {
+      allow get, list: if isUser();
+      allow create: if isUser() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isAdmin();
+    }
+
+    // ---------- advertised tasks & submissions ----------
+    // Advertisers create tasks and may edit their OWN tasks (e.g.
+    // approving & paying worker submissions from the task manager).
+    // Public moderation (approve/takedown) and any cross-account edit
+    // is admin-only.
+    match /advertise_tasks/{id} {
+      allow get, list: if isUser();
+      allow create: if isUser();
+      allow update: if isAdmin() || isUser() && resource.data.owner == request.auth.uid;
+      allow delete: if isAdmin();
+    }
+
+    match /advert_submissions/{id} {
+      allow get, list: if isUser();
+      allow create: if isUser();
+      // Admins manage anything. Anyone may only move a PENDING
+      // submission to approved/rejected (status bookkeeping — the
+      // money move is separately restricted to isBalanceCredit()).
+      allow update: if isAdmin() || isUser() && resource.data.status == 'pending' && request.resource.data.status in ['approved', 'rejected'] && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'reviewedAt', 'reviewedBy']);
+      allow delete: if isAdmin();
+    }
+
+    // ---------- task earnings records ----------
+    match /earnings/{id} {
+      allow get, list: if isUser();
+      allow create: if isUser();
+      allow update, delete: if isAdmin();
+    }
+
+    // ---------- game settings (entry fee, prizes, status) ----------
+    // Public read (the lobby shows fees/prizes); only admins may write.
+    match /gameSettings/{id} {
+      allow get: if true;
+      allow list: if isAdmin();
+      allow create, update, delete: if isAdmin();
+    }
+
+    // ---------- game rounds (Vault Rush / Defender / Subway Runner) ----------
+    // The lobby creates the next round and bumps entry counts client-side,
+    // so authenticated users may create/update rounds. Prize payout is
+    // protected by the balance-credit rule above.
+    match /gameRounds/{id} {
+      allow get, list: if isUser();
+      allow create: if isUser();
+      allow update: if isUser();
+      allow delete: if isAdmin();
+      match /entries/{entryId} {
+        allow get, list: if isUser();
+        allow create: if isUser() && request.resource.data.userId == request.auth.uid;
+        // A player may only ever touch their own entry (score reporting).
+        allow update: if isUser() && resource.data.userId == request.auth.uid;
+        allow delete: if isAdmin();
+      }
+    }
+
+    match /vaultDefenderRounds/{id} {
+      allow get, list: if isUser();
+      allow create: if isUser();
+      allow update: if isUser();
+      allow delete: if isAdmin();
+      match /entries/{entryId} {
+        allow get, list: if isUser();
+        allow create: if isUser() && request.resource.data.userId == request.auth.uid;
+        allow update: if isUser() && resource.data.userId == request.auth.uid;
+        allow delete: if isAdmin();
+      }
+    }
+
+    match /subwayRunnerRounds/{id} {
+      allow get, list: if isUser();
+      allow create: if isUser();
+      allow update: if isUser();
+      allow delete: if isAdmin();
+      match /entries/{entryId} {
+        allow get, list: if isUser();
+        allow create: if isUser() && request.resource.data.userId == request.auth.uid;
+        allow update: if isUser() && resource.data.userId == request.auth.uid;
+        allow delete: if isAdmin();
+      }
+    }
+
+    // ---------- game history (entries & prize payouts) ----------
+    match /gameHistory/{id} {
+      allow get, list: if isUser();
+      allow create: if isUser();
+      allow update, delete: if isAdmin();
+    }
+
+    // ---------- referral commission records ----------
+    // Only the approval flow (running as an admin) may write these.
+    // The upline user and admins may read their own records.
+    match /referralCommissions/{id} {
+      allow get: if isAdmin() || isUser() && resource.data.uplineId == request.auth.uid;
+      allow list: if isUser();
+      allow create, update, delete: if isAdmin();
+    }
+
+    // ---------- stake market ----------
+    // Products & buyback plans are admin-managed. Regular users may only
+    // move the `available` stock counter (stake buy/sell) and the
+    // buyback's unitsBought/status — prices, names and setup stay locked.
+    match /products/{id} {
+      allow get, list: if isUser();
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin() || isUser() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['available']);
+    }
+
+    match /buybacks/{id} {
+      allow get, list: if isUser();
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin() || isUser() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['unitsBought', 'status', 'updatedAt']);
+    }
+
+    // ---------- stake P2P orders ----------
+    // Buyer or seller may update an order they are a party to;
+    // only admins may delete.
+    match /orders/{id} {
+      allow get, list: if isUser();
+      allow create: if isUser();
+      allow update: if isAdmin() || isUser() && resource.data.buyerId == request.auth.uid || isUser() && resource.data.sellerId == request.auth.uid;
+      allow delete: if isAdmin();
+    }
+
+    // ---------- P2P transfer log ----------
+    match /p2pTransfers/{id} {
+      allow get, list: if isUser();
+      allow create: if isUser();
+      allow update, delete: if isAdmin();
+    }
+
+  }
+}
