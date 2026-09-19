@@ -764,23 +764,24 @@
       <button id="closeOverlayBtn" class="btn-close-overlay">
         <i class="fas fa-times"></i>
       </button>
-      <h2><i class="fas fa-gift"></i> Referral Rebate</h2>
+      <h2><i class="fas fa-gift"></i> Referral Commission</h2>
       <p>Here's how you earn from every referral you bring to TaskVault</p>
     </div>
     <div class="overlay-body">
-      <!-- Referral Rebate -->
+      <!-- Referral Commission -->
       <div class="reward-card">
         <div class="reward-card-header">
           <div class="reward-icon">
             <i class="fas fa-percent"></i>
           </div>
-          <h3>Referral Rebate</h3>
-          <div class="amount">8%</div>
+          <h3>Referral Commission</h3>
+          <div class="amount">5%</div>
         </div>
         <p class="reward-desc">
-          You earn an <strong>8% rebate on your referral's earnings</strong> for life.
-          Every time they earn from tasks, games, or activities, <strong>8%</strong> is
-          credited to your referral balance — at no cost to them.
+          You earn a <strong>5% commission on your direct referral's withdrawals</strong>.
+          The moment a referral makes a withdrawal and it is
+          <strong>approved</strong>, <strong>5%</strong> of the withdrawal amount is
+          credited to your balance automatically — no action needed on your part.
         </p>
       </div>
 
@@ -789,20 +790,20 @@
         <h4><i class="fas fa-calculator"></i> Real Example</h4>
         <div class="example-item">
           <div class="example-icon">1</div>
-          <div class="example-text">Each referral earns <strong>$10 per week</strong></div>
+          <div class="example-text">Your referral requests a <strong>$200 withdrawal</strong></div>
         </div>
         <div class="example-item">
           <div class="example-icon">2</div>
-          <div class="example-text">You have <strong>20 active referrals</strong></div>
+          <div class="example-text">The withdrawal is <strong>approved</strong></div>
         </div>
         <div class="example-item">
           <div class="example-icon">%</div>
-          <div class="example-text">8% of $10 = <strong>$0.80 per referral/week</strong></div>
+          <div class="example-text">5% of $200 = <strong>$10.00 commission</strong></div>
         </div>
         <div class="example-item">
           <div class="example-icon">=</div>
-          <div class="example-text">20 referrals &times; $0.80</div>
-          <div class="example-result">$16/week</div>
+          <div class="example-text">$10.00 drops straight into <strong>your balance</strong></div>
+          <div class="example-result">+$10.00</div>
         </div>
       </div>
 
@@ -810,7 +811,7 @@
       <div class="overlay-footer">
         <p>
           <i class="fas fa-lightbulb" style="color:var(--orange);margin-right:4px;"></i>
-          The more active referrals you have, the more you earn — <span class="highlight">passive income for life!</span>
+          Every approved withdrawal from your referrals pays you — <span class="highlight">automatic, ongoing income!</span>
         </p>
       </div>
     </div>
@@ -836,6 +837,12 @@
         <i class="fas fa-arrow-down" style="margin-right:6px;"></i>Withdraw to Main Balance
       </button>
     </div>
+    <div class="stat-card">
+      <h3><i class="fas fa-hand-holding-usd" style="margin-right:6px;"></i>Commission Earned</h3>
+      <div class="big" id="commissionTotal" style="color:var(--green);">$0.00</div>
+      <div class="muted">5% on approved referrals' withdrawals</div>
+      <div class="muted" id="commissionCount" style="color:var(--orange);font-weight:700;">0 commissions paid</div>
+    </div>
     <div class="stat-card search-card">
       <h3><i class="fas fa-search" style="margin-right:6px;"></i>Search & Filter</h3>
       <div class="controls">
@@ -858,6 +865,9 @@
     </div>
     <div class="tab" data-tab="all">
       <i class="fas fa-users" style="margin-right:6px;"></i>All Referrals
+    </div>
+    <div class="tab" data-tab="commissions">
+      <i class="fas fa-hand-holding-usd" style="margin-right:6px;"></i>Commission Records
     </div>
   </div>
 
@@ -898,6 +908,24 @@
         </table>
       </div>
     </div>
+
+    <div id="commissions" class="tab-pane" style="display:none">
+      <div class="table-card">
+        <table aria-describedby="commissions">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Referred User</th>
+              <th>Withdrawal</th>
+              <th>Commission (5%)</th>
+            </tr>
+          </thead>
+          <tbody id="commissionBody">
+            <tr><td colspan="4" class="no-data"><i class="fas fa-spinner fa-spin"></i>Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 
   <footer>TaskVault © 2026</footer>
@@ -906,7 +934,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
     import { 
       getFirestore, collection, query, where, getDocs, 
-      doc, getDoc, updateDoc, onSnapshot 
+      doc, getDoc, updateDoc, onSnapshot, orderBy, limit 
     } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
 
@@ -925,6 +953,9 @@
 
     const activatedBody = document.getElementById('activatedBody');
     const allBody = document.getElementById('allBody');
+    const commissionBody = document.getElementById('commissionBody');
+    const commissionTotalEl = document.getElementById('commissionTotal');
+    const commissionCountEl = document.getElementById('commissionCount');
     const refCodeEl = document.getElementById('refCode');
     const totalRefEl = document.getElementById('totalRef');
     const activatedCountEl = document.getElementById('activatedCount');
@@ -945,6 +976,8 @@
     let currentUser = null;
     let currentUserRef = null;
     let unsubscribeSnapshot = null;
+    let unsubscribeCommissions = null;
+    let commissionRecords = [];
 
     const SILVER_PLANS = ['silver', 'gold', 'premium', 'elite', 'diamond', 'platinum'];
 
@@ -1156,6 +1189,63 @@
       }, 3000);
     }
 
+    function renderCommissions(){
+      if(!commissionRecords.length){
+        commissionBody.innerHTML = '<tr><td colspan="4" class="no-data"><i class="fas fa-inbox"></i>No commissions yet. When one of your referrals withdraws and it is approved, your 5% commission appears here.</td></tr>';
+        commissionTotalEl.textContent = '$0.00';
+        commissionCountEl.textContent = '0 commissions paid';
+        return;
+      }
+
+      // Newest first
+      commissionRecords.sort((a, b) => commissionTime(b) - commissionTime(a));
+
+      let total = 0;
+      commissionBody.innerHTML = commissionRecords.map(r=>{
+        const amt = Number(r.commission || 0);
+        total += amt;
+        const base = Number(r.baseAmount || 0);
+        return `<tr>
+          <td style="color:var(--muted);font-size:.85rem;white-space:nowrap">${escapeHtml(fmtDate(r.timestamp))}</td>
+          <td style="font-weight:700">${escapeHtml(r.downlineUsername || '-')}</td>
+          <td>$${base.toFixed(2)}</td>
+          <td style="font-weight:800;color:var(--green)">+$${amt.toFixed(2)}</td>
+        </tr>`;
+      }).join('');
+
+      commissionTotalEl.textContent = `$${total.toFixed(2)}`;
+      commissionCountEl.textContent = `${commissionRecords.length} commission${commissionRecords.length !== 1 ? 's' : ''} paid`;
+    }
+
+    function setupCommissionListener(){
+      if(unsubscribeCommissions) unsubscribeCommissions();
+
+      // No orderBy here (would need a composite index) —
+      // records are sorted client-side in renderCommissions.
+      const qRef = query(
+        collection(db, 'referralCommissions'),
+        where('uplineId', '==', currentUser.uid),
+        limit(100)
+      );
+
+      unsubscribeCommissions = onSnapshot(qRef, (snap) => {
+        commissionRecords = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderCommissions();
+      }, (err) => {
+        console.error('Commission records listener failed:', err);
+      });
+    }
+
+    function commissionTime(r){
+      const ts = r.timestamp;
+      try{
+        if(!ts) return 0;
+        if(ts.toDate) return ts.toDate().getTime();
+        if(ts instanceof Date) return ts.getTime();
+        return new Date(ts).getTime() || 0;
+      }catch(e){ return 0; }
+    }
+
     function setupRealtimeListener(myCode){
       if(unsubscribeSnapshot) unsubscribeSnapshot();
       
@@ -1163,9 +1253,11 @@
       
       unsubscribeSnapshot = onSnapshot(qRef, async (snap) => {
         /*
-         Referral earnings are paid as an 8% rebate and are credited
-         server-side. This listener only keeps the on-screen referral
-         list and balance in sync — it never writes to balances.
+         Referral earnings are paid as a 5% commission on each
+         referral's approved withdrawals and are credited
+         automatically when the admin approves the withdrawal.
+         This listener only keeps the on-screen referral list
+         and balance in sync — it never writes to balances.
         */
         if(snap.docChanges().length === 0) return;
 
@@ -1196,6 +1288,7 @@
       referralBalanceEl.textContent = `$${referralBalance.toFixed(2)}`;
       
       setupRealtimeListener(myCode);
+      setupCommissionListener();
       
       await loadData(myCode);
     });

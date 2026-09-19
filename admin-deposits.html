@@ -354,8 +354,29 @@
             color: var(--danger);
         }
 
+        .status-badge.processing,
+        .status-badge.verified,
+        .status-badge.manual_review,
+        .status-badge.awaiting_payment {
+            background: var(--warning-light);
+            color: var(--warning);
+        }
+
+        .status-badge.failed,
+        .status-badge.expired {
+            background: var(--danger-light);
+            color: var(--danger);
+        }
+
         .status-badge i {
             font-size: 8px;
+        }
+
+        .proof-img {
+            max-width: 100%;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            margin-top: 6px;
         }
 
         .action-btns {
@@ -1540,8 +1561,9 @@
 
 
                                 ${
-                                    status === 'pending'
-                                    ? `
+                                    ['pending', 'processing', 'failed', 'manual_review', 'verified']
+                                        .includes(status)
+                                        ? `
 
                                     <button
                                         class="btn-icon approve"
@@ -1550,7 +1572,7 @@
                                             ${amountUSD},
                                             '${deposit.userId || ''}'
                                         )"
-                                        title="Approve"
+                                        title="${status === 'verified' ? 'Confirm & Credit' : 'Approve'}"
                                     >
                                         <i class="fa-solid fa-check"></i>
                                     </button>
@@ -1588,7 +1610,7 @@
         // VIEW DETAILS
         // =========================================================
 
-        function viewDepositDetails(depositId) {
+        async function viewDepositDetails(depositId) {
 
             const deposit =
                 allDeposits.find(
@@ -1651,9 +1673,9 @@
                         <div class="value ${
                             status === 'completed'
                                 ? 'success'
-                                : status === 'pending'
-                                ? 'warning'
-                                : 'danger'
+                                : ['rejected', 'failed', 'expired'].includes(status)
+                                ? 'danger'
+                                : 'warning'
                         }">
 
                             ${status.toUpperCase()}
@@ -1840,6 +1862,35 @@
                     </div>
 
 
+                    <div class="detail-item">
+                        <div class="label">Sender Name (claimed)</div>
+                        <div class="value">${escapeHtml(deposit.senderName || 'N/A')}</div>
+                    </div>
+
+
+                    <div class="detail-item">
+                        <div class="label">Transaction ID (bank ref)</div>
+                        <div class="value" style="font-family: monospace; font-size: 11px;">${escapeHtml(deposit.transactionId || 'N/A')}</div>
+                    </div>
+
+
+                    <div class="detail-item">
+                        <div class="label">Deposit Remark</div>
+                        <div class="value" style="font-family: monospace; font-size: 12px;">${escapeHtml(deposit.remark || 'N/A')}</div>
+                    </div>
+
+
+                    <div class="detail-item">
+                        <div class="label">Before approving</div>
+                        <div class="value" style="font-size:11px; line-height:1.6;">
+                            Match all four in your bank statement / app: the
+                            <strong>exact amount</strong>, the <strong>remark</strong>, the
+                            <strong>sender name</strong> and the <strong>transaction ID</strong>.
+                            Only then approve — deposits are promised to users
+                            within 24 hours.
+                        </div>
+                    </div>
+
                 </div>
 
             `;
@@ -1857,7 +1908,9 @@
             `;
 
 
-            if (status === 'pending') {
+            const actionableStatuses = ['pending', 'awaiting_payment', 'processing', 'failed', 'manual_review', 'verified'];
+
+            if (actionableStatuses.includes(status)) {
 
                 footerHtml += `
 
@@ -1874,10 +1927,9 @@
                     >
 
                         <i class="fa-solid fa-check"></i>
-                        Approve
+                        ${status === 'verified' ? 'Confirm & Credit' : 'Approve'}
 
                     </button>
-
 
                     <button
                         class="btn btn-reject"

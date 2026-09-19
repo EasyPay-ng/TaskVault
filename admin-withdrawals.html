@@ -1435,19 +1435,62 @@
                                 </div>
 
 
-                                <div class="detail-row">
+                                    <div class="detail-row">
 
-                                    <span class="detail-label">
-                                        User Receives
-                                    </span>
+                                        <span class="detail-label">
+                                            User Receives
+                                        </span>
 
-                                    <span class="detail-value receive">
-                                        ₦${Number(
-                                            w.amountNGN || 0
-                                        ).toLocaleString()}
-                                    </span>
+                                        <span class="detail-value receive">
+                                            ₦${Number(
+                                                w.amountNGN || 0
+                                            ).toLocaleString()}
+                                        </span>
 
-                                </div>
+                                    </div>
+
+                                    ${
+                                        w
+                                            .referralCommissionPaid
+                                            ? `
+
+                                        <div
+                                            class="detail-row"
+                                            style="background:var(--success-light);border-radius:8px;padding:6px 8px;margin-top:2px;"
+                                        >
+
+                                            <span
+                                                class="detail-label"
+                                                style="color:var(--success);font-weight:700;"
+                                            >
+                                                <i
+                                                    class="fa-solid fa-user-plus"
+                                                    style="margin-right:4px;"
+                                                ></i>
+                                                Referral Commission (5%)
+                                            </span>
+
+                                            <span
+                                                class="detail-value"
+                                                style="color:var(--success);font-weight:700;"
+                                            >
+                                                → $${Number(
+                                                    w
+                                                        .commissionAmount ||
+                                                    0
+                                                ).toFixed(2)}
+                                                to
+                                                ${escapeHtml(
+                                                    w.commissionedTo ||
+                                                    "upline"
+                                                )}
+                                            </span>
+
+                                        </div>
+
+                                    `
+                                            : ""
+                                    }
 
 
                                 <div class="detail-row">
@@ -1718,11 +1761,25 @@
                     });
 
 
+                // Automatically credit the upline with the
+                // 5% referral commission (shows its own
+                // toast on success).
+                const commission =
+                    await grantReferralCommission(
+                        withdrawal
+                    );
+
+
                 hideLoader();
 
-                showToast(
-                    "Withdrawal approved"
-                );
+                if (commission === null) {
+
+                    showToast(
+                        "Withdrawal approved"
+                    );
+
+                }
+
 
                 await loadWithdrawals();
 
@@ -1739,6 +1796,340 @@
                 showToast(
                     "Failed to approve"
                 );
+
+            }
+
+        }
+
+
+        // =========================================================
+        // REFERRAL COMMISSION (5%)
+        // When a downline's withdrawal is approved, 5% of the
+        // withdrawal amount is credited straight to the upline's
+        // balance and a record is saved in referralCommissions.
+        // =========================================================
+
+        const REFERRAL_COMMISSION_RATE = 0.05;
+
+
+        async function grantReferralCommission(
+            withdrawal
+        ) {
+
+            if (
+                !withdrawal ||
+                withdrawal.referralCommissionPaid
+            ) {
+
+                return null;
+
+            }
+
+
+            const baseAmount =
+                Number(
+                    withdrawal.amountUSD || 0
+                );
+
+
+            if (!baseAmount || baseAmount <= 0) {
+
+                return null;
+
+            }
+
+
+            // ---- Find the downline user ----
+
+            let downline = null;
+
+
+            try {
+
+                if (withdrawal.userId) {
+
+                    const snap = await db
+                        .collection("users")
+                        .doc(withdrawal.userId)
+                        .get();
+
+                    if (snap.exists()) {
+
+                        downline = {
+                            id: snap.id,
+                            ...snap.data()
+                        };
+
+                    }
+
+                }
+
+
+                if (!downline && withdrawal.email) {
+
+                    const q = await db
+                        .collection("users")
+                        .where(
+                            "email",
+                            "==",
+                            withdrawal.email
+                        )
+                        .limit(1)
+                        .get();
+
+
+                    if (!q.empty) {
+
+                        const d = q.docs[0];
+
+                        downline = {
+                            id: d.id,
+                            ...d.data()
+                        };
+
+                    }
+
+                }
+
+            } catch (err) {
+
+                console.error(
+                    "Commission: failed to find downline",
+                    err
+                );
+
+                return null;
+
+            }
+
+
+            if (!downline) {
+
+                return null;
+
+            }
+
+
+            const refCode =
+                String(
+                    downline.referral || ""
+                ).trim();
+
+
+            if (
+                !refCode ||
+                refCode ===
+                    String(
+                        downline.username || ""
+                    ).trim()
+            ) {
+
+                // No upline (or self-referred)
+                return null;
+
+            }
+
+
+            // ---- Find the upline user ----
+            // The referral code stored on a user is the
+            // username of the person who referred them.
+
+            let upline = null;
+
+
+            try {
+
+                const q = await db
+                    .collection("users")
+                    .where(
+                        "username",
+                        "==",
+                        refCode
+                    )
+                    .limit(1)
+                    .get();
+
+
+                if (!q.empty) {
+
+                    const d = q.docs[0];
+
+                    upline = {
+                        id: d.id,
+                        ...d.data()
+                    };
+
+                }
+
+            } catch (err) {
+
+                console.error(
+                    "Commission: failed to find upline",
+                    err
+                );
+
+                return null;
+
+            }
+
+
+            if (!upline) {
+
+                return null;
+
+            }
+
+
+            const commission =
+                Math.round(
+                    baseAmount *
+                        REFERRAL_COMMISSION_RATE *
+                        100
+                ) /
+                100;
+
+
+            if (commission <= 0) {
+
+                return null;
+
+            }
+
+
+            const fsv =
+                firebase.firestore
+                    .FieldValue;
+
+
+            try {
+
+                await db.runTransaction(async (t) => {
+
+                    const wRef = db
+                        .collection("withdrawals")
+                        .doc(withdrawal.id);
+
+                    const wSnap = await t.get(wRef);
+
+                    if (!wSnap.exists()) {
+
+                        throw new Error(
+                            "Withdrawal document missing"
+                        );
+
+                    }
+
+
+                    // Double-spend guard: only pay once
+                    if (
+                        wSnap
+                            .data()
+                            .referralCommissionPaid
+                    ) {
+
+                        return "skipped";
+
+                    }
+
+
+                    const upRef = db
+                        .collection("users")
+                        .doc(upline.id);
+
+
+                    // 1) Mark the withdrawal as commissioned
+                    t.update(wRef, {
+
+                        referralCommissionPaid: true,
+
+                        commissionAmount: commission,
+
+                        commissionRate:
+                            REFERRAL_COMMISSION_RATE,
+
+                        commissionedTo:
+                            upline.username || refCode,
+
+                        commissionedToId: upline.id,
+
+                        commissionedAt:
+                            fsv.serverTimestamp()
+
+                    });
+
+
+                    // 2) Credit the upline's balance
+                    t.update(upRef, {
+
+                        balance:
+                            fsv.increment(commission),
+
+                        totalReferralCommission:
+                            fsv.increment(commission)
+
+                    });
+
+
+                    // 3) Save the commission record
+                    const recordRef = db
+                        .collection("referralCommissions")
+                        .doc();
+
+
+                    t.set(recordRef, {
+
+                        uplineId: upline.id,
+
+                        uplineUsername:
+                            upline.username || refCode,
+
+                        downlineId: downline.id,
+
+                        downlineUsername:
+                            downline.username ||
+                            downline.email ||
+                            "Unknown",
+
+                        withdrawalId: withdrawal.id,
+
+                        baseAmount: baseAmount,
+
+                        commission: commission,
+
+                        rate:
+                            REFERRAL_COMMISSION_RATE,
+
+                        timestamp:
+                            fsv.serverTimestamp()
+
+                    });
+
+                });
+
+
+                showToast(
+                    `Approved — $${commission.toFixed(
+                        2
+                    )} (5%) referral commission credited to ${upline.username || refCode}`
+                );
+
+
+                return commission;
+
+
+            } catch (err) {
+
+                console.error(
+                    "Referral commission error:",
+                    err
+                );
+
+                showToast(
+                    "Withdrawal approved, but referral commission failed"
+                );
+
+
+                return null;
 
             }
 

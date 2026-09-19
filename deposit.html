@@ -1106,21 +1106,21 @@
                 <div class="detail-row">
                     <div>
                         <span class="detail-label">Bank</span>
-                        <span class="detail-value">Tenn MFB</span>
+                        <span class="detail-value" id="bankNameDisplay">—</span>
                     </div>
-                    <button class="copy-btn" onclick="copyText('Palmpay Limited')"><i class="fa-regular fa-copy"></i></button>
+                    <button class="copy-btn" onclick="copyText(BANK_DETAILS.bank)"><i class="fa-regular fa-copy"></i></button>
                 </div>
                 <div class="detail-row">
                     <div>
                         <span class="detail-label">Account Number</span>
-                        <span class="detail-value">8377668427</span>
+                        <span class="detail-value" id="bankAccountDisplay">—</span>
                     </div>
-                    <button class="copy-btn" onclick="copyText('8037402826')"><i class="fa-regular fa-copy"></i></button>
+                    <button class="copy-btn" onclick="copyText(BANK_DETAILS.accountNumber)"><i class="fa-regular fa-copy"></i></button>
                 </div>
                 <div class="detail-row">
                     <div>
                         <span class="detail-label">Account Name</span>
-                        <span class="detail-value"></span>
+                        <span class="detail-value" id="bankAccountNameDisplay">—</span>
                     </div>
                 </div>
                 <div class="detail-row highlight">
@@ -1139,6 +1139,11 @@
                 </div>
             </div>
 
+            <div class="notice-box" style="margin:14px 0;">
+                <i class="fa-solid fa-bolt"></i>
+                <strong>Fast approval:</strong> after you submit, we verify your transfer (remark, amount &amp; sender name) and approve deposits <strong>within 24 hours</strong> — most in minutes.
+            </div>
+
             <button class="btn-primary" onclick="proceedToVerification()">I Have Sent The Money</button>
         </div>
     </div>
@@ -1149,14 +1154,32 @@
             <button class="back-btn" onclick="closeOverlay('overlayVerify')"><i class="fa-solid fa-arrow-left"></i></button>
             <div class="overlay-title">Verify Payment</div>
         </div>
-        <div class="overlay-content" style="text-align:center; padding-top:30px;">
-            <i class="fa-solid fa-shield-halved" style="font-size:48px; color:#e2e8f0; margin-bottom:16px;"></i>
-            <h3 style="font-size:18px; font-weight:800; margin-bottom:8px; color:var(--text-dark);">Transaction ID</h3>
-            <p style="font-size:12px; color:var(--text-light); margin-bottom:24px;">Enter your transaction reference number</p>
+        <div class="overlay-content" style="text-align:center; padding-top:24px;">
+            <i class="fa-solid fa-circle-check" style="font-size:48px; color:var(--gold); margin-bottom:14px;"></i>
+            <h3 style="font-size:18px; font-weight:800; margin-bottom:6px; color:var(--text-dark);">Almost Done!</h3>
+            <p style="font-size:12px; color:var(--text-light); margin-bottom:16px;">Tell us who sent the money and we will find it in our account immediately.</p>
 
-            <input type="text" id="transactionId" class="amount-input" style="text-align:center; padding:14px; font-size:16px; letter-spacing:2px;" placeholder="Enter Transaction ID">
+            <div style="text-align:left; background:linear-gradient(135deg, rgba(212,175,55,0.14), rgba(212,175,55,0.05)); border:1px solid rgba(212,175,55,0.4); border-radius:14px; padding:13px 14px; margin-bottom:16px;">
+                <div style="font-size:11px; font-weight:800; color:var(--gold); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:4px;"><i class="fa-solid fa-bolt"></i> Fast approval</div>
+                <div style="font-size:12px; color:var(--text-light); line-height:1.5;">Your deposit is checked by our team the moment you submit — and approved <strong style="color:var(--text-dark);">within 24 hours</strong>, most in minutes. You will see the status update right here.</div>
+            </div>
 
-            <button class="btn-primary" onclick="verifyPayment()" style="margin-top:24px;">Verify <i class="fa-solid fa-check-circle"></i></button>
+            <div class="input-group" style="text-align:left; margin-bottom:14px;">
+                <label class="input-label">Sender Name (on your bank account)</label>
+                <input type="text" id="senderName" class="amount-input" style="padding:14px;" placeholder="e.g. Muhammad Nasir" autocomplete="off">
+                <div class="input-hint" style="margin-top:6px; font-size:11px;">This must exactly match the name on your bank account — it is how we find your transfer.</div>
+            </div>
+
+            <div class="input-group" style="text-align:left; margin-bottom:16px;">
+                <label class="input-label">Bank Transaction ID</label>
+                <input type="text" id="transactionId" inputmode="numeric" class="amount-input" style="padding:14px; font-family:monospace; letter-spacing:1px;" placeholder="e.g. 123456789012345678901234" autocomplete="off" maxlength="30">
+                <div class="input-hint" style="margin-top:6px; font-size:11px;">The 24-digit reference your bank app shows on the transfer receipt.</div>
+            </div>
+
+            <div id="verifyStatusCard" style="display:none; text-align:left; background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.12); border-radius:14px; padding:14px; margin-bottom:14px;"></div>
+
+            <button class="btn-primary" id="submitDepositBtn" onclick="submitDeposit()" style="margin-top:2px;">Submit for Verification <i class="fa-solid fa-paper-plane"></i></button>
+            <div style="font-size:10px; color:var(--text-light); margin-top:12px; opacity:0.8;"><i class="fa-solid fa-shield-halved"></i> We only credit after matching the exact amount + remark + sender name in our bank.</div>
         </div>
     </div>
 
@@ -1294,25 +1317,88 @@
 
         document.getElementById('amountInput').addEventListener('input', calculateBankAmount);
 
-        function proceedToPayment() {
+        // ==================== PROOF-VERIFIED DEPOSIT FLOW ====================
+        // awaiting_payment -> pending (user submits sender name + transaction ID)
+        //   -> completed | verified | failed | manual_review | expired
+        let activeDepositId = null;
+        let activeDepositUnsub = null;
+        let creditedActivityLogged = false;
+
+        async function proceedToPayment() {
             const usd = parseFloat(document.getElementById('amountInput').value);
             if (!usd || usd < 0.1) {
                 showToast("Minimum $0.1");
                 return;
             }
 
-            showLoader("Generating...", 1500, () => {
-                document.getElementById('finalNaira').textContent = userNairaAmount.toLocaleString();
-                document.getElementById('bankRateUsed').textContent = `₦${FIXED_RATES.bank.toLocaleString()} / $1`;
+            showLoader("Creating deposit...", 800, async () => {
+                try {
+                    // Reuse the current pending deposit if the user comes
+                    // back to "Continue" (no duplicate requests).
+                    let existing = null;
+                    if (activeDepositId) {
+                        const snap = await db.collection('transactions').doc(activeDepositId).get();
+                        if (snap.exists && (snap.data().status || '') === 'awaiting_payment'
+                            && Number(snap.data().amountUSD) === usd) {
+                            existing = snap.data();
+                        }
+                    }
 
-                const randomStr = Math.random().toString(36).substr(2, 4).toUpperCase();
-                const randomNum = Math.floor(1000 + Math.random() * 9000);
-                document.getElementById('generatedRemark').textContent = `CC-${randomStr}-${randomNum}`;
+                    let remark;
+                    if (existing) {
+                        remark = existing.remark;
+                    } else {
+                        remark = `CC-${Math.random().toString(36).substr(2, 4).toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`;
 
-                document.getElementById('overlayPayment').classList.add('active');
-                startTimer();
+                        // Create the pending deposit FIRST — the remark is
+                        // unique to this request and is what the receipt is
+                        // verified against.
+                        const ref = await db.collection('transactions').add({
+                            userId: currentUser.uid,
+                            email: currentUser.email || (userData && userData.email) || '',
+                            type: 'deposit',
+                            method: 'bank',
+                            status: 'awaiting_payment',
+                            amountUSD: usd,
+                            amountNGN: userNairaAmount,
+                            bankRate: FIXED_RATES.bank,
+                            remark: remark,
+                            senderName: (userData && userData.kycName) || '',
+                            bank: BANK_DETAILS.bank,
+                            accountNumber: BANK_DETAILS.accountNumber,
+                            accountName: BANK_DETAILS.accountName,
+                            expiresAt: firebase.firestore.Timestamp.fromDate(new Date(Date.now() + 30 * 60 * 1000)),
+                            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                        activeDepositId = ref.id;
+                    }
+                    creditedActivityLogged = false;
+
+                    // Render payment details from the single source of truth
+                    document.getElementById('bankNameDisplay').textContent = BANK_DETAILS.bank;
+                    document.getElementById('bankAccountDisplay').textContent = BANK_DETAILS.accountNumber;
+                    document.getElementById('bankAccountNameDisplay').textContent = BANK_DETAILS.accountName;
+                    document.getElementById('finalNaira').textContent = userNairaAmount.toLocaleString();
+                    document.getElementById('bankRateUsed').textContent = `₦${FIXED_RATES.bank.toLocaleString()} / $1`;
+                    document.getElementById('generatedRemark').textContent = remark;
+
+                    // Prefill sender name from KYC, reset the form
+                    document.getElementById('senderName').value = (userData && userData.kycName) || '';
+                    document.getElementById('transactionId').value = '';
+                    setVerifyStatus('idle');
+
+                    document.getElementById('overlayPayment').classList.add('active');
+                    subscribeActiveDeposit();
+                    startTimer();
+                } catch (error) {
+                    console.error("Deposit start error:", error);
+                    document.getElementById('mainLoader').classList.remove('active');
+                    showToast("Could not start deposit. Try again.");
+                }
             });
         }
+
+        let lastSeenStatus = 'awaiting_payment';
 
         function startTimer() {
             clearInterval(timerInterval);
@@ -1325,6 +1411,14 @@
                 display.textContent = `${min}:${sec < 10 ? '0' : ''}${sec}`;
                 if (time-- <= 0) {
                     clearInterval(timerInterval);
+                    // Only an UNPAID request expires on the timer. Once
+                    // submitted, it stays open until an admin decides.
+                    if (lastSeenStatus === 'awaiting_payment' && activeDepositId) {
+                        db.collection('transactions').doc(activeDepositId).update({
+                            status: 'expired',
+                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        }).catch(() => {});
+                    }
                     showToast("Session expired");
                     setTimeout(() => window.location.reload(), 1500);
                 }
@@ -1337,62 +1431,98 @@
             });
         }
 
-        async function verifyPayment() {
-            const val = document.getElementById('transactionId').value.trim();
+        // ---- live status of the active deposit ----
+        function setVerifyStatus(kind, detail) {
+            const card = document.getElementById('verifyStatusCard');
+            const btn = document.getElementById('submitDepositBtn');
+            if (kind === 'idle') {
+                card.style.display = 'none';
+                btn.style.display = '';
+                return;
+            }
+            btn.style.display = 'none';
+            card.style.display = '';
+            const states = {
+                pending: {
+                    icon: 'fa-hourglass-half', color: '#f59e0b', title: 'Under Review',
+                    body: 'We are verifying your transfer now — matching the remark, the exact amount and the sender name against the bank. Deposits are approved <strong>within 24 hours</strong>, and most are done in minutes. Keep this page open or check Deposit History for updates.'
+                },
+                completed: {
+                    icon: 'fa-circle-check', color: '#22c55e', title: 'Approved & Credited!',
+                    body: 'Your deposit was verified and your balance has been credited. You can close this window and start using your funds!'
+                },
+                rejected: {
+                    icon: 'fa-circle-exclamation', color: '#ef4444', title: 'Deposit Rejected',
+                    body: detail || 'The transfer could not be matched to this request. If you believe this is a mistake, contact support with your transaction ID.'
+                },
+                expired: {
+                    icon: 'fa-hourglass-end', color: '#94a3b8', title: 'Request Expired',
+                    body: 'This request timed out before verification details were submitted. Start a new deposit to try again.'
+                }
+            };
+            const s = states[kind] || states.pending;
+            card.innerHTML = `<i class="fa-solid ${s.icon}" style="font-size:20px; color:${s.color}; margin-right:8px;"></i><strong style="font-size:13px;">${s.title}</strong><div style="font-size:12px; color:var(--text-light); margin-top:6px; line-height:1.6;">${s.body}</div>`;
+        }
 
-            if (!/^\d{24}$/.test(val)) {
-                showToast("Invalid transaction ID");
+        function subscribeActiveDeposit() {
+            if (activeDepositUnsub) activeDepositUnsub();
+            if (!activeDepositId) return;
+            activeDepositUnsub = db.collection('transactions').doc(activeDepositId).onSnapshot((doc) => {
+                if (!doc.exists) return;
+                const d = doc.data();
+                const status = (d.status || '').toLowerCase();
+                lastSeenStatus = status;
+                if (status === 'pending') {
+                    setVerifyStatus('pending');
+                } else if (status === 'completed') {
+                    setVerifyStatus('completed');
+                    if (!creditedActivityLogged) {
+                        creditedActivityLogged = true;
+                        logActivity('deposit', 'Bank Transfer Deposit', Number(d.amountUSD || 0));
+                        setTimeout(() => document.getElementById('successModal').classList.add('active'), 1200);
+                    }
+                } else if (status === 'rejected') {
+                    setVerifyStatus('rejected', d.rejectionReason);
+                } else if (status === 'expired') {
+                    setVerifyStatus('expired');
+                }
+            }, (err) => {
+                console.error('Deposit status listener error:', err);
+            });
+        }
+
+        async function submitDeposit() {
+            if (!activeDepositId) {
+                showToast("Start a deposit first");
+                return;
+            }
+            const senderName = document.getElementById('senderName').value.trim();
+            const transactionId = document.getElementById('transactionId').value.trim();
+            if (senderName.length < 3) {
+                showToast("Enter the sender name exactly as shown on your bank account");
+                return;
+            }
+            if (!/^\d{24,}$/.test(transactionId)) {
+                showToast("Transaction ID must be at least 24 digits (your bank reference number)");
                 return;
             }
 
-            const usdAmount = parseFloat(document.getElementById('amountInput').value);
-
-            showLoader("Verifying...", 2000, async () => {
-                try {
-                    const snapshot = await db.collection('transactions')
-                        .where('transactionId', '==', val)
-                        .get();
-
-                    if (!snapshot.empty) {
-                        showToast("ID already used");
-                        return;
-                    }
-
-                    document.getElementById('loaderText').textContent = "Crediting...";
-                    document.getElementById('mainLoader').classList.add('active');
-
-                    const userRef = db.collection('users').doc(currentUser.uid);
-                    await userRef.update({
-                        balance: firebase.firestore.FieldValue.increment(usdAmount)
-                    });
-
-                    await db.collection('transactions').add({
-                        userId: currentUser.uid,
-                        email: currentUser.email || userData.email || '',
-                        type: 'deposit',
-                        method: 'bank',
-                        amountUSD: usdAmount,
-                        amountNGN: userNairaAmount,
-                        bankRate: FIXED_RATES.bank,
-                        transactionId: val,
-                        remark: document.getElementById('generatedRemark').textContent,
-                        bank: BANK_DETAILS.bank,
-                        accountNumber: BANK_DETAILS.accountNumber,
-                        accountName: BANK_DETAILS.accountName,
-                        status: 'completed',
-                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-
-                    await logActivity('deposit', 'Bank Transfer Deposit', usdAmount);
-
-                    document.getElementById('mainLoader').classList.remove('active');
-                    document.getElementById('successModal').classList.add('active');
-                } catch (error) {
-                    console.error("Bank verification error:", error);
-                    document.getElementById('mainLoader').classList.remove('active');
-                    showToast("Error occurred. Try again.");
-                }
-            });
+            setVerifyStatus('pending');
+            try {
+                // The only self-update the rules allow: submitting the
+                // verification details (status -> pending).
+                await db.collection('transactions').doc(activeDepositId).update({
+                    senderName: senderName,
+                    transactionId: transactionId,
+                    status: 'pending',
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                setVerifyStatus('pending');
+            } catch (error) {
+                console.error("Submit deposit error:", error);
+                setVerifyStatus('idle');
+                showToast("Could not submit. Please try again.");
+            }
         }
 
         // ==================== DEPOSIT HISTORY (REAL-TIME LISTENER) ====================
