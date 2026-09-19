@@ -56,6 +56,27 @@
                 console.log("User already signed in:", user.email);
             }
         });
+
+        // ===== REFERRAL CODE HANDLING (Google sign-in only creates a
+        // profile here, so it needs the same ?ref= capture register.html
+        // does, otherwise a Google sign-up can never be credited as a
+        // downline and never shows up in anyone's referral list). =====
+        const urlParams = new URLSearchParams(window.location.search);
+        const refFromUrl = (urlParams.get('ref') || '').trim();
+        if (refFromUrl) {
+            try {
+                sessionStorage.setItem('taskvault_pending_ref', refFromUrl);
+            } catch (e) {}
+        }
+        window.taskvaultPendingReferral =
+            refFromUrl ||
+            (function () {
+                try {
+                    return sessionStorage.getItem('taskvault_pending_ref') || '';
+                } catch (e) {
+                    return '';
+                }
+            })();
     </script>
 
     <style>
@@ -547,8 +568,30 @@
                 };
                 
                 if (!userSnap.exists()) {
-                    // New user - create profile
+                    // New user - create profile.
+                    // NOTE: this must set the same fields register.html
+                    // sets (username, balance, referral) — this is the
+                    // only account-creation path for Google/Steam
+                    // sign-ins, and referral commissions are looked up
+                    // by `username`, so skipping it here silently broke
+                    // referral payouts for every Google-signed-up user
+                    // (both as a referrer and as a referred downline).
                     userData.createdAt = serverTimestamp();
+                    userData.balance = 0;
+                    userData.status = 'active';
+                    userData.username =
+                        (user.displayName || (user.email ? user.email.split('@')[0] : '') || user.uid)
+                            .toString()
+                            .trim()
+                            .replace(/\s+/g, '_')
+                            .slice(0, 30) || user.uid;
+
+                    const pendingRef = (window.taskvaultPendingReferral || '').trim();
+                    if (pendingRef) {
+                        userData.referral = pendingRef;
+                        try { sessionStorage.removeItem('taskvault_pending_ref'); } catch (e) {}
+                    }
+
                     userData.gamingStats = {
                         totalGames: 0,
                         achievements: 0,
