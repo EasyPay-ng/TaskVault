@@ -39,7 +39,7 @@ service cloud.firestore {
   // True when an update to a user document only touches the balance-
   // credit fields with a numeric balance.
   function isBalanceCredit() {
-    return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['balance', 'totalGameWon', 'totalReferralCommission', 'totalEarned', 'updatedAt']) && request.resource.data.balance is number;
+    return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['balance', 'referralBalance', 'totalGameWon', 'totalReferralCommission', 'totalEarned', 'updatedAt']) && request.resource.data.balance is number;
   }
 
   // True when the balance does not go down (a missing old balance

@@ -934,7 +934,10 @@
     const auth = firebase.auth();
     const db = firebase.firestore();
 
-    const ADMIN_EMAIL = 'beniwealth70@gmail.com';
+    const ADMIN_EMAILS = [
+      'beniwealth70@gmail.com',
+      'baasituoppor01@gmail.com'
+    ];
 
     let currentUser = null;
     let isAdmin = false;
@@ -976,8 +979,9 @@
 
       currentUser = user;
 
-      // Strict admin check
-      if (user.email !== ADMIN_EMAIL) {
+      // Strict admin check — both approved admin emails are allowed
+      const userEmail = (user.email || '').trim().toLowerCase();
+      if (!ADMIN_EMAILS.includes(userEmail)) {
         document.getElementById('loadingOverlay').style.display = 'none';
         document.getElementById('appContainer').style.display = 'none';
         document.getElementById('deniedContainer').style.display = 'flex';

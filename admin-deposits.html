@@ -1659,6 +1659,97 @@
                 );
 
 
+            // New deposits store every receiving account in a
+            // `bankAccounts` array (the user may have paid into any of
+            // them). Older deposits stored a single bank/accountNumber/
+            // accountName triple — keep showing that as a fallback.
+            let bankDetailsHtml = '';
+
+            if (
+                Array.isArray(deposit.bankAccounts) &&
+                deposit.bankAccounts.length
+            ) {
+
+                bankDetailsHtml = deposit.bankAccounts
+                    .map(
+                        (acct, i) => `
+
+                            <div class="detail-item">
+
+                                <div class="label">
+                                    Option ${i + 1} —
+                                    ${escapeHtml(acct.bank || 'Bank')}
+                                </div>
+
+                                <div class="value">
+                                    ${escapeHtml(
+                                        acct.accountNumber || 'N/A'
+                                    )}${
+                                        acct.accountName
+                                            ? ' · ' + escapeHtml(acct.accountName)
+                                            : ''
+                                    }
+                                </div>
+
+                            </div>
+
+                        `
+                    )
+                    .join('');
+
+            } else {
+
+                bankDetailsHtml = `
+
+                    <div class="detail-item">
+
+                        <div class="label">
+                            Bank Name
+                        </div>
+
+                        <div class="value">
+                            ${escapeHtml(
+                                deposit.bank || 'N/A'
+                            )}
+                        </div>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <div class="label">
+                            Account Number
+                        </div>
+
+                        <div class="value">
+                            ${escapeHtml(
+                                deposit.accountNumber || 'N/A'
+                            )}
+                        </div>
+
+                    </div>
+
+
+                    <div class="detail-item">
+
+                        <div class="label">
+                            Account Name
+                        </div>
+
+                        <div class="value">
+                            ${escapeHtml(
+                                deposit.accountName || 'N/A'
+                            )}
+                        </div>
+
+                    </div>
+
+                `;
+
+            }
+
+
             const bodyHtml = `
 
                 <div class="detail-grid">
@@ -1799,49 +1890,7 @@
                     </div>
 
 
-                    <div class="detail-item">
-
-                        <div class="label">
-                            Bank Name
-                        </div>
-
-                        <div class="value">
-                            ${escapeHtml(
-                                deposit.bank || 'N/A'
-                            )}
-                        </div>
-
-                    </div>
-
-
-                    <div class="detail-item">
-
-                        <div class="label">
-                            Account Number
-                        </div>
-
-                        <div class="value">
-                            ${escapeHtml(
-                                deposit.accountNumber || 'N/A'
-                            )}
-                        </div>
-
-                    </div>
-
-
-                    <div class="detail-item">
-
-                        <div class="label">
-                            Account Name
-                        </div>
-
-                        <div class="value">
-                            ${escapeHtml(
-                                deposit.accountName || 'N/A'
-                            )}
-                        </div>
-
-                    </div>
+                    ${bankDetailsHtml}
 
 
                     <div class="detail-item">
