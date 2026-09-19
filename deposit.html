@@ -1083,6 +1083,26 @@
         </div>
     </div>
 
+    <!-- ==================== BANK ACCOUNT SELECT OVERLAY ==================== -->
+    <!-- The two receiving accounts are presented as two DISTINCT sections.
+         The user chooses one here; only the chosen account is then shown
+         on the payment page, so the two account numbers never appear
+         together on the same screen. -->
+    <div class="page-overlay" id="overlaySelectAccount">
+        <div class="overlay-header">
+            <button class="back-btn" onclick="closeOverlay('overlaySelectAccount')"><i class="fa-solid fa-arrow-left"></i></button>
+            <div class="overlay-title">Choose Account</div>
+        </div>
+        <div class="overlay-content">
+            <div class="notice-box">
+                <i class="fa-solid fa-circle-info"></i>
+                <strong>Choose one account.</strong> Pick the receiving account you will transfer to. Each account is shown in its own section below — pay into only the one you select.
+            </div>
+
+            <div id="accountSelectList"></div>
+        </div>
+    </div>
+
     <!-- ==================== BANK PAYMENT DETAILS OVERLAY ==================== -->
     <div class="page-overlay" id="overlayPayment">
         <div class="overlay-header">
@@ -1100,7 +1120,7 @@
                 <div class="value" style="color:var(--orange-main);" id="bankRateUsed">₦1,000 / $1</div>
             </div>
 
-            <p style="font-size:12px; color:var(--text-light); margin-bottom:14px; text-align:center;">Transfer exact amount to <strong>any one</strong> of these accounts:</p>
+            <p style="font-size:12px; color:var(--text-light); margin-bottom:14px; text-align:center;">Transfer the exact amount to the account below:</p>
 
             <div id="bankAccountsList"></div>
 
@@ -1212,6 +1232,7 @@
         let currentUser = null;
         let userData = null;
         let userNairaAmount = 0;
+        let selectedAccountIndex = null; // which receiving account the user picked
         let timerInterval;
         let historyUnsubscribe = null;
 
@@ -1294,18 +1315,60 @@
             showToast("Crypto deposit currently unavailable");
         }
 
-        // ==================== BANK ACCOUNTS RENDER ====================
-        // Renders ALL available NGN receiving accounts into the payment
-        // overlay so the user can pick either one.
-        function renderBankAccounts() {
-            const wrap = document.getElementById('bankAccountsList');
+        // ==================== BANK ACCOUNT SELECTION ====================
+        // The two receiving accounts are shown as TWO SEPARATE sections.
+        // The user picks exactly one here; the payment overlay then shows
+        // ONLY the chosen account, so the two account numbers are never
+        // displayed together on the same page.
+        function renderAccountSelection() {
+            const wrap = document.getElementById('accountSelectList');
             if (!wrap) return;
 
             wrap.innerHTML = BANK_ACCOUNTS.map((acct, i) => `
+                <div class="details-card" style="margin-bottom:14px;">
+                    <div class="detail-row">
+                        <div>
+                            <span class="detail-label">Account ${i + 1} — Bank</span>
+                            <span class="detail-value">${acct.bank}</span>
+                        </div>
+                    </div>
+                    <div class="detail-row">
+                        <div>
+                            <span class="detail-label">Account Number</span>
+                            <span class="detail-value">${acct.accountNumber}</span>
+                        </div>
+                        <button class="copy-btn" data-copy="${acct.accountNumber}"><i class="fa-regular fa-copy"></i></button>
+                    </div>
+                    <div class="detail-row">
+                        <div>
+                            <span class="detail-label">Account Name</span>
+                            <span class="detail-value">${acct.accountName || '—'}</span>
+                        </div>
+                    </div>
+                    <button class="btn-primary" style="margin-top:6px;" onclick="selectAccount(${i})">
+                        Pay to this account <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            `).join('');
+
+            wrap.querySelectorAll('[data-copy]').forEach(btn => {
+                btn.addEventListener('click', () => copyText(btn.getAttribute('data-copy')));
+            });
+        }
+
+        // Renders ONLY the single account the user chose into the payment
+        // overlay. The other account is kept out of this view entirely.
+        function renderSelectedAccount() {
+            const wrap = document.getElementById('bankAccountsList');
+            if (!wrap) return;
+            const acct = BANK_ACCOUNTS[selectedAccountIndex];
+            if (!acct) return;
+
+            wrap.innerHTML = `
                 <div class="details-card" style="margin-bottom:12px;">
                     <div class="detail-row">
                         <div>
-                            <span class="detail-label">Option ${i + 1} — Bank</span>
+                            <span class="detail-label">Bank</span>
                             <span class="detail-value">${acct.bank}</span>
                         </div>
                         <button class="copy-btn" data-copy="${acct.bank}"><i class="fa-regular fa-copy"></i></button>
@@ -1324,11 +1387,37 @@
                         </div>
                     </div>
                 </div>
-            `).join('');
+            `;
 
             wrap.querySelectorAll('[data-copy]').forEach(btn => {
                 btn.addEventListener('click', () => copyText(btn.getAttribute('data-copy')));
             });
+        }
+
+        // User tapped one of the two account sections. Persist the choice
+        // and move on to the payment overlay showing ONLY that account.
+        async function selectAccount(index) {
+            selectedAccountIndex = index;
+            const acct = BANK_ACCOUNTS[index];
+            if (!acct) return;
+
+            // Save which receiving account was chosen. We keep the full
+            // `bankAccounts` array on the doc for the admin view, but also
+            // store the single selected account for clarity.
+            if (activeDepositId) {
+                db.collection('transactions').doc(activeDepositId).update({
+                    selectedAccount: {
+                        bank: acct.bank,
+                        accountNumber: acct.accountNumber,
+                        accountName: acct.accountName || ''
+                    }
+                }).catch(() => {});
+            }
+
+            renderSelectedAccount();
+            // Note: we intentionally leave the selection overlay active
+            // behind this one, so "Back" from payment returns to it.
+            document.getElementById('overlayPayment').classList.add('active');
         }
 
         // ==================== BANK FLOW ====================
@@ -1406,9 +1495,8 @@
                         activeDepositId = ref.id;
                     }
                     creditedActivityLogged = false;
+                    selectedAccountIndex = null;
 
-                    // Render payment details from the single source of truth
-                    renderBankAccounts();
                     document.getElementById('finalNaira').textContent = userNairaAmount.toLocaleString();
                     document.getElementById('bankRateUsed').textContent = `₦${FIXED_RATES.bank.toLocaleString()} / $1`;
                     document.getElementById('generatedRemark').textContent = remark;
@@ -1418,7 +1506,11 @@
                     document.getElementById('transactionId').value = '';
                     setVerifyStatus('idle');
 
-                    document.getElementById('overlayPayment').classList.add('active');
+                    // Show the two accounts as separate sections and let the
+                    // user pick ONE — the payment page then shows only that
+                    // account (never both together).
+                    renderAccountSelection();
+                    document.getElementById('overlaySelectAccount').classList.add('active');
                     subscribeActiveDeposit();
                     startTimer();
                 } catch (error) {
