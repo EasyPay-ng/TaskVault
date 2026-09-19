@@ -1140,8 +1140,8 @@
             </div>
 
             <div class="notice-box" style="margin:14px 0;">
-                <i class="fa-solid fa-camera"></i>
-                <strong>How verification works:</strong> After transferring, take a <strong>screenshot of the successful transfer screen</strong> and upload it. Our system reads the receipt and matches your <strong>remark</strong>, the <strong>exact amount</strong>, your <strong>sender name</strong> and the <strong>time of payment</strong> before crediting you.
+                <i class="fa-solid fa-bolt"></i>
+                <strong>Fast approval:</strong> after you submit, we verify your transfer (remark, amount &amp; sender name) and approve deposits <strong>within 24 hours</strong> — most in minutes.
             </div>
 
             <button class="btn-primary" onclick="proceedToVerification()">I Have Sent The Money</button>
@@ -1155,28 +1155,31 @@
             <div class="overlay-title">Verify Payment</div>
         </div>
         <div class="overlay-content" style="text-align:center; padding-top:24px;">
-            <i class="fa-solid fa-shield-halved" style="font-size:48px; color:#e2e8f0; margin-bottom:16px;"></i>
-            <h3 style="font-size:18px; font-weight:800; margin-bottom:8px; color:var(--text-dark);">Upload Payment Receipt</h3>
-            <p style="font-size:12px; color:var(--text-light); margin-bottom:20px;">Screenshot of your successful transfer. It must clearly show your remark (CC-…), the exact amount, your sender name and the time.</p>
+            <i class="fa-solid fa-circle-check" style="font-size:48px; color:var(--gold); margin-bottom:14px;"></i>
+            <h3 style="font-size:18px; font-weight:800; margin-bottom:6px; color:var(--text-dark);">Almost Done!</h3>
+            <p style="font-size:12px; color:var(--text-light); margin-bottom:16px;">Tell us who sent the money and we will find it in our account immediately.</p>
 
-            <div class="input-group" style="text-align:left; margin-bottom:14px;">
-                <label class="input-label">Sender Name (as it appears on your bank account)</label>
-                <input type="text" id="senderName" class="amount-input" style="padding:14px;" placeholder="e.g. Muhammad Nasir" autocomplete="off">
+            <div style="text-align:left; background:linear-gradient(135deg, rgba(212,175,55,0.14), rgba(212,175,55,0.05)); border:1px solid rgba(212,175,55,0.4); border-radius:14px; padding:13px 14px; margin-bottom:16px;">
+                <div style="font-size:11px; font-weight:800; color:var(--gold); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:4px;"><i class="fa-solid fa-bolt"></i> Fast approval</div>
+                <div style="font-size:12px; color:var(--text-light); line-height:1.5;">Your deposit is checked by our team the moment you submit — and approved <strong style="color:var(--text-dark);">within 24 hours</strong>, most in minutes. You will see the status update right here.</div>
             </div>
 
-            <div id="proofDrop" style="position:relative; border:2px dashed rgba(255,255,255,0.25); border-radius:14px; padding:22px 14px; cursor:pointer; margin-bottom:14px; background:rgba(0,0,0,0.15);">
-                <input type="file" id="proofFile" accept="image/*" style="position:absolute; inset:0; opacity:0; cursor:pointer;">
-                <div id="proofEmpty">
-                    <i class="fa-solid fa-image" style="font-size:30px; color:#94a3b8; margin-bottom:8px;"></i>
-                    <div style="font-size:13px; font-weight:700; color:var(--text-dark);">Take a photo or choose the screenshot</div>
-                    <div style="font-size:11px; color:var(--text-light); margin-top:4px;">JPG/PNG, max 8&nbsp;MB</div>
-                </div>
-                <img id="proofPreview" alt="" style="display:none; max-width:100%; max-height:220px; border-radius:10px; box-shadow:0 4px 14px rgba(0,0,0,0.25);">
+            <div class="input-group" style="text-align:left; margin-bottom:14px;">
+                <label class="input-label">Sender Name (on your bank account)</label>
+                <input type="text" id="senderName" class="amount-input" style="padding:14px;" placeholder="e.g. Muhammad Nasir" autocomplete="off">
+                <div class="input-hint" style="margin-top:6px; font-size:11px;">This must exactly match the name on your bank account — it is how we find your transfer.</div>
+            </div>
+
+            <div class="input-group" style="text-align:left; margin-bottom:16px;">
+                <label class="input-label">Bank Transaction ID</label>
+                <input type="text" id="transactionId" inputmode="numeric" class="amount-input" style="padding:14px; font-family:monospace; letter-spacing:1px;" placeholder="e.g. 123456789012345678901234" autocomplete="off" maxlength="30">
+                <div class="input-hint" style="margin-top:6px; font-size:11px;">The 24-digit reference your bank app shows on the transfer receipt.</div>
             </div>
 
             <div id="verifyStatusCard" style="display:none; text-align:left; background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.12); border-radius:14px; padding:14px; margin-bottom:14px;"></div>
 
-            <button class="btn-primary" id="submitProofBtn" onclick="submitProof()" style="margin-top:6px;">Verify My Payment <i class="fa-solid fa-check-circle"></i></button>
+            <button class="btn-primary" id="submitDepositBtn" onclick="submitDeposit()" style="margin-top:2px;">Submit for Verification <i class="fa-solid fa-paper-plane"></i></button>
+            <div style="font-size:10px; color:var(--text-light); margin-top:12px; opacity:0.8;"><i class="fa-solid fa-shield-halved"></i> We only credit after matching the exact amount + remark + sender name in our bank.</div>
         </div>
     </div>
 
@@ -1184,7 +1187,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-storage-compat.js"></script>
 
     <script>
         // ==================== TASKVAULT FIREBASE CONFIG ====================
@@ -1202,7 +1204,6 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
-        const storage = firebase.storage();
 
         // ==================== FIXED RATES ====================
         const FIXED_RATES = {
@@ -1317,11 +1318,10 @@
         document.getElementById('amountInput').addEventListener('input', calculateBankAmount);
 
         // ==================== PROOF-VERIFIED DEPOSIT FLOW ====================
-        // awaiting_payment -> processing (user uploads receipt)
+        // awaiting_payment -> pending (user submits sender name + transaction ID)
         //   -> completed | verified | failed | manual_review | expired
         let activeDepositId = null;
         let activeDepositUnsub = null;
-        let selectedProofFile = null;
         let creditedActivityLogged = false;
 
         async function proceedToPayment() {
@@ -1382,12 +1382,9 @@
                     document.getElementById('bankRateUsed').textContent = `₦${FIXED_RATES.bank.toLocaleString()} / $1`;
                     document.getElementById('generatedRemark').textContent = remark;
 
-                    // Prefill sender name from KYC, reset proof UI
+                    // Prefill sender name from KYC, reset the form
                     document.getElementById('senderName').value = (userData && userData.kycName) || '';
-                    document.getElementById('proofFile').value = '';
-                    document.getElementById('proofPreview').style.display = 'none';
-                    document.getElementById('proofEmpty').style.display = '';
-                    selectedProofFile = null;
+                    document.getElementById('transactionId').value = '';
                     setVerifyStatus('idle');
 
                     document.getElementById('overlayPayment').classList.add('active');
@@ -1414,11 +1411,16 @@
                 display.textContent = `${min}:${sec < 10 ? '0' : ''}${sec}`;
                 if (time-- <= 0) {
                     clearInterval(timerInterval);
-                    // Don't yank the page if verification already resolved
-                    if (!['completed', 'verified', 'failed', 'manual_review', 'expired'].includes(lastSeenStatus)) {
-                        showToast("Session expired");
-                        setTimeout(() => window.location.reload(), 1500);
+                    // Only an UNPAID request expires on the timer. Once
+                    // submitted, it stays open until an admin decides.
+                    if (lastSeenStatus === 'awaiting_payment' && activeDepositId) {
+                        db.collection('transactions').doc(activeDepositId).update({
+                            status: 'expired',
+                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        }).catch(() => {});
                     }
+                    showToast("Session expired");
+                    setTimeout(() => window.location.reload(), 1500);
                 }
             }, 1000);
         }
@@ -1429,56 +1431,10 @@
             });
         }
 
-        // ---- proof file handling ----
-        document.getElementById('proofFile').addEventListener('change', (e) => {
-            const f = e.target.files && e.target.files[0];
-            if (!f) return;
-            if (!f.type.startsWith('image/')) {
-                showToast("Choose a screenshot image");
-                e.target.value = '';
-                return;
-            }
-            if (f.size > 8 * 1024 * 1024) {
-                showToast("Image too large (max 8 MB)");
-                e.target.value = '';
-                return;
-            }
-            selectedProofFile = f;
-            document.getElementById('proofEmpty').style.display = 'none';
-            const preview = document.getElementById('proofPreview');
-            preview.src = URL.createObjectURL(f);
-            preview.style.display = '';
-        });
-
-        // Downscale client-side so uploads stay small & fast
-        function compressImage(file, maxDim = 1400, quality = 0.8) {
-            return new Promise((resolve, reject) => {
-                const url = URL.createObjectURL(file);
-                const img = new Image();
-                img.onload = () => {
-                    URL.revokeObjectURL(url);
-                    let { width: w, height: h } = img;
-                    const scale = Math.min(1, maxDim / Math.max(w, h));
-                    w = Math.round(w * scale);
-                    h = Math.round(h * scale);
-                    const canvas = document.createElement('canvas');
-                    canvas.width = w;
-                    canvas.height = h;
-                    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-                    canvas.toBlob((blob) => {
-                        if (blob) resolve(blob);
-                        else reject(new Error('Compression failed'));
-                    }, 'image/jpeg', quality);
-                };
-                img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Could not read image')); };
-                img.src = url;
-            });
-        }
-
         // ---- live status of the active deposit ----
         function setVerifyStatus(kind, detail) {
             const card = document.getElementById('verifyStatusCard');
-            const btn = document.getElementById('submitProofBtn');
+            const btn = document.getElementById('submitDepositBtn');
             if (kind === 'idle') {
                 card.style.display = 'none';
                 btn.style.display = '';
@@ -1486,34 +1442,26 @@
             }
             btn.style.display = 'none';
             card.style.display = '';
-            const styles = {
-                processing:   { icon: 'fa-spinner fa-spin', color: '#f59e0b', title: 'Checking your receipt…' },
-                completed:    { icon: 'fa-circle-check', color: '#22c55e', title: 'Payment Verified' },
-                verified:     { icon: 'fa-user-check', color: '#22c55e', title: 'Verified — Admin Confirming' },
-                failed:       { icon: 'fa-circle-exclamation', color: '#ef4444', title: 'Verification Failed' },
-                manual_review:{ icon: 'fa-magnifying-glass', color: '#f59e0b', title: 'Under Manual Review' },
-                expired:      { icon: 'fa-hourglass-end', color: '#94a3b8', title: 'Request Expired' }
+            const states = {
+                pending: {
+                    icon: 'fa-hourglass-half', color: '#f59e0b', title: 'Under Review',
+                    body: 'We are verifying your transfer now — matching the remark, the exact amount and the sender name against the bank. Deposits are approved <strong>within 24 hours</strong>, and most are done in minutes. Keep this page open or check Deposit History for updates.'
+                },
+                completed: {
+                    icon: 'fa-circle-check', color: '#22c55e', title: 'Approved & Credited!',
+                    body: 'Your deposit was verified and your balance has been credited. You can close this window and start using your funds!'
+                },
+                rejected: {
+                    icon: 'fa-circle-exclamation', color: '#ef4444', title: 'Deposit Rejected',
+                    body: detail || 'The transfer could not be matched to this request. If you believe this is a mistake, contact support with your transaction ID.'
+                },
+                expired: {
+                    icon: 'fa-hourglass-end', color: '#94a3b8', title: 'Request Expired',
+                    body: 'This request timed out before verification details were submitted. Start a new deposit to try again.'
+                }
             };
-            const s = styles[kind] || styles.processing;
-            const reasons = {
-                remark_mismatch: 'The remark on the receipt does not match your deposit remark.',
-                amount_mismatch: 'The amount on the receipt does not match the requested amount.',
-                sender_name_mismatch: 'The sender name on the receipt does not match the name you entered.',
-                'date_mismatch': 'The time on the receipt does not match this deposit request.'
-            };
-            let detailHtml = '';
-            if (detail) {
-                const lines = detail.split('; ').map((part) => {
-                    if (part.startsWith('date_mismatch:')) return reasons['date_mismatch'];
-                    return reasons[part] || part;
-                }).filter(Boolean);
-                detailHtml = `<div style="font-size:12px; color:var(--text-light); margin-top:6px;">${lines.join('<br>')}</div>`;
-            }
-            if (kind === 'completed') detailHtml = `<div style="font-size:12px; color:var(--text-light); margin-top:6px;">Your balance has been credited. You can close this window.</div>`;
-            if (kind === 'verified') detailHtml = `<div style="font-size:12px; color:var(--text-light); margin-top:6px;">Your receipt passed all checks. An admin will confirm the final credit shortly.</div>`;
-            if (kind === 'manual_review') detailHtml = `<div style="font-size:12px; color:var(--text-light); margin-top:6px;">Our team is reviewing your receipt. You will be credited once approved.</div>`;
-            if (kind === 'expired') detailHtml = `<div style="font-size:12px; color:var(--text-light); margin-top:6px;">This request timed out. Start a new deposit to try again.</div>`;
-            card.innerHTML = `<i class="fa-solid ${s.icon}" style="font-size:20px; color:${s.color}; margin-right:8px;"></i><strong style="font-size:13px;">${s.title}</strong>${detailHtml}`;
+            const s = states[kind] || states.pending;
+            card.innerHTML = `<i class="fa-solid ${s.icon}" style="font-size:20px; color:${s.color}; margin-right:8px;"></i><strong style="font-size:13px;">${s.title}</strong><div style="font-size:12px; color:var(--text-light); margin-top:6px; line-height:1.6;">${s.body}</div>`;
         }
 
         function subscribeActiveDeposit() {
@@ -1524,8 +1472,8 @@
                 const d = doc.data();
                 const status = (d.status || '').toLowerCase();
                 lastSeenStatus = status;
-                if (status === 'processing') {
-                    setVerifyStatus('processing');
+                if (status === 'pending') {
+                    setVerifyStatus('pending');
                 } else if (status === 'completed') {
                     setVerifyStatus('completed');
                     if (!creditedActivityLogged) {
@@ -1533,12 +1481,8 @@
                         logActivity('deposit', 'Bank Transfer Deposit', Number(d.amountUSD || 0));
                         setTimeout(() => document.getElementById('successModal').classList.add('active'), 1200);
                     }
-                } else if (status === 'verified') {
-                    setVerifyStatus('verified');
-                } else if (status === 'failed') {
-                    setVerifyStatus('failed', d.verifyReason || 'The receipt could not be matched to this deposit.');
-                } else if (status === 'manual_review') {
-                    setVerifyStatus('manual_review');
+                } else if (status === 'rejected') {
+                    setVerifyStatus('rejected', d.rejectionReason);
                 } else if (status === 'expired') {
                     setVerifyStatus('expired');
                 }
@@ -1547,45 +1491,37 @@
             });
         }
 
-        async function submitProof() {
+        async function submitDeposit() {
             if (!activeDepositId) {
                 showToast("Start a deposit first");
                 return;
             }
             const senderName = document.getElementById('senderName').value.trim();
+            const transactionId = document.getElementById('transactionId').value.trim();
             if (senderName.length < 3) {
                 showToast("Enter the sender name exactly as shown on your bank account");
                 return;
             }
-            if (!selectedProofFile) {
-                showToast("Upload a screenshot of the successful transfer");
+            if (!/^\d{24,}$/.test(transactionId)) {
+                showToast("Transaction ID must be at least 24 digits (your bank reference number)");
                 return;
             }
 
-            setVerifyStatus('processing');
+            setVerifyStatus('pending');
             try {
-                const blob = await compressImage(selectedProofFile);
-                const path = `proofs/${currentUser.uid}/${activeDepositId}`;
-
-                await new Promise((resolve, reject) => {
-                    storage.ref(path).put(blob, { contentType: 'image/jpeg' })
-                        .on('state_changed', null, (e) => reject(e), () => resolve());
-                });
-
-                // This one write is the only self-update the rules allow:
-                // it moves the deposit from awaiting_payment to processing.
+                // The only self-update the rules allow: submitting the
+                // verification details (status -> pending).
                 await db.collection('transactions').doc(activeDepositId).update({
                     senderName: senderName,
-                    status: 'processing',
-                    proofPath: path,
+                    transactionId: transactionId,
+                    status: 'pending',
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
-
-                setVerifyStatus('processing');
+                setVerifyStatus('pending');
             } catch (error) {
-                console.error("Proof upload error:", error);
+                console.error("Submit deposit error:", error);
                 setVerifyStatus('idle');
-                showToast("Upload failed. Please try again.");
+                showToast("Could not submit. Please try again.");
             }
         }
 

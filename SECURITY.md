@@ -21,21 +21,18 @@ source. The real enforcement is the Firestore security rules below, which
 run on Google's servers and block any request that the rules don't allow,
 even a raw SDK call from a browser console.
 
-## The security rules (`firestore.rules` + `storage.rules`)
+## The security rules (`firestore.rules`)
 
 Deploy once with the Firebase CLI:
 
 ```bash
 npm install -g firebase-tools
 firebase login
-firebase deploy          # deploys rules + storage rules + functions
+firebase deploy --only firestore:rules
 ```
 
-…or open **Firebase Console → Firestore Database → Rules**, paste the file
-and press **Publish** (same for **Storage → Rules**).
-
-…or open **Firebase Console → Firestore Database → Rules**, paste the file
-and press **Publish**.
+…or open **Firebase Console → Firestore Database → Rules**, paste the
+file and press **Publish**.
 
 What the rules lock down:
 
@@ -70,55 +67,45 @@ What the rules lock down:
 3. Confirm normal features still work: referral page loads, entering a
    game, P2P transfer, stake buy/sell, deposit/withdrawal request.
 
-## Deposit system v2 — receipt-image verification
+## Deposit system — manual admin verification (sender name + transaction ID)
 
-The old flow let any user type in a 24-digit number and be credited
-instantly. The new flow (this is what makes deposits trustworthy):
+The old flow let any user type in a number and be credited instantly. The
+current flow:
 
 1. **Request** — `deposit.html` creates a `transactions` doc with
    `status: 'awaiting_payment'`, a **unique remark** (`CC-XXXXXX-NNNN`),
-   the exact ₦ amount, and a **30-minute expiry**. No balance change.
+   the exact ₦ amount, and a **30-minute window** to make the transfer.
+   No balance change. (User-facing copy promises approval **within 24
+   hours**, most in minutes.)
 2. **Pay** — user transfers the exact amount with the exact remark.
-3. **Proof** — user enters their **sender name** and uploads a
-   **screenshot of the successful transfer** to
-   `proofs/{uid}/{depositId}` (private Storage path) and sets the doc to
-   `processing`.
-4. **Machine check** — the Cloud Function `verifyDepositProof`
-   (`functions/index.js`) reads the image with a Gemini vision model and
-   deterministically checks:
-   - receipt **remark** == the deposit's unique remark
-   - receipt **amount** == the requested ₦ amount (exact)
-   - receipt **sender name** ≈ the sender name the user entered
-     (order/case-insensitive token match)
-   - receipt **time** inside the request window
-5. **Outcome**
-   - all pass, ≤ $20 → `completed`, balance credited **server-side**
-   - all pass, > $20 → `verified` → your one-click **Confirm & Credit**
-     in `admin-deposits.html`
-   - any failure / unreadable image → `failed` / `manual_review` → you
-     decide (the receipt image + machine-read values are shown in the
-     admin detail modal)
-   - `expireStaleDeposits` (every 10 min) marks abandoned requests
-     `expired`
+3. **Submit** — user enters their **sender name** (prefilled from KYC)
+   and the **bank transaction ID** (≥ 24 digits), which moves the doc to
+   `pending`. If the 30-minute window lapses first, the request becomes
+   `expired`.
+4. **Admin decision** — in `admin-deposits.html` the admin sees the
+   remark, amount, sender name and transaction ID for each pending
+   deposit, matches **all four** against the bank statement/app, then
+   **Approve** (credits the balance) or **Reject** (with a reason shown
+   to the user).
 
-**Honest limit:** a screenshot is evidence, not a bank confirmation — a
-skilled attacker could forge one. The barriers are the unique-per-request
-remark (no replay), the exact-amount match, the sender-name match against
-what they typed, the time window, the admin confirm above $20, and your
-bank statement as the final ground truth (cross-check any suspicious
-"verified" deposit against the actual transfer, reject + block if the
-money never arrived). For fully unforgeable verification, add
-Paystack/Flutterwave transfer verification later — the flow above
-coexists with it.
+Why this is safe now: the user can only ever do
+`awaiting_payment → pending` (or `→ expired`) on their **own** deposit —
+the Firestore rules forbid any other self-update, so a user can never
+set `completed`, touch a balance, or approve anything. Only the two admin
+emails (server-side, per `firestore.rules`) can credit.
 
-**One-time setup (Firebase Console):**
-1. Enable **Cloud Storage** (default bucket is fine).
-2. Enable **Cloud Functions**.
-3. Create a **Gemini API key** (Google AI Studio, free tier is enough).
-4. Set the function environment variables:
-   `GEMINI_API_KEY` (required), `GEMINI_MODEL` (default
-   `gemini-2.5-flash`), `AUTO_APPROVE_LIMIT` (default `20`).
-5. `firebase deploy` (deploy order: rules → storage → functions).
+**Operational notes**
+
+- The bank account's statement is the ground truth: a "pending" deposit
+  is only real money if the matching transfer (remark + exact amount +
+  sender + reference) actually appears. If it doesn't, reject.
+- Approve same-day wherever possible — users are promised 24 hours.
+- Repeated rejected deposits from the same account → consider a KYC
+  hold or account block.
+- Later upgrades that slot in without breaking this flow: automatic
+  receipt-image verification, or Paystack/Flutterwave transfer
+  verification (gateway confirms the transfer server-side, webhook
+  credits the balance — zero humans).
 
 ## Honest limitations (what rules alone can't fix)
 

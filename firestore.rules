@@ -88,16 +88,15 @@ service cloud.firestore {
     }
 
     // ---------- deposit / activation transactions ----------
-    // Deposit lifecycle: awaiting_payment -> processing (user uploads
-    // the receipt proof) -> completed | verified | failed |
-    // manual_review | expired. Only the user may make the first hop
-    // (attach the proof to their own pending deposit); every later
-    // status change is done by the verification Function (admin SDK)
-    // or by an admin in the admin console.
+    // Deposit lifecycle: awaiting_payment -> pending (user submits
+    // sender name + bank transaction ID) -> completed | rejected.
+    // An unpaid request also expires (awaiting_payment -> expired).
+    // Approving, rejecting and crediting is ADMIN ONLY — a user can
+    // never credit their own deposit.
     match /transactions/{id} {
       allow get, list: if isUser();
       allow create: if isUser() && request.resource.data.userId == request.auth.uid;
-      allow update: if isAdmin() || isUser() && request.auth.uid == resource.data.userId && resource.data.status == 'awaiting_payment' && request.resource.data.status == 'processing' && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['proofPath', 'status', 'senderName', 'updatedAt']);
+      allow update: if isAdmin() || isUser() && request.auth.uid == resource.data.userId && resource.data.status == 'awaiting_payment' && request.resource.data.status in ['pending', 'expired'] && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'senderName', 'transactionId', 'updatedAt']);
       allow delete: if isAdmin();
     }
 

@@ -982,7 +982,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-storage-compat.js"></script>
 
     <script>
 
@@ -1005,7 +1004,6 @@
 
         const auth = firebase.auth();
         const db = firebase.firestore();
-        const storage = firebase.storage();
 
 
         // =========================================================
@@ -1661,36 +1659,6 @@
                 );
 
 
-            // ---- receipt proof & machine-verification data ----
-            let proofUrl = '';
-
-            if (deposit.proofPath) {
-
-                try {
-
-                    proofUrl = await storage
-                        .ref(deposit.proofPath)
-                        .getDownloadURL();
-
-                } catch (e) {
-
-                    console.error(
-                        'Proof URL error:',
-                        e
-                    );
-
-                }
-
-            }
-
-            const verifiedData =
-                deposit.verifiedData ||
-                null;
-
-            const verifyReason =
-                deposit.verifyReason ||
-                '';
-
             const bodyHtml = `
 
                 <div class="detail-grid">
@@ -1901,50 +1869,26 @@
 
 
                     <div class="detail-item">
+                        <div class="label">Transaction ID (bank ref)</div>
+                        <div class="value" style="font-family: monospace; font-size: 11px;">${escapeHtml(deposit.transactionId || 'N/A')}</div>
+                    </div>
+
+
+                    <div class="detail-item">
                         <div class="label">Deposit Remark</div>
                         <div class="value" style="font-family: monospace; font-size: 12px;">${escapeHtml(deposit.remark || 'N/A')}</div>
                     </div>
 
 
-                    ${verifiedData ? `
                     <div class="detail-item">
-                        <div class="label">Receipt Says (machine-read)</div>
-                        <div class="value" style="font-size:11px; line-height:1.8;">
-                            Remark: ${escapeHtml(verifiedData.remark || '—')}<br>
-                            Amount: ${verifiedData.amountNGN != null ? '₦' + Number(verifiedData.amountNGN).toLocaleString() : '—'}<br>
-                            Sender: ${escapeHtml(verifiedData.senderName || '—')}<br>
-                            Bank: ${escapeHtml(verifiedData.bankName || '—')}<br>
-                            Time: ${escapeHtml(verifiedData.paymentDateTime || '—')}<br>
-                            Bank Ref: ${escapeHtml(verifiedData.bankReference || '—')}
+                        <div class="label">Before approving</div>
+                        <div class="value" style="font-size:11px; line-height:1.6;">
+                            Match all four in your bank statement / app: the
+                            <strong>exact amount</strong>, the <strong>remark</strong>, the
+                            <strong>sender name</strong> and the <strong>transaction ID</strong>.
+                            Only then approve — deposits are promised to users
+                            within 24 hours.
                         </div>
-                    </div>
-
-
-                    <div class="detail-item">
-                        <div class="label">Checks</div>
-                        <div class="value" style="font-size:11px; line-height:1.8;">
-                            Remark ${verifiedData.checks && verifiedData.checks.remark ? '✅' : '❌'} &nbsp;&nbsp;
-                            Amount ${verifiedData.checks && verifiedData.checks.amount ? '✅' : '❌'} &nbsp;&nbsp;
-                            Sender ${verifiedData.checks && verifiedData.checks.senderName ? '✅' : '❌'} &nbsp;&nbsp;
-                            Date ${verifiedData.checks && verifiedData.checks.date ? '✅' : '❌'}
-                        </div>
-                    </div>
-                    ` : ''}
-
-
-                    ${verifyReason ? `
-                    <div class="detail-item">
-                        <div class="label">Verification Note</div>
-                        <div class="value" style="font-size:11px;">${escapeHtml(verifyReason)}</div>
-                    </div>
-                    ` : ''}
-
-
-                    <div class="detail-item">
-                        <div class="label">Payment Receipt</div>
-                        ${proofUrl
-                            ? `<img class="proof-img" src="${proofUrl}" alt="Payment receipt" onclick="window.open('${proofUrl}', '_blank')">`
-                            : '<div class="value" style="font-size:11px;">No proof uploaded yet</div>'}
                     </div>
 
                 </div>
@@ -1964,7 +1908,7 @@
             `;
 
 
-            const actionableStatuses = ['pending', 'processing', 'failed', 'manual_review', 'verified'];
+            const actionableStatuses = ['pending', 'awaiting_payment', 'processing', 'failed', 'manual_review', 'verified'];
 
             if (actionableStatuses.includes(status)) {
 
