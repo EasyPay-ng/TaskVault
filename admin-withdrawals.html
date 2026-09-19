@@ -1805,8 +1805,10 @@
         // =========================================================
         // REFERRAL COMMISSION (5%)
         // When a downline's withdrawal is approved, 5% of the
-        // withdrawal amount is credited straight to the upline's
-        // balance and a record is saved in referralCommissions.
+        // withdrawal amount is credited to the upline's
+        // referralBalance (they withdraw it to their main balance
+        // from the referral page) and a record is saved in
+        // referralCommissions.
         // =========================================================
 
         const REFERRAL_COMMISSION_RATE = 0.05;
@@ -1853,7 +1855,9 @@
                         .doc(withdrawal.userId)
                         .get();
 
-                    if (snap.exists()) {
+                    // NOTE: compat SDK exposes `exists` as a PROPERTY,
+                    // not a method — snap.exists() would throw.
+                    if (snap.exists) {
 
                         downline = {
                             id: snap.id,
@@ -2011,7 +2015,9 @@
 
                     const wSnap = await t.get(wRef);
 
-                    if (!wSnap.exists()) {
+                    // NOTE: compat SDK exposes `exists` as a PROPERTY,
+                    // not a method — wSnap.exists() would throw.
+                    if (!wSnap.exists) {
 
                         throw new Error(
                             "Withdrawal document missing"
@@ -2058,10 +2064,13 @@
                     });
 
 
-                    // 2) Credit the upline's balance
+                    // 2) Credit the upline's REFERRAL balance — the
+                    // referral page shows this in "Referral Balance"
+                    // and the user moves it into their main balance
+                    // with "Withdraw to Main Balance".
                     t.update(upRef, {
 
-                        balance:
+                        referralBalance:
                             fsv.increment(commission),
 
                         totalReferralCommission:
@@ -2070,7 +2079,34 @@
                     });
 
 
-                    // 3) Save the commission record
+                    // 3) Log a dashboard activity for the upline so the
+                    // credit is visible on their dashboard feed.
+                    const actRef = db
+                        .collection("users")
+                        .doc(upline.id)
+                        .collection("activities")
+                        .doc();
+
+
+                    t.set(actRef, {
+
+                        type: "referral",
+
+                        title: `Referral commission (5%) from ${
+                            downline.username ||
+                            downline.email ||
+                            "a referral"
+                        }`,
+
+                        amount: commission,
+
+                        timestamp:
+                            fsv.serverTimestamp()
+
+                    });
+
+
+                    // 4) Save the commission record
                     const recordRef = db
                         .collection("referralCommissions")
                         .doc();
@@ -2110,7 +2146,7 @@
                 showToast(
                     `Approved — $${commission.toFixed(
                         2
-                    )} (5%) referral commission credited to ${upline.username || refCode}`
+                    )} (5%) referral commission credited to ${upline.username || refCode}'s referral balance`
                 );
 
 

@@ -1100,29 +1100,11 @@
                 <div class="value" style="color:var(--orange-main);" id="bankRateUsed">₦1,000 / $1</div>
             </div>
 
-            <p style="font-size:12px; color:var(--text-light); margin-bottom:14px; text-align:center;">Transfer exact amount to:</p>
+            <p style="font-size:12px; color:var(--text-light); margin-bottom:14px; text-align:center;">Transfer exact amount to <strong>any one</strong> of these accounts:</p>
+
+            <div id="bankAccountsList"></div>
 
             <div class="details-card">
-                <div class="detail-row">
-                    <div>
-                        <span class="detail-label">Bank</span>
-                        <span class="detail-value" id="bankNameDisplay">—</span>
-                    </div>
-                    <button class="copy-btn" onclick="copyText(BANK_DETAILS.bank)"><i class="fa-regular fa-copy"></i></button>
-                </div>
-                <div class="detail-row">
-                    <div>
-                        <span class="detail-label">Account Number</span>
-                        <span class="detail-value" id="bankAccountDisplay">—</span>
-                    </div>
-                    <button class="copy-btn" onclick="copyText(BANK_DETAILS.accountNumber)"><i class="fa-regular fa-copy"></i></button>
-                </div>
-                <div class="detail-row">
-                    <div>
-                        <span class="detail-label">Account Name</span>
-                        <span class="detail-value" id="bankAccountNameDisplay">—</span>
-                    </div>
-                </div>
                 <div class="detail-row highlight">
                     <div>
                         <span class="detail-label">Amount</span>
@@ -1166,7 +1148,7 @@
 
             <div class="input-group" style="text-align:left; margin-bottom:14px;">
                 <label class="input-label">Sender Name (on your bank account)</label>
-                <input type="text" id="senderName" class="amount-input" style="padding:14px;" placeholder="e.g. Muhammad Nasir" autocomplete="off">
+                <input type="text" id="senderName" class="amount-input" style="padding:14px;" placeholder="e.g. John Doe" autocomplete="off">
                 <div class="input-hint" style="margin-top:6px; font-size:11px;">This must exactly match the name on your bank account — it is how we find your transfer.</div>
             </div>
 
@@ -1211,11 +1193,21 @@
         };
 
         // ==================== BANK DETAILS ====================
-        const BANK_DETAILS = {
-            bank: 'Palmpay Limited',
-            accountNumber: '8037402826',
-            accountName: 'Muhammad Nasir'
-        };
+        // Two NGN receiving accounts — users may pay into EITHER one.
+        // The first account (Teen Bank) has no account name, so it is
+        // shown as "—" wherever an account name would appear.
+        const BANK_ACCOUNTS = [
+            {
+                bank: 'Teen Bank',
+                accountNumber: '8377668427',
+                accountName: ''
+            },
+            {
+                bank: 'Opay',
+                accountNumber: '7043452066',
+                accountName: 'Ayinde Basit'
+            }
+        ];
 
         let currentUser = null;
         let userData = null;
@@ -1302,6 +1294,43 @@
             showToast("Crypto deposit currently unavailable");
         }
 
+        // ==================== BANK ACCOUNTS RENDER ====================
+        // Renders ALL available NGN receiving accounts into the payment
+        // overlay so the user can pick either one.
+        function renderBankAccounts() {
+            const wrap = document.getElementById('bankAccountsList');
+            if (!wrap) return;
+
+            wrap.innerHTML = BANK_ACCOUNTS.map((acct, i) => `
+                <div class="details-card" style="margin-bottom:12px;">
+                    <div class="detail-row">
+                        <div>
+                            <span class="detail-label">Option ${i + 1} — Bank</span>
+                            <span class="detail-value">${acct.bank}</span>
+                        </div>
+                        <button class="copy-btn" data-copy="${acct.bank}"><i class="fa-regular fa-copy"></i></button>
+                    </div>
+                    <div class="detail-row">
+                        <div>
+                            <span class="detail-label">Account Number</span>
+                            <span class="detail-value">${acct.accountNumber}</span>
+                        </div>
+                        <button class="copy-btn" data-copy="${acct.accountNumber}"><i class="fa-regular fa-copy"></i></button>
+                    </div>
+                    <div class="detail-row">
+                        <div>
+                            <span class="detail-label">Account Name</span>
+                            <span class="detail-value">${acct.accountName || '—'}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            wrap.querySelectorAll('[data-copy]').forEach(btn => {
+                btn.addEventListener('click', () => copyText(btn.getAttribute('data-copy')));
+            });
+        }
+
         // ==================== BANK FLOW ====================
         function selectBank() {
             showLoader("Loading...", 800, () => {
@@ -1364,9 +1393,13 @@
                             bankRate: FIXED_RATES.bank,
                             remark: remark,
                             senderName: (userData && userData.kycName) || '',
-                            bank: BANK_DETAILS.bank,
-                            accountNumber: BANK_DETAILS.accountNumber,
-                            accountName: BANK_DETAILS.accountName,
+                            // All available receiving accounts — the user may
+                            // pay into any one of them.
+                            bankAccounts: BANK_ACCOUNTS.map(a => ({
+                                bank: a.bank,
+                                accountNumber: a.accountNumber,
+                                accountName: a.accountName || ''
+                            })),
                             expiresAt: firebase.firestore.Timestamp.fromDate(new Date(Date.now() + 30 * 60 * 1000)),
                             timestamp: firebase.firestore.FieldValue.serverTimestamp()
                         });
@@ -1375,9 +1408,7 @@
                     creditedActivityLogged = false;
 
                     // Render payment details from the single source of truth
-                    document.getElementById('bankNameDisplay').textContent = BANK_DETAILS.bank;
-                    document.getElementById('bankAccountDisplay').textContent = BANK_DETAILS.accountNumber;
-                    document.getElementById('bankAccountNameDisplay').textContent = BANK_DETAILS.accountName;
+                    renderBankAccounts();
                     document.getElementById('finalNaira').textContent = userNairaAmount.toLocaleString();
                     document.getElementById('bankRateUsed').textContent = `₦${FIXED_RATES.bank.toLocaleString()} / $1`;
                     document.getElementById('generatedRemark').textContent = remark;
