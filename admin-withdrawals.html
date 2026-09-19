@@ -1920,12 +1920,25 @@
                 ).trim();
 
 
+            const refCodeLower = refCode.toLowerCase();
+
+            const isSelf =
+                (uid) =>
+                    uid &&
+                    String(uid).trim() === downline.id;
+
+
             if (
                 !refCode ||
-                refCode ===
+                refCodeLower ===
                     String(
                         downline.username || ""
-                    ).trim()
+                    ).trim().toLowerCase() ||
+                refCodeLower ===
+                    String(
+                        downline.email || ""
+                    ).trim().toLowerCase() ||
+                isSelf(refCode)
             ) {
 
                 // No upline (or self-referred)
@@ -1935,15 +1948,22 @@
 
 
             // ---- Find the upline user ----
-            // The referral code stored on a user is the
-            // username of the person who referred them.
+            // The referral code stored on a downline is whatever
+            // referral.html showed them at signup time — normally
+            // the referrer's `username`, but for accounts that never
+            // got a username (e.g. old Google sign-ins that predate
+            // the username field) referral.html falls back to their
+            // email, then their uid. So the lookup has to try all
+            // three, in that same order, or referrals from those
+            // accounts silently never find an upline and no
+            // commission is ever paid.
 
             let upline = null;
 
 
             try {
 
-                const q = await db
+                const byUsername = await db
                     .collection("users")
                     .where(
                         "username",
@@ -1954,14 +1974,64 @@
                     .get();
 
 
-                if (!q.empty) {
+                if (!byUsername.empty) {
 
-                    const d = q.docs[0];
+                    const d = byUsername.docs[0];
 
                     upline = {
                         id: d.id,
                         ...d.data()
                     };
+
+                }
+
+
+                if (!upline) {
+
+                    const byEmail = await db
+                        .collection("users")
+                        .where(
+                            "email",
+                            "==",
+                            refCode
+                        )
+                        .limit(1)
+                        .get();
+
+
+                    if (!byEmail.empty) {
+
+                        const d = byEmail.docs[0];
+
+                        upline = {
+                            id: d.id,
+                            ...d.data()
+                        };
+
+                    }
+
+                }
+
+
+                if (!upline) {
+
+                    // Last resort: the referral code IS the
+                    // referrer's uid (used when they had neither
+                    // a username nor an email at signup time).
+                    const byUid = await db
+                        .collection("users")
+                        .doc(refCode)
+                        .get();
+
+
+                    if (byUid.exists) {
+
+                        upline = {
+                            id: byUid.id,
+                            ...byUid.data()
+                        };
+
+                    }
 
                 }
 
@@ -1977,7 +2047,7 @@
             }
 
 
-            if (!upline) {
+            if (!upline || upline.id === downline.id) {
 
                 return null;
 
