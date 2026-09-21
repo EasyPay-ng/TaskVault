@@ -455,6 +455,25 @@
         // Import additional Firebase functions needed for password reset
         import { sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
+        // --- ADMIN ROUTING ---
+        // Admin accounts skip the user dashboard and land straight on the admin panel.
+        // Keep this list in sync with ADMIN_EMAILS in admin*.html / adverts.html.
+        const ADMIN_EMAILS = [
+            "beniwealth70@gmail.com",
+            "baasituoppor01@gmail.com"
+        ];
+
+        function isAdminEmail(email) {
+            if (!email) return false;
+            const normalized = email.trim().toLowerCase();
+            return ADMIN_EMAILS.some(admin => admin.trim().toLowerCase() === normalized);
+        }
+
+        // Where a freshly signed-in user should be sent
+        function getRedirectTarget(email) {
+            return isAdminEmail(email) ? "admin.html" : "dashboard.html";
+        }
+
         // --- TOAST NOTIFICATION SYSTEM ---
         function showToast(message, type = 'info', duration = 4000) {
             const container = document.getElementById('toastContainer');
@@ -620,12 +639,14 @@
                     uid: user.uid,
                     email: user.email,
                     displayName: userData.displayName,
+                    isAdmin: isAdminEmail(user.email),
                     isNew: userData.isNew
                 }));
                 
-                // Redirect after short delay
+                // Redirect after short delay (admins go straight to the admin panel)
+                const redirectTarget = getRedirectTarget(user.email);
                 setTimeout(() => {
-                    window.location.href = "dashboard.html";
+                    window.location.href = redirectTarget;
                 }, 1500);
                 
             } catch (error) {
@@ -673,11 +694,14 @@
                     email: user.email,
                     displayName: userData.displayName,
                     photoURL: userData.photoURL,
+                    isAdmin: isAdminEmail(user.email),
                     isNew: userData.isNew
                 }));
                 
+                // Redirect after short delay (admins go straight to the admin panel)
+                const redirectTarget = getRedirectTarget(user.email);
                 setTimeout(() => {
-                    window.location.href = "dashboard.html";
+                    window.location.href = redirectTarget;
                 }, 1500);
                 
             } catch (error) {
