@@ -599,6 +599,24 @@
             }
         }
 
+        // A profile write is useful, but it must never turn a successful Firebase
+        // Authentication sign-in into a visible "Login failed" error. Firestore
+        // can be temporarily unavailable or its rules may still be deploying.
+        async function syncUserProfile(user) {
+            try {
+                return await createOrUpdateUser(user);
+            } catch (error) {
+                console.warn("Signed in, but profile sync was skipped:", error);
+                return {
+                    isNew: false,
+                    uid: user.uid,
+                    email: user.email,
+                    displayName: user.displayName || '',
+                    photoURL: user.photoURL || ''
+                };
+            }
+        }
+
         // --- EMAIL/PASSWORD LOGIN ---
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -629,8 +647,9 @@
                 const userCredential = await signInWithEmailAndPassword(firebaseAuth, email, password);
                 const user = userCredential.user;
                 
-                // Get or create user in Firestore
-                const userData = await createOrUpdateUser(user);
+                // Keep authentication and profile synchronisation independent.
+                // The user is allowed into the app once Firebase Auth succeeds.
+                const userData = await syncUserProfile(user);
                 
                 showToast(`Welcome back, ${userData.displayName || user.email}!`, 'success');
                 
@@ -658,11 +677,15 @@
                     'auth/user-not-found': 'No account found with this email',
                     'auth/wrong-password': 'Incorrect password',
                     'auth/invalid-credential': 'Invalid email or password',
+                    'auth/invalid-email': 'Please enter a valid email address',
                     'auth/too-many-requests': 'Too many attempts. Please try again later',
-                    'auth/user-disabled': 'This account has been disabled'
+                    'auth/user-disabled': 'This account has been disabled',
+                    'auth/network-request-failed': 'Network error. Check your connection and try again',
+                    'auth/unauthorized-domain': 'This website domain is not authorized for login',
+                    'auth/operation-not-allowed': 'Email and password login is not enabled'
                 };
                 
-                const message = errorMessages[error.code] || 'Login failed. Please try again.';
+                const message = errorMessages[error.code] || error.message || 'Login failed. Please try again.';
                 showToast(message, 'error');
                 
                 if (error.code === 'auth/user-not-found') {
@@ -682,8 +705,8 @@
                 const result = await signInWithPopup(firebaseAuth, googleProvider);
                 const user = result.user;
                 
-                // Get or create user in Firestore
-                const userData = await createOrUpdateUser(user);
+                // Do not block a valid Google sign-in when Firestore profile sync fails.
+                const userData = await syncUserProfile(user);
                 
                 const welcomeMsg = userData.isNew ? 'Welcome to TaskVault!' : `Welcome back, ${userData.displayName || user.email}!`;
                 showToast(welcomeMsg, 'success');
