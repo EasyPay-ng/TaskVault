@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — Banner Ads | TaskVault</title>
+  <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" type="image/jpeg">
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{ --orange-main:#FF8C42; --orange-dark:#E67A35; --orange-light:#FFF0E6; --silk-bg:#FDFBF7; --white:#FFF; --text-dark:#333; --text-light:#888; --shadow-sm:0 2px 6px rgba(255,140,66,0.06); --shadow-md:0 4px 12px rgba(255,140,66,0.1); --gradient-orange:linear-gradient(135deg,#FF8C42 0%,#FF6B35 100%); --success:#10B981; --danger:#EF4444; --warning:#F59E0B; }
+    *{ margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; -webkit-tap-highlight-color:transparent; }
+    html,body{ height:100%; }
+    body{ background:#e9ecef; display:flex; justify-content:center; align-items:flex-start; min-height:100vh; padding:20px; }
+    .app-container{ width:100%; max-width:1050px; background:var(--silk-bg); border-radius:24px; box-shadow:0 0 40px rgba(0,0,0,0.12); min-height:calc(100vh - 40px); display:flex; flex-direction:column; overflow:hidden; }
+    .header{ display:flex; justify-content:space-between; align-items:center; padding:14px 20px 10px; background:var(--white); }
+    .header-left{ display:flex; align-items:center; gap:10px; }
+    .back-btn{ width:36px; height:36px; border-radius:10px; background:var(--orange-light); color:var(--orange-main); display:flex; justify-content:center; align-items:center; font-size:18px; text-decoration:none; }
+    .header-title{ font-size:14px; font-weight:700; color:var(--text-dark); } .header-subtitle{ font-size:10px; color:var(--text-light); }
+    .admin-badge{ background:linear-gradient(135deg,#EF4444,#DC2626); color:#fff; font-size:9px; font-weight:700; padding:4px 10px; border-radius:20px; text-transform:uppercase; }
+    .scroll-content{ flex:1; overflow-y:auto; padding-bottom:24px; }
+    .stats-section{ padding:12px 20px; }
+    .stats-grid{ display:grid; grid-template-columns:repeat(5,1fr); gap:8px; }
+    @media(max-width:700px){ .stats-grid{ grid-template-columns:repeat(2,1fr); } }
+    .stat-card{ background:var(--white); border-radius:12px; padding:12px 10px; text-align:center; border:1px solid rgba(255,140,66,0.06); box-shadow:var(--shadow-sm); }
+    .stat-value{ font-size:16px; font-weight:800; color:var(--orange-dark); } .stat-label{ font-size:8px; color:var(--text-light); margin-top:4px; text-transform:uppercase; font-weight:600; }
+    .tabs{ display:flex; gap:8px; padding:12px 20px 8px; }
+    .tab{ padding:9px 16px; border-radius:20px; border:1px solid rgba(255,140,66,0.15); background:var(--white); color:var(--text-light); font-size:12px; font-weight:600; cursor:pointer; }
+    .tab.active{ background:var(--gradient-orange); color:#fff; border-color:var(--orange-main); }
+    .panel{ padding:0 20px 12px; display:none; }
+    .panel.active{ display:block; }
+
+    .controls-row{ display:flex; gap:10px; align-items:center; margin-bottom:10px; flex-wrap:wrap; }
+    .search-wrap{ flex:1; position:relative; min-width:180px; }
+    .search-wrap i{ position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--text-light); }
+    .search-input, .select-input{ padding:10px 12px 10px 36px; border-radius:10px; background:var(--white); border:1px solid rgba(255,140,66,0.15); font-size:13px; outline:none; width:100%; }
+    .select-input{ padding-left:12px; }
+    .btn-refresh{ width:40px; height:40px; border-radius:10px; background:var(--white); border:1px solid rgba(255,140,66,0.15); color:var(--orange-main); display:flex; align-items:center; justify-content:center; cursor:pointer; }
+    .btn-refresh.spinning i{ animation:spin .8s linear infinite; } @keyframes spin{ to{ transform:rotate(360deg); } }
+
+    .card{ background:var(--white); border-radius:16px; padding:14px; border:1px solid rgba(255,140,66,0.06); box-shadow:var(--shadow-sm); margin-bottom:10px; }
+    .form-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    @media(max-width:640px){ .form-grid{ grid-template-columns:1fr; } }
+    label{ font-size:11px; font-weight:600; color:var(--text-dark); text-transform:uppercase; letter-spacing:.03em; }
+    input, select{ width:100%; padding:11px 13px; margin-top:6px; border-radius:10px; background:var(--silk-bg); border:1px solid rgba(255,140,66,0.15); font-size:13px; outline:none; }
+    input:focus, select:focus{ border-color:var(--orange-main); box-shadow:0 0 0 3px rgba(255,140,66,0.1); }
+    .btn{ padding:11px 16px; border:none; border-radius:10px; font-size:12px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:6px; }
+    .btn-primary{ background:var(--gradient-orange); color:#fff; box-shadow:var(--shadow-sm); }
+    .btn-ghost{ background:var(--white); border:1px solid rgba(255,140,66,0.2); color:var(--orange-dark); }
+    .btn-sm{ padding:7px 10px; font-size:11px; border-radius:8px; border:none; cursor:pointer; font-weight:700; }
+    .btn-approve{ background:#D1FAE5; color:#065F46; } .btn-reject{ background:#FEE2E2; color:#991B1B; } .btn-expire{ background:#E5E7EB; color:#374151; } .btn-delete{ background:#FEE2E2; color:#EF4444; }
+
+    .pricing-list{ display:flex; flex-direction:column; gap:8px; }
+    .price-card{ display:flex; justify-content:space-between; align-items:center; background:var(--white); border-radius:12px; padding:12px; border:1px solid rgba(255,140,66,0.06); box-shadow:var(--shadow-sm); }
+    .price-info h4{ font-size:12px; font-weight:700; color:var(--text-dark); }
+    .price-info p{ font-size:10px; color:var(--text-light); margin-top:2px; }
+    .price-tag{ font-size:14px; font-weight:800; color:var(--orange-dark); }
+    .price-actions{ display:flex; gap:6px; }
+
+    .ad-list{ display:flex; flex-direction:column; gap:10px; }
+    .ad-card{ background:var(--white); border-radius:16px; padding:12px; border:1px solid rgba(255,140,66,0.06); box-shadow:var(--shadow-sm); position:relative; overflow:hidden; }
+    .ad-card::before{ content:''; position:absolute; top:0; left:0; width:3px; height:100%; background:var(--orange-main); opacity:0; }
+    .ad-card:hover::before{ opacity:1; }
+    .ad-card.pending::before{ background:var(--warning); } .ad-card.active::before{ background:var(--success); } .ad-card.rejected::before{ background:var(--danger); }
+    .ad-header{ display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px; }
+    .ad-title{ font-size:12px; font-weight:700; color:var(--text-dark); flex:1; padding-right:8px; }
+    .status{ font-size:9px; font-weight:700; padding:3px 8px; border-radius:20px; text-transform:uppercase; }
+    .status.pending{ background:#FEF3C7; color:#92400E; } .status.active{ background:#D1FAE5; color:#065F46; } .status.rejected{ background:#FEE2E2; color:#991B1B; } .status.expired{ background:#E5E7EB; color:#374151; }
+    .ad-meta{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:6px; font-size:10px; color:var(--text-light); }
+    .ad-meta i{ color:var(--orange-main); }
+    .thumb{ width:100%; max-height:120px; object-fit:cover; border-radius:8px; border:1px solid #eee; margin:6px 0; }
+    .stats-row{ display:grid; grid-template-columns:repeat(4,1fr); gap:6px; margin-top:8px; padding-top:8px; border-top:1px dashed #e5e7eb; text-align:center; }
+    .sval{ font-size:12px; font-weight:700; } .slab{ font-size:8px; color:var(--text-light); text-transform:uppercase; }
+    .ad-actions{ display:flex; gap:6px; margin-top:10px; flex-wrap:wrap; }
+
+    .empty{ text-align:center; padding:30px; color:var(--text-light); }
+    .empty i{ font-size:36px; color:var(--orange-light); display:block; margin-bottom:8px; }
+    .toast{ position:fixed; top:20px; left:50%; transform:translateX(-50%) translateY(-100px); background:var(--white); color:var(--text-dark); padding:10px 18px; border-radius:12px; font-size:12px; font-weight:600; opacity:0; visibility:hidden; transition:all .4s cubic-bezier(.68,-0.55,.265,1.55); z-index:3000; box-shadow:0 8px 30px rgba(0,0,0,0.12); display:flex; align-items:center; gap:8px; }
+    .toast.show{ opacity:1; visibility:visible; transform:translateX(-50%) translateY(0); top:22px; }
+    .toast.success{ border-left:3px solid #10B981; } .toast.error{ border-left:3px solid #EF4444; }
+    .overlay{ position:fixed; inset:0; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:2600; opacity:0; visibility:hidden; transition:all .3s; padding:20px; }
+    .overlay.show{ opacity:1; visibility:visible; }
+    .modal{ background:#fff; border-radius:16px; width:100%; max-width:420px; padding:18px; }
+    .modal h3{ font-size:14px; font-weight:700; margin-bottom:10px; }
+    .modal textarea{ width:100%; min-height:80px; padding:10px; border-radius:8px; border:1px solid #e5e7eb; font-size:13px; }
+    .modal-actions{ display:flex; gap:8px; margin-top:12px; justify-content:flex-end; }
+
+    .loading-overlay{ position:fixed; inset:0; background:var(--silk-bg); display:flex; flex-direction:column; justify-content:center; align-items:center; z-index:3000; gap:12px; }
+    .spinner{ width:36px; height:36px; border:3px solid var(--orange-light); border-top:3px solid var(--orange-main); border-radius:50%; animation:spin .8s linear infinite; }
+  </style>
+</head>
+<body>
+  <div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div><div style="font-size:11px; color:#888; font-weight:600; letter-spacing:2px;">Admin Banner Ads</div></div>
+
+  <div class="app-container" id="appContainer" style="display:none;">
+    <header class="header">
+      <div class="header-left">
+        <a href="admin.html" class="back-btn"><i class="ri-arrow-left-line"></i></a>
+        <div><div class="header-title">Banner Ads Manager</div><div class="header-subtitle">Admin Panel • Pricing &amp; Moderation</div></div>
+      </div>
+      <span class="admin-badge">Admin</span>
+    </header>
+    <div class="scroll-content">
+      <section class="stats-section">
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-value" id="stTotal">0</div><div class="stat-label">All Ads</div></div>
+          <div class="stat-card"><div class="stat-value" id="stPending" style="color:var(--warning)">0</div><div class="stat-label">Pending</div></div>
+          <div class="stat-card"><div class="stat-value" id="stActive" style="color:var(--success)">0</div><div class="stat-label">Active</div></div>
+          <div class="stat-card"><div class="stat-value" id="stPricing">0</div><div class="stat-label">Pricing Rules</div></div>
+          <div class="stat-card"><div class="stat-value" id="stRevenue">$0.000</div><div class="stat-label">Revenue</div></div>
+        </div>
+      </section>
+
+      <div class="tabs">
+        <button class="tab active" data-tab="ads" onclick="switchTab('ads')"><i class="ri-advertisement-line"></i> Ads</button>
+        <button class="tab" data-tab="pricing" onclick="switchTab('pricing')"><i class="ri-price-tag-3-line"></i> Pricing</button>
+        <button class="tab" data-tab="help" onclick="switchTab('help')"><i class="ri-question-line"></i> Help</button>
+      </div>
+
+      <!-- ADS PANEL -->
+      <section id="panel-ads" class="panel active">
+        <div class="controls-row">
+          <div class="search-wrap"><i class="ri-search-line"></i><input id="searchInput" class="search-input" placeholder="Search by title, owner, page..." /></div>
+          <select id="statusFilter" class="select-input" style="max-width:160px; padding-left:12px;">
+            <option value="all">All Status</option>
+            <option value="pending">Pending</option>
+            <option value="active">Active</option>
+            <option value="rejected">Rejected</option>
+            <option value="expired">Expired</option>
+          </select>
+          <button class="btn-refresh" onclick="refreshAds()"><i class="ri-refresh-line"></i></button>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin:8px 0;">
+          <h3 style="font-size:13px; font-weight:700; display:flex; align-items:center; gap:6px;"><i class="ri-shield-check-line" style="color:var(--orange-main)"></i> All Banner Ads</h3>
+          <span id="adCount" style="font-size:11px; color:var(--text-light);">0 ads</span>
+        </div>
+        <div id="adList" class="ad-list"></div>
+      </section>
+
+      <!-- PRICING PANEL -->
+      <section id="panel-pricing" class="panel">
+        <div class="card">
+          <h3 style="font-size:13px; font-weight:700; margin-bottom:10px; display:flex; align-items:center; gap:8px;"><i class="ri-add-circle-line" style="color:var(--orange-main)"></i> <span id="pricingFormTitle">Add New Pricing</span></h3>
+          <div class="form-grid">
+            <div>
+              <label>Slot (optional — picks page & size automatically)</label>
+              <select id="p_slot"></select>
+            </div>
+            <div>
+              <label>Page</label>
+              <select id="p_page"></select>
+            </div>
+            <div>
+              <label>Size</label>
+              <select id="p_size"></select>
+            </div>
+            <div>
+              <label>Duration (days)</label>
+              <select id="p_duration">
+                <option value="1">1 Day</option>
+                <option value="3">3 Days</option>
+                <option value="7">7 Days (Week)</option>
+                <option value="14">14 Days</option>
+                <option value="30">30 Days (Month)</option>
+                <option value="60">60 Days</option>
+                <option value="90">90 Days</option>
+                <option value="custom">Custom...</option>
+              </select>
+              <input id="p_customDays" type="number" placeholder="Custom days" style="display:none; margin-top:6px;" min="1" />
+            </div>
+            <div>
+              <label>Price (USD $)</label>
+              <input id="p_price" type="number" step="0.01" min="0" placeholder="e.g. 2.50" />
+            </div>
+            <div style="display:flex; align-items:flex-end;">
+              <button class="btn btn-primary" style="width:100%;" onclick="savePricing()"><i class="ri-save-line"></i> <span id="pricingBtnText">Add Pricing</span></button>
+            </div>
+          </div>
+          <p style="font-size:10px; color:var(--text-light); margin-top:8px;">Tip: Create one rule per <strong>page + size + duration</strong>. Example: dashboard 728x90 for 7 days = $2.50, all 300x250 for 30 days = $6.00. Users see calculated price when placing ad.</p>
+          <div style="margin-top:10px; display:flex; gap:8px;">
+            <button class="btn btn-ghost" onclick="seedDefaultPricing()"><i class="ri-magic-line"></i> Seed Defaults</button>
+            <button class="btn btn-ghost" onclick="cancelEditPricing()" id="cancelEditBtn" style="display:none;"><i class="ri-close-line"></i> Cancel Edit</button>
+          </div>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin:12px 0 8px;">
+          <h3 style="font-size:13px; font-weight:700;"><i class="ri-price-tag-3-line" style="color:var(--orange-main)"></i> Current Pricing Rules</h3>
+          <span id="pricingCount" style="font-size:11px; color:var(--text-light);">0 rules</span>
+        </div>
+        <div id="pricingList" class="pricing-list"></div>
+      </section>
+
+      <!-- HELP PANEL -->
+      <section id="panel-help" class="panel">
+        <div class="card">
+          <h3 style="font-size:13px; font-weight:700; margin-bottom:8px;"><i class="ri-information-line" style="color:var(--orange-main)"></i> How Banner Ads Work</h3>
+          <ul style="font-size:11px; color:#666; line-height:1.7; padding-left:16px;">
+            <li><strong>Pricing set by admin:</strong> You define price for each combination of <em>page + size + duration</em>. Different sizes/pages can have different prices.</li>
+            <li><strong>Various sizes:</strong> 728×90, 300×250, 320×50, 468×60, 250×250, 300×600, 970×90, etc. — users pick what they need.</li>
+            <li><strong>Various pages:</strong> dashboard, games, tasks, index, profile, etc. — or <em>all</em> for global reach.</li>
+            <li><strong>Various durations:</strong> 1 day to 90 days (or custom). Price scales with duration.</li>
+            <li><strong>Empty ads:</strong> When no active ad exists for a slot, site shows “Advertise Here” — clicking redirects to <code>place-banner.html</code> with that slot preselected.</li>
+            <li><strong>Base64 images:</strong> User uploads image → converted to base64 data URL → stored directly in Firestore (no storage bucket needed). Max 2MB.</li>
+            <li><strong>Moderation flow:</strong> User pays → ad enters <em>pending</em> → you Approve (sets start/end dates, live) or Reject (refund).</li>
+            <li><strong>Expiry:</strong> After duration, ad becomes expired (auto-checked on render).</li>
+          </ul>
+        </div>
+        <div class="card" style="background:var(--orange-light); border-color:rgba(255,140,66,0.2);">
+          <h3 style="font-size:12px; font-weight:700; margin-bottom:6px;">Quick Test</h3>
+          <p style="font-size:11px; color:#666;">1. Seed defaults → 2. Go to dashboard.html — see empty banners → 3. Click one → place-banner.html → 4. Submit → 5. Approve here → 6. Refresh dashboard — ad live!</p>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div id="deniedContainer" style="display:none; width:100%; height:100dvh; max-width:430px; background:var(--silk-bg); align-items:center; justify-content:center; border-radius:24px; margin:20px auto;">
+    <div style="text-align:center; padding:40px;">
+      <i class="ri-shield-cross-line" style="font-size:48px; color:var(--danger)"></i>
+      <h3 style="margin-top:12px;">Access Denied</h3>
+      <p style="font-size:12px; color:#888; margin:8px 0 16px;">Admin only.</p>
+      <a href="dashboard.html" style="display:inline-flex; background:var(--gradient-orange); color:#fff; padding:10px 18px; border-radius:10px; text-decoration:none; font-size:12px; font-weight:700;">Back to Dashboard</a>
+    </div>
+  </div>
+
+  <!-- Reject Modal -->
+  <div id="rejectModal" class="overlay">
+    <div class="modal">
+      <h3>Reject Ad & Reason</h3>
+      <p style="font-size:11px; color:#888; margin-bottom:8px;">Optionally provide a reason — user will see it. Balance will be refunded?</p>
+      <textarea id="rejectReason" placeholder="e.g. Image contains misleading content..."></textarea>
+      <div style="display:flex; align-items:center; gap:8px; margin-top:10px;">
+        <input type="checkbox" id="refundCheck" checked /> <label for="refundCheck" style="font-size:12px; font-weight:500; text-transform:none;">Refund user balance</label>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" onclick="closeReject()">Cancel</button>
+        <button class="btn btn-primary" style="background:#EF4444;" onclick="confirmReject()"><i class="ri-close-line"></i> Reject</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast">Message</div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
+  <script src="js/banner-ads.js"></script>
+  <script>
+    const firebaseConfig={apiKey:"AIzaSyAv6QCpopa0Q77AVTyjU5cqJEIKIE9OVTs",authDomain:"taskvault-412a0.firebaseapp.com",databaseURL:"https://taskvault-412a0-default-rtdb.firebaseio.com",projectId:"taskvault-412a0",storageBucket:"taskvault-412a0.firebasestorage.app",messagingSenderId:"420716701831",appId:"1:420716701831:web:c987d91f7f4c8684eb7022"};
+    firebase.initializeApp(firebaseConfig);
+    const auth=firebase.auth(); const db=firebase.firestore();
+    const ADMIN_EMAILS=['beniwealth70@gmail.com','baasituoppor01@gmail.com'];
+    let currentUser=null, allAds=[], allPricing=[], editingPricingId=null, rejectTargetId=null;
+    function fmt(n){ return '$'+Number(n||0).toFixed(3); }
+    function showToast(m,t='info'){ const el=document.getElementById('toast'); el.className='toast '+t; let icon='ri-information-line'; if(t==='success') icon='ri-checkbox-circle-line'; if(t==='error') icon='ri-close-circle-line'; el.innerHTML=`<i class="ri-${icon}"></i> ${m}`; el.classList.add('show'); setTimeout(()=>el.classList.remove('show'),3000); }
+    function escapeHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    function niceDate(ts){ try{ if(!ts) return '-'; if(ts.toDate) ts=ts.toDate(); return new Date(ts).toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'});}catch{return '-';}}
+    function switchTab(name){
+      document.querySelectorAll('.tab').forEach(b=> b.classList.toggle('active', b.dataset.tab===name));
+      document.querySelectorAll('.panel').forEach(p=> p.classList.toggle('active', p.id==='panel-'+name));
+    }
+    document.getElementById('p_duration').addEventListener('change',()=>{
+      const v=document.getElementById('p_duration').value;
+      document.getElementById('p_customDays').style.display = v==='custom' ? 'block' : 'none';
+    });
+
+    auth.onAuthStateChanged(async user=>{
+      if(!user){ document.getElementById('loadingOverlay').style.display='none'; document.getElementById('appContainer').style.display='none'; document.getElementById('deniedContainer').style.display='flex'; return; }
+      const email=(user.email||'').trim().toLowerCase();
+      if(!ADMIN_EMAILS.includes(email)){ document.getElementById('loadingOverlay').style.display='none'; document.getElementById('appContainer').style.display='none'; document.getElementById('deniedContainer').style.display='flex'; showToast('Admin access required','error'); return; }
+      currentUser=user;
+      document.getElementById('loadingOverlay').style.display='none';
+      document.getElementById('appContainer').style.display='flex';
+      document.getElementById('deniedContainer').style.display='none';
+      initSelectors();
+      loadPricing();
+      loadAds();
+    });
+
+    function initSelectors(){
+      const slotSel=document.getElementById('p_slot');
+      const pageSel=document.getElementById('p_page');
+      const sizeSel=document.getElementById('p_size');
+      slotSel.innerHTML='<option value="">— Custom / No slot —</option>';
+      TVBanner.SLOTS.forEach(s=>{ const o=document.createElement('option'); o.value=s.id; o.textContent=s.label+` (${s.page} • ${s.size})`; slotSel.appendChild(o); });
+      pageSel.innerHTML=''; TVBanner.PAGES.forEach(p=>{ const o=document.createElement('option'); o.value=p.value; o.textContent=p.label; pageSel.appendChild(o); });
+      sizeSel.innerHTML=''; TVBanner.SIZES.forEach(s=>{ const o=document.createElement('option'); o.value=s.value; o.textContent=s.label; sizeSel.appendChild(o); });
+      slotSel.addEventListener('change',()=>{
+        const id=slotSel.value;
+        if(!id) return;
+        const slot=TVBanner.getSlotById(id);
+        if(slot){ pageSel.value=slot.page; sizeSel.value=slot.size; }
+      });
+    }
+
+    // PRICING
+    function loadPricing(){
+      db.collection('bannerPricing').onSnapshot(snap=>{
+        allPricing=[]; snap.forEach(doc=> allPricing.push({id:doc.id, ...doc.data()}));
+        allPricing.sort((a,b)=> (a.page||'').localeCompare(b.page||'') || (a.size||'').localeCompare(b.size||'') || (Number(a.durationDays)-Number(b.durationDays)) );
+        renderPricing(); updateStats();
+      }, err=>{ console.error(err); showToast('Pricing load error','error'); });
+    }
+    function renderPricing(){
+      const list=document.getElementById('pricingList');
+      const count=document.getElementById('pricingCount');
+      count.textContent=allPricing.length+' rule'+(allPricing.length!==1?'s':'');
+      if(!allPricing.length){ list.innerHTML=`<div class="empty"><i class="ri-price-tag-3-line"></i><h3>No pricing yet</h3><p>Seed defaults or add your first rule above.</p></div>`; document.getElementById('stPricing').textContent='0'; return; }
+      document.getElementById('stPricing').textContent=allPricing.length;
+      list.innerHTML='';
+      allPricing.forEach(p=>{
+        const slotLabel = p.slotId ? (TVBanner.getSlotById(p.slotId)?.label || p.slotId) : `${p.page} • ${p.size}`;
+        const card=document.createElement('div'); card.className='price-card';
+        card.innerHTML=`
+          <div class="price-info">
+            <h4>${escapeHtml(slotLabel)}</h4>
+            <p>${escapeHtml(p.page||'-')} • ${escapeHtml(p.size||'-')} • ${p.durationDays} day(s) ${p.slotId ? `• Slot: ${escapeHtml(p.slotId)}` : ''}</p>
+          </div>
+          <div style="text-align:right;">
+            <div class="price-tag">${fmt(p.price)}</div>
+            <div style="font-size:9px; color:#888;">${fmt(Number(p.price)/Number(p.durationDays))}/day</div>
+          </div>
+        `;
+        const actions=document.createElement('div'); actions.className='price-actions';
+        const editBtn=document.createElement('button'); editBtn.className='btn-sm btn-ghost'; editBtn.style.border='1px solid #eee'; editBtn.innerHTML='<i class="ri-edit-line"></i>'; editBtn.onclick=()=> startEditPricing(p.id);
+        const delBtn=document.createElement('button'); delBtn.className='btn-sm btn-delete'; delBtn.innerHTML='<i class="ri-delete-bin-line"></i>'; delBtn.onclick=()=> deletePricing(p.id);
+        actions.append(editBtn, delBtn);
+        card.appendChild(actions);
+        list.appendChild(card);
+      });
+    }
+    async function savePricing(){
+      const slotId=document.getElementById('p_slot').value || null;
+      const page=document.getElementById('p_page').value;
+      const size=document.getElementById('p_size').value;
+      let days=document.getElementById('p_duration').value;
+      if(days==='custom') days=document.getElementById('p_customDays').value;
+      days=Number(days);
+      const price=Number(document.getElementById('p_price').value);
+      if(!page || !size || !days || !price){ showToast('Fill all fields','error'); return; }
+      if(days<=0){ showToast('Duration must be >0','error'); return; }
+      if(price<=0){ showToast('Price must be >0','error'); return; }
+      try{
+        const payload={ slotId: slotId || null, page, size, durationDays: days, price, updatedAt: firebase.firestore.FieldValue.serverTimestamp(), updatedBy: currentUser.email };
+        if(editingPricingId){
+          await db.collection('bannerPricing').doc(editingPricingId).update(payload);
+          showToast('Pricing updated','success');
+          cancelEditPricing();
+        } else {
+          payload.createdAt=firebase.firestore.FieldValue.serverTimestamp();
+          payload.createdBy=currentUser.email;
+          await db.collection('bannerPricing').add(payload);
+          showToast('Pricing added','success');
+        }
+        // keep selectors but clear price
+        document.getElementById('p_price').value='';
+      }catch(e){ console.error(e); showToast('Save failed: '+e.message,'error');}
+    }
+    function startEditPricing(id){
+      const p=allPricing.find(x=>x.id===id);
+      if(!p) return;
+      editingPricingId=id;
+      document.getElementById('p_slot').value=p.slotId||'';
+      document.getElementById('p_page').value=p.page||'all';
+      document.getElementById('p_size').value=p.size||'728x90';
+      // duration
+      const sel=document.getElementById('p_duration');
+      if(['1','3','7','14','30','60','90'].includes(String(p.durationDays))){
+        sel.value=String(p.durationDays); document.getElementById('p_customDays').style.display='none';
+      } else {
+        sel.value='custom'; document.getElementById('p_customDays').style.display='block'; document.getElementById('p_customDays').value=p.durationDays;
+      }
+      document.getElementById('p_price').value=p.price;
+      document.getElementById('pricingFormTitle').textContent='Edit Pricing';
+      document.getElementById('pricingBtnText').textContent='Update Pricing';
+      document.getElementById('cancelEditBtn').style.display='inline-flex';
+      switchTab('pricing');
+      window.scrollTo(0,0);
+      document.querySelector('.scroll-content').scrollTop=0;
+    }
+    function cancelEditPricing(){
+      editingPricingId=null;
+      document.getElementById('pricingFormTitle').textContent='Add New Pricing';
+      document.getElementById('pricingBtnText').textContent='Add Pricing';
+      document.getElementById('cancelEditBtn').style.display='none';
+      document.getElementById('p_price').value='';
+    }
+    async function deletePricing(id){
+      if(!confirm('Delete this pricing rule?')) return;
+      try{ await db.collection('bannerPricing').doc(id).delete(); showToast('Deleted','success'); }catch(e){ showToast('Delete failed','error'); }
+    }
+    async function seedDefaultPricing(){
+      if(!confirm('Create default pricing for common slots? Existing pricing will be kept.')) return;
+      const defaults=[
+        // dashboard
+        {page:'dashboard',size:'728x90',durationDays:1,price:0.80}, {page:'dashboard',size:'728x90',durationDays:7,price:4.50}, {page:'dashboard',size:'728x90',durationDays:30,price:15.00},
+        {page:'dashboard',size:'300x250',durationDays:1,price:0.60}, {page:'dashboard',size:'300x250',durationDays:7,price:3.50}, {page:'dashboard',size:'300x250',durationDays:30,price:12.00},
+        {page:'dashboard',size:'320x50',durationDays:1,price:0.40}, {page:'dashboard',size:'320x50',durationDays:7,price:2.00}, {page:'dashboard',size:'320x50',durationDays:30,price:7.00},
+        // games
+        {page:'games',size:'728x90',durationDays:1,price:0.70}, {page:'games',size:'728x90',durationDays:7,price:4.00}, {page:'games',size:'728x90',durationDays:30,price:14.00},
+        {page:'games',size:'300x250',durationDays:1,price:0.50}, {page:'games',size:'300x250',durationDays:7,price:3.00}, {page:'games',size:'300x250',durationDays:30,price:10.00},
+        // tasks
+        {page:'tasks',size:'728x90',durationDays:7,price:3.50},{page:'tasks',size:'300x250',durationDays:7,price:2.80},
+        // index
+        {page:'index',size:'728x90',durationDays:1,price:1.00}, {page:'index',size:'728x90',durationDays:7,price:6.00}, {page:'index',size:'728x90',durationDays:30,price:20.00},
+        {page:'index',size:'300x250',durationDays:7,price:4.00},
+        // all/global
+        {page:'all',size:'728x90',durationDays:1,price:1.20}, {page:'all',size:'728x90',durationDays:7,price:7.00}, {page:'all',size:'728x90',durationDays:30,price:22.00},
+        {page:'all',size:'300x250',durationDays:1,price:0.80}, {page:'all',size:'300x250',durationDays:7,price:5.00}, {page:'all',size:'300x250',durationDays:30,price:18.00},
+        {page:'all',size:'320x50',durationDays:1,price:0.50}, {page:'all',size:'320x50',durationDays:7,price:2.80}, {page:'all',size:'320x50',durationDays:30,price:9.00},
+        {page:'all',size:'300x600',durationDays:7,price:8.00}, {page:'all',size:'300x600',durationDays:30,price:28.00},
+      ];
+      try{
+        const batch=db.batch();
+        let count=0;
+        defaults.forEach(d=>{
+          // avoid dup: check if exists already (simple: if pricing list has same page/size/days, skip)
+          const exists=allPricing.some(p=> p.page===d.page && p.size===d.size && Number(p.durationDays)===Number(d.durationDays));
+          if(exists) return;
+          const ref=db.collection('bannerPricing').doc();
+          batch.set(ref, { ...d, slotId:null, createdAt: firebase.firestore.FieldValue.serverTimestamp(), createdBy: currentUser.email });
+          count++;
+        });
+        if(count===0){ showToast('All defaults already exist','info'); return; }
+        await batch.commit();
+        showToast(`Seeded ${count} pricing rules`,'success');
+      }catch(e){ console.error(e); showToast('Seed failed','error'); }
+    }
+
+    // ADS
+    function loadAds(){
+      db.collection('bannerAds').onSnapshot(snap=>{
+        allAds=[]; snap.forEach(doc=> allAds.push({id:doc.id, ...doc.data()}));
+        allAds.sort((a,b)=>{ const at=a.createdAt?.toDate? a.createdAt.toDate().getTime():0; const bt=b.createdAt?.toDate? b.createdAt.toDate().getTime():0; return bt-at; });
+        renderAds(); updateStats();
+      }, err=>{ console.error(err); showToast('Ads load error','error'); });
+    }
+    function updateStats(){
+      const total=allAds.length; const pending=allAds.filter(a=> (a.status||'').toLowerCase()==='pending').length; const active=allAds.filter(a=> (a.status||'').toLowerCase()==='active').length;
+      const revenue=allAds.reduce((s,a)=> s+ Number(a.price||a.totalCost||0),0);
+      document.getElementById('stTotal').textContent=total;
+      document.getElementById('stPending').textContent=pending;
+      document.getElementById('stActive').textContent=active;
+      document.getElementById('stRevenue').textContent=fmt(revenue);
+    }
+    function renderAds(){
+      const list=document.getElementById('adList'); const countEl=document.getElementById('adCount');
+      const q=(document.getElementById('searchInput').value||'').toLowerCase().trim();
+      const statusFilter=document.getElementById('statusFilter').value;
+      let filtered=[...allAds];
+      if(statusFilter!=='all') filtered=filtered.filter(a=> (a.status||'pending').toLowerCase()===statusFilter);
+      if(q) filtered=filtered.filter(a=> ((a.title||'')+' '+(a.page||'')+' '+(a.ownerEmail||'')+' '+(a.size||'')).toLowerCase().includes(q));
+      countEl.textContent=filtered.length+' ad'+(filtered.length!==1?'s':'');
+      if(!filtered.length){ list.innerHTML=`<div class="empty"><i class="ri-advertisement-line"></i><h3>No ads found</h3><p>No banner ads match this filter.</p></div>`; return; }
+      list.innerHTML='';
+      filtered.forEach(ad=>{
+        const status=(ad.status||'pending').toLowerCase();
+        const div=document.createElement('div'); div.className=`ad-card ${status}`;
+        const expired = ad.endDate && ad.endDate.toDate && ad.endDate.toDate().getTime() < Date.now() && status==='active';
+        const displayStatus = expired ? 'expired' : status;
+        div.innerHTML=`
+          <div class="ad-header"><div class="ad-title">${escapeHtml(ad.title||'Untitled')}</div><span class="status ${displayStatus}">${displayStatus}</span></div>
+          <div class="ad-meta">
+            <span><i class="ri-layout-line"></i> ${escapeHtml(ad.page||'-')} • ${escapeHtml(ad.size||'-')} ${ad.w?'• '+ad.w+'×'+ad.h:''}</span>
+            <span><i class="ri-user-line"></i> ${escapeHtml(ad.ownerEmail||ad.owner||'-')}</span>
+            <span><i class="ri-time-line"></i> ${niceDate(ad.createdAt)}</span>
+            <span><i class="ri-money-dollar-circle-line"></i> ${fmt(ad.price||ad.totalCost)}</span>
+          </div>
+          ${ad.imageBase64 ? `<img class="thumb" src="${ad.imageBase64}" alt="Banner" />` : ''}
+          ${ad.targetUrl ? `<div style="font-size:11px; color:#888; margin-top:4px;"><i class="ri-link"></i> <a href="${escapeHtml(ad.targetUrl)}" target="_blank" style="color:#FF8C42; word-break:break-all;">${escapeHtml(ad.targetUrl)}</a></div>` : ''}
+          ${ad.endDate ? `<div style="font-size:10px; color:#888; margin-top:4px;"><i class="ri-calendar-line"></i> Ends: ${niceDate(ad.endDate)} ${expired?'<span style="color:#EF4444; font-weight:700;">(EXPIRED)</span>':''}</div>` : ''}
+          ${ad.rejectionReason ? `<div style="background:#FEE2E2; color:#991B1B; padding:8px; border-radius:8px; font-size:11px; margin-top:6px;"><strong>Rejected:</strong> ${escapeHtml(ad.rejectionReason)}</div>` : ''}
+          <div class="stats-row">
+            <div><div class="sval">${ad.durationDays||'-'}</div><div class="slab">Days</div></div>
+            <div><div class="sval">${ad.impressions||0}</div><div class="slab">Impressions</div></div>
+            <div><div class="sval">${ad.clicks||0}</div><div class="slab">Clicks</div></div>
+            <div><div class="sval">${ad.slotId||'-'}</div><div class="slab">Slot</div></div>
+          </div>
+        `;
+        const actions=document.createElement('div'); actions.className='ad-actions';
+        if(status==='pending'){
+          const appr=document.createElement('button'); appr.className='btn-sm btn-approve'; appr.innerHTML='<i class="ri-check-line"></i> Approve';
+          appr.onclick=()=> approveAd(ad.id);
+          const rej=document.createElement('button'); rej.className='btn-sm btn-reject'; rej.innerHTML='<i class="ri-close-line"></i> Reject';
+          rej.onclick=()=> openReject(ad.id);
+          actions.append(appr, rej);
+        } else if(status==='active'){
+          const exp=document.createElement('button'); exp.className='btn-sm btn-expire'; exp.innerHTML='<i class="ri-time-line"></i> Expire Now';
+          exp.onclick=()=> expireAd(ad.id);
+          const rej2=document.createElement('button'); rej2.className='btn-sm btn-reject'; rej2.innerHTML='<i class="ri-forbid-line"></i> Take Down';
+          rej2.onclick=()=> openReject(ad.id);
+          actions.append(exp, rej2);
+        } else if(status==='rejected'){
+          const appr2=document.createElement('button'); appr2.className='btn-sm btn-approve'; appr2.innerHTML='<i class="ri-refresh-line"></i> Re-Approve';
+          appr2.onclick=()=> approveAd(ad.id);
+          actions.append(appr2);
+        }
+        if(ad.targetUrl){
+          const view=document.createElement('a'); view.className='btn-sm btn-ghost'; view.style.border='1px solid #eee'; view.href=ad.targetUrl; view.target='_blank'; view.innerHTML='<i class="ri-external-link-line"></i> View';
+          actions.append(view);
+        }
+        // Delete always allowed for admin
+        const del=document.createElement('button'); del.className='btn-sm btn-delete'; del.innerHTML='<i class="ri-delete-bin-line"></i>';
+        del.onclick=()=> deleteAd(ad.id);
+        actions.append(del);
+
+        div.appendChild(actions);
+        list.appendChild(div);
+      });
+    }
+    document.getElementById('searchInput').addEventListener('input', renderAds);
+    document.getElementById('statusFilter').addEventListener('change', renderAds);
+    function refreshAds(){ loadAds(); const btn=document.querySelector('.btn-refresh'); btn.classList.add('spinning'); setTimeout(()=>btn.classList.remove('spinning'),800); }
+
+    async function approveAd(id){
+      if(!confirm('Approve this banner? It will go live now.')) return;
+      const ad=allAds.find(a=>a.id===id);
+      if(!ad){ showToast('Ad not found','error'); return; }
+      const days=Number(ad.durationDays||7);
+      const start=new Date();
+      const end=new Date(start.getTime() + days*24*60*60*1000);
+      try{
+        await db.collection('bannerAds').doc(id).update({
+          status:'active',
+          startDate: firebase.firestore.Timestamp.fromDate(start),
+          endDate: firebase.firestore.Timestamp.fromDate(end),
+          approvedAt: firebase.firestore.FieldValue.serverTimestamp(),
+          approvedBy: currentUser.uid,
+          approvedByEmail: currentUser.email
+        });
+        showToast('Ad approved & live','success');
+      }catch(e){ console.error(e); showToast('Approve failed: '+e.message,'error'); }
+    }
+    async function expireAd(id){
+      if(!confirm('Expire this ad now? It will stop showing.')) return;
+      try{
+        await db.collection('bannerAds').doc(id).update({ status:'expired', expiredAt: firebase.firestore.FieldValue.serverTimestamp(), expiredBy: currentUser.email });
+        showToast('Ad expired','success');
+      }catch(e){ showToast('Failed','error'); }
+    }
+    function openReject(id){ rejectTargetId=id; document.getElementById('rejectReason').value=''; document.getElementById('refundCheck').checked=true; document.getElementById('rejectModal').classList.add('show'); }
+    function closeReject(){ document.getElementById('rejectModal').classList.remove('show'); rejectTargetId=null; }
+    async function confirmReject(){
+      if(!rejectTargetId) return;
+      const reason=(document.getElementById('rejectReason').value||'').trim();
+      const doRefund=document.getElementById('refundCheck').checked;
+      const ad=allAds.find(a=>a.id===rejectTargetId);
+      try{
+        if(doRefund && ad && ad.owner){
+          // Refund via transaction
+          await db.runTransaction(async tx=>{
+            const userRef=db.collection('users').doc(ad.owner);
+            const snap=await tx.get(userRef);
+            if(!snap.exists) throw new Error('Owner not found');
+            const bal=Number(snap.data().balance||0);
+            const refund=Number(ad.price||ad.totalCost||0);
+            tx.update(userRef, { balance: bal + refund });
+            tx.update(db.collection('bannerAds').doc(rejectTargetId), { status:'rejected', rejectionReason: reason || 'Rejected by admin', rejectedAt: firebase.firestore.FieldValue.serverTimestamp(), rejectedBy: currentUser.email, refunded: true, refundAmount: refund });
+          });
+          showToast('Rejected & refunded','success');
+        } else {
+          await db.collection('bannerAds').doc(rejectTargetId).update({ status:'rejected', rejectionReason: reason || 'Rejected by admin', rejectedAt: firebase.firestore.FieldValue.serverTimestamp(), rejectedBy: currentUser.email });
+          showToast('Rejected','success');
+        }
+        closeReject();
+      }catch(e){ console.error(e); showToast('Reject failed: '+e.message,'error'); }
+    }
+    async function deleteAd(id){
+      if(!confirm('Permanently delete this ad? This cannot be undone.')) return;
+      try{ await db.collection('bannerAds').doc(id).delete(); showToast('Deleted','success'); }catch(e){ showToast('Delete failed','error'); }
+    }
+    document.getElementById('rejectModal').addEventListener('click', (e)=>{ if(e.target.id==='rejectModal') closeReject(); });
+
+    // Expose some for console
+    window.refreshAds=refreshAds; window.approveAd=approveAd; window.expireAd=expireAd; window.openReject=openReject; window.closeReject=closeReject; window.confirmReject=confirmReject; window.deleteAd=deleteAd;
+    window.savePricing=savePricing; window.deletePricing=deletePricing; window.startEditPricing=startEditPricing; window.cancelEditPricing=cancelEditPricing; window.seedDefaultPricing=seedDefaultPricing;
+  </script>
+</body>
+</html>

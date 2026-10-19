@@ -520,6 +520,7 @@
         .delay-1 { animation-delay: 0.1s; opacity: 0; }
         .delay-2 { animation-delay: 0.2s; opacity: 0; }
     </style>
+  <link rel="stylesheet" href="css/banner-ads.css">
 </head>
 <body>
 
@@ -555,6 +556,12 @@
 
         <!-- SCROLLABLE CONTENT -->
         <div class="scroll-content">
+    <!-- Banner: Kyc Top (300x250) -->
+    <div style="padding:10px 20px;">
+      <div class="tv-banner" data-banner-slot="kyc-top" data-banner-page="kyc" data-banner-size="300x250"></div>
+      <p class="tv-ad-ribbon">Sponsored</p>
+    </div>
+
             <!-- HEADER -->
             <div class="header-content fade-in">
                 <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" alt="TaskVault" class="logo">
@@ -872,5 +879,7 @@
             }
         }
     </script>
+  <script src="js/banner-ads.js"></script>
+  <script>document.addEventListener("DOMContentLoaded",()=>{ if(window.TVBanner) TVBanner.init({page:"kyc"}); });</script>
 </body>
 </html>

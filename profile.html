@@ -632,6 +632,7 @@
         .delay-2 { animation-delay: 0.16s; }
         .delay-3 { animation-delay: 0.24s; }
     </style>
+    <link rel="stylesheet" href="css/banner-ads.css">
 </head>
 <body>
 
@@ -712,6 +713,11 @@
                 </div>
             </section>
 
+            <!-- Banner: Profile (300x250) -->
+            <div style="padding:0 20px 12px; display:flex; justify-content:center;">
+              <div class="tv-banner" data-banner-slot="profile-top" data-banner-page="profile" data-banner-size="300x250"></div>
+            </div>
+
             <!-- INFO LIST -->
             <section class="info-section fade-in delay-3">
                 <div class="info-card">
@@ -771,6 +777,7 @@
     <!-- TOAST -->
     <div id="toast" class="toast">Message</div>
 
+    <script src="js/banner-ads.js"></script>
     <!-- FIREBASE SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
@@ -1071,6 +1078,7 @@
 
         // Initialize nav active state
         document.addEventListener('DOMContentLoaded', () => {
+            if(window.TVBanner) TVBanner.init({page:"profile"});
             const currentPage = window.location.pathname.split('/').pop();
             document.querySelectorAll('.nav-item').forEach(item => {
                 const href = item.getAttribute('href');

@@ -934,6 +934,7 @@
         .delay-1 { animation-delay: 0.1s; opacity: 0; }
         .delay-2 { animation-delay: 0.2s; opacity: 0; }
     </style>
+  <link rel="stylesheet" href="css/banner-ads.css">
 </head>
 <body>
 
@@ -969,6 +970,12 @@
 
         <!-- SCROLLABLE CONTENT -->
         <div class="scroll-content">
+    <!-- Banner: Deposit Top (728x90) -->
+    <div style="padding:10px 20px;">
+      <div class="tv-banner" data-banner-slot="deposit-top" data-banner-page="deposit" data-banner-size="728x90"></div>
+      <p class="tv-ad-ribbon">Sponsored</p>
+    </div>
+
             <!-- HEADER -->
             <div class="header-content fade-in">
                 <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1774094269/logo2_ago4ay.jpg" alt="CashClique" class="logo">
@@ -1843,5 +1850,7 @@
             if (historyUnsubscribe) historyUnsubscribe();
         });
     </script>
+  <script src="js/banner-ads.js"></script>
+  <script>document.addEventListener("DOMContentLoaded",()=>{ if(window.TVBanner) TVBanner.init({page:"deposit"}); });</script>
 </body>
     </html>

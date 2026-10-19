@@ -659,6 +659,12 @@ footer{
   </div>
 </section>
 
+<!-- Banner Ad: Homepage Hero (728x90) -->
+<div style="padding:12px 8%; background:#fff;">
+  <div class="tv-banner" data-banner-slot="index-hero" data-banner-page="index" data-banner-size="728x90"></div>
+  <p class="tv-ad-ribbon">Sponsored</p>
+</div>
+
 <section class="earning-highlight">
   <h2>Earn At Least $0.70 Per Day</h2>
   <p>
@@ -675,6 +681,11 @@ footer{
     that prioritizes both performance and satisfaction.
   </p>
 </section>
+
+<!-- Banner Ad: Homepage Medium (300x250) -->
+<div style="padding:16px 8%; background:#fff5ec; display:flex; justify-content:center;">
+  <div class="tv-banner" data-banner-slot="index-middle" data-banner-page="index" data-banner-size="300x250"></div>
+</div>
 
 <section class="features">
   <h2>Multiple Ways to Earn</h2>
@@ -845,6 +856,12 @@ footer{
   </div>
 </section>
 
+<!-- Banner Ad: Homepage Footer (728x90) -->
+<div style="padding:16px 8%; background:#f9f9f9; display:flex; flex-direction:column; align-items:center;">
+  <div class="tv-banner" data-banner-slot="index-footer" data-banner-page="index" data-banner-size="728x90"></div>
+  <p class="tv-ad-ribbon">Advertisement</p>
+</div>
+
 <section class="faq">
   <h2>Frequently Asked Questions</h2>
 
@@ -945,6 +962,11 @@ function initGamesCarousel(root){
 document.querySelectorAll('[data-carousel]').forEach(initGamesCarousel);
 </script>
 
+<link rel="stylesheet" href="css/banner-ads.css">
+<script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
+<script src="js/banner-ads.js"></script>
+<script>document.addEventListener("DOMContentLoaded",()=>{ if(window.TVBanner) TVBanner.init({page:"index"}); });</script>
 </body>
 </html>
 
