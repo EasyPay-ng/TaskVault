@@ -259,7 +259,19 @@
     .timeline-fill { height: 100%; background: linear-gradient(90deg, var(--orange), var(--gold)); border-radius: 6px; transition: width .5s ease; }
     .timeline-markers { display: flex; justify-content: space-between; margin-top: .25rem; font-size: .7rem; color: var(--gray-400); }
 
-    .leaderboard-preview { max-height: 300px; overflow-y: auto; }
+    .leaderboard-preview { max-height: 480px; overflow-y: auto; }
+    .lb-top-badge {
+      padding: .1rem .45rem;
+      border-radius: 999px;
+      background: var(--orange-soft, #ffedd5);
+      border: 1px solid rgba(249,115,22,0.35);
+      color: var(--orange);
+      font-size: .6rem;
+      font-weight: 800;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
     .lb-row {
       display: flex;
       align-items: center;
@@ -638,6 +650,7 @@
         <h2>
           <i class="ri-bar-chart-grouped-fill"></i>
           Current Leaderboard
+          <span class="lb-top-badge">Top 20</span>
         </h2>
         <span class="leaderboard-count" id="livePlayerCount">0 players</span>
       </div>
@@ -1286,6 +1299,9 @@
     updateLiveRoundUI();
   }
 
+  // Number of ranked players shown in the live leaderboard preview (top N).
+  const LEADERBOARD_PREVIEW_SIZE = 20;
+
   function renderLiveLeaderboard(entries) {
     const container = document.getElementById('liveLeaderboard');
 
@@ -1303,7 +1319,7 @@
 
     let html = '';
 
-    entries.slice(0, 10).forEach((entry, index) => {
+    entries.slice(0, LEADERBOARD_PREVIEW_SIZE).forEach((entry, index) => {
       const rank = index + 1;
       const rankClass =
         rank === 1 ? 'gold' :
@@ -1328,10 +1344,10 @@
       `;
     });
 
-    if (entries.length > 10) {
+    if (entries.length > LEADERBOARD_PREVIEW_SIZE) {
       html += `
         <div style="text-align:center;padding:1rem;color:var(--gray-500);font-size:.85rem;">
-          + ${entries.length - 10} more players
+          + ${entries.length - LEADERBOARD_PREVIEW_SIZE} more players
         </div>
       `;
     }

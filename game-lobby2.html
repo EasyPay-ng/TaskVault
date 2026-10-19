@@ -303,6 +303,8 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: .5rem;
+      flex-wrap: wrap;
     }
     .leaderboard-header h3 {
       font-size: .9rem;
@@ -314,11 +316,32 @@
     .leaderboard-count { font-size: .75rem; color: var(--gray-500); font-weight: 600; }
 
     .leaderboard-list {
-      max-height: 400px;
+      max-height: 520px;
       overflow-y: auto;
     }
     .leaderboard-list::-webkit-scrollbar { width: 4px; }
     .leaderboard-list::-webkit-scrollbar-thumb { background: var(--gray-700); border-radius: 2px; }
+
+    .lb-top-badge {
+      padding: .1rem .45rem;
+      border-radius: 999px;
+      background: rgba(249,115,22,0.15);
+      border: 1px solid rgba(249,115,22,0.35);
+      color: var(--orange);
+      font-size: .6rem;
+      font-weight: 800;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .lb-divider {
+      padding: .35rem 1.25rem;
+      text-align: center;
+      font-size: .7rem;
+      letter-spacing: .25em;
+      color: var(--gray-600);
+      border-bottom: 1px solid var(--gray-800);
+    }
 
     .lb-item {
       display: flex;
@@ -564,7 +587,7 @@
 
     <div class="leaderboard">
       <div class="leaderboard-header">
-        <h3><i class="ri-bar-chart-grouped-fill" style="color:var(--orange);"></i> Live Leaderboard</h3>
+        <h3><i class="ri-bar-chart-grouped-fill" style="color:var(--orange);"></i> Live Leaderboard <span class="lb-top-badge">Top 20</span></h3>
         <span class="leaderboard-count" id="playerCount">0 players</span>
       </div>
       <div class="leaderboard-list" id="leaderboardList">
@@ -631,6 +654,9 @@
   // ========== GAME CONFIG (this game) ==========
   const GAME_KEY = 'vaultDefender';
   const ROUNDS_COLLECTION = 'vaultDefenderRounds';
+
+  // Number of ranked players shown on the live leaderboard (top N).
+  const LEADERBOARD_SIZE = 20;
 
   // Fallbacks only — the admin sets the real values in
   // Admin > Game Management (gameSettings collection).
@@ -1055,31 +1081,42 @@
       return;
     }
 
-    let html = '';
-    entries.forEach((entry, index) => {
-      const rank = index + 1;
-      const isYou = entry.userId === currentUser.uid;
-      const rankClass = rank === 1 ? 'gold' : rank === 2 ? 'silver' : rank === 3 ? 'bronze' : 'normal';
-      const name = entry.username || 'Unknown';
-      const initial = name.charAt(0).toUpperCase();
+    // Show the top LEADERBOARD_SIZE players of the current round.
+    const shown = entries.slice(0, LEADERBOARD_SIZE);
+    let html = shown.map((entry, index) => lbItemHtml(entry, index + 1)).join('');
 
+    // Keep the current player visible even when they sit below the cut-off.
+    const yourRank = entries.findIndex(e => e.userId === currentUser.uid) + 1;
+    if (yourRank > LEADERBOARD_SIZE) {
       html += `
-        <div class="lb-item ${isYou ? 'you' : ''}">
-          <div class="lb-rank ${rankClass}">${rank}</div>
-          <div class="lb-avatar">${initial}</div>
-          <div class="lb-info">
-            <div class="lb-name">${escapeHtml(name)} ${isYou ? '(You)' : ''}</div>
-            <div class="lb-meta">Best score</div>
-          </div>
-          <div class="lb-score">
-            <div class="lb-score-value">${(entry.score || 0).toLocaleString()}</div>
-            <div class="lb-score-label">pts</div>
-          </div>
-        </div>
+        <div class="lb-divider">&#8226;&#8226;&#8226;</div>
+        ${lbItemHtml(entries[yourRank - 1], yourRank)}
       `;
-    });
+    }
 
     leaderboardList.innerHTML = html;
+  }
+
+  function lbItemHtml(entry, rank) {
+    const isYou = entry.userId === currentUser.uid;
+    const rankClass = rank === 1 ? 'gold' : rank === 2 ? 'silver' : rank === 3 ? 'bronze' : 'normal';
+    const name = entry.username || 'Unknown';
+    const initial = name.charAt(0).toUpperCase();
+
+    return `
+      <div class="lb-item ${isYou ? 'you' : ''}">
+        <div class="lb-rank ${rankClass}">${rank}</div>
+        <div class="lb-avatar">${escapeHtml(initial)}</div>
+        <div class="lb-info">
+          <div class="lb-name">${escapeHtml(name)} ${isYou ? '(You)' : ''}</div>
+          <div class="lb-meta">Best score</div>
+        </div>
+        <div class="lb-score">
+          <div class="lb-score-value">${(entry.score || 0).toLocaleString()}</div>
+          <div class="lb-score-label">pts</div>
+        </div>
+      </div>
+    `;
   }
 
   async function loadUserStats() {
