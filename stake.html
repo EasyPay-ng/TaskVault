@@ -121,6 +121,7 @@
     ::-webkit-scrollbar-thumb{background:#d1d5db;border-radius:3px;}
     @media (max-width:560px){.asset-row{flex-wrap:wrap;}.asset-right{flex-direction:row;align-items:center;width:100%;justify-content:space-between;}.bb-row{flex-wrap:wrap;}.bb-right{width:100%;justify-content:space-between;}}
   </style>
+  <link rel="stylesheet" href="css/banner-ads.css">
 </head>
 <body>
 
@@ -138,6 +139,12 @@
 <div class="provider-notice">
   <i class="fas fa-info-circle"></i>
   <span><strong>Official Market:</strong> Buy official assets at the set price. Sell them back only when an admin buy-back is open (shown below).</span>
+</div>
+
+
+<div class="container" style="padding-bottom:0; padding-top:0;">
+  <div class="tv-banner" data-banner-slot="stake-top" data-banner-page="stake" data-banner-size="728x90"></div>
+  <p class="tv-ad-ribbon">Sponsored</p>
 </div>
 
 <div class="container">
@@ -577,5 +584,7 @@
   document.addEventListener('keydown',(e)=>{ if(e.key==='Escape'){ ['buyModal','sellModal','successModal','errorModal'].forEach(id=>{ if(document.getElementById(id).style.display==='flex')closeModal(id); }); } });
 </script>
 
+  <script src="js/banner-ads.js"></script>
+  <script>document.addEventListener("DOMContentLoaded",()=>{ if(window.TVBanner) TVBanner.init({page:"stake"}); });</script>
 </body>
 </html>

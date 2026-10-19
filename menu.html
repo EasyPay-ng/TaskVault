@@ -494,6 +494,7 @@
         .delay-7 { animation-delay: 0.56s; }
         .delay-8 { animation-delay: 0.64s; }
     </style>
+    <link rel="stylesheet" href="css/banner-ads.css">
 </head>
 <body>
 
@@ -535,6 +536,11 @@
             <h1><i class="fa-solid fa-bars-staggered"></i> Menu</h1>
         </header>
 
+        <!-- Banner: Menu Top (320x50) -->
+        <div style="padding:10px 20px 0; display:flex; justify-content:center;">
+          <div class="tv-banner" data-banner-slot="menu-top" data-banner-page="menu" data-banner-size="320x50"></div>
+        </div>
+
         <!-- SCROLLABLE CONTENT -->
         <div class="scroll-content">
             <div class="menu-list">
@@ -575,6 +581,22 @@
                         <i class="fa-solid fa-gamepad"></i>
                     </div>
                     <span class="menu-text">Games</span>
+                    <i class="fa-solid fa-chevron-right menu-arrow"></i>
+                </a>
+
+                <a href="place-banner.html" class="menu-item fade-in delay-6" style="border:1.5px solid var(--orange-main); background:var(--orange-light);">
+                    <div class="menu-icon" style="background:var(--orange-main); color:#fff;">
+                        <i class="fa-solid fa-rectangle-ad"></i>
+                    </div>
+                    <span class="menu-text">Place Banner Ad</span>
+                    <i class="fa-solid fa-chevron-right menu-arrow" style="color:var(--orange-main)"></i>
+                </a>
+
+                <a href="my-banners.html" class="menu-item fade-in delay-6">
+                    <div class="menu-icon">
+                        <i class="fa-solid fa-photo-film"></i>
+                    </div>
+                    <span class="menu-text">My Banner Ads</span>
                     <i class="fa-solid fa-chevron-right menu-arrow"></i>
                 </a>
 
@@ -628,9 +650,11 @@
     <!-- TOAST -->
     <div id="toast" class="toast">Message</div>
 
-    <!-- FIREBASE SDK -->
+<!-- FIREBASE SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
+    <script src="js/banner-ads.js"></script>
         <script>
         const firebaseConfig = {
             apiKey: "AIzaSyAv6QCpopa0Q77AVTyjU5cqJEIKIE9OVTs",
@@ -645,6 +669,8 @@
 
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
+        // Banner init
+        if(window.TVBanner) TVBanner.init({page:'menu'});
 
         // ==================== TASKS OVERLAY ====================
 

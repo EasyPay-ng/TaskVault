@@ -1041,6 +1041,12 @@
                 </div>
             </section>
 
+            <!-- Banner: Dashboard Top Leaderboard (728x90) -->
+            <div style="padding:0 20px 8px;">
+              <div class="tv-banner" data-banner-slot="dashboard-top" data-banner-page="dashboard" data-banner-size="728x90"></div>
+              <p class="tv-ad-ribbon">Sponsored</p>
+            </div>
+
             <!-- QUICK ACTIONS (3 items: Deposit, Withdraw, Offers) -->
             <section class="quick-actions fade-in delay-2">
                 <a href="deposit.html" class="action-btn">
@@ -1118,6 +1124,11 @@
                 </div>
             </section>
 
+            <!-- Banner: Dashboard Medium Rectangle (300x250) -->
+            <div style="padding:0 20px 10px; display:flex; justify-content:center;">
+              <div class="tv-banner" data-banner-slot="dashboard-inline" data-banner-page="dashboard" data-banner-size="300x250"></div>
+            </div>
+
             <!-- DAILY CLAIM -->
             <section class="fade-in delay-3">
                 <div class="section-header">
@@ -1149,6 +1160,11 @@
                     </p>
                 </div>
             </section>
+
+            <!-- Banner: Dashboard Mobile (320x50) -->
+            <div style="padding:0 20px 10px; display:flex; justify-content:center;">
+              <div class="tv-banner" data-banner-slot="dashboard-bottom" data-banner-page="dashboard" data-banner-size="320x50"></div>
+            </div>
 
             <!-- RECENT ACTIVITY -->
             <section class="activity-section fade-in delay-3">
@@ -1188,6 +1204,9 @@
     </div>
 
     <div id="toast" class="toast">Message</div>
+    <link rel="stylesheet" href="css/banner-ads.css">
+    <script src="js/banner-ads.js"></script>
+    <script>document.addEventListener("DOMContentLoaded",()=>{ if(window.TVBanner) TVBanner.init({page:"dashboard"}); });</script>
 
     <!-- FIREBASE SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>

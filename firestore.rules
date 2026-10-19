@@ -237,5 +237,29 @@ service cloud.firestore {
       allow update, delete: if isAdmin();
     }
 
+    // ---------- banner ads (paid banner adverts) ----------
+    // Pricing is admin-only. Ads are created by users (pending).
+    // Only admins can approve/expire/reject. Users can read all active
+    // ads (for rendering banners site-wide). Impression/click counters
+    // are allowed to increment via isBannerCounterUpdate().
+    function isBannerCounterUpdate() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['impressions', 'clicks', 'clicksCount', 'impressionsCount']);
+    }
+    match /bannerPricing/{id} {
+      // Pricing must be readable publicly so empty slots can show price hints even for guests
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin();
+    }
+    match /bannerAds/{id} {
+      // Active ads are public so banners can render for guests (index.html)
+      allow get: if true;
+      allow list: if true;
+      // Users create their own ad (owner must match uid, price>0, image present)
+      allow create: if isUser() && request.resource.data.owner == request.auth.uid && request.resource.data.price is number && request.resource.data.price > 0;
+      // Allow anyone authed to bump impression/click counters (and anon for public pages via increment)
+      allow update: if isAdmin() || isUser() && resource.data.owner == request.auth.uid && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['title', 'targetUrl', 'description']) || isBannerCounterUpdate() || isAdmin();
+      allow delete: if isAdmin();
+    }
+
   }
 }

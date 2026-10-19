@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Place Banner Ad — TaskVault</title>
+
+  <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg" type="image/jpeg">
+  <link rel="manifest" href="manifest.json">
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --orange-main: #FF8C42;
+      --orange-dark: #E67A35;
+      --orange-light: #FFF0E6;
+      --silk-bg: #FDFBF7;
+      --white: #FFFFFF;
+      --text-dark: #333333;
+      --text-light: #888888;
+      --shadow-sm: 0 2px 6px rgba(255, 140, 66, 0.06);
+      --shadow-md: 0 4px 12px rgba(255, 140, 66, 0.1);
+      --shadow-lg: 0 8px 24px rgba(255, 140, 66, 0.15);
+      --gradient-orange: linear-gradient(135deg, #FF8C42 0%, #FF6B35 100%);
+      --success: #10B981;
+      --danger: #EF4444;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; -webkit-tap-highlight-color:transparent; }
+    html, body { height:100%; overflow:hidden; }
+    body { background:#e9ecef; display:flex; justify-content:center; align-items:center; }
+    .app-container { width:100%; height:100dvh; max-width:430px; background:var(--silk-bg); position:relative; overflow:hidden; display:flex; flex-direction:column; }
+    @media (min-width:768px){ .app-container{ height:92dvh; max-height:860px; border-radius:24px; box-shadow:0 0 40px rgba(0,0,0,0.12); } }
+    .scroll-content{ flex:1; overflow-y:auto; overflow-x:hidden; padding-bottom:90px; }
+    .scroll-content::-webkit-scrollbar{ width:2px; } .scroll-content::-webkit-scrollbar-thumb{ background:var(--orange-light); border-radius:2px; }
+
+    .header{ display:flex; justify-content:space-between; align-items:center; padding:14px 20px 10px; background:var(--white); flex-shrink:0; }
+    .header-left{ display:flex; align-items:center; gap:10px; }
+    .back-btn{ width:36px; height:36px; border-radius:10px; background:var(--orange-light); color:var(--orange-main); display:flex; justify-content:center; align-items:center; font-size:18px; cursor:pointer; transition:all .3s ease; border:none; text-decoration:none; }
+    .back-btn:hover{ background:var(--orange-main); color:white; }
+    .header-title{ font-size:14px; font-weight:700; color:var(--text-dark); }
+    .header-subtitle{ font-size:10px; color:var(--text-light); }
+    .my-ads-btn{ display:flex; align-items:center; gap:6px; background:var(--gradient-orange); color:white; border:none; border-radius:10px; padding:8px 14px; font-size:12px; font-weight:700; cursor:pointer; text-decoration:none; }
+
+    .balance-section{ padding:10px 20px 12px; }
+    .balance-card{ background:var(--gradient-orange); border-radius:18px; padding:18px; color:white; box-shadow:var(--shadow-lg); position:relative; overflow:hidden; }
+    .balance-card::after{ content:''; position:absolute; top:-30px; right:-30px; width:90px; height:90px; background:rgba(255,255,255,0.12); border-radius:50%; }
+    .balance-label{ font-size:10px; opacity:.85; letter-spacing:1px; text-transform:uppercase; font-weight:500; }
+    .balance-amount{ font-size:30px; font-weight:800; display:flex; align-items:baseline; gap:2px; position:relative; z-index:1; }
+    .balance-amount .currency{ font-size:15px; opacity:.9; }
+    .balance-footer{ display:flex; gap:6px; margin-top:10px; position:relative; z-index:1; }
+    .stat-pill{ background:rgba(255,255,255,0.14); border-radius:8px; padding:5px 10px; font-size:10px; color:rgba(255,255,255,0.92); display:flex; align-items:center; gap:4px; }
+
+    .section-header{ padding:0 20px 8px; display:flex; justify-content:space-between; align-items:center; }
+    .section-title{ font-size:13px; font-weight:700; color:var(--text-dark); display:flex; align-items:center; gap:6px; }
+    .section-title i{ color:var(--orange-main); }
+
+    .form-card{ background:var(--white); border-radius:16px; padding:16px; box-shadow:var(--shadow-sm); border:1px solid rgba(255,140,66,0.06); margin:0 20px 12px; }
+    label{ display:block; margin-top:12px; font-weight:600; color:var(--text-dark); font-size:11px; text-transform:uppercase; letter-spacing:.03em; }
+    label:first-child{ margin-top:0; }
+    input[type="text"], input[type="url"], input[type="number"], select, textarea{
+      width:100%; padding:12px 14px; margin-top:6px; border-radius:10px; background:var(--silk-bg); border:1px solid rgba(255,140,66,0.15);
+      color:var(--text-dark); font-size:13px; font-weight:500; outline:none; transition:all .2s ease; font-family:'Poppins',sans-serif;
+    }
+    input:focus, select:focus, textarea:focus{ border-color:var(--orange-main); box-shadow:0 0 0 3px rgba(255,140,66,0.1); }
+    textarea{ min-height:80px; resize:vertical; }
+    select{ cursor:pointer; appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; padding-right:32px; }
+    input[type="file"]{ margin-top:6px; padding:8px; font-size:12px; width:100%; border-radius:10px; background:var(--silk-bg); border:1px solid rgba(255,140,66,0.15); }
+
+    .slot-preview{ display:flex; gap:10px; background:var(--orange-light); border-radius:10px; padding:10px 12px; margin-top:10px; align-items:center; }
+    .slot-preview-icon{ width:42px; height:42px; border-radius:8px; background:var(--gradient-orange); color:#fff; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+    .slot-preview-info h4{ font-size:12px; font-weight:700; color:var(--text-dark); }
+    .slot-preview-info p{ font-size:10px; color:var(--text-light); }
+
+    .price-box{ background:var(--orange-light); padding:12px; border-radius:10px; border:1px solid rgba(255,140,66,0.12); text-align:center; margin-top:8px; }
+    .price-box-label{ font-size:9px; color:var(--text-light); text-transform:uppercase; letter-spacing:.05em; font-weight:600; }
+    .price-box-value{ font-size:18px; font-weight:800; color:var(--orange-dark); margin-top:2px; }
+    .price-box-hint{ font-size:10px; color:var(--text-light); margin-top:2px; }
+
+    .total-cost{ background:var(--gradient-orange); color:white; padding:14px; border-radius:12px; font-size:14px; font-weight:700; display:flex; align-items:center; justify-content:space-between; margin-top:12px; }
+    .total-cost .amount{ font-size:18px; font-weight:800; }
+
+    .thumb-preview{ width:100%; max-width:100%; border-radius:10px; display:block; margin-top:10px; border:2px solid var(--orange-light); max-height:220px; object-fit:cover; }
+    .thumb-placeholder{ border:1.5px dashed #FF8C42; border-radius:12px; padding:18px; text-align:center; margin-top:10px; background:var(--silk-bg); }
+    .thumb-placeholder i{ font-size:22px; color:var(--orange-main); }
+    .thumb-placeholder p{ font-size:11px; color:var(--text-light); margin-top:6px; }
+
+    .btn-group{ display:flex; gap:10px; margin-top:16px; }
+    .btn{ flex:1; padding:13px; border:none; border-radius:12px; font-size:13px; font-weight:700; cursor:pointer; transition:all .3s ease; display:flex; align-items:center; justify-content:center; gap:6px; font-family:'Poppins',sans-serif; }
+    .btn-primary{ background:var(--gradient-orange); color:var(--white); box-shadow:var(--shadow-sm); }
+    .btn-primary:hover{ transform:translateY(-1px); box-shadow:var(--shadow-md); }
+    .btn-primary:disabled{ background:#E8E8E8; color:#AAA; cursor:not-allowed; transform:none; box-shadow:none; }
+    .btn-ghost{ background:var(--white); border:1px solid rgba(255,140,66,0.2); color:var(--orange-dark); }
+    .btn-ghost:hover{ background:var(--orange-light); }
+
+    .info-card{ background:var(--white); border-radius:16px; padding:14px; box-shadow:var(--shadow-sm); border:1px solid rgba(255,140,66,0.06); margin:0 20px 12px; }
+    .info-title{ font-weight:700; font-size:12px; color:var(--text-dark); display:flex; align-items:center; gap:6px; margin-bottom:8px; }
+    .info-title i{ color:var(--orange-main); }
+    .info-list{ color:var(--text-light); font-size:11px; line-height:1.7; list-style:none; }
+    .info-list li{ position:relative; padding-left:14px; }
+    .info-list li::before{ content:'•'; position:absolute; left:0; color:var(--orange-main); font-weight:800; }
+
+    .modal-overlay{ position:fixed; inset:0; background:rgba(0,0,0,0.5); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; z-index:2600; opacity:0; visibility:hidden; transition:all .3s ease; padding:20px; }
+    .modal-overlay.show{ opacity:1; visibility:visible; }
+    .modal{ background:var(--white); border-radius:20px; width:100%; max-width:360px; max-height:80vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,0.2); transform:scale(.9) translateY(20px); transition:all .4s cubic-bezier(.34,1.56,.64,1); }
+    .modal-overlay.show .modal{ transform:scale(1) translateY(0); }
+    .modal-header{ background:var(--gradient-orange); color:white; padding:18px 20px; border-radius:20px 20px 0 0; display:flex; align-items:center; justify-content:space-between; position:relative; overflow:hidden; }
+    .modal-header h3{ font-size:15px; font-weight:800; display:flex; align-items:center; gap:8px; position:relative; z-index:1; }
+    .modal-close{ background:rgba(255,255,255,0.2); border:none; color:white; width:32px; height:32px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+    .modal-body{ padding:16px 20px; }
+    .modal-line{ display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px dashed #e5e7eb; font-size:12px; }
+    .modal-line .label{ color:var(--text-light); font-weight:500; }
+    .modal-line .value{ font-weight:700; color:var(--text-dark); }
+    .modal-line.total-line{ background:var(--orange-light); margin:10px -20px 0; padding:14px 20px; border-radius:0 0 4px 4px; }
+    .modal-footer{ padding:0 20px 20px; display:flex; gap:10px; }
+    .preview-img{ width:100%; border-radius:10px; max-height:140px; object-fit:cover; margin-top:10px; border:1px solid #eee; }
+
+    .toast{ position:fixed; top:20px; left:50%; transform:translateX(-50%) translateY(-100px); background:var(--white); color:var(--text-dark); padding:10px 18px; border-radius:12px; font-size:12px; font-weight:600; opacity:0; visibility:hidden; transition:all .4s cubic-bezier(.68,-0.55,.265,1.55); z-index:3000; text-align:center; max-width:90%; box-shadow:0 8px 30px rgba(0,0,0,0.12); border:1px solid rgba(255,140,66,0.08); display:flex; align-items:center; gap:8px; }
+    .toast.show{ opacity:1; visibility:visible; transform:translateX(-50%) translateY(0); top:22px; }
+    .toast.success{ border-left:3px solid #10B981; } .toast.error{ border-left:3px solid #EF4444; } .toast.info{ border-left:3px solid var(--orange-main); }
+
+    .bottom-nav{ position:absolute; bottom:0; left:0; right:0; background:var(--white); display:flex; justify-content:space-around; align-items:center; padding:8px 16px 16px; box-shadow:0 -4px 20px rgba(0,0,0,0.04); border-top-left-radius:24px; border-top-right-radius:24px; z-index:1000; }
+    .nav-item{ display:flex; flex-direction:column; align-items:center; justify-content:center; color:var(--text-light); text-decoration:none; font-size:9px; gap:3px; padding:6px 14px; border-radius:14px; font-weight:500; }
+    .nav-item i{ font-size:20px; }
+    .nav-item.active{ color:var(--orange-main); background:var(--orange-light); }
+    .nav-item.active i{ transform:translateY(-2px) scale(1.04); }
+
+    .loading-overlay{ position:fixed; inset:0; background:var(--silk-bg); display:flex; flex-direction:column; justify-content:center; align-items:center; z-index:3000; gap:12px; }
+    .spinner{ width:36px; height:36px; border:3px solid var(--orange-light); border-top:3px solid var(--orange-main); border-radius:50%; animation:spin .8s linear infinite; }
+    @keyframes spin{ to{ transform:rotate(360deg); } }
+    .loader-text{ font-size:11px; color:var(--text-light); font-weight:600; letter-spacing:2px; }
+
+    .ad-preview-wrap{ border:1px solid rgba(255,140,66,0.15); border-radius:12px; overflow:hidden; background:#fff; margin-top:10px; }
+    .ad-preview-header{ font-size:10px; font-weight:700; color:#888; text-transform:uppercase; letter-spacing:.05em; padding:8px 10px; background:#fdfbf7; border-bottom:1px solid #eee; }
+    .ad-preview-body{ padding:0; }
+    .ad-preview-body img{ width:100%; display:block; max-height:260px; object-fit:cover; }
+    .pricing-hint{ font-size:10px; color:var(--text-light); margin-top:6px; font-style:italic; }
+
+    .live-dot{ width:8px; height:8px; border-radius:50%; background:var(--success); display:inline-block; animation:pulse 1.8s infinite; }
+    @keyframes pulse{ 0%,100%{ box-shadow:0 0 0 0 rgba(16,185,129,.45);} 50%{ box-shadow:0 0 0 6px rgba(16,185,129,0);} }
+
+    .slot-grid{ display:grid; grid-template-columns:1fr; gap:8px; margin-top:8px; }
+    .slot-opt{ border:1.5px solid #eee; border-radius:10px; padding:10px 12px; display:flex; align-items:center; gap:10px; cursor:pointer; transition:all .2s; background:#fff; }
+    .slot-opt:hover{ border-color:var(--orange-main); background:var(--orange-light); }
+    .slot-opt.selected{ border-color:var(--orange-main); background:var(--orange-light); box-shadow:0 2px 8px rgba(255,140,66,0.15); }
+    .slot-opt-icon{ width:34px; height:34px; border-radius:8px; background:var(--silk-bg); display:flex; align-items:center; justify-content:center; color:var(--orange-main); font-size:14px; }
+    .slot-opt-info h5{ font-size:12px; font-weight:700; color:var(--text-dark); }
+    .slot-opt-info p{ font-size:10px; color:var(--text-light); }
+
+    .duration-grid{ display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
+    .dur-chip{ padding:8px 12px; border-radius:20px; border:1.5px solid rgba(255,140,66,0.15); background:#fff; font-size:11px; font-weight:600; color:var(--text-dark); cursor:pointer; transition:all .2s; }
+    .dur-chip:hover{ background:var(--orange-light); border-color:var(--orange-main); }
+    .dur-chip.selected{ background:var(--gradient-orange); color:#fff; border-color:var(--orange-main); }
+  </style>
+</head>
+<body>
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <div class="loader-text">Loading Ad Studio</div>
+  </div>
+
+  <div class="app-container">
+    <header class="header">
+      <div class="header-left">
+        <a href="dashboard.html" class="back-btn"><i class="ri-arrow-left-line"></i></a>
+        <div>
+          <div class="header-title"><i class="ri-advertisement-line" style="color:var(--orange-main)"></i> Place Banner Ad</div>
+          <div class="header-subtitle">Promote your brand across TaskVault</div>
+        </div>
+      </div>
+      <a href="my-banners.html" class="my-ads-btn"><i class="ri-list-check"></i> <span>My Ads</span></a>
+    </header>
+
+    <div class="scroll-content">
+      <section class="balance-section">
+        <div class="balance-card">
+          <div style="display:flex; justify-content:space-between; align-items:center; position:relative; z-index:1;">
+            <span class="balance-label">Available Balance</span>
+            <span style="background:rgba(255,255,255,0.18); padding:4px 8px; border-radius:8px; font-size:10px; font-weight:700; display:flex; align-items:center; gap:4px;"><span class="live-dot"></span> LIVE</span>
+          </div>
+          <div class="balance-amount"><span class="currency">$</span><span id="balanceDisplay">0.000</span></div>
+          <div class="balance-footer">
+            <div class="stat-pill"><i class="ri-shield-check-line"></i> <span>Secured</span></div>
+            <div class="stat-pill"><i class="ri-user-line"></i> <span id="userNameDisplay">User</span></div>
+            <div class="stat-pill"><i class="ri-flashlight-line"></i> <span>Instant Review</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLOT SELECTOR -->
+      <section style="padding:0 20px 8px;">
+        <div class="section-header" style="padding:0 0 8px;">
+          <h3 class="section-title"><i class="ri-layout-line"></i> Choose Placement</h3>
+          <span style="font-size:10px; color:var(--text-light); font-weight:600;">Step 1 of 3</span>
+        </div>
+        <div class="form-card">
+          <label>Select Slot / Page &amp; Size</label>
+          <div class="pricing-hint">Pricing is set by admin – different pages/sizes/durations have different rates.</div>
+          <div id="slotGrid" class="slot-grid"></div>
+          <!-- Alternative dropdown fallback -->
+          <div style="margin-top:10px; display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+            <div>
+              <label for="pageSelect">Page</label>
+              <select id="pageSelect"></select>
+            </div>
+            <div>
+              <label for="sizeSelect">Size</label>
+              <select id="sizeSelect"></select>
+            </div>
+          </div>
+          <div id="slotPreview" class="slot-preview" style="display:none;">
+            <div class="slot-preview-icon"><i class="ri-layout-2-line"></i></div>
+            <div class="slot-preview-info">
+              <h4 id="slotPreviewTitle">—</h4>
+              <p id="slotPreviewMeta">—</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- DURATION & PRICE -->
+      <section style="padding:0 20px 8px;">
+        <div class="section-header" style="padding:0 0 8px;">
+          <h3 class="section-title"><i class="ri-time-line"></i> Duration &amp; Pricing</h3>
+          <span style="font-size:10px; color:var(--text-light); font-weight:600;">Admin-set rates</span>
+        </div>
+        <div class="form-card">
+          <label>Select Duration</label>
+          <div id="durationGrid" class="duration-grid"></div>
+          <div id="noPricingMsg" style="display:none; background:#FEF3C7; color:#92400E; padding:10px; border-radius:8px; font-size:11px; margin-top:10px;"><i class="ri-error-warning-line"></i> No pricing configured for this slot/duration yet. Contact admin or try another combination.</div>
+
+          <div class="price-box" id="priceBox" style="display:none;">
+            <div class="price-box-label">Price for selected duration</div>
+            <div class="price-box-value" id="priceValue">$0.000</div>
+            <div class="price-box-hint" id="priceHint">—</div>
+          </div>
+          <div class="total-cost" id="totalCost" style="display:none;">
+            <span><i class="ri-coins-line"></i> Total to Pay</span>
+            <span class="amount" id="totalAmount">$0.000</span>
+          </div>
+          <div id="balanceWarning" style="display:none; background:#FEE2E2; color:#991B1B; padding:10px; border-radius:8px; font-size:11px; margin-top:10px;"><i class="ri-alert-line"></i> Insufficient balance. Please deposit first.</div>
+        </div>
+      </section>
+
+      <!-- AD CONTENT -->
+      <section style="padding:0 20px 8px;">
+        <div class="section-header" style="padding:0 0 8px;">
+          <h3 class="section-title"><i class="ri-image-line"></i> Ad Creative</h3>
+          <span style="font-size:10px; color:var(--text-light); font-weight:600;">Step 2 of 3</span>
+        </div>
+        <div class="form-card">
+          <label for="adTitle">Ad Title (optional, shown on hover)</label>
+          <input id="adTitle" type="text" placeholder="e.g. Join Our Trading Group — Earn Daily!" maxlength="60" />
+
+          <label for="targetUrl">Target URL (where click redirects) *</label>
+          <input id="targetUrl" type="url" placeholder="https://your-website.com or https://t.me/yourchannel" />
+
+          <label for="bannerImage">Banner Image * (will be stored as base64)</label>
+          <input id="bannerImage" type="file" accept="image/*" />
+          <div id="imageHint" class="pricing-hint">Recommended dimensions match slot size. Max 2MB. Auto-converted to base64.</div>
+          <img id="thumbPreview" class="thumb-preview" style="display:none;" alt="Preview" />
+          <div id="thumbPlaceholder" class="thumb-placeholder">
+            <i class="ri-image-add-line"></i>
+            <p>Upload a crisp banner image<br><span style="font-size:9px; opacity:.7;">PNG, JPG, GIF or WEBP — clear text, high contrast</span></p>
+          </div>
+
+          <div id="livePreviewWrap" class="ad-preview-wrap" style="display:none;">
+            <div class="ad-preview-header"><i class="ri-eye-line"></i> Live Preview — How your ad will look</div>
+            <div class="ad-preview-body"><img id="livePreviewImg" src="" alt="Live preview" /></div>
+          </div>
+
+          <label for="adDesc">Description / Alt Text (optional)</label>
+          <textarea id="adDesc" placeholder="Short pitch for accessibility and fallback..."></textarea>
+
+          <div class="btn-group">
+            <button class="btn btn-primary" id="previewBtn" onclick="previewBanner()"><i class="ri-eye-line"></i> Preview &amp; Pay</button>
+            <button class="btn btn-ghost" onclick="clearForm()"><i class="ri-eraser-line"></i> Clear</button>
+          </div>
+        </div>
+      </section>
+
+      <section style="padding:0 20px;">
+        <div class="info-card">
+          <div class="info-title"><i class="ri-lightbulb-line"></i> How Banner Ads Work</div>
+          <ul class="info-list">
+            <li>Admin sets price per <strong>page + size + duration</strong>. Different combos have different rates.</li>
+            <li>Empty slots show “Advertise Here” — clicking takes you here to place an ad.</li>
+            <li>Image is uploaded and saved as <strong>base64</strong> (no external hosting needed).</li>
+            <li>After payment, your ad is <strong>pending review</strong>. Admin approves to make it live.</li>
+            <li>Once active, ad runs until <strong>expiry date</strong> (start + duration). Clicks &amp; impressions tracked.</li>
+            <li>Rejected ads are refunded automatically.</li>
+          </ul>
+        </div>
+      </section>
+    </div>
+
+    <nav class="bottom-nav">
+      <a href="menu.html" class="nav-item"><i class="ri-apps-line"></i><span>Menu</span></a>
+      <a href="deposit.html" class="nav-item"><i class="ri-wallet-3-line"></i><span>Deposit</span></a>
+      <a href="withdraw.html" class="nav-item"><i class="ri-upload-2-line"></i><span>Withdraw</span></a>
+      <a href="profile.html" class="nav-item active"><i class="ri-user-3-line"></i><span>Profile</span></a>
+    </nav>
+  </div>
+
+  <!-- PREVIEW MODAL -->
+  <div id="confirmModal" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h3><i class="ri-megaphone-line"></i> Confirm Banner Ad</h3>
+        <button class="modal-close" onclick="closeModal()"><i class="ri-close-line"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-line"><span class="label">Slot</span><span class="value" id="c_slot">—</span></div>
+        <div class="modal-line"><span class="label">Page</span><span class="value" id="c_page">—</span></div>
+        <div class="modal-line"><span class="label">Size</span><span class="value" id="c_size">—</span></div>
+        <div class="modal-line"><span class="label">Duration</span><span class="value" id="c_duration">—</span></div>
+        <div class="modal-line"><span class="label">Price</span><span class="value" id="c_price">$0.000</span></div>
+        <div class="modal-line"><span class="label">Your Balance</span><span class="value" id="c_balance">$0.000</span></div>
+        <div class="modal-line"><span class="label">Image</span><span class="value" id="c_image">—</span></div>
+        <div class="modal-line"><span class="label">Target URL</span><span class="value" id="c_url" style="max-width:150px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">—</span></div>
+        <img id="c_preview" class="preview-img" style="display:none;" alt="Preview" />
+        <div class="modal-line total-line"><span class="label">Total Charge</span><span class="value" id="c_total">$0.000</span></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" id="confirmPayBtn" onclick="createBanner()"><i class="ri-check-line"></i> Pay &amp; Submit</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast">Message</div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
+  <script src="js/banner-ads.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAv6QCpopa0Q77AVTyjU5cqJEIKIE9OVTs",
+      authDomain: "taskvault-412a0.firebaseapp.com",
+      databaseURL: "https://taskvault-412a0-default-rtdb.firebaseio.com",
+      projectId: "taskvault-412a0",
+      storageBucket: "taskvault-412a0.firebasestorage.app",
+      messagingSenderId: "420716701831",
+      appId: "1:420716701831:web:c987d91f7f4c8684eb7022",
+      measurementId: "G-93JG3LB08B"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    let currentUser = null;
+    let currentBalance = 0;
+    let pricingList = [];
+    let selectedSlot = null;
+    let selectedSize = "";
+    let selectedPage = "";
+    let selectedDuration = null;
+    let selectedPrice = 0;
+    let selectedBase64 = null;
+    let pendingPayload = null;
+
+    function fmtMoney(n){ return '$'+Number(n||0).toFixed(3); }
+    function showToast(msg,type='info'){
+      const t=document.getElementById('toast');
+      t.className='toast '+type;
+      let icon='ri-information-line';
+      if(type==='success') icon='ri-checkbox-circle-line';
+      if(type==='error') icon='ri-close-circle-line';
+      t.innerHTML=`<i class="ri-${icon}"></i> ${msg}`;
+      t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3000);
+    }
+    function openModal(){ document.getElementById('confirmModal').classList.add('show'); }
+    function closeModal(){ document.getElementById('confirmModal').classList.remove('show'); }
+
+    // Populate selects
+    function populateSelectors(){
+      const pageSel=document.getElementById('pageSelect');
+      const sizeSel=document.getElementById('sizeSelect');
+      pageSel.innerHTML='';
+      TVBanner.PAGES.forEach(p=>{
+        const o=document.createElement('option');
+        o.value=p.value; o.textContent=p.label;
+        pageSel.appendChild(o);
+      });
+      sizeSel.innerHTML='';
+      TVBanner.SIZES.forEach(s=>{
+        const o=document.createElement('option');
+        o.value=s.value; o.textContent=s.label;
+        sizeSel.appendChild(o);
+      });
+      // Defaults
+      pageSel.value='dashboard';
+      sizeSel.value='728x90';
+      updateFromSelectors();
+    }
+
+    function renderSlotGrid(){
+      const grid=document.getElementById('slotGrid');
+      grid.innerHTML='';
+      TVBanner.SLOTS.forEach(slot=>{
+        const div=document.createElement('div');
+        div.className='slot-opt';
+        div.dataset.slotId=slot.id;
+        div.innerHTML=`<div class="slot-opt-icon"><i class="ri-layout-line"></i></div><div class="slot-opt-info"><h5>${slot.label}</h5><p>${slot.page} • ${slot.size} • ${slot.w}×${slot.h}</p></div>`;
+        div.onclick=()=>{
+          document.querySelectorAll('.slot-opt').forEach(x=>x.classList.remove('selected'));
+          div.classList.add('selected');
+          selectedSlot=slot;
+          selectedPage=slot.page;
+          selectedSize=slot.size;
+          document.getElementById('pageSelect').value=slot.page;
+          document.getElementById('sizeSelect').value=slot.size;
+          updateSlotPreview();
+          renderDurations();
+          updatePriceBox();
+        };
+        grid.appendChild(div);
+      });
+      // Pre-select from URL
+      const params=new URLSearchParams(location.search);
+      const preSlot=params.get('slot');
+      const prePage=params.get('page');
+      const preSize=params.get('size');
+      let toSelect=null;
+      if(preSlot) toSelect=TVBanner.getSlotById(preSlot);
+      if(!toSelect && prePage && preSize){
+        toSelect=TVBanner.SLOTS.find(s=>s.page===prePage && s.size===preSize) || {id:prePage+'-'+preSize, page:prePage, size:preSize, label:prePage+' '+preSize, w:728, h:90};
+      }
+      if(toSelect){
+        const el=grid.querySelector(`[data-slot-id="${toSelect.id}"]`);
+        if(el) el.click(); else {
+          selectedSlot=toSelect; selectedPage=toSelect.page; selectedSize=toSelect.size;
+          document.getElementById('pageSelect').value=toSelect.page;
+          document.getElementById('sizeSelect').value=toSelect.size;
+          updateSlotPreview(); renderDurations(); updatePriceBox();
+        }
+      } else {
+        // Default first
+        const first=grid.firstElementChild;
+        if(first) first.click();
+      }
+    }
+
+    document.getElementById('pageSelect').addEventListener('change', updateFromSelectors);
+    document.getElementById('sizeSelect').addEventListener('change', updateFromSelectors);
+
+    function updateFromSelectors(){
+      selectedPage=document.getElementById('pageSelect').value;
+      selectedSize=document.getElementById('sizeSelect').value;
+      // Try to find matching slot
+      let match=TVBanner.SLOTS.find(s=>s.page===selectedPage && s.size===selectedSize);
+      if(!match){
+        const meta=TVBanner.getSizeMeta(selectedSize);
+        match={id:selectedPage+'-'+selectedSize, page:selectedPage, size:selectedSize, label:selectedPage+' '+selectedSize, w:meta.w, h:meta.h};
+      }
+      selectedSlot=match;
+      // Highlight grid
+      document.querySelectorAll('.slot-opt').forEach(el=>{
+        el.classList.toggle('selected', el.dataset.slotId===match.id);
+      });
+      updateSlotPreview();
+      renderDurations();
+      updatePriceBox();
+    }
+
+    function updateSlotPreview(){
+      if(!selectedSlot) return;
+      const box=document.getElementById('slotPreview');
+      box.style.display='flex';
+      document.getElementById('slotPreviewTitle').textContent=selectedSlot.label;
+      document.getElementById('slotPreviewMeta').textContent=`${selectedSlot.page} • ${selectedSlot.size} • ${selectedSlot.w}×${selectedSlot.h}`;
+      const hint=document.getElementById('imageHint');
+      hint.textContent=`Recommended: ${selectedSlot.w}×${selectedSlot.h}px (${selectedSlot.size}). Max 2MB.`;
+    }
+
+    function renderDurations(){
+      const grid=document.getElementById('durationGrid');
+      grid.innerHTML='';
+      // Show all durations, but disable those without pricing
+      TVBanner.DURATIONS.forEach(d=>{
+        const btn=document.createElement('button');
+        btn.className='dur-chip';
+        btn.textContent=d.label;
+        btn.dataset.days=d.days;
+        const priceMatch=TVBanner.findPrice(pricingList, selectedSlot ? selectedSlot.id : null, selectedSize, selectedPage, d.days);
+        if(!priceMatch){
+          btn.style.opacity='.45';
+          btn.title='No pricing set for this duration — admin needs to configure';
+        }
+        btn.onclick=()=>{
+          document.querySelectorAll('.dur-chip').forEach(x=>x.classList.remove('selected'));
+          btn.classList.add('selected');
+          selectedDuration=d.days;
+          selectedPrice= priceMatch ? Number(priceMatch.price) : 0;
+          updatePriceBox();
+        };
+        grid.appendChild(btn);
+      });
+      // Auto select first available pricing
+      const firstAvailable=Array.from(grid.children).find(b=> pricingList.find(p=> p.durationDays==b.dataset.days && (p.slotId=== (selectedSlot&&selectedSlot.id) || p.size===selectedSize || p.page===selectedPage ) ));
+      // Actually use logic: find first with real price
+      let auto=null;
+      for(const child of grid.children){
+        const days=Number(child.dataset.days);
+        const m=TVBanner.findPrice(pricingList, selectedSlot?selectedSlot.id:null, selectedSize, selectedPage, days);
+        if(m){ auto=child; selectedDuration=days; selectedPrice=Number(m.price); child.classList.add('selected'); break; }
+      }
+      if(!auto){
+        // select first chip fallback (maybe 7 days)
+        selectedDuration=null; selectedPrice=0;
+      }
+      if(selectedDuration) updatePriceBox();
+    }
+
+    function updatePriceBox(){
+      const box=document.getElementById('priceBox');
+      const total=document.getElementById('totalCost');
+      const hint=document.getElementById('priceHint');
+      const noMsg=document.getElementById('noPricingMsg');
+      const balWarn=document.getElementById('balanceWarning');
+      if(!selectedDuration || !selectedPrice){
+        box.style.display='none'; total.style.display='none';
+        if(selectedSlot && selectedPage && selectedSize){
+          // Check if any pricing exists at all for this combo
+          const any=pricingList.some(p=> (p.slotId=== (selectedSlot&&selectedSlot.id) || p.size===selectedSize) );
+          if(pricingList.length && !selectedPrice){
+            // Might be zero pricing — show message if no match
+            const m=TVBanner.findPrice(pricingList, selectedSlot?selectedSlot.id:null, selectedSize, selectedPage, selectedDuration||7);
+            if(!m){
+              noMsg.style.display='block';
+            } else noMsg.style.display='none';
+          }
+        }
+        return;
+      }
+      noMsg.style.display='none';
+      box.style.display='block';
+      document.getElementById('priceValue').textContent=fmtMoney(selectedPrice);
+      const slotLabel= selectedSlot ? selectedSlot.label : selectedPage+' '+selectedSize;
+      hint.textContent=`${slotLabel} • ${selectedDuration} day(s) • Admin rate`;
+      total.style.display='flex';
+      document.getElementById('totalAmount').textContent=fmtMoney(selectedPrice);
+      // balance check
+      if(currentBalance < selectedPrice){
+        balWarn.style.display='block';
+        document.getElementById('previewBtn').disabled=true;
+      } else {
+        balWarn.style.display='none';
+        document.getElementById('previewBtn').disabled=false;
+      }
+    }
+
+    // Image handling — base64
+    function fileToBase64(file){
+      return new Promise((resolve,reject)=>{
+        const r=new FileReader();
+        r.onload=()=>resolve(r.result);
+        r.onerror=reject;
+        r.readAsDataURL(file);
+      });
+    }
+    document.getElementById('bannerImage').addEventListener('change', async (e)=>{
+      const f=e.target.files && e.target.files[0];
+      if(!f){ selectedBase64=null; document.getElementById('thumbPreview').style.display='none'; document.getElementById('thumbPlaceholder').style.display='block'; document.getElementById('livePreviewWrap').style.display='none'; return; }
+      if(f.size > 2*1024*1024){ showToast('Image must be smaller than 2MB','error'); e.target.value=''; return; }
+      try{
+        const b64=await fileToBase64(f);
+        selectedBase64=b64;
+        const img=document.getElementById('thumbPreview');
+        img.src=b64; img.style.display='block';
+        document.getElementById('thumbPlaceholder').style.display='none';
+        const live=document.getElementById('livePreviewWrap');
+        live.style.display='block';
+        document.getElementById('livePreviewImg').src=b64;
+        showToast('Image ready','success');
+      }catch(err){ showToast('Failed to read image','error'); }
+    });
+
+    function clearForm(){
+      document.getElementById('adTitle').value='';
+      document.getElementById('targetUrl').value='';
+      document.getElementById('adDesc').value='';
+      document.getElementById('bannerImage').value='';
+      selectedBase64=null;
+      document.getElementById('thumbPreview').style.display='none';
+      document.getElementById('thumbPlaceholder').style.display='block';
+      document.getElementById('livePreviewWrap').style.display='none';
+    }
+
+    document.getElementById('confirmModal').addEventListener('click', (e)=>{
+      if(e.target===document.getElementById('confirmModal')) closeModal();
+    });
+
+    // Auth & Balance
+    auth.onAuthStateChanged(async (user)=>{
+      if(!user){ showToast('Please sign in','error'); document.getElementById('loadingOverlay').style.display='none'; setTimeout(()=>location.href='login.html',1200); return; }
+      currentUser=user;
+      // Fetch user via compat already init? Use compat
+      try{
+        const uref=db.collection('users').doc(user.uid);
+        uref.onSnapshot(doc=>{
+          if(doc.exists){
+            const data=doc.data();
+            const display=data.username || data.displayName || data.name || (user.email?user.email.split('@')[0]:'User');
+            document.getElementById('userNameDisplay').textContent=display;
+            const bal=Number(data.balance ?? data.wallet ?? 0)||0;
+            currentBalance=bal;
+            document.getElementById('balanceDisplay').textContent=bal.toFixed(3);
+            updatePriceBox();
+          }
+        });
+      }catch(e){ console.error(e); }
+      // Load pricing
+      try{
+        const snap=await db.collection('bannerPricing').get();
+        pricingList=[];
+        snap.forEach(doc=> pricingList.push({id:doc.id, ...doc.data()}));
+        renderSlotGrid();
+        // If no pricing, show defaults hint — admin hasn't set pricing yet
+        if(!pricingList.length){
+          document.getElementById('noPricingMsg').innerHTML='<i class="ri-information-line"></i> Admin hasn’t set pricing yet. Default $1 / day will be shown until pricing is configured. Contact admin via <a href="https://wa.me/2348105488427" target="_blank">WhatsApp</a>.';
+          document.getElementById('noPricingMsg').style.display='block';
+          document.getElementById('noPricingMsg').style.background='#E0F2FE';
+          document.getElementById('noPricingMsg').style.color='#0C4A6E';
+          // Provide fallback pricing: $1/7/30 logic? We'll allow but warn
+          // Create virtual pricing entries so user can still buy at basic rates if none exists
+          pricingList=[
+            {slotId:null, page:'all', size:'728x90', durationDays:1, price:0.50},
+            {slotId:null, page:'all', size:'728x90', durationDays:7, price:2.50},
+            {slotId:null, page:'all', size:'728x90', durationDays:30, price:8.00},
+            {slotId:null, page:'all', size:'300x250', durationDays:1, price:0.40},
+            {slotId:null, page:'all', size:'300x250', durationDays:7, price:2.00},
+            {slotId:null, page:'all', size:'300x250', durationDays:30, price:6.00},
+            {slotId:null, page:'all', size:'320x50', durationDays:1, price:0.30},
+            {slotId:null, page:'all', size:'320x50', durationDays:7, price:1.50},
+            {slotId:null, page:'all', size:'320x50', durationDays:30, price:5.00},
+          ];
+          populateSelectors();
+          renderDurations();
+        } else {
+          populateSelectors();
+          renderDurations();
+        }
+      }catch(e){ console.error('pricing load',e); populateSelectors(); renderDurations(); }
+      document.getElementById('loadingOverlay').style.display='none';
+    });
+
+    function previewBanner(){
+      const title=(document.getElementById('adTitle').value||'').trim();
+      const url=(document.getElementById('targetUrl').value||'').trim();
+      const desc=(document.getElementById('adDesc').value||'').trim();
+      if(!selectedSlot){ showToast('Select a slot/page & size','error'); return; }
+      if(!selectedDuration){ showToast('Select duration','error'); return; }
+      if(!selectedPrice){ showToast('No pricing found for this selection','error'); return; }
+      if(!url){ showToast('Target URL is required','error'); return; }
+      try{ new URL(url); }catch{ showToast('Enter a valid URL starting with https://','error'); return; }
+      if(!selectedBase64){ showToast('Please upload banner image','error'); return; }
+      if(currentBalance < selectedPrice){ showToast('Insufficient balance — please deposit','error'); return; }
+
+      pendingPayload={
+        title: title || 'Sponsored',
+        targetUrl: url,
+        description: desc,
+        slotId: selectedSlot.id,
+        page: selectedPage,
+        size: selectedSize,
+        w: selectedSlot.w,
+        h: selectedSlot.h,
+        durationDays: selectedDuration,
+        price: selectedPrice
+      };
+      document.getElementById('c_slot').textContent=selectedSlot.label;
+      document.getElementById('c_page').textContent=selectedPage;
+      document.getElementById('c_size').textContent=selectedSize + ` (${selectedSlot.w}×${selectedSlot.h})`;
+      document.getElementById('c_duration').textContent=selectedDuration+' day(s)';
+      document.getElementById('c_price').textContent=fmtMoney(selectedPrice);
+      document.getElementById('c_balance').textContent=fmtMoney(currentBalance);
+      document.getElementById('c_total').textContent=fmtMoney(selectedPrice);
+      document.getElementById('c_url').textContent=url;
+      document.getElementById('c_image').textContent= selectedBase64 ? 'Yes (base64)' : '—';
+      const prv=document.getElementById('c_preview');
+      prv.src=selectedBase64; prv.style.display='block';
+      openModal();
+    }
+
+    async function createBanner(){
+      if(!pendingPayload || !currentUser){ showToast('Missing data','error'); return; }
+      const btn=document.getElementById('confirmPayBtn');
+      btn.disabled=true; btn.innerHTML='<i class="ri-loader-4-line ri-spin"></i> Processing...';
+      const {title,targetUrl,description,slotId,page,size,w,h,durationDays,price}=pendingPayload;
+      try{
+        await db.runTransaction(async (tx)=>{
+          const userRef=db.collection('users').doc(currentUser.uid);
+          const userSnap=await tx.get(userRef);
+          if(!userSnap.exists) throw new Error('User not found');
+          const bal=Number(userSnap.data().balance ?? userSnap.data().wallet ?? 0)||0;
+          if(bal < price) throw new Error('Insufficient balance. Please deposit first.');
+          const adRef=db.collection('bannerAds').doc();
+          const now=firebase.firestore.FieldValue.serverTimestamp();
+          tx.set(adRef, {
+            title, targetUrl, description,
+            imageBase64: selectedBase64,
+            slotId, page, size, w, h,
+            durationDays,
+            price,
+            totalCost: price,
+            owner: currentUser.uid,
+            ownerEmail: currentUser.email || '',
+            status: 'pending',
+            clicks:0, impressions:0,
+            createdAt: now
+          });
+          tx.update(userRef, { balance: bal - price });
+          // Optionally log activity
+        });
+        showToast('Banner submitted! Awaiting admin approval.','success');
+        closeModal();
+        setTimeout(()=> location.href='my-banners.html', 1200);
+      }catch(err){
+        console.error(err);
+        showToast(err.message||'Failed to place ad','error');
+        btn.disabled=false;
+        btn.innerHTML='<i class="ri-check-line"></i> Pay & Submit';
+      }
+    }
+
+    // Close modal on ESC
+    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape' && document.getElementById('confirmModal').classList.contains('show')) closeModal(); });
+  </script>
+</body>
+</html>

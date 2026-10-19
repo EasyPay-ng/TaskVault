@@ -725,6 +725,7 @@
       .top-btn-container{gap:8px}
     }
   </style>
+  <link rel="stylesheet" href="css/banner-ads.css">
 </head>
 <body>
 
@@ -873,7 +874,13 @@
   </div>
 
   <!-- Tables -->
-  <div class="container">
+  
+<div class="container" style="padding-bottom:0; padding-top:0;">
+  <div class="tv-banner" data-banner-slot="referral-top" data-banner-page="referral" data-banner-size="728x90"></div>
+  <p class="tv-ad-ribbon">Sponsored</p>
+</div>
+
+<div class="container">
     <div id="activated" class="tab-pane">
       <div class="table-card">
         <table aria-describedby="activated">
@@ -1341,5 +1348,7 @@
       }
     }
   </script>
+  <script src="js/banner-ads.js"></script>
+  <script>document.addEventListener("DOMContentLoaded",()=>{ if(window.TVBanner) TVBanner.init({page:"referral"}); });</script>
 </body>
 </html>

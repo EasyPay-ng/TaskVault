@@ -338,6 +338,7 @@
         .toast.error { border-left: 3px solid #EF4444; }
         .toast.info { border-left: 3px solid var(--orange-main); }
     </style>
+  <link rel="stylesheet" href="css/banner-ads.css">
 </head>
 <body>
 
@@ -366,6 +367,12 @@
                 </div>
             </div>
         </header>
+        <!-- Banner: Offers Top (728x90) -->
+        <div style="padding:8px 20px; background:#fff;">
+          <div class="tv-banner" data-banner-slot="offers-top" data-banner-page="offers" data-banner-size="728x90"></div>
+          <p class="tv-ad-ribbon">Sponsored • Advertise Here</p>
+        </div>
+
 
         <!-- OFFERWALL -->
         <div class="offerwall-wrapper">
@@ -560,5 +567,7 @@
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
     </script>
+  <script src="js/banner-ads.js"></script>
+  <script>document.addEventListener("DOMContentLoaded",()=>{ if(window.TVBanner) TVBanner.init({page:"offers"}); });</script>
 </body>
 </html>

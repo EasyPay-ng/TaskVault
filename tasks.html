@@ -702,6 +702,7 @@
       animation: fadeIn 0.4s ease-out forwards;
     }
   </style>
+  <link rel="stylesheet" href="css/banner-ads.css">
 </head>
 <body>
 
@@ -786,6 +787,12 @@
       </a>
     </div>
 
+    <!-- Banner: Tasks Top (728x90) -->
+    <div style="padding:10px 20px; background:#fff; margin-bottom:8px;">
+      <div class="tv-banner" data-banner-slot="tasks-top" data-banner-page="tasks" data-banner-size="728x90"></div>
+      <p class="tv-ad-ribbon">Sponsored</p>
+    </div>
+
     <!-- HEADER -->
     <div class="header-section">
       <div class="header-title">
@@ -806,6 +813,11 @@
         <button class="refresh-btn" onclick="refreshTasks()" title="Refresh">
           <i class="fa-solid fa-rotate-right"></i>
         </button>
+      </div>
+
+      <!-- Banner: Tasks Inline (300x250) -->
+      <div style="padding:8px 0; display:flex; justify-content:center;">
+        <div class="tv-banner" data-banner-slot="tasks-inline" data-banner-page="tasks" data-banner-size="300x250"></div>
       </div>
 
       <!-- TASKS GRID -->
@@ -839,6 +851,7 @@
     </nav>
   </div>
 
+  <script src="js/banner-ads.js"></script>
   <!-- FIREBASE -->
   <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
@@ -1195,6 +1208,7 @@
     }
 
     // Auth state
+    if(window.TVBanner) TVBanner.init({page:"tasks"});
     auth.onAuthStateChanged(async user => {
       currentUser = user;
       userSubmissionIds.clear();
