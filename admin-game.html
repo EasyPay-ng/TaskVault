@@ -691,7 +691,7 @@
             <th>Status</th>
             <th>Entries</th>
             <th>Prize Pool</th>
-            <th>Winners (1st–5th)</th>
+            <th>Winners (1st–20th)</th>
             <th>Ended</th>
           </tr>
         </thead>
@@ -759,7 +759,7 @@
 
     </div>
 
-    <div class="prize-subtitle">Rewards — 1st to 5th Place</div>
+        <div class="prize-subtitle">Rewards — 1st to 20th Place</div>
 
     <div class="settings-grid">
 
@@ -793,6 +793,96 @@
         <span class="setting-hint">Fifth place prize</span>
       </div>
 
+      <div class="setting-item">
+        <label>6th Place Prize ($)</label>
+        <input type="number" id="settingPrize6" value="0.04" step="0.01" min="0"/>
+        <span class="setting-hint">6th place prize</span>
+      </div>
+
+      <div class="setting-item">
+        <label>7th Place Prize ($)</label>
+        <input type="number" id="settingPrize7" value="0.03" step="0.01" min="0"/>
+        <span class="setting-hint">7th place prize</span>
+      </div>
+
+      <div class="setting-item">
+        <label>8th Place Prize ($)</label>
+        <input type="number" id="settingPrize8" value="0.025" step="0.01" min="0"/>
+        <span class="setting-hint">8th place prize</span>
+      </div>
+
+      <div class="setting-item">
+        <label>9th Place Prize ($)</label>
+        <input type="number" id="settingPrize9" value="0.02" step="0.01" min="0"/>
+        <span class="setting-hint">9th place prize</span>
+      </div>
+
+      <div class="setting-item">
+        <label>10th Place Prize ($)</label>
+        <input type="number" id="settingPrize10" value="0.02" step="0.01" min="0"/>
+        <span class="setting-hint">10th place prize</span>
+      </div>
+
+      <div class="setting-item">
+        <label>11th Place Prize ($)</label>
+        <input type="number" id="settingPrize11" value="0.02" step="0.01" min="0"/>
+        <span class="setting-hint">11th place prize</span>
+      </div>
+
+      <div class="setting-item">
+        <label>12th Place Prize ($)</label>
+        <input type="number" id="settingPrize12" value="0.015" step="0.01" min="0"/>
+        <span class="setting-hint">12th place prize</span>
+      </div>
+
+      <div class="setting-item">
+        <label>13th Place Prize ($)</label>
+        <input type="number" id="settingPrize13" value="0.015" step="0.01" min="0"/>
+        <span class="setting-hint">13th place prize</span>
+      </div>
+
+      <div class="setting-item">
+        <label>14th Place Prize ($)</label>
+        <input type="number" id="settingPrize14" value="0.01" step="0.01" min="0"/>
+        <span class="setting-hint">14th place prize</span>
+      </div>
+
+      <div class="setting-item">
+        <label>15th Place Prize ($)</label>
+        <input type="number" id="settingPrize15" value="0.01" step="0.01" min="0"/>
+        <span class="setting-hint">15th place prize</span>
+      </div>
+
+      <div class="setting-item">
+        <label>16th Place Prize ($)</label>
+        <input type="number" id="settingPrize16" value="0.01" step="0.01" min="0"/>
+        <span class="setting-hint">16th place prize</span>
+      </div>
+
+      <div class="setting-item">
+        <label>17th Place Prize ($)</label>
+        <input type="number" id="settingPrize17" value="0.01" step="0.01" min="0"/>
+        <span class="setting-hint">17th place prize</span>
+      </div>
+
+      <div class="setting-item">
+        <label>18th Place Prize ($)</label>
+        <input type="number" id="settingPrize18" value="0.01" step="0.01" min="0"/>
+        <span class="setting-hint">18th place prize</span>
+      </div>
+
+      <div class="setting-item">
+        <label>19th Place Prize ($)</label>
+        <input type="number" id="settingPrize19" value="0.005" step="0.01" min="0"/>
+        <span class="setting-hint">19th place prize</span>
+      </div>
+
+      <div class="setting-item">
+        <label>20th Place Prize ($)</label>
+        <input type="number" id="settingPrize20" value="0.005" step="0.01" min="0"/>
+        <span class="setting-hint">20th place prize</span>
+      </div>
+
     </div>
 
   </div>
@@ -819,7 +909,7 @@
 
       <p>
         This will immediately end the current round and distribute the
-        1st–5th place rewards to the top players. This action cannot be undone.
+        1st–20th place rewards to the top players. This action cannot be undone.
       </p>
 
       <p style="margin-top:1rem;color:var(--gray-600);font-size:.9rem;">
@@ -917,6 +1007,21 @@
     prize3: 0.15,
     prize4: 0.10,
     prize5: 0.05,
+    prize6: 0.04,
+    prize7: 0.03,
+    prize8: 0.025,
+    prize9: 0.02,
+    prize10: 0.02,
+    prize11: 0.02,
+    prize12: 0.015,
+    prize13: 0.015,
+    prize14: 0.01,
+    prize15: 0.01,
+    prize16: 0.01,
+    prize17: 0.01,
+    prize18: 0.01,
+    prize19: 0.005,
+    prize20: 0.005,
     gameStatus: 'active'
   };
 
@@ -1016,11 +1121,10 @@
       document.getElementById('settingEntryFee').value = s.entryFee || DEFAULT_SETTINGS.entryFee;
       document.getElementById('settingMaxEntries').value = s.maxEntries || DEFAULT_SETTINGS.maxEntries;
       document.getElementById('settingDuration').value = s.duration || DEFAULT_SETTINGS.duration;
-      document.getElementById('settingPrize1').value = s.prize1 || 0;
-      document.getElementById('settingPrize2').value = s.prize2 || 0;
-      document.getElementById('settingPrize3').value = s.prize3 || 0;
-      document.getElementById('settingPrize4').value = s.prize4 !== undefined ? s.prize4 : DEFAULT_SETTINGS.prize4;
-      document.getElementById('settingPrize5').value = s.prize5 !== undefined ? s.prize5 : DEFAULT_SETTINGS.prize5;
+      for (let i = 1; i <= 20; i++) {
+        const val = s['prize' + i];
+        document.getElementById('settingPrize' + i).value = val !== undefined ? val : (DEFAULT_SETTINGS['prize' + i] || 0);
+      }
       document.getElementById('settingGameStatus').value = s.gameStatus || 'active';
 
       updateLiveRoundUI();
@@ -1037,11 +1141,11 @@
     const entryFee = parseFloat(document.getElementById('settingEntryFee').value);
     const maxEntries = parseInt(document.getElementById('settingMaxEntries').value);
     const duration = parseInt(document.getElementById('settingDuration').value);
-    const prize1 = parseFloat(document.getElementById('settingPrize1').value);
-    const prize2 = parseFloat(document.getElementById('settingPrize2').value);
-    const prize3 = parseFloat(document.getElementById('settingPrize3').value);
-    const prize4 = parseFloat(document.getElementById('settingPrize4').value);
-    const prize5 = parseFloat(document.getElementById('settingPrize5').value);
+    const prizes = [];
+    for (let i = 1; i <= 20; i++) {
+      prizes.push(parseFloat(document.getElementById('settingPrize' + i).value) || 0);
+    }
+    const [prize1, prize2, prize3, prize4, prize5, prize6, prize7, prize8, prize9, prize10, prize11, prize12, prize13, prize14, prize15, prize16, prize17, prize18, prize19, prize20] = prizes;
 
     if (isNaN(entryFee) || entryFee <= 0) {
       showToast('Entry fee must be greater than 0', 'error');
@@ -1058,7 +1162,7 @@
       return;
     }
 
-    for (let i = 1; i <= 5; i++) {
+    for (let i = 1; i <= 20; i++) {
       const p = parseFloat(document.getElementById('settingPrize' + i).value);
       if (isNaN(p) || p < 0) {
         showToast(`Prize ${i} cannot be negative`, 'error');
@@ -1079,6 +1183,21 @@
         prize3: prize3,
         prize4: prize4,
         prize5: prize5,
+        prize6: prize6,
+        prize7: prize7,
+        prize8: prize8,
+        prize9: prize9,
+        prize10: prize10,
+        prize11: prize11,
+        prize12: prize12,
+        prize13: prize13,
+        prize14: prize14,
+        prize15: prize15,
+        prize16: prize16,
+        prize17: prize17,
+        prize18: prize18,
+        prize19: prize19,
+        prize20: prize20,
         gameStatus: document.getElementById('settingGameStatus').value,
         updatedAt: serverTimestamp(),
         updatedBy: currentUser.email
@@ -1111,7 +1230,7 @@
   };
 
   function getPrizeArray() {
-    return [1, 2, 3, 4, 5].map(i =>
+    return Array.from({length: 20}, (_, idx) => idx + 1).map(i =>
       Number(document.getElementById('settingPrize' + i).value) || 0
     );
   }
@@ -1338,7 +1457,7 @@
             <div class="lb-name">${escapeHtml(name)}</div>
             <div class="lb-meta">Attempt #${entry.attemptNumber || 1}</div>
           </div>
-          ${rank <= 5 && prize > 0 ? `<span class="prize-tag">+$${prize.toFixed(2)}</span>` : ''}
+          ${rank <= 20 && prize > 0 ? `<span class="prize-tag">+$${prize.toFixed(2)}</span>` : ''}
           <div class="lb-score">${(entry.score || 0).toLocaleString()} pts</div>
         </div>
       `;
@@ -1430,7 +1549,7 @@
         const entryCount = round.entryCount || 0;
         const pool = entryCount * getEntryFee();
 
-        const winners = (round.winners || []).slice(0, 5);
+        const winners = (round.winners || []).slice(0, 20);
 
         const endedAt =
           round.endsAt?.toDate?.() || round.createdAt?.toDate?.();
@@ -1439,7 +1558,7 @@
           ? endedAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
           : '—';
 
-        const rankEmojis = ['🥇', '🥈', '🥉', '4', '5'];
+        const rankEmojis = ['🥇', '🥈', '🥉', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20'];
 
         const winnersHtml = winners.length
           ? `
@@ -1548,11 +1667,11 @@
       const uniqueEntries = Array.from(bestByUser.values());
       uniqueEntries.sort((a, b) => (b.score || 0) - (a.score || 0));
 
-      // Pay 1st-5th place from the admin-set rewards
+      // Pay 1st-20th place from the admin-set rewards
       const winners = [];
       const prizes = getPrizeArray();
 
-      for (let i = 0; i < Math.min(5, uniqueEntries.length); i++) {
+      for (let i = 0; i < Math.min(20, uniqueEntries.length); i++) {
         const entry = uniqueEntries[i];
         const prize = prizes[i] || 0;
 
@@ -1601,7 +1720,7 @@
         { merge: true }
       );
 
-      showToast(`Round ended — 1st–5th rewards paid for ${game.name}`, 'success');
+      showToast(`Round ended — 1st–20th rewards paid for ${game.name}`, 'success');
 
       setTimeout(() => {
         loadStats();
