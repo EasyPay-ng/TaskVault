@@ -229,6 +229,11 @@
       height: 3px;
       background: linear-gradient(90deg, var(--bronze), #d97706);
     }
+    .winner-card.rank-4, .winner-card.rank-5, .winner-card.rank-6, .winner-card.rank-7, .winner-card.rank-8, .winner-card.rank-9, .winner-card.rank-10,
+    .winner-card.rank-11, .winner-card.rank-12, .winner-card.rank-13, .winner-card.rank-14, .winner-card.rank-15,
+    .winner-card.rank-16, .winner-card.rank-17, .winner-card.rank-18, .winner-card.rank-19, .winner-card.rank-20 {
+      border-color: var(--gray-700);
+    }
 
     .winner-rank {
       width: 48px; height: 48px;
@@ -892,22 +897,27 @@
     }
 
     const rankClasses = ['gold', 'silver', 'bronze'];
-    const rankEmojis = ['🥇', '🥈', '🥉'];
+    const rankEmojis = ['🥇', '🥈', '🥉', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20'];
 
     grid.innerHTML = winners.map((winner, index) => {
       const name = winner.username || 'Unknown';
       const initial = name.charAt(0).toUpperCase();
       const rankClass = rankClasses[index] || 'normal';
+      const rankEmoji = rankEmojis[index] || (index + 1);
       const isYou = winner.userId === currentUser?.uid;
+      let suffix = 'th';
+      if ((index+1) % 10 === 1 && (index+1) !== 11) suffix = 'st';
+      else if ((index+1) % 10 === 2 && (index+1) !== 12) suffix = 'nd';
+      else if ((index+1) % 10 === 3 && (index+1) !== 13) suffix = 'rd';
 
       return `
         <div class="winner-card rank-${index + 1}">
-          <div class="winner-rank ${rankClass}">${rankEmojis[index]}</div>
+          <div class="winner-rank ${rankClass}">${rankEmoji}</div>
           <div class="winner-avatar">${initial}</div>
           <div class="winner-name">${escapeHtml(name)} ${isYou ? '<span style="color:var(--orange);">(You)</span>' : ''}</div>
           <div class="winner-score"><span>${(winner.score || 0).toLocaleString()}</span> pts</div>
           <div class="winner-prize">$${(winner.prize || 0).toFixed(2)}</div>
-          <div class="winner-prize-label">${index === 0 ? '1st' : index === 1 ? '2nd' : '3rd'} Place</div>
+          <div class="winner-prize-label">${index + 1}${suffix} Place</div>
         </div>
       `;
     }).join('');

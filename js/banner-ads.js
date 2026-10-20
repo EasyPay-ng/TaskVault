@@ -39,8 +39,6 @@
       { id: "dashboard-inline", page: "dashboard", size: "300x250", label: "Dashboard Medium Rectangle", w: 300, h: 250 },
       { id: "dashboard-bottom", page: "dashboard", size: "320x50", label: "Dashboard Bottom Mobile", w: 320, h: 50 },
       { id: "games-top", page: "games", size: "728x90", label: "Games Top Leaderboard", w: 728, h: 90 },
-      { id: "games-inline", page: "games", size: "300x250", label: "Games Inline Rectangle", w: 300, h: 250 },
-      { id: "games-bottom", page: "games", size: "320x100", label: "Games Bottom Large Mobile", w: 320, h: 100 },
       { id: "tasks-top", page: "tasks", size: "728x90", label: "Tasks Top Leaderboard", w: 728, h: 90 },
       { id: "tasks-inline", page: "tasks", size: "300x250", label: "Tasks Inline Rectangle", w: 300, h: 250 },
       { id: "offers-top", page: "offers", size: "728x90", label: "Offers Top Leaderboard", w: 728, h: 90 },
