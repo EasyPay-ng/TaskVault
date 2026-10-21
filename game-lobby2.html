@@ -599,7 +599,7 @@
 <div class="toast" id="toast"></div>
 
 <script type="module">
-  import { aggregateEntries } from "./js/engagement-core.mjs";
+  import { aggregateEntries } from "./js/engagement-core.mjs?v=20261021c";
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
   import {
@@ -824,7 +824,11 @@
       const entryCount = currentRound.entryCount || 0;
 
       if (entryCount >= G.maxEntries || hoursPassed >= G.duration) {
-        await endRound(currentRound.id);
+        try {
+          await endRound(currentRound.id);
+        } catch (endErr) {
+          console.error('End round error:', endErr);
+        }
         await createNewRound();
       }
     } else {
@@ -889,23 +893,27 @@
         prize: prize
       });
 
-      if (prize > 0) {
-        const userRef = doc(db, 'users', entry.userId);
-        await updateDoc(userRef, {
-          balance: increment(prize),
-          totalGameWon: increment(prize)
-        });
+      if (prize > 0 && entry.userId) {
+        try {
+          const userRef = doc(db, 'users', entry.userId);
+          await updateDoc(userRef, {
+            balance: increment(prize),
+            totalGameWon: increment(prize)
+          });
 
-        await addDoc(collection(db, 'gameHistory'), {
-          userId: entry.userId,
-          roundId: roundId,
-          game: GAME_KEY,
-          type: 'prize',
-          amount: prize,
-          rank: i + 1,
-          score: entry.score,
-          timestamp: serverTimestamp()
-        });
+          await addDoc(collection(db, 'gameHistory'), {
+            userId: entry.userId,
+            roundId: roundId,
+            game: GAME_KEY,
+            type: 'prize',
+            amount: prize,
+            rank: i + 1,
+            score: entry.score,
+            timestamp: serverTimestamp()
+          });
+        } catch (payErr) {
+          console.error('Winner payout skipped for', entry.userId, payErr);
+        }
       }
     }
 

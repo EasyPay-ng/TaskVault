@@ -947,6 +947,7 @@
 
 <script type="module">
 
+  import { aggregateEntries } from "./js/engagement-core.mjs?v=20261021c";
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
 
   import {
@@ -1367,17 +1368,7 @@
         let entries = [];
         entriesSnap.forEach(d => entries.push({ id: d.id, ...d.data() }));
 
-        // Best score per user
-        const bestByUser = new Map();
-        entries.forEach(entry => {
-          const existing = bestByUser.get(entry.userId);
-          if (!existing || (entry.score || 0) > (existing.score || 0)) {
-            bestByUser.set(entry.userId, entry);
-          }
-        });
-
-        const uniqueEntries = Array.from(bestByUser.values());
-        uniqueEntries.sort((a, b) => (b.score || 0) - (a.score || 0));
+        const uniqueEntries = aggregateEntries(entries);
 
         renderLiveLeaderboard(uniqueEntries);
         updateLiveStats(entries.length);
@@ -1655,17 +1646,7 @@
       let entries = [];
       entriesSnap.forEach(d => entries.push({ id: d.id, ...d.data() }));
 
-      // Deduplicate: keep best score per user
-      const bestByUser = new Map();
-      entries.forEach(entry => {
-        const existing = bestByUser.get(entry.userId);
-        if (!existing || (entry.score || 0) > (existing.score || 0)) {
-          bestByUser.set(entry.userId, entry);
-        }
-      });
-
-      const uniqueEntries = Array.from(bestByUser.values());
-      uniqueEntries.sort((a, b) => (b.score || 0) - (a.score || 0));
+      const uniqueEntries = aggregateEntries(entries);
 
       // Pay 1st-20th place from the admin-set rewards
       const winners = [];
@@ -1683,28 +1664,32 @@
           prize: prize
         });
 
-        if (prize > 0) {
-          await updateDoc(
-            doc(db, 'users', entry.userId),
-            {
-              balance: increment(prize),
-              totalGameWon: increment(prize)
-            }
-          );
+        if (prize > 0 && entry.userId) {
+          try {
+            await updateDoc(
+              doc(db, 'users', entry.userId),
+              {
+                balance: increment(prize),
+                totalGameWon: increment(prize)
+              }
+            );
 
-          await addDoc(
-            collection(db, 'gameHistory'),
-            {
-              userId: entry.userId,
-              roundId: currentRound.id,
-              type: 'prize',
-              amount: prize,
-              rank: i + 1,
-              score: entry.score || 0,
-              game: game.key,
-              timestamp: serverTimestamp()
-            }
-          );
+            await addDoc(
+              collection(db, 'gameHistory'),
+              {
+                userId: entry.userId,
+                roundId: currentRound.id,
+                type: 'prize',
+                amount: prize,
+                rank: i + 1,
+                score: entry.score || 0,
+                game: game.key,
+                timestamp: serverTimestamp()
+              }
+            );
+          } catch (payErr) {
+            console.error('Winner payout skipped for', entry.userId, payErr);
+          }
         }
       }
 
