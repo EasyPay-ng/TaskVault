@@ -20,3 +20,15 @@ test('weekly periods start Monday, monthly handles year boundaries', () => {
  assert.notEqual(periodIndex(new Date('2026-10-18'),'weekly'),periodIndex(new Date('2026-10-19'),'weekly'));
  assert.equal(streakCount([new Date('2025-12-15'),new Date('2026-01-01')],'monthly',new Date('2026-01-20')),2);
 });
+test('aggregateEntries tolerates missing userId, null entries, and numeric string scores', () => {
+ const rows = aggregateEntries([
+   null,
+   { id: 'orphan-1', score: 0 },
+   { userId: 'u1', score: '150' },
+   { userId: 'u1', score: 50 },
+   { id: 'orphan-2', score: 0 },
+ ]);
+ assert.equal(rows[0].userId, 'u1');
+ assert.equal(rows[0].score, 200);
+ assert.equal(rows.length, 3);
+});

@@ -2,6 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1, minimum-scale=1, viewport-fit=cover"/>
 <meta name="theme-color" content="#07080c"/>
 <title>TaskVault – Subway Runner 3D Overdrive</title>
@@ -19,8 +22,8 @@
 }
 *{margin:0;padding:0;box-sizing:border-box;font-family:var(--main);-webkit-tap-highlight-color:transparent}
 html,body{background:var(--bg);color:#fff;overflow:hidden;height:100%;width:100%;
-  touch-action:none;user-select:none;-webkit-user-select:none;overscroll-behavior:none}
-canvas#gl{position:fixed;inset:0;display:block;width:100%;height:100%}
+  user-select:none;-webkit-user-select:none;overscroll-behavior:none}
+canvas#gl{position:fixed;inset:0;display:block;width:100%;height:100%;touch-action:none}
 
 /* ---------- full-screen FX film (scanlines / vignette / grain) ---------- */
 .fx{position:fixed;inset:0;pointer-events:none;z-index:4;
@@ -91,14 +94,16 @@ canvas#gl{position:fixed;inset:0;display:block;width:100%;height:100%}
 #toast.on{opacity:1;transform:translate(-50%,0)}
 
 /* ---------- overlays ---------- */
-.ov{position:fixed;inset:0;z-index:12;display:grid;place-items:center;padding:16px;
+.ov{position:fixed;inset:0;z-index:12;display:flex;flex-direction:column;align-items:center;
+  padding:max(12px,env(safe-area-inset-top)) 14px max(16px,env(safe-area-inset-bottom));
   background:radial-gradient(120% 100% at 50% 0%,rgba(255,107,0,.10),transparent 55%),rgba(4,5,8,.78);
-  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);overflow:auto}
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  overflow-y:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y;overscroll-behavior:contain}
 .ov.off{display:none}
-.card{width:min(520px,100%);background:linear-gradient(180deg,rgba(20,23,30,.96),rgba(11,13,18,.96));
-  border:1px solid rgba(255,107,0,.28);border-radius:var(--radius);padding:22px 20px 20px;
+.card{width:min(520px,100%);margin:auto 0;flex:0 0 auto;background:linear-gradient(180deg,rgba(20,23,30,.96),rgba(11,13,18,.96));
+  border:1px solid rgba(255,107,0,.28);border-radius:var(--radius);padding:20px 18px 18px;
   box-shadow:0 30px 90px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.07);text-align:center;
-  animation:pop .35s cubic-bezier(.2,1.2,.3,1)}
+  touch-action:pan-y;animation:pop .35s cubic-bezier(.2,1.2,.3,1)}
 @keyframes pop{from{opacity:0;transform:translateY(18px) scale(.97)}to{opacity:1;transform:none}}
 .card h1{font-family:var(--cyber);font-weight:900;letter-spacing:5px;font-size:clamp(24px,7vw,38px);
   background:linear-gradient(180deg,#fff,#ff9a3d 60%,var(--orange));-webkit-background-clip:text;
@@ -107,10 +112,11 @@ canvas#gl{position:fixed;inset:0;display:block;width:100%;height:100%}
 .eyebrow{font-family:var(--cyber);font-size:9px;letter-spacing:3px;color:var(--orange);opacity:.9}
 .tabs{display:flex;gap:6px;background:rgba(255,255,255,.05);padding:5px;border-radius:12px;margin:0 0 14px}
 .tab{flex:1;border:0;background:transparent;color:#93a0b4;font-family:var(--cyber);font-size:10px;
-  letter-spacing:1.5px;padding:9px 4px;border-radius:9px;cursor:pointer;transition:.18s}
+  letter-spacing:1.5px;padding:9px 4px;border-radius:9px;cursor:pointer;touch-action:manipulation;transition:.18s}
 .tab.on{background:linear-gradient(180deg,var(--orange),#e25c00);color:#0b0b0b;font-weight:800;
   box-shadow:0 6px 20px var(--orange-glow)}
-.pane{display:none;text-align:left;max-height:min(46vh,340px);overflow:auto;padding-right:4px}
+.pane{display:none;text-align:left;max-height:min(42vh,320px);overflow-y:auto;padding-right:4px;
+  -webkit-overflow-scrolling:touch;touch-action:pan-y;overscroll-behavior:contain}
 .pane.on{display:block}
 .pane::-webkit-scrollbar{width:5px}.pane::-webkit-scrollbar-thumb{background:rgba(255,107,0,.4);border-radius:9px}
 
@@ -159,7 +165,8 @@ canvas#gl{position:fixed;inset:0;display:block;width:100%;height:100%}
 .bsub{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-family:var(--cyber);font-size:9px;
   letter-spacing:2px;color:var(--orange);margin:10px 0 6px;text-align:left}
 .bsub span{font-size:8px;letter-spacing:1px;color:#7f8b9e}
-.bstrip{display:grid;grid-template-columns:1fr 1fr;gap:7px;max-height:200px;overflow:auto;padding-right:3px;text-align:left}
+.bstrip{display:grid;grid-template-columns:1fr 1fr;gap:7px;max-height:190px;overflow-y:auto;padding-right:3px;text-align:left;
+  -webkit-overflow-scrolling:touch;touch-action:pan-y;overscroll-behavior:contain}
 .bstrip .bup{margin-bottom:0;padding:8px 9px}
 .bstrip .bup .ds{display:none}
 .bstrip .bup .ic{width:30px;height:30px;font-size:15px;border-radius:9px}
@@ -169,15 +176,16 @@ canvas#gl{position:fixed;inset:0;display:block;width:100%;height:100%}
 #btnBoost{position:fixed;right:12px;top:calc(104px + env(safe-area-inset-top));z-index:8;display:none;align-items:center;gap:6px;
   pointer-events:auto;border:1px solid rgba(255,194,51,.35);background:var(--panel);color:var(--gold);
   font-family:var(--cyber);font-size:9px;letter-spacing:1.4px;border-radius:11px;padding:8px 10px;cursor:pointer;
-  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+  touch-action:manipulation;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
 #btnBoost.on{display:flex}
 #btnBoost:active{transform:scale(.94)}
 #btnBoost b{min-width:15px;height:15px;border-radius:50%;background:var(--orange);color:#120900;font-size:9px;
   display:none;place-items:center;font-family:var(--mono)}
 #btnBoost b.on{display:grid}
 #boostTray{position:fixed;right:10px;top:calc(146px + env(safe-area-inset-top));z-index:9;width:min(330px,90vw);
-  max-height:min(56vh,440px);overflow:auto;background:linear-gradient(180deg,rgba(20,23,30,.97),rgba(11,13,18,.97));
+  max-height:min(56vh,440px);overflow-y:auto;background:linear-gradient(180deg,rgba(20,23,30,.97),rgba(11,13,18,.97));
   border:1px solid rgba(255,107,0,.32);border-radius:16px;padding:12px;box-shadow:0 24px 70px rgba(0,0,0,.72);
+  -webkit-overflow-scrolling:touch;touch-action:pan-y;overscroll-behavior:contain;
   backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 #boostTray.off{display:none}
 #boostTray::-webkit-scrollbar{width:5px}#boostTray::-webkit-scrollbar-thumb{background:rgba(255,107,0,.4);border-radius:9px}
@@ -190,7 +198,7 @@ canvas#gl{position:fixed;inset:0;display:block;width:100%;height:100%}
 .btn{width:100%;margin-top:14px;border:0;border-radius:14px;padding:15px;cursor:pointer;
   font-family:var(--cyber);font-weight:800;font-size:14px;letter-spacing:2.5px;color:#120900;
   background:linear-gradient(180deg,var(--orange-2),var(--orange));box-shadow:0 14px 40px -10px var(--orange-glow),
-  inset 0 1px 0 rgba(255,255,255,.5);transition:.15s}
+  inset 0 1px 0 rgba(255,255,255,.5);touch-action:manipulation;transition:.15s}
 .btn:hover{filter:brightness(1.08)}.btn:active{transform:scale(.985)}
 .btn.ghost{background:rgba(255,255,255,.06);color:#dbe3ee;border:1px solid var(--line);box-shadow:none;font-size:11.5px}
 .btn:disabled{opacity:.5;cursor:wait}
@@ -226,13 +234,22 @@ canvas#gl{position:fixed;inset:0;display:block;width:100%;height:100%}
 .grp{display:flex;gap:10px;pointer-events:auto}
 .tbtn{width:60px;height:60px;border-radius:16px;border:1px solid var(--line);
   background:rgba(16,18,24,.6);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
-  color:#fff;font-size:22px;display:grid;place-items:center;cursor:pointer}
+  color:#fff;font-size:22px;display:grid;place-items:center;cursor:pointer;touch-action:none}
 .tbtn:active{background:rgba(255,107,0,.35);transform:scale(.94)}
 #musicBtn{position:fixed;z-index:8;right:12px;top:calc(60px + env(safe-area-inset-top));display:none;
   align-items:center;gap:6px;pointer-events:auto;border:1px solid var(--line);background:var(--panel);
   color:#cfd7e3;font-family:var(--cyber);font-size:9px;letter-spacing:1.2px;border-radius:11px;
-  padding:8px 10px;cursor:pointer;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+  padding:8px 10px;cursor:pointer;touch-action:manipulation;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
 #musicBtn.on{display:flex}
+@media(max-height:780px){
+  .card{padding:15px 14px 14px}
+  .sub{margin:2px 0 10px}
+  .bankrow{margin:0 0 9px;padding:7px 11px}
+  .tabs{margin:0 0 10px}
+  .pane{max-height:min(36vh,260px)}
+  .btn{margin-top:10px;padding:13px}
+  .bstrip{max-height:148px}
+}
 .hidden{display:none!important}
 </style>
 </head>
@@ -499,11 +516,15 @@ function geoArc(r,thick,n,span){
 /* ============================== 3. WEBGL CORE ============================== */
 const canvas=document.getElementById('gl');
 let gl=null, GLERR=null;
-try{
-  gl=canvas.getContext('webgl',{antialias:false,alpha:false,depth:true,stencil:false,
-      powerPreference:'high-performance',preserveDrawingBuffer:false})
-   ||canvas.getContext('experimental-webgl',{alpha:false});
-}catch(e){gl=null;}
+for(const [ctxName,opts] of [
+  ['webgl',{antialias:false,alpha:false,depth:true,stencil:false,powerPreference:'high-performance',preserveDrawingBuffer:false}],
+  ['webgl',{alpha:false,depth:true}],
+  ['webgl',undefined],
+  ['experimental-webgl',{alpha:false}],
+  ['experimental-webgl',undefined]
+]){
+  try{ gl=opts?canvas.getContext(ctxName,opts):canvas.getContext(ctxName); if(gl) break; }catch(e){ gl=null; }
+}
 if(!gl){GLERR='WebGL unavailable on this device/browser.';}
 
 function sh(type,src){
@@ -522,13 +543,18 @@ function prog(vs,fs){
   return {p,u,a};
 }
 
+const FP_HEAD=`#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+`;
 const VS_SCENE=`
 attribute vec3 aPos; attribute vec3 aNor; attribute vec3 aCol; attribute float aEmi;
 uniform mat4 uVP;
 varying vec3 vN; varying vec3 vC; varying vec3 vW; varying float vE;
 void main(){ vW=aPos; vN=aNor; vC=aCol; vE=aEmi; gl_Position=uVP*vec4(aPos,1.0); }`;
-const FS_SCENE=`
-precision mediump float;
+const FS_SCENE=FP_HEAD+`
 varying vec3 vN; varying vec3 vC; varying vec3 vW; varying float vE;
 uniform vec3 uCam,uLDir,uLCol,uAmbT,uAmbB,uFog;
 uniform float uFogNear,uFogFar,uSpec;
@@ -562,8 +588,7 @@ attribute vec3 aPos; attribute vec2 aUV; attribute vec4 aCol;
 uniform mat4 uVP;
 varying vec2 vUV; varying vec4 vC;
 void main(){ vUV=aUV; vC=aCol; gl_Position=uVP*vec4(aPos,1.0); }`;
-const FS_SPR=`
-precision mediump float;
+const FS_SPR=FP_HEAD+`
 varying vec2 vUV; varying vec4 vC;
 void main(){
   float d=length(vUV*2.0-1.0);
@@ -572,12 +597,10 @@ void main(){
 }`;
 
 const VS_FSQ=`attribute vec2 aXY; varying vec2 vUV; void main(){ vUV=aXY*0.5+0.5; gl_Position=vec4(aXY,0.0,1.0); }`;
-const FS_BRIGHT=`
-precision mediump float; varying vec2 vUV; uniform sampler2D uTex; uniform float uThr;
+const FS_BRIGHT=FP_HEAD+`varying vec2 vUV; uniform sampler2D uTex; uniform float uThr;
 void main(){ vec3 c=texture2D(uTex,vUV).rgb; float l=dot(c,vec3(0.2126,0.7152,0.0722));
   gl_FragColor=vec4(c*smoothstep(uThr,uThr+0.55,l),1.0); }`;
-const FS_BLUR=`
-precision mediump float; varying vec2 vUV; uniform sampler2D uTex; uniform vec2 uDir;
+const FS_BLUR=FP_HEAD+`varying vec2 vUV; uniform sampler2D uTex; uniform vec2 uDir;
 void main(){
   vec3 s=texture2D(uTex,vUV).rgb*0.2270270270;
   s+=texture2D(uTex,vUV+uDir*1.3846153846).rgb*0.3162162162;
@@ -586,8 +609,7 @@ void main(){
   s+=texture2D(uTex,vUV-uDir*3.2307692308).rgb*0.0702702703;
   gl_FragColor=vec4(s,1.0);
 }`;
-const FS_COMP=`
-precision mediump float; varying vec2 vUV;
+const FS_COMP=FP_HEAD+`varying vec2 vUV;
 uniform sampler2D uScene,uBloom; uniform float uBloomAmt,uTime,uFlash,uSpeed,uExposure,uVig;
 uniform vec3 uFlashCol; uniform vec2 uRes;
 float lum(vec3 c){return dot(c,vec3(0.2126,0.7152,0.0722));}
@@ -625,7 +647,7 @@ void main(){
   /* vignette + scanline + grain */
   c*=mix(1.0,smoothstep(0.95,0.15,r2),uVig);
   c*=1.0-0.05*step(0.5,fract(gl_FragCoord.y*0.5));
-  float g=fract(sin(dot(uv*vec2(12.9898,78.233)+uTime,vec2(1.0,1.0)))*43758.5453);
+  float g=fract(sin(dot(uv,vec2(12.9898,78.233))+uTime)*437.5854);
   c+=(g-0.5)*0.020;
   gl_FragColor=vec4(c,1.0);
 }`;
@@ -728,12 +750,13 @@ function makeFBO(w,h,depth){
     gl.bindRenderbuffer(gl.RENDERBUFFER,rb);
     gl.renderbufferStorage(gl.RENDERBUFFER,gl.DEPTH_COMPONENT16,w,h);
     gl.framebufferRenderbuffer(gl.FRAMEBUFFER,gl.DEPTH_ATTACHMENT,gl.RENDERBUFFER,rb); }
+  const ok=!gl.checkFramebufferStatus||!gl.FRAMEBUFFER_COMPLETE||gl.checkFramebufferStatus(gl.FRAMEBUFFER)===gl.FRAMEBUFFER_COMPLETE;
   gl.bindFramebuffer(gl.FRAMEBUFFER,null);
-  return {fb,tex,rb,w,h};
+  return {fb,tex,rb,w,h,ok};
 }
 function killFBO(f){ if(!f)return; gl.deleteTexture(f.tex); gl.deleteFramebuffer(f.fb); if(f.rb)gl.deleteRenderbuffer(f.rb); }
 
-let fboScene=null,fboA=null,fboB=null,fsq=null,VW=1,VH=1,DPR=1;
+let fboScene=null,fboA=null,fboB=null,fsq=null,VW=1,VH=1,DPR=1,FBO_OK=true;
 let QUAL=2, QUAL_DPR=1.5, BLOOM_ON=true;
 function applyQuality(){
   if(QUAL===0){ QUAL_DPR=0.75; BLOOM_ON=false; }
@@ -757,10 +780,12 @@ function resize(){
   fboScene=makeFBO(VW,VH,true);
   const bw=Math.max(2,VW>>2),bh=Math.max(2,VH>>2);
   fboA=makeFBO(bw,bh,false); fboB=makeFBO(bw,bh,false);
+  FBO_OK=Boolean(fboScene.ok&&fboA.ok&&fboB.ok);
 }
 window.addEventListener('resize',resize);
 window.addEventListener('orientationchange',()=>setTimeout(resize,220));
 canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();GLERR='GPU context lost — reload the page.';},false);
+canvas.addEventListener('webglcontextrestored',()=>{try{location.reload();}catch(e){}},false);
 </script>
 <script>
 /* ============================== 4. WORLD CONSTANTS ============================== */
@@ -1126,30 +1151,42 @@ const MAG_PICKUP=5.5, JET_PICKUP=3.6, SHIELD_INV=1.4;
 /* ============================== 9. AUDIO SYNTH ============================== */
 const A={ctx:null,master:null,sfx:null,mus:null,on:true,music:true,step:0,next:0,timer:null,bpm:142};
 function audioInit(){
-  if(A.ctx) { if(A.ctx.state==='suspended') A.ctx.resume(); return; }
-  const C=window.AudioContext||window.webkitAudioContext; if(!C) return;
-  A.ctx=new C();
-  A.master=A.ctx.createGain(); A.master.gain.value=0.85; A.master.connect(A.ctx.destination);
-  A.sfx=A.ctx.createGain(); A.sfx.gain.value=0.55; A.sfx.connect(A.master);
-  A.mus=A.ctx.createGain(); A.mus.gain.value=0.30; A.mus.connect(A.master);
+  try{
+    if(A.ctx){ if(A.ctx.state==='suspended') A.ctx.resume().catch(()=>{}); return; }
+    const C=window.AudioContext||window.webkitAudioContext; if(!C) return;
+    A.ctx=new C();
+    if(A.ctx.state==='suspended') A.ctx.resume().catch(()=>{});
+    A.master=A.ctx.createGain(); A.master.gain.value=0.85; A.master.connect(A.ctx.destination);
+    A.sfx=A.ctx.createGain(); A.sfx.gain.value=0.55; A.sfx.connect(A.master);
+    A.mus=A.ctx.createGain(); A.mus.gain.value=0.30; A.mus.connect(A.master);
+  }catch(e){ A.ctx=null; }
 }
-function env(g,t,a,d,peak){ g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(peak,t+a);
+window.addEventListener('pagehide',()=>{
+  musicStop();
+  if(A.ctx){ try{ A.ctx.close(); }catch(e){} A.ctx=null; }
+});
+function env(g,t,a,d,peak){ g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(Math.max(0.0002,peak),t+a);
   g.gain.exponentialRampToValueAtTime(0.0001,t+a+d); }
 function tone(freq,t,dur,type,peak,dest,slide){
-  if(!A.ctx)return; const o=A.ctx.createOscillator(),g=A.ctx.createGain();
-  o.type=type||'square'; o.frequency.setValueAtTime(freq,t);
-  if(slide) o.frequency.exponentialRampToValueAtTime(Math.max(30,slide),t+dur);
-  o.connect(g); g.connect(dest||A.sfx); env(g,t,0.006,dur,peak||0.25);
-  o.start(t); o.stop(t+dur+0.05);
+  if(!A.ctx)return;
+  try{
+    const o=A.ctx.createOscillator(),g=A.ctx.createGain();
+    o.type=type||'square'; o.frequency.setValueAtTime(freq,t);
+    if(slide) o.frequency.exponentialRampToValueAtTime(Math.max(30,slide),t+dur);
+    o.connect(g); g.connect(dest||A.sfx); env(g,t,0.006,dur,peak||0.25);
+    o.start(t); o.stop(t+dur+0.05);
+  }catch(e){}
 }
 function noise(t,dur,peak,hp){
   if(!A.ctx)return;
-  const n=Math.floor(A.ctx.sampleRate*dur), b=A.ctx.createBuffer(1,n,A.ctx.sampleRate), d=b.getChannelData(0);
-  for(let i=0;i<n;i++) d[i]=(Math.random()*2-1)*(1-i/n);
-  const s=A.ctx.createBufferSource(); s.buffer=b;
-  const f=A.ctx.createBiquadFilter(); f.type=hp?'highpass':'lowpass'; f.frequency.value=hp||1200;
-  const g=A.ctx.createGain(); g.gain.value=peak;
-  s.connect(f); f.connect(g); g.connect(A.sfx); s.start(t);
+  try{
+    const n=Math.max(1,Math.floor(A.ctx.sampleRate*dur)), b=A.ctx.createBuffer(1,n,A.ctx.sampleRate), d=b.getChannelData(0);
+    for(let i=0;i<n;i++) d[i]=(Math.random()*2-1)*(1-i/n);
+    const s=A.ctx.createBufferSource(); s.buffer=b;
+    const f=A.ctx.createBiquadFilter(); f.type=hp?'highpass':'lowpass'; f.frequency.value=hp||1200;
+    const g=A.ctx.createGain(); g.gain.value=peak;
+    s.connect(f); f.connect(g); g.connect(A.sfx); s.start(t);
+  }catch(e){}
 }
 function sfx(name){
   if(!A.on||!A.ctx)return; const t=A.ctx.currentTime;
@@ -1623,7 +1660,7 @@ function render(dt){
   plCol[n*3]=pc[0]+flash; plCol[n*3+1]=pc[1]; plCol[n*3+2]=pc[2]; n++;
 
   /* ---------- pass 1: scene ---------- */
-  gl.bindFramebuffer(gl.FRAMEBUFFER,fboScene.fb);
+  gl.bindFramebuffer(gl.FRAMEBUFFER,FBO_OK?fboScene.fb:null);
   gl.viewport(0,0,VW,VH);
   gl.clearColor(0.012,0.014,0.02,1);
   gl.enable(gl.DEPTH_TEST); gl.depthMask(true); gl.disable(gl.BLEND); gl.disable(gl.CULL_FACE);
@@ -1649,6 +1686,7 @@ function render(dt){
   gl.enable(gl.BLEND); gl.blendFunc(gl.ONE,gl.ONE);
   S.flush(P_SPR,false);
   gl.disable(gl.BLEND);
+  if(!FBO_OK) return;
 
   /* ---------- pass 3: bloom ---------- */
   gl.disable(gl.DEPTH_TEST);
@@ -1676,7 +1714,7 @@ function render(dt){
   gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D,fboScene.tex); gl.uniform1i(P_CO.u.uScene,0);
   gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D,fboA.tex);  gl.uniform1i(P_CO.u.uBloom,1);
   gl.uniform1f(P_CO.u.uBloomAmt,BLOOM_ON?0.95:0.0);
-  gl.uniform1f(P_CO.u.uTime,T);
+  gl.uniform1f(P_CO.u.uTime,T%62.831853);
   gl.uniform1f(P_CO.u.uFlash,clamp(flash,0,1));
   gl.uniform3f(P_CO.u.uFlashCol,flashCol[0],flashCol[1],flashCol[2]);
   gl.uniform1f(P_CO.u.uSpeed,clamp((speed-24)/42,0,1));
@@ -1984,17 +2022,21 @@ window.addEventListener('keydown',e=>{
   else if(k==='enter'){ if(mode==='lobby')startRun(); else if(mode==='over')startRun(); }
 },{passive:false});
 const isTouch=('ontouchstart' in window)||navigator.maxTouchPoints>0;
-let tX=0,tY=0,tT=0,tMoved=false;
-canvas.addEventListener('touchstart',e=>{ const t=e.changedTouches[0];
-  tX=t.clientX;tY=t.clientY;tT=performance.now();tMoved=false; },{passive:true});
-canvas.addEventListener('touchmove',e=>{
-  if(mode!=='play'||tMoved)return;
-  const t=e.changedTouches[0],dx=t.clientX-tX,dy=t.clientY-tY;
-  if(Math.abs(dx)>26&&Math.abs(dx)>Math.abs(dy)){ act(dx>0?'right':'left'); tMoved=true; }
-  else if(Math.abs(dy)>26){ act(dy<0?'up':'down'); tMoved=true; }
+let tX=0,tY=0,tT=0,tMoved=false,tTrack=false;
+window.addEventListener('touchstart',e=>{
+  if(mode!=='play'||(e.target&&e.target.closest&&e.target.closest('button,#boostTray,.ov'))){ tTrack=false; return; }
+  const t=e.changedTouches[0];
+  tX=t.clientX;tY=t.clientY;tT=performance.now();tMoved=false;tTrack=true;
 },{passive:true});
-canvas.addEventListener('touchend',e=>{
-  if(mode==='play'&&!tMoved&&performance.now()-tT<260) act('up');
+window.addEventListener('touchmove',e=>{
+  if(mode!=='play'||!tTrack||tMoved)return;
+  const t=e.changedTouches[0],dx=t.clientX-tX,dy=t.clientY-tY;
+  if(Math.abs(dx)>24&&Math.abs(dx)>Math.abs(dy)){ act(dx>0?'right':'left'); tMoved=true; }
+  else if(Math.abs(dy)>24){ act(dy<0?'up':'down'); tMoved=true; }
+},{passive:true});
+window.addEventListener('touchend',()=>{
+  if(mode==='play'&&tTrack&&!tMoved&&performance.now()-tT<260) act('up');
+  tTrack=false;
 },{passive:true});
 document.querySelectorAll('#pad .tbtn').forEach(b=>{
   const a=b.dataset.act;
@@ -2029,8 +2071,11 @@ function isSandbox(){
   return !h||h==='localhost'||h==='127.0.0.1'||/e2b\.app$/.test(h)||location.protocol==='file:';
 }
 (async function initCloud(){
-  cloud.roundId=sessionStorage.getItem('srRoundId');
-  cloud.entryId=sessionStorage.getItem('srEntryId');
+  const qp=new URLSearchParams(location.search);
+  cloud.roundId=qp.get('r')||sessionStorage.getItem('srRoundId');
+  cloud.entryId=qp.get('e')||sessionStorage.getItem('srEntryId');
+  if(cloud.roundId) try{ sessionStorage.setItem('srRoundId',cloud.roundId); }catch(e){}
+  if(cloud.entryId) try{ sessionStorage.setItem('srEntryId',cloud.entryId); }catch(e){}
   if(isSandbox()||!cloud.roundId||!cloud.entryId){ $('sandboxWarn').classList.remove('hidden'); return; }
   try{
     const [appMod,fsMod,authMod]=await Promise.all([
@@ -2039,12 +2084,15 @@ function isSandbox(){
       import('https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js')]);
     const app=appMod.initializeApp(FB);
     cloud.db=fsMod.getFirestore(app); cloud.fs=fsMod;
-    const user=await new Promise(res=>{
-      const un=authMod.onAuthStateChanged(authMod.getAuth(app),u=>{un();res(u);});
-      setTimeout(()=>{un();res(null);},4000);
+    let unsub=null;
+    unsub=authMod.onAuthStateChanged(authMod.getAuth(app),u=>{
+      if(unsub){ try{ unsub(); }catch(e){} unsub=null; }
+      if(!u){ if(!isSandbox()) location.href='login.html'; return; }
+      cloud.ok=true;
+      $('sandboxWarn').classList.add('hidden');
+      const sb=$('btnSubmit');
+      if(sb&&mode==='over'&&!sb.disabled) sb.textContent='TRANSMIT HIGH SCORE';
     });
-    if(!user){ location.href='login.html'; return; }
-    cloud.ok=true;
   }catch(err){
     console.warn('[TaskVault] cloud unavailable, running offline:',err&&err.message);
     $('sandboxWarn').classList.remove('hidden');
@@ -2059,7 +2107,7 @@ $('btnSubmit').addEventListener('click',async function(){
       await cloud.fs.updateDoc(cloud.fs.doc(cloud.db,'subwayRunnerRounds',cloud.roundId,'entries',cloud.entryId),{
         score:lastRun.total,distance:lastRun.d,coins:lastRun.c,maxMultiplier:lastRun.m,
         character:lastRun.a,completedAt:cloud.fs.serverTimestamp()});
-      location.href='game-lobby3.html'; return;
+      location.href='game-lobby3.html?v=20261021c&t='+Date.now(); return;
     }catch(err){ console.error(err); showToast('TRANSMISSION FAILED','#ff0055',1600); }
   }
   b.textContent='SAVED LOCALLY ✓';
@@ -2106,7 +2154,6 @@ if(!gl){
   P=newPlayer(); agent=SAVE.agent||'jake';
   refreshLobby();
   spawnGap=40;
-  if(isTouch) $('sandboxWarn').classList.remove('hidden');
   let last=performance.now();
   (function loop(now){
     requestAnimationFrame(loop);
