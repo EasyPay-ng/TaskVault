@@ -550,7 +550,7 @@
         <div class="entries-used">
           Your entries: <span id="yourEntries">0</span> / <span id="maxEntriesText">20</span> used
           <br>
-          Best score: <span id="yourBestScore">—</span>
+          Round total: <span id="yourBestScore">—</span>
         </div>
       </div>
     </div>
@@ -601,6 +601,7 @@
 <div class="toast" id="toast"></div>
 
 <script type="module">
+  import { aggregateEntries } from "./js/engagement-core.mjs";
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
   import {
@@ -874,15 +875,7 @@
     let allEntries = [];
     entriesSnap.forEach(d => allEntries.push({ id: d.id, ...d.data() }));
 
-    const bestByUser = new Map();
-    allEntries.forEach(entry => {
-      const existing = bestByUser.get(entry.userId);
-      if (!existing || (entry.score || 0) > (existing.score || 0)) {
-        bestByUser.set(entry.userId, entry);
-      }
-    });
-    const uniqueEntries = Array.from(bestByUser.values());
-    uniqueEntries.sort((a, b) => (b.score || 0) - (a.score || 0));
+    const uniqueEntries = aggregateEntries(allEntries);
 
     // Rewards for 1st-20th place, set by the admin
     const prizes = [G.prize1, G.prize2, G.prize3, G.prize4, G.prize5, G.prize6, G.prize7, G.prize8, G.prize9, G.prize10, G.prize11, G.prize12, G.prize13, G.prize14, G.prize15, G.prize16, G.prize17, G.prize18, G.prize19, G.prize20];
@@ -976,7 +969,7 @@
     yourEntries.textContent = userEntryCount;
     const maxEntriesTextEl = document.getElementById('maxEntriesText');
     if (maxEntriesTextEl) maxEntriesTextEl.textContent = maxEntries;
-    const bestScore = userEntries.length > 0 ? Math.max(...userEntries.map(e => e.score || 0)) : null;
+    const bestScore = userEntries.length > 0 ? userEntries.reduce((sum, entry) => sum + (entry.score || 0), 0) : null;
     yourBestScore.textContent = bestScore !== null ? bestScore.toLocaleString() : '—';
   }
 
@@ -1060,16 +1053,7 @@
       let entries = [];
       snap.forEach(d => entries.push({ id: d.id, ...d.data() }));
 
-      const bestByUser = new Map();
-      entries.forEach(entry => {
-        const existing = bestByUser.get(entry.userId);
-        if (!existing || (entry.score || 0) > (existing.score || 0)) {
-          bestByUser.set(entry.userId, entry);
-        }
-      });
-
-      const uniqueEntries = Array.from(bestByUser.values());
-      uniqueEntries.sort((a, b) => (b.score || 0) - (a.score || 0));
+      const uniqueEntries = aggregateEntries(entries);
 
       renderLeaderboard(uniqueEntries);
       playerCount.textContent = `${uniqueEntries.length} player${uniqueEntries.length !== 1 ? 's' : ''}`;
@@ -1133,7 +1117,7 @@
         <div class="lb-avatar">${escapeHtml(initial)}</div>
         <div class="lb-info">
           <div class="lb-name">${escapeHtml(name)} ${isYou ? '(You)' : ''}</div>
-          <div class="lb-meta">Best score</div>
+          <div class="lb-meta">Round total</div>
         </div>
         <div class="lb-score">
           <div class="lb-score-value">${(entry.score || 0).toLocaleString()}</div>
