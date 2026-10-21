@@ -1072,8 +1072,8 @@ function drawObstacle(B,S,o,time){
   }else if(o.t==='powerup'){
     const c=o.col, sp=time*1.9+o.ph, bob=Math.sin(time*2.2+o.ph)*0.18;
     const yy=y+1.05+bob;
-    cyl(B,GEO.orb,x,yy,z,0,sp,time*0.7,1.05,1.05,1.05,c[0],c[1],c[2],1.25);
-    cyl(B,GEO.ring,x,yy,z,Math.PI/2,sp*1.6,0,1,1,1,c[0],c[1],c[2],0.7);
+    cyl(B,GEO.orb,x,yy,z,0,sp,time*0.7,1.05,1.05,1.05,c,1.25);
+    cyl(B,GEO.ring,x,yy,z,Math.PI/2,sp*1.6,0,1,1,1,c,0.7);
     cyl(B,GEO.ring,x,yy,z,sp*1.2,0,Math.PI/2,0.8,0.8,0.8,[1,1,1],0.35);
     S.quad(x,yy,z, 1,0,0, 0,1,0, 3.2,3.2, c[0],c[1],c[2], 0.30);
   }
@@ -1601,7 +1601,7 @@ function render(dt){
     const f=0.75+0.25*Math.sin(T*6);
     S.quad(P.x,P.y+0.95,0, camR[0],camR[1],camR[2], camU[0],camU[1],camU[2], 1.9*f,1.9*f, 0.75,0.35,1, 0.30);
     S.quad(P.x,P.y+0.95,0, camR[0],camR[1],camR[2], camU[0],camU[1],camU[2], 1.15*f,1.15*f, 1,0.8,1, 0.22);
-    cyl(B,GEO.ring,P.x,P.y+0.95,0,Math.PI/2,0,T*2.2,1.5,1.5,1.5,0.8,0.4,1,0.9);
+    cyl(B,GEO.ring,P.x,P.y+0.95,0,Math.PI/2,0,T*2.2,1.5,1.5,1.5,[0.8,0.4,1],0.9);
   }
   if(P.magnet>0){
     const f=0.6+0.4*Math.sin(T*5);
@@ -1792,7 +1792,7 @@ function boostTile(u){
       <div class="tl"><i style="width:${Math.round(frac*100)}%;background:${u.c};color:${u.c}"></i></div>
       <div class="dots">${[0,1,2].map(i=>`<i class="${i<pips?'f':''}"></i>`).join('')}</div>
     </div>
-    <button class="buy ${maxed?'max':''}" data-k="${u.k}" ${canBuy(k)?'':'disabled'}>${maxed?'MAX':u.cost+' 🪙'}</button></div>`;
+    <button class="buy ${maxed?'max':''}" data-k="${u.k}" ${canBuy(u.k)?'':'disabled'}>${maxed?'MAX':u.cost+' 🪙'}</button></div>`;
 }
 const BOOST_SHOPS=['upgList','trayList','overBoosts'];
 function buildBoostShops(){
