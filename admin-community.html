@@ -1,1 +1,118 @@
-<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>TaskVault — Streaks & support administration</title><link rel="stylesheet" href="css/community.css"></head><body data-page="admin-community"><header><h1>Streaks & support administration</h1><nav><a href="dashboard.html">Dashboard</a><a href="menu.html">Menu</a><a href="streaks.html">Streaks</a><a href="support.html">Support</a><a href="admin.html">Admin</a></nav></header><main><p id="notice" role="status">Connecting…</p><h2>Streak availability</h2><div id="settings"></div><h2>Manual streak reward</h2><p>Enter the member UID, review their check-ins, then choose a streak type and amount. Each member can receive one reward per type per UTC period.</p><form id="reviewForm"><label>Member UID <input id="member" required></label><button>Review streaks</button></form><div id="review"></div><form id="rewardForm" hidden><label>Type <select id="rewardType"><option>daily</option><option>weekly</option><option>monthly</option></select></label><label>Amount (₦) <input id="amount" type="number" min="1" step="0.01" required></label><button>Pay reward manually</button></form><h2>Support inbox</h2><div id="tickets"></div></main><script type="module" src="js/community.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>TaskVault Admin – Streaks & Support Console</title>
+  <link rel="icon" type="image/jpeg" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg"/>
+  <link rel="shortcut icon" type="image/jpeg" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1775059285/logo_oo5yat.jpg"/>
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/admin-community.css"/>
+</head>
+<body data-page="admin-community">
+
+<header class="topbar">
+  <div class="brand">
+    <div class="logo"><i class="ri-fire-fill"></i></div>
+    <div>
+      <h1>Streaks &amp; Support Console</h1>
+      <small>TaskVault admin · community operations</small>
+    </div>
+  </div>
+  <nav class="topnav">
+    <a href="admin.html"><i class="ri-dashboard-3-line"></i>Admin</a>
+    <a href="dashboard.html"><i class="ri-home-5-line"></i>Dashboard</a>
+    <a href="streaks.html"><i class="ri-calendar-check-line"></i>Streaks</a>
+    <a href="support.html"><i class="ri-customer-service-2-line"></i>Support</a>
+  </nav>
+</header>
+
+<p id="notice" role="status" class="notice hidden"></p>
+
+<main>
+  <!-- ============ stat strip ============ -->
+  <section class="stats">
+    <div class="stat"><div class="ic orange"><i class="ri-inbox-unarchive-line"></i></div>
+      <div><div class="k">Open tickets</div><div class="v" id="stOpen">–</div><div class="s" id="stOpenSub">waiting on support</div></div></div>
+    <div class="stat"><div class="ic green"><i class="ri-chat-check-line"></i></div>
+      <div><div class="k">Closed tickets</div><div class="v" id="stClosed">–</div><div class="s">all time</div></div></div>
+    <div class="stat"><div class="ic purple"><i class="ri-coins-line"></i></div>
+      <div><div class="k">Streak rewards paid</div><div class="v" id="stPaid">–</div><div class="s" id="stPaidSub">0 payments</div></div></div>
+    <div class="stat"><div class="ic cyan"><i class="ri-radio-button-line"></i></div>
+      <div><div class="k">Active programs</div><div class="v" id="stProg">–</div><div class="s">daily · weekly · monthly</div></div></div>
+  </section>
+
+  <div class="cols">
+    <!-- ============ support inbox ============ -->
+    <section class="card">
+      <div class="cardHead">
+        <div><h2><i class="ri-customer-service-2-line"></i>Support inbox</h2>
+          <div class="sub">Live ticket queue · click a ticket to open the conversation</div></div>
+        <span class="pill count" id="inboxCount">0 tickets</span>
+      </div>
+      <div class="tools">
+        <div class="seg" id="ticketFilter">
+          <button data-f="all" class="on">All</button>
+          <button data-f="open">Open</button>
+          <button data-f="closed">Closed</button>
+        </div>
+        <input id="ticketSearch" type="search" placeholder="Search subject, member UID or message…"/>
+      </div>
+      <div id="tickets" class="ticketList"></div>
+    </section>
+
+    <div class="stack">
+      <!-- ============ streak availability ============ -->
+      <section class="card">
+        <div class="cardHead">
+          <div><h2><i class="ri-calendar-check-line"></i>Streak availability</h2>
+            <div class="sub">Members can only check in while at least one program is active</div></div>
+        </div>
+        <div class="cardBody"><div id="settings" class="switchRow"></div></div>
+      </section>
+
+      <!-- ============ manual reward ============ -->
+      <section class="card">
+        <div class="cardHead">
+          <div><h2><i class="ri-gift-2-line"></i>Manual streak reward</h2>
+            <div class="sub">Review a member's check-ins, then pay one reward per type per UTC period</div></div>
+        </div>
+        <div class="cardBody">
+          <form id="reviewForm" class="rowForm">
+            <input id="member" placeholder="Member UID" required autocomplete="off"/>
+            <button class="btn" type="submit"><i class="ri-search-eye-line"></i> Review streaks</button>
+          </form>
+          <div id="review"></div>
+          <form id="rewardForm" hidden class="rowForm" style="margin-top:12px">
+            <select id="rewardType"><option>daily</option><option>weekly</option><option>monthly</option></select>
+            <input id="amount" type="number" min="1" step="0.01" placeholder="Amount (₦)" required/>
+            <button class="btn" type="submit"><i class="ri-send-plane-fill"></i> Pay reward</button>
+          </form>
+          <p class="hint"><i class="ri-shield-check-line"></i> Payments run in a Firestore transaction: the reward doc and the member's wallet balance update atomically, and a period can never be paid twice.</p>
+        </div>
+      </section>
+
+      <!-- ============ reward ledger ============ -->
+      <section class="card">
+        <div class="cardHead">
+          <div><h2><i class="ri-history-line"></i>Reward ledger</h2>
+            <div class="sub">Every manual streak payout, newest first</div></div>
+          <span class="pill money" id="ledgerTotal">₦0</span>
+        </div>
+        <div class="tableWrap">
+          <table id="ledger">
+            <thead><tr><th>Member</th><th>Type</th><th>Streak</th><th>Amount</th><th>Paid</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<footer>TaskVault · Streaks &amp; Support Console · periods use UTC, weeks start Monday</footer>
+
+<script type="module" src="js/community.js"></script>
+</body>
+</html>
