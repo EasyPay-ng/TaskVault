@@ -147,6 +147,46 @@ canvas#gl{position:fixed;inset:0;display:block;width:100%;height:100%}
 .buy:disabled{opacity:.35;cursor:not-allowed;filter:grayscale(1)}
 .buy.max{border-color:rgba(0,255,157,.4);color:var(--green);background:rgba(0,255,157,.08)}
 
+/* ---------- boost lab: expiry timelines, shops, mid-run tray ---------- */
+.bnote{font-family:var(--cyber);font-size:8.5px;letter-spacing:1.1px;color:#8b96a9;border:1px dashed var(--line);
+  border-radius:9px;padding:6px 8px;margin:0 0 10px;text-align:center;line-height:1.7}
+.tl{position:relative;height:4px;border-radius:99px;background:rgba(255,255,255,.10);overflow:hidden;margin-top:6px}
+.tl i{position:absolute;left:0;top:0;bottom:0;width:0%;border-radius:99px;box-shadow:0 0 8px currentColor;transition:width .2s linear}
+.bx{font-family:var(--mono);font-size:10px;color:var(--green);margin-left:6px;letter-spacing:.5px}
+.bx.idle{color:#6d7688}
+.btag{font-style:normal;font-family:var(--cyber);font-size:7.5px;letter-spacing:1.2px;margin-left:6px;opacity:.95;vertical-align:1px}
+.bup .ic{box-shadow:inset 0 0 14px rgba(255,255,255,.05)}
+.bsub{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-family:var(--cyber);font-size:9px;
+  letter-spacing:2px;color:var(--orange);margin:10px 0 6px;text-align:left}
+.bsub span{font-size:8px;letter-spacing:1px;color:#7f8b9e}
+.bstrip{display:grid;grid-template-columns:1fr 1fr;gap:7px;max-height:200px;overflow:auto;padding-right:3px;text-align:left}
+.bstrip .bup{margin-bottom:0;padding:8px 9px}
+.bstrip .bup .ds{display:none}
+.bstrip .bup .ic{width:30px;height:30px;font-size:15px;border-radius:9px}
+.bstrip .bup .nm{font-size:9px}
+.bstrip .buy{min-width:58px;padding:7px 6px;font-size:9px}
+@media(max-width:420px){.bstrip{grid-template-columns:1fr}}
+#btnBoost{position:fixed;right:12px;top:calc(104px + env(safe-area-inset-top));z-index:8;display:none;align-items:center;gap:6px;
+  pointer-events:auto;border:1px solid rgba(255,194,51,.35);background:var(--panel);color:var(--gold);
+  font-family:var(--cyber);font-size:9px;letter-spacing:1.4px;border-radius:11px;padding:8px 10px;cursor:pointer;
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+#btnBoost.on{display:flex}
+#btnBoost:active{transform:scale(.94)}
+#btnBoost b{min-width:15px;height:15px;border-radius:50%;background:var(--orange);color:#120900;font-size:9px;
+  display:none;place-items:center;font-family:var(--mono)}
+#btnBoost b.on{display:grid}
+#boostTray{position:fixed;right:10px;top:calc(146px + env(safe-area-inset-top));z-index:9;width:min(330px,90vw);
+  max-height:min(56vh,440px);overflow:auto;background:linear-gradient(180deg,rgba(20,23,30,.97),rgba(11,13,18,.97));
+  border:1px solid rgba(255,107,0,.32);border-radius:16px;padding:12px;box-shadow:0 24px 70px rgba(0,0,0,.72);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+#boostTray.off{display:none}
+#boostTray::-webkit-scrollbar{width:5px}#boostTray::-webkit-scrollbar-thumb{background:rgba(255,107,0,.4);border-radius:9px}
+.trayHead{display:flex;justify-content:space-between;align-items:center;gap:8px;font-family:var(--cyber);font-size:9.5px;
+  letter-spacing:1.8px;color:var(--orange);margin-bottom:9px}
+.trayBank{font-family:var(--mono);color:var(--gold);font-size:12px;letter-spacing:0}
+.trayHead button{border:0;background:rgba(255,255,255,.08);color:#cbd5e1;width:24px;height:24px;border-radius:7px;cursor:pointer;font-size:11px}
+#boostTray .bup{margin-bottom:7px}
+
 .btn{width:100%;margin-top:14px;border:0;border-radius:14px;padding:15px;cursor:pointer;
   font-family:var(--cyber);font-weight:800;font-size:14px;letter-spacing:2.5px;color:#120900;
   background:linear-gradient(180deg,var(--orange-2),var(--orange));box-shadow:0 14px 40px -10px var(--orange-glow),
@@ -215,6 +255,12 @@ canvas#gl{position:fixed;inset:0;display:block;width:100%;height:100%}
 </div>
 <button id="btnPause" aria-label="Pause">❚❚</button>
 <button id="musicBtn"><span id="musicIco">♪</span><span id="musicTxt">BGM ON</span></button>
+<button id="btnBoost" aria-label="Boost lab">⚡<b id="boostN"></b><span>BOOST</span></button>
+<div id="boostTray" class="off">
+  <div class="trayHead"><span>⚡ BOOST LAB · MID-RUN</span><span class="trayBank"> <b id="trayBank">0</b></span><button id="btnTrayClose" aria-label="Close">✕</button></div>
+  <div id="trayList"></div>
+  <div class="bnote" style="margin:8px 0 0">⏱ 20 s PER CHARGE · TIMERS TICK ONLY WHILE RUNNING · KEYS 1-6</div>
+</div>
 <div id="toast"></div>
 
 <!-- ================= TOUCH PAD ================= -->
@@ -241,19 +287,24 @@ canvas#gl{position:fixed;inset:0;display:block;width:100%;height:100%}
 
     <div class="tabs">
       <button class="tab on" data-pane="agents">AGENTS</button>
-      <button class="tab" data-pane="upgrades">UPGRADE LAB</button>
+      <button class="tab" data-pane="upgrades">BOOST LAB</button>
       <button class="tab" data-pane="records">RECORDS</button>
     </div>
 
     <div class="pane on" id="pane-agents"><div class="agents" id="agentGrid"></div></div>
-    <div class="pane" id="pane-upgrades"><div id="upgList"></div></div>
+    <div class="pane" id="pane-upgrades">
+      <div class="bnote">⏱ EVERY CHARGE = 20 s EXPIRY TIMELINE · STACK UP TO ×3 (60 s)<br>RE-BUY ANY TIME — HERE, MID-RUN (⚡ / KEYS 1-6) OR AFTER A RUN</div>
+      <div id="upgList"></div>
+    </div>
     <div class="pane" id="pane-records"><table class="scores" id="scoreTable"></table></div>
 
     <button class="btn" id="btnStart">INITIATE DEPLOYMENT</button>
     <div class="keys">
       <span class="key">◀ ▶ / A D · lane</span><span class="key">▲ / SPACE · jump</span>
       <span class="key">▼ / S · slide</span><span class="key">P · pause</span>
+      <span class="key">1-6 · buy boost</span><span class="key">B · boost lab</span>
     </div>
+    <div class="warn hidden" id="refundWarn"></div>
     <div class="warn hidden" id="sandboxWarn">⚠ TEST MODE · LOCAL SANDBOX RUN — SCORES STAY ON THIS DEVICE</div>
   </div>
 </div>
@@ -279,6 +330,9 @@ canvas#gl{position:fixed;inset:0;display:block;width:100%;height:100%}
     <div class="big" id="overScore">0</div>
     <div id="overBrk"></div>
     <div id="objResult" style="margin-top:10px"></div>
+    <div class="bankrow" style="margin-top:12px"><span class="k">SHARD BANK</span><span class="v" id="overBank">0</span></div>
+    <div class="bsub">BOOST LAB · ARM YOUR RE-DEPLOY <span>charges carry into the next run</span></div>
+    <div id="overBoosts" class="bstrip"></div>
     <button class="btn" id="btnSubmit">TRANSMIT HIGH SCORE</button>
     <button class="btn ghost" id="btnAgain">RE-DEPLOY</button>
   </div>
@@ -1029,28 +1083,45 @@ function drawObstacle(B,S,o,time){
 <script>
 /* ============================== 8. PERSISTENT DATA ============================== */
 const LS='taskvault.sr3d.v1';
-const UPG_DEF=[
-  {k:'magnet',  ico:'🧲', n:'MAGNET MATRIX', d:'Longer, wider shard attraction field'},
-  {k:'shield',  ico:'🛡️', n:'SHIELD COATING', d:'Longer deflection window after a shield break'},
-  {k:'jetpack', ico:'🚀', n:'THRUSTER BOOST', d:'Longer jetpack sky-cruises'},
-  {k:'head',    ico:'📍', n:'HEAD START',     d:'Begin each run further down the grid'},
-  {k:'value',   ico:'💠', n:'SHARD PURITY',   d:'Every shard is worth more score'},
-  {k:'life',    ico:'❤️', n:'SPARE CORE',     d:'Extra cores to absorb a crash'}
+/* ---------------------------------------------------------------------------
+   BOOST LAB — every module is a repeat-purchasable charge with an expiry
+   timeline. Each charge grants BOOST_SECONDS (20 s) of active time that ticks
+   only while a run is live, so charges bought in the lobby or on the game-over
+   screen stay armed until the next deployment. Stacks up to BOOST_STACK (3).
+   HEAD START and SPARE CORE are consumables applied to the current/next run.
+   --------------------------------------------------------------------------- */
+const BOOST_DEF=[
+  {k:'magnet', ico:'🧲', n:'MAGNET MATRIX',  d:'Vacuum-pulls every shard to you while active', cost:60,  kind:'timed',  c:'#00d2ff'},
+  {k:'shield', ico:'🛡️', n:'SHIELD COATING', d:'Keeps re-arming a deflection shield while active', cost:80, kind:'timed', c:'#bf55ec'},
+  {k:'jetpack',ico:'🚀', n:'THRUSTER BOOST', d:'Sustained jetpack sky-cruise while active · ▼ dives', cost:100, kind:'timed', c:'#00ff9d'},
+  {k:'value',  ico:'💠', n:'SHARD PURITY',   d:'Shards score ×2 · end the run still active for ×2 payout', cost:150, kind:'timed', c:'#ffc233'},
+  {k:'head',   ico:'📍', n:'HEAD START',     d:'+120 m free distance at the start of your next run', cost:120, kind:'prerun', c:'#ff9a3d'},
+  {k:'life',   ico:'❤️', n:'SPARE CORE',     d:'+1 core to absorb a crash · this run or the next', cost:200, kind:'core', c:'#ff0055'}
 ];
-const UPG_COST=[60,140,300,600,1200];
+const BOOST_MAP={}; BOOST_DEF.forEach(u=>BOOST_MAP[u.k]=u);
+const BOOST_SECONDS=20;                       // expiry timeline per charge
+const BOOST_STACK=3;                          // max stacked charges per module
+const BOOST_MAX=BOOST_SECONDS*BOOST_STACK;    // 60 s cap for timed modules
+const LEGACY_COST=[60,140,300,600,1200];      // old permanent-tier prices (refunds)
 function defaultSave(){
-  const upg={}; UPG_DEF.forEach(u=>upg[u.k]=0);
-  return {bank:0,upg:upg,agent:'jake',scores:[],runs:0};
+  const boost={}; BOOST_DEF.forEach(u=>boost[u.k]=0);
+  return {bank:0,boost:boost,agent:'jake',scores:[],runs:0};
 }
 let SAVE=defaultSave();
 try{ const raw=localStorage.getItem(LS); if(raw){ const p=JSON.parse(raw);
-  SAVE=Object.assign(defaultSave(),p); SAVE.upg=Object.assign(defaultSave().upg,p.upg||{});
+  SAVE=Object.assign(defaultSave(),p); SAVE.boost=Object.assign(defaultSave().boost,p.boost||{});
+  /* one-time migration: permanent tiers are refunded into the shard bank */
+  if(p.upg&&!p.boostMigrated){ let refund=0;
+    for(const k in p.upg){ const t=Math.max(0,Math.min(5,p.upg[k]|0));
+      for(let i=0;i<t;i++) refund+=LEGACY_COST[i]||0; }
+    if(refund>0){ SAVE.bank+=refund; SAVE.refundNote=refund; }
+    SAVE.boostMigrated=true; delete SAVE.upg; }
   if(!Array.isArray(SAVE.scores)) SAVE.scores=[]; } }catch(e){}
 function persist(){ try{ localStorage.setItem(LS,JSON.stringify(SAVE)); }catch(e){} }
-const tier=k=>SAVE.upg[k]||0;
-const upgVal=k=>({magnet:5.5+tier('magnet')*1.4, shield:1.4+tier('shield')*0.45,
-  jetpack:3.6+tier('jetpack')*0.8, head:tier('head')*120, value:1+tier('value')*0.25,
-  life:tier('life')})[k];
+const bst=k=>SAVE.boost[k]||0;
+const boostOn=k=>bst(k)>0;
+const valueMul=()=>boostOn('value')?2:1;
+const MAG_PICKUP=5.5, JET_PICKUP=3.6, SHIELD_INV=1.4;
 
 /* ============================== 9. AUDIO SYNTH ============================== */
 const A={ctx:null,master:null,sfx:null,mus:null,on:true,music:true,step:0,next:0,timer:null,bpm:142};
@@ -1129,7 +1200,7 @@ let lives=0, headStart=0;
 
 function newPlayer(){
   return {x:0,z:0,y:0,vy:0,lane:1,bank:0,jumping:false,sliding:false,slideT:0,
-    fly:0,magnet:0,shield:0,dbl:0,inv:0,anim:0};
+    fly:0,magnet:0,shield:0,dbl:0,inv:0,anim:0,rearm:0,diveT:0};
 }
 function objHeight(o){
   if(o.t==='barrier') return 1.25;
@@ -1269,6 +1340,20 @@ function updateFloaters(dt){
 
 /* ============================== 13. UPDATE ============================== */
 function addScore(v){ score+=v; }
+let boostPersistT=0;
+function tickBoosts(dt){
+  let any=false;
+  for(const u of BOOST_DEF){
+    if(u.kind!=='timed') continue;
+    const v=SAVE.boost[u.k];
+    if(v>0){
+      const nv=Math.max(0,v-dt);
+      SAVE.boost[u.k]=nv; any=true;
+      if(nv===0){ showToast(u.n+' EXPIRED','#8b96a9',900); }
+    }
+  }
+  if(any){ boostPersistT+=dt; if(boostPersistT>1){ boostPersistT=0; persist(); } }
+}
 function bumpCombo(){
   combo++; comboT=2.3; if(combo>maxCombo) maxCombo=combo;
   mult=Math.min(8,1+Math.floor(combo/7));
@@ -1281,7 +1366,7 @@ function playerBox(){
 function hurt(o){
   if(P.inv>0) return;
   if(P.shield>0){
-    P.shield=0; P.inv=upgVal('shield');
+    P.shield=0; P.inv=SHIELD_INV; P.rearm=2.5;
     sfx('shield'); shake=Math.max(shake,1.1); flash=0.55; flashCol=[0.75,0.35,1];
     burst(P.x,P.y+1.0,0,COL.purple,26,1.3);
     floatText(P.x,P.y+2.2,0,'SHIELD BREAK','#bf55ec');
@@ -1320,19 +1405,26 @@ function update(dt){
   if(Math.abs(dx)<0.02){P.x=tx;P.bank*=Math.max(0,1-dt*8);}
   P.bank=clamp(P.bank,-0.55,0.55);
 
+  /* ---- boost lab: expiry timelines tick only while the run is live ---- */
+  tickBoosts(dt);
+  if(boostOn('jetpack')&&P.diveT<=0){ P.fly=Math.max(P.fly,0.6); P.jumping=false; P.sliding=false; }
+  if(boostOn('shield')&&P.shield<=0&&P.inv<=0){
+    P.rearm-=dt;
+    if(P.rearm<=0){ P.shield=1; P.rearm=2.5; floatText(P.x,P.y+2.2,0,'SHIELD RE-ARMED','#bf55ec'); }
+  }
   if(P.fly>0){
     P.fly-=dt;
     P.y+= (7.2-P.y)*Math.min(1,dt*3.2);
     P.vy=0; P.jumping=false;
     if(P.fly<=0){ P.fly=0; P.jumping=true; P.vy=-2; }
-  }else{
-    if(P.jumping||P.y>0){
+  }else{    if(P.jumping||P.y>0){
       P.vy-=GRAV*dt; P.y+=P.vy*dt;
       if(P.y<=0){ P.y=0; P.vy=0; P.jumping=false;
         burst(P.x,0.1,0.2,[0.5,0.45,0.4],7,0.5); }
     }
   }
   if(P.sliding){ P.slideT-=dt; if(P.slideT<=0) P.sliding=false; }
+  if(P.diveT>0) P.diveT-=dt;
   if(P.inv>0) P.inv-=dt;
   if(P.magnet>0) P.magnet-=dt;
   if(P.dbl>0) P.dbl-=dt;
@@ -1352,13 +1444,13 @@ function update(dt){
 
   /* ---- objects ---- */
   const pb=playerBox();
-  const magR=4.2+(tier('magnet')*0.35)+(agent==='cyber'?1.6:0);
+  const magR=4.2+(boostOn('magnet')?1.8:0)+(agent==='cyber'?1.6:0);
   for(let i=objects.length-1;i>=0;i--){
     const o=objects[i];
     o.z+=(speed+o.vz)*dt;
     if(o.t==='coin'){
       o.ph+=dt;
-      if(P.magnet>0&&!o.dead){
+      if((P.magnet>0||boostOn('magnet'))&&!o.dead){
         const cx=o.x, cy=o.y+0.85;
         const px=P.x, py=P.y+0.9;
         const ddx=px-cx, ddy=py-cy, ddz=-o.z;
@@ -1375,10 +1467,10 @@ function update(dt){
         o.dead=true;
         const val=(agent==='tricky'?2:1)*(P.dbl>0?2:1);
         coins+=val; bumpCombo();
-        addScore(12*mult*upgVal('value')*val);
+        addScore(12*mult*valueMul()*val);
         sfx('coin');
         burst(o.x,cy,o.z,COL.gold,7,0.7);
-        if(val>1) floatText(o.x,cy,o.z,'+'+Math.round(12*mult*upgVal('value')*val),'#ffc233');
+        if(val>1) floatText(o.x,cy,o.z,'+'+Math.round(12*mult*valueMul()*val),'#ffc233');
       }
     }else if(o.t==='powerup'){
       const cy=o.y+1.05;
@@ -1386,10 +1478,10 @@ function update(dt){
         o.dead=true; powerupsGot++; sfx('power');
         burst(o.x,cy,o.z,o.col,16,1.1);
         floatText(o.x,cy+0.5,o.z,o.name,'#ffffff');
-        if(o.pu==='magnet'){ P.magnet=upgVal('magnet')*(agent==='cyber'?2:1); }
+        if(o.pu==='magnet'){ P.magnet=MAG_PICKUP*(agent==='cyber'?2:1); }
         else if(o.pu==='shield'){ P.shield=1; }
         else if(o.pu==='double'){ P.dbl=9; }
-        else if(o.pu==='jetpack'){ P.fly=upgVal('jetpack'); P.jumping=false; P.sliding=false; }
+        else if(o.pu==='jetpack'){ P.fly=JET_PICKUP; P.jumping=false; P.sliding=false; }
       }
     }else{
       /* threat collision */
@@ -1600,7 +1692,7 @@ const $=id=>document.getElementById(id);
 const elHud=$('hud'),elDist=$('hDist'),elScore=$('hScore'),elCoins=$('hCoins'),
       elCombo=$('combo'),elSpeed=$('speedWrap').firstElementChild,elSpeedTxt=$('speedTxt'),
       elObjs=$('objs'),elPus=$('pus'),elToast=$('toast'),elPad=$('pad'),
-      btnPause=$('btnPause'),musicBtn=$('musicBtn');
+      btnPause=$('btnPause'),musicBtn=$('musicBtn'),btnBoost=$('btnBoost');
 let toastT=null;
 function showToast(txt,col,ms){
   elToast.textContent=txt; elToast.style.color=col||'#ff6b00';
@@ -1620,11 +1712,16 @@ function syncHUD(dt){
   else elCombo.classList.remove('on');
   /* powerup chips */
   const list=[];
-  if(P.magnet>0) list.push({k:'magnet',i:'🧲',n:'MAGNET',c:'#00d2ff',p:P.magnet/(upgVal('magnet')*(agent==='cyber'?2:1)),s:Math.ceil(P.magnet)});
+  if(P.magnet>0) list.push({k:'magnet',i:'🧲',n:'MAGNET',c:'#00d2ff',p:P.magnet/(MAG_PICKUP*(agent==='cyber'?2:1)),s:Math.ceil(P.magnet)});
   if(P.shield>0) list.push({k:'shield',i:'🛡️',n:'SHIELD',c:'#bf55ec',p:1,s:'●'});
   if(P.dbl>0) list.push({k:'dbl',i:'✖️2',n:'DOUBLE',c:'#ffc233',p:P.dbl/9,s:Math.ceil(P.dbl)});
-  if(P.fly>0) list.push({k:'fly',i:'🚀',n:'JETPACK',c:'#00ff9d',p:P.fly/upgVal('jetpack'),s:Math.ceil(P.fly)});
+  if(P.fly>0) list.push({k:'fly',i:'🚀',n:'JETPACK',c:'#00ff9d',p:P.fly/JET_PICKUP,s:Math.ceil(P.fly)});
   if(lives>0) list.push({k:'life',i:'❤️',n:'CORES',c:'#ff0055',p:1,s:lives});
+  /* boost lab charges with their expiry timelines */
+  BOOST_DEF.forEach(u=>{
+    if(u.kind==='timed'&&boostOn(u.k)) list.push({k:'b_'+u.k,i:u.ico,n:u.n.split(' ')[0],c:u.c,p:bst(u.k)/BOOST_MAX,s:Math.ceil(bst(u.k))+'s'});
+  });
+  if(bst('head')>0) list.push({k:'b_head',i:'📍',n:'HEAD',c:'#ff9a3d',p:bst('head')/BOOST_STACK,s:'+'+(bst('head')*120)});
   const key=list.map(o=>o.k).join(',');
   if(key!==puKey){
     puKey=key;
@@ -1660,21 +1757,95 @@ function buildAgents(){
     SAVE.agent=n.dataset.k; agent=SAVE.agent; persist(); buildAgents(); sfx('ui');
   }));
 }
-function buildUpgrades(){
-  $('upgList').innerHTML=UPG_DEF.map(u=>{
-    const t=tier(u.k), maxed=t>=5, cost=UPG_COST[t]||0, afford=SAVE.bank>=cost;
-    return `<div class="up"><div class="ic">${u.ico}</div><div class="bd">
-      <div class="nm">${u.n}</div><div class="ds">${u.d}</div>
-      <div class="dots">${[0,1,2,3,4].map(i=>`<i class="${i<t?'f':''}"></i>`).join('')}</div></div>
-      <button class="buy ${maxed?'max':''}" data-k="${u.k}" ${maxed||!afford?'disabled':''}>${maxed?'MAX':cost+' 🪙'}</button></div>`;
-  }).join('');
-  $('upgList').querySelectorAll('.buy').forEach(b=>b.addEventListener('click',()=>{
-    const k=b.dataset.k, t=tier(k); if(t>=5) return;
-    const c=UPG_COST[t]; if(SAVE.bank<c){ showToast('NOT ENOUGH SHARDS','#ff0055'); return; }
-    SAVE.bank-=c; SAVE.upg[k]=t+1; persist(); sfx('buy');
-    buildUpgrades(); $('bankVal').textContent=SAVE.bank;
-    showToast(UPG_DEF.find(u=>u.k===k).n+' · TIER '+(t+1),'#ffc233');
-  }));
+/* ---- boost shop: mounted in the lobby, the mid-run ⚡ tray and the game-over card ---- */
+function canBuy(k){
+  const u=BOOST_MAP[k];
+  if(!u) return false;
+  if(SAVE.bank<u.cost) return false;
+  if(u.kind==='timed') return bst(k)<BOOST_MAX;
+  if(u.kind==='prerun') return mode!=='play'&&bst(k)<BOOST_STACK;
+  if(u.kind==='core') return mode==='play'?lives<4:bst(k)<BOOST_STACK;
+  return false;
+}
+function boostTile(u){
+  const v=bst(u.k);
+  let status='', frac=0, pips=0, tag='';
+  if(u.kind==='timed'){
+    pips=Math.ceil(v/BOOST_SECONDS); frac=v/BOOST_MAX;
+    status=v>0?`<span class="bx" >${Math.ceil(v)}s</span>`:`<span class="bx idle">IDLE</span>`;
+    tag=v>0?(mode==='play'?'ACTIVE':'ARMED'):'';
+  }else if(u.kind==='prerun'){
+    pips=v; frac=v/BOOST_STACK;
+    status=v>0?`<span class="bx">${v} QUEUED</span>`:`<span class="bx idle">NEXT RUN</span>`;
+    tag=v>0?'QUEUED':'PRE-RUN';
+  }else{
+    pips=mode==='play'?Math.max(0,lives-1):v; frac=pips/BOOST_STACK;
+    status=mode==='play'?`<span class="bx">${lives} ARMED</span>`:(v>0?`<span class="bx">${v} QUEUED</span>`:`<span class="bx idle">PER RUN</span>`);
+    tag=mode==='play'?'THIS RUN':'NEXT RUN';
+  }
+  const maxed=u.kind==='timed'?v>=BOOST_MAX:(u.kind==='prerun'||mode!=='play')?v>=BOOST_STACK:lives>=4;
+  return `<div class="up bup" data-k="${u.k}">
+    <div class="ic" style="border-color:${u.c}66">${u.ico}</div>
+    <div class="bd">
+      <div class="nm">${u.n}${status}${tag?`<em class="btag" style="color:${u.c}">${tag}</em>`:''}</div>
+      <div class="ds">${u.d}</div>
+      <div class="tl"><i style="width:${Math.round(frac*100)}%;background:${u.c};color:${u.c}"></i></div>
+      <div class="dots">${[0,1,2].map(i=>`<i class="${i<pips?'f':''}"></i>`).join('')}</div>
+    </div>
+    <button class="buy ${maxed?'max':''}" data-k="${u.k}" ${canBuy(k)?'':'disabled'}>${maxed?'MAX':u.cost+' 🪙'}</button></div>`;
+}
+const BOOST_SHOPS=['upgList','trayList','overBoosts'];
+function buildBoostShops(){
+  BOOST_SHOPS.forEach(id=>{ const el=$(id); if(el) el.innerHTML=BOOST_DEF.map(boostTile).join(''); });
+  updateBankUI();
+}
+function buyBoost(k){
+  const u=BOOST_MAP[k]; if(!u) return;
+  if(u.kind==='prerun'&&mode==='play'){ showToast('HEAD START · PRE-RUN ONLY','#8b96a9',1100); return; }
+  if(!canBuy(k)){ showToast(SAVE.bank<u.cost?'NOT ENOUGH SHARDS':'MAX STACK REACHED','#ff0055'); return; }
+  SAVE.bank-=u.cost;
+  if(u.kind==='core'&&mode==='play'){ lives++; showToast('+1 SPARE CORE','#ff0055'); }
+  else if(u.kind==='core'){ SAVE.boost.life++; showToast('SPARE CORE QUEUED','#ff0055'); }
+  else if(u.kind==='prerun'){ SAVE.boost.head++; showToast('HEAD START QUEUED +120 m','#ff9a3d'); }
+  else { SAVE.boost[k]=bst(k)+BOOST_SECONDS; showToast(u.n+' +'+BOOST_SECONDS+'s',u.c); }
+  persist(); sfx('buy'); buildBoostShops();
+}
+BOOST_SHOPS.forEach(id=>{
+  const el=document.getElementById(id); if(!el) return;
+  el.addEventListener('click',e=>{ const b=e.target.closest('.buy'); if(b) buyBoost(b.dataset.k); });
+});
+let shopTick=0;
+function syncBoostShops(dt){
+  shopTick+=dt; if(shopTick<0.2) return; shopTick=0;
+  document.querySelectorAll('.bup').forEach(el=>{
+    const k=el.dataset.k, u=BOOST_MAP[k], v=bst(k);
+    const bx=el.querySelector('.bx'), tl=el.querySelector('.tl i'), tag=el.querySelector('.btag'), buy=el.querySelector('.buy');
+    if(u.kind==='timed'){
+      if(bx){ bx.textContent=v>0?Math.ceil(v)+'s':'IDLE'; bx.classList.toggle('idle',v<=0); }
+      if(tl) tl.style.width=Math.round(v/BOOST_MAX*100)+'%';
+      if(tag) tag.textContent=v>0?(mode==='play'?'ACTIVE':'ARMED'):'';
+      el.querySelectorAll('.dots i').forEach((d,i)=>d.classList.toggle('f',i<Math.ceil(v/BOOST_SECONDS)));
+    }else if(u.kind==='core'){
+      const pips=mode==='play'?Math.max(0,lives-1):v;
+      if(bx){ bx.textContent=mode==='play'?lives+' ARMED':(v>0?v+' QUEUED':'PER RUN'); bx.classList.toggle('idle',!(mode==='play'?lives:v)); }
+      if(tl) tl.style.width=Math.round(pips/BOOST_STACK*100)+'%';
+      if(tag) tag.textContent=mode==='play'?'THIS RUN':'NEXT RUN';
+      el.querySelectorAll('.dots i').forEach((d,i)=>d.classList.toggle('f',i<pips));
+    }else if(u.kind==='prerun'){
+      if(tl) tl.style.width=Math.round(v/BOOST_STACK*100)+'%';
+      el.querySelectorAll('.dots i').forEach((d,i)=>d.classList.toggle('f',i<v));
+    }
+    if(buy){ const maxed=u.kind==='timed'?v>=BOOST_MAX:(u.kind==='prerun'||mode!=='play')?v>=BOOST_STACK:lives>=4;
+      buy.disabled=!canBuy(k); buy.classList.toggle('max',maxed); if(maxed) buy.textContent='MAX'; }
+  });
+  const badge=$('boostN');
+  if(badge){ const n=BOOST_DEF.filter(u=>bst(u.k)>0).length;
+    badge.textContent=n||''; badge.classList.toggle('on',n>0); }
+}
+function updateBankUI(){
+  const b=$('bankVal'); if(b) b.textContent=SAVE.bank;
+  const o=$('overBank'); if(o) o.textContent=SAVE.bank;
+  const t=$('trayBank'); if(t) t.textContent=SAVE.bank;
 }
 function buildRecords(){
   const rows=SAVE.scores.slice(0,8);
@@ -1684,7 +1855,9 @@ function buildRecords(){
 }
 function refreshLobby(){
   $('bankVal').textContent=SAVE.bank;
-  buildAgents(); buildUpgrades(); buildRecords();
+  buildAgents(); buildBoostShops(); buildRecords();
+  if(SAVE.refundNote){ const r=SAVE.refundNote; delete SAVE.refundNote; persist();
+    const w=$('refundWarn'); if(w){ w.textContent='⟲ LEGACY PERMANENT TIERS REFUNDED · +'+r+' SHARDS ADDED TO YOUR BANK'; w.classList.remove('hidden'); } }
 }
 document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
   document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===t));
@@ -1700,10 +1873,14 @@ function startRun(){
   P=newPlayer();
   objects.length=0; parts.length=0; floaters.forEach(f=>{f.el.style.display='none';fPool.push(f.el);}); floaters.length=0;
   score=0; coins=0; combo=0; comboT=0; mult=1; maxMult=1; maxCombo=0;
-  distance=upgVal('head'); runTime=0; topSpeed=speed=baseSpeed; nearMisses=0; powerupsGot=0;
+  /* consume queued pre-run boost charges */
+  headStartGot=120*bst('head'); SAVE.boost.head=0;
+  const queuedCores=Math.min(BOOST_STACK,bst('life')); SAVE.boost.life=0;
+  distance=headStartGot; runTime=0; topSpeed=speed=baseSpeed; nearMisses=0; powerupsGot=0;
   objBankBonus=0; shake=0; flash=0; hitStop=0; camFov=62; puKey='';
-  lives=1+upgVal('life')+(agent==='jake'?1:0);
+  lives=1+queuedCores+(agent==='jake'?1:0);
   P.shield=(agent==='neo')?1:0;
+  persist();
   rollObjectives(); renderObjs();
   /* pre-populate the track so the run starts with action */
   for(let i=0;i<7;i++){
@@ -1719,12 +1896,16 @@ function startRun(){
   elHud.classList.add('on'); btnPause.style.display='flex'; musicBtn.classList.add('on');
   if(isTouch) elPad.classList.add('on');
   musicStart();
+  btnBoost.classList.add('on'); $('boostTray').classList.add('off');
+  buildBoostShops();
   if(headStartNotice()) showToast('HEAD START '+Math.floor(distance)+' m','#00d2ff',1400);
 }
-function headStartNotice(){ return upgVal('head')>0; }
+let headStartGot=0;
+function headStartNotice(){ return headStartGot>0; }
 function pauseRun(){
   if(mode!=='play')return;
   mode='pause'; musicStop();
+  $('boostTray').classList.add('off');
   $('pauseStats').innerHTML=[['DIST',Math.floor(distance)+'m'],['SCORE',Math.floor(score)],['SHARDS',coins]]
     .map(x=>`<div class="pod"><span class="lbl">${x[0]}</span><span class="val" style="font-size:18px">${x[1]}</span></div>`).join('');
   showOv('ovPause',true);
@@ -1734,12 +1915,13 @@ function abortRun(){
   mode='lobby'; musicStop();
   showOv('ovPause',false); elHud.classList.remove('on'); btnPause.style.display='none';
   musicBtn.classList.remove('on'); elPad.classList.remove('on');
+  btnBoost.classList.remove('on'); $('boostTray').classList.add('off');
   SAVE.bank+=coins; persist(); refreshLobby(); showOv('ovLobby',true);
 }
 let lastRun=null;
 function showGameOver(){
   const distBonus=Math.floor(distance*7);
-  const coinBonus=Math.floor(coins*14*upgVal('value'));
+  const coinBonus=Math.floor(coins*14*valueMul());
   const nearBonus=nearMisses*25;
   const total=Math.floor(score+distBonus+coinBonus+nearBonus);
   const rec={s:total,d:Math.floor(distance),c:coins,a:agent,m:maxMult,t:Date.now()};
@@ -1754,6 +1936,7 @@ function showGameOver(){
     ['Run score',Math.floor(score),'#fff'],
     [`Grid coverage · ${Math.floor(distance)} m`,'+'+distBonus,'#00ff9d'],
     [`Shards recovered · ${coins}`,'+'+coinBonus,'#ffc233'],
+    ...(valueMul()>1?[[`Shard purity active at finish`,'×2 payout','#ffc233']]:[]),
     [`Near misses · ${nearMisses}`,'+'+nearBonus,'#00d2ff'],
     ['Peak multiplier','×'+maxMult,'#bf55ec'],
     ['Top velocity',Math.round(topSpeed)+' km/h','#ff6b00'],
@@ -1768,6 +1951,8 @@ function showGameOver(){
   const b=$('btnSubmit'); b.disabled=false; b.textContent=cloud.ok?'TRANSMIT HIGH SCORE':'SAVE SCORE LOCALLY';
   showOv('ovOver',true); elHud.classList.remove('on'); btnPause.style.display='none';
   elPad.classList.remove('on'); musicBtn.classList.remove('on');
+  btnBoost.classList.remove('on'); $('boostTray').classList.add('off');
+  buildBoostShops();
 }
 /* ============================== 18. INPUT ============================== */
 function act(a){
@@ -1780,7 +1965,7 @@ function act(a){
     if(!P.jumping&&P.y<=0.02){ P.vy=JUMP_V; P.jumping=true; sfx('jump'); }
   }
   else if(a==='down'){
-    if(P.fly>0){ P.fly=0; P.jumping=true; P.vy=-7; return; }
+    if(P.fly>0){ P.fly=0; P.jumping=true; P.vy=-7; P.diveT=1.0; return; }
     if(P.jumping) P.vy=Math.min(P.vy,-9);
     if(!P.sliding){ P.sliding=true; P.slideT=SLIDE_T; sfx('slide'); }
   }
@@ -1793,6 +1978,8 @@ window.addEventListener('keydown',e=>{
   else if(k==='arrowup'||k==='w'||k===' ') act('up');
   else if(k==='arrowdown'||k==='s') act('down');
   else if(k==='p'||k==='escape'){ if(mode==='play')pauseRun(); else if(mode==='pause')resumeRun(); }
+  else if(k==='b'){ if(mode==='play') $('boostTray').classList.toggle('off'); }
+  else if(k>='1'&&k<='6'&&mode==='play'){ buyBoost(BOOST_DEF[Number(k)-1].k); }
   else if(k==='m') toggleMusic();
   else if(k==='enter'){ if(mode==='lobby')startRun(); else if(mode==='over')startRun(); }
 },{passive:false});
@@ -1828,6 +2015,8 @@ function toggleMusic(){
   if(A.master) A.master.gain.value=A.music?0.85:0.0001;
 }
 musicBtn.addEventListener('click',toggleMusic);
+btnBoost.addEventListener('click',()=>{ if(mode!=='play')return; $('boostTray').classList.toggle('off'); sfx('ui'); });
+$('btnTrayClose').addEventListener('click',()=>$('boostTray').classList.add('off'));
 document.addEventListener('visibilitychange',()=>{ if(document.hidden&&mode==='play') pauseRun(); });
 
 /* ============================== 19. CLOUD (optional, never blocks play) ====== */
@@ -1938,6 +2127,7 @@ if(!gl){
     }
     render(dt);
     if(mode==='play') syncHUD(dt);
+    syncBoostShops(dt);
     updateFloaters(dt);
   })(performance.now());
 }
