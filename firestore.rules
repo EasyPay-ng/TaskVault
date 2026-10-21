@@ -53,6 +53,52 @@ service cloud.firestore {
 
   match /databases/{database}/documents {
 
+    // Community settings are admin-only; check-ins never credit a wallet.
+    match /communitySettings/{id} {
+      allow read: if isUser();
+      allow write: if isAdmin();
+    }
+    match /streakMembers/{uid}/checkins/{id} {
+      allow read: if isUser() && request.auth.uid == uid || isAdmin();
+      allow create: if isUser() && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['createdAt', 'day'])
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.day == int(request.time.toMillis() / 86400000)
+        && id == string(request.resource.data.day)
+        && (get(/databases/$(database)/documents/communitySettings/streaks).data.daily == true
+          || get(/databases/$(database)/documents/communitySettings/streaks).data.weekly == true
+          || get(/databases/$(database)/documents/communitySettings/streaks).data.monthly == true);
+      allow update, delete: if false;
+    }
+    match /streakRewards/{id} {
+      allow read: if isAdmin() || isUser() && resource.data.userId == request.auth.uid;
+      allow create: if isAdmin();
+      allow update, delete: if false;
+    }
+    match /supportTickets/{id} {
+      allow read: if isAdmin() || isUser() && resource.data.userId == request.auth.uid;
+      allow create: if isUser()
+        && request.resource.data.keys().hasOnly(['userId', 'subject', 'body', 'status', 'createdAt'])
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.subject is string && request.resource.data.subject.size() > 0 && request.resource.data.subject.size() <= 120
+        && request.resource.data.body is string && request.resource.data.body.size() > 0 && request.resource.data.body.size() <= 3000
+        && request.resource.data.status == 'open' && request.resource.data.createdAt == request.time;
+      allow update: if isAdmin() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
+        && request.resource.data.status in ['open', 'closed'];
+      allow delete: if false;
+      match /messages/{messageId} {
+        allow read: if isAdmin() || isUser() && get(/databases/$(database)/documents/supportTickets/$(id)).data.userId == request.auth.uid;
+        allow create: if isUser()
+          && (isAdmin() || get(/databases/$(database)/documents/supportTickets/$(id)).data.userId == request.auth.uid)
+          && request.resource.data.keys().hasOnly(['senderId', 'role', 'body', 'createdAt'])
+          && request.resource.data.senderId == request.auth.uid
+          && (request.resource.data.role == 'user' || isAdmin() && request.resource.data.role == 'admin')
+          && request.resource.data.body is string && request.resource.data.body.size() > 0 && request.resource.data.body.size() <= 3000
+          && request.resource.data.createdAt == request.time;
+        allow update, delete: if false;
+      }
+    }
+
     // ---------- user profiles ----------
     //
     // Reads are open to signed-in users: the referral page lists users
